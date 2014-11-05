@@ -53,16 +53,32 @@ public:
    *:N Outdated versions are only returned if there is no up-to-date version
        available at all.
   */
+  bool contains(quint64 id, bool outdatedOK=false);
+  /*:F contains
+   *:D Returns true if any images exist in the cache that match ID.
+   *:N By default, only non-outdated images are considered. This can be
+       changed by passing true for outdatedOK.
+  */
+  QList<QSize> sizes(quint64 id, bool outdatedOK=false);
+  /*:F sizes
+   *:D Returns a list of sizes available for images matching ID, sorted
+       by their maxdim.
+   *:N By default, only non-outdated images are considered. This can be
+       changed by passing true for outdatedOK.
+  */      
+  static int maxdim(QSize const &s);
+  /*:F maxdim
+   *:D Convenience function to return the larger of the two dimensions
+       contained in a QSize.
+  */
 private:
   BasicCache(QDir root, QSqlDatabase const &db);
   void addToCache(quint64 id, QImage const &img);
   void readConfig();
 private:
-  static int maxdim(QSize const &s);
-private:
   QDir root;
   QSqlDatabase db;
-  QList<int> sizes;
+  QList<int> stdsizes; // in decreasing order
   int memthresh;
 private:
   BasicCache(BasicCache const &) = delete;

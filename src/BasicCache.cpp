@@ -10,7 +10,7 @@
 
 BasicCache::BasicCache(QString rootdir): root(rootdir) {
   root.makeAbsolute();
-  db = QSqlDatabase::addDatabase("QSQLITE");
+  db = QSqlDatabase::addDatabase("QSQLITE", root.absolutePath());
   db.setDatabaseName(root.absoluteFilePath("cache.db"));
   if (!db.open()) 
     qDebug() << "BasicCache: Could not open database";
@@ -23,6 +23,7 @@ BasicCache::BasicCache(QDir root, QSqlDatabase const &db):
 }
 
 BasicCache::~BasicCache() {
+  QSqlDatabase::dropDatabase(root.absolutePath());
 }
 
 void BasicCache::readConfig() {
@@ -34,15 +35,11 @@ void BasicCache::readConfig() {
     memthresh = 200000;
     qDebug() << "Could not read memory threshold from db";
   }
-  qDebug() << "memory threshold set to " << memthresh;
 
   q.exec("select maxdim from sizes");
   while (q.next())
-    sizes << q.value(0).toInt();
-  qSort(sizes.begin(), sizes.end(), qGreater<int>());
-  qDebug() << "sizes set to: ";
-  for (auto i: sizes)
-    qDebug() << "  " << i;
+    stdsizes << q.value(0).toInt();
+  qSort(stdsizes.begin(), stdsizes.end(), qGreater<int>());
 }
   
 bool BasicCache::ok() const {
@@ -64,8 +61,8 @@ BasicCache *BasicCache::create(QString rootdir) {
   }
 
   try {
-    QSqlDatabase db
-      = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE",
+						root.absolutePath());
     db.setDatabaseName(root.absoluteFilePath("cache.db"));
     if (!db.open()) {
       qDebug() << "BasicCache::create: Could not create and open database.";
@@ -109,10 +106,10 @@ int BasicCache::maxdim(QSize const &s) {
 
 void BasicCache::add(quint64 id, QImage img) {
   int d = maxdim(img.size());
-  if (d<sizes[0]) 
+  if (d<stdsizes[0]) 
     // cache image directly: it is smaller than our largest desired size
     addToCache(id, img);
-  for (auto s: sizes) {
+  for (auto s: stdsizes) {
     if (s<d) {
       img = img.scaled(QSize(s,s), Qt::KeepAspectRatio);
       addToCache(id, img);
@@ -264,3 +261,46 @@ int BasicCache::bestSize(quint64 id, int maxdim) {
   }
   return dbest;  
 }
+
+bool BasicCache::contains(quint64 id, bool outdatedOK) {
+  QSqlQuery q(db);
+  QString query = "select count(*) from cache where version==:v";
+  if (!outdatedOK)
+    query += " and outdated==0";
+  q.prepare(query);
+  q.bindValue(":v", id);
+  if (!q.exec() || !q.next()) {
+    qDebug() << "BasicCache::contains: Could not execute query.";
+    return false;
+  }
+  return q.value(0).toInt()>0;
+}
+
+QList<QSize> BasicCache::sizes(quint64 id, bool outdatedOK) {
+  QSqlQuery q(db);
+  QString query = "select width, height from cache where version==:v";
+  if (!outdatedOK)
+    query += " and outdated==0";
+  query += " order by maxdim";
+  q.prepare(query);
+  q.bindValue(":v", id);
+  
+  QList<QSize> lst;
+  
+  if (!q.exec()) {
+    qDebug() << "BasicCache::contains: Could not execute query.";
+    return lst;
+  }
+
+  while (q.next()) {
+    int w = q.value(0).toInt();
+    int h = q.value(1).toInt();
+    lst << QSize(w, h);
+  }
+  return lst;
+}
+
+    
+  
+ 
+ 
