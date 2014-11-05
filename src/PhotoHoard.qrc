@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+   <file alias="setupcache.sql">../res/setupcache.sql</file>
+   <file alias="setupdb.sql">../res/setupdb.sql</file>
+ </qresource>
+</RCC>

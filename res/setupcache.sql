@@ -1,0 +1,22 @@
+create table sizes (
+       -- Maximum dimensions for cache objects
+       maxdim integer );
+
+create table memthresh (
+       -- Threshold above which an object gets stored in a separate file
+       bytes integer );
+
+create table cache (
+       id integer primary key,
+       version integer,
+       width integer,
+       height integer,
+       maxdim integer,
+       outdated boolean,
+       infile boolean,
+       bits blob );
+
+insert into memthresh(bytes) values(200000);
+insert into sizes(maxdim) values(128);
+insert into sizes(maxdim) values(384);
+insert into sizes(maxdim) values(1024);
