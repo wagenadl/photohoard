@@ -12,7 +12,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += AutoCache.h BasicCache.h ThreadedCache.h
-SOURCES += BasicCache.cpp
+HEADERS += AutoCache.h BasicCache.h ThreadedCache.h Exif.h
+SOURCES += BasicCache.cpp Exif.cpp
 SOURCES += main.cpp
 RESOURCES += PhotoHoard.qrc
+LIBS += -lexiv2

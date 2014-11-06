@@ -23,7 +23,7 @@ BasicCache::BasicCache(QDir root, QSqlDatabase const &db):
 }
 
 BasicCache::~BasicCache() {
-  QSqlDatabase::dropDatabase(root.absolutePath());
+  QSqlDatabase::removeDatabase(root.absolutePath());
 }
 
 void BasicCache::readConfig() {
