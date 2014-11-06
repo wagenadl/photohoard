@@ -2,6 +2,5 @@
  <qresource>
    <file alias="setupcache.sql">../res/setupcache.sql</file>
    <file alias="setupdb.sql">../res/setupdb.sql</file>
-   <file alias="nikonlenses.db">../res/nikonlenses.db</file>
  </qresource>
 </RCC>

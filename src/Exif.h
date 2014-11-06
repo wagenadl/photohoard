@@ -28,7 +28,7 @@ public:
   QString camera() const;
   QString lens() const;
   double focalLength_mm() const;
-  double focusDistance_mm() const;
+  double focusDistance_m() const;
   double exposureTime_s() const;
   double fNumber() const;
   double iso() const;
@@ -37,6 +37,7 @@ public:
   QImage previewImage(QSize const &) const;
 private:
   Exiv2::Exifdatum const &exifDatum(QString const &) const;
+  static class NikonLenses const &nikonLenses();
 private:
   Exiv2::Image::AutoPtr image;
   Exiv2::Exifdatum nullDatum;

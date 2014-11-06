@@ -2,6 +2,16 @@
 
 #include "Exif.h"
 #include <QStringList>
+#include "NikonLenses.h"
+#include <exiv2/preview.hpp>
+#include <QByteArray>
+#include <QBuffer>
+#include <QImageReader>
+
+NikonLenses const &Exif::nikonLenses() {
+  static NikonLenses lenses;
+  return lenses;
+}
 
 Exif::Exif(QString filename):
   image(Exiv2::ImageFactory::open(filename.toUtf8().data())),
@@ -63,25 +73,46 @@ QString Exif::lens() const {
       << "Exif.NikonLd2.MaxApertureAtMinFocal"
       << "Exif.NikonLd2.MaxApertureAtMaxFocal"
       << "Exif.NikonLd2.MCUVersion"
-      << "Exif.NikonLd2.EffectiveMaxAperture"
       << "Exif.Nikon3.LensType";
   quint64 lensid;
   unsigned char *lensid_ = (unsigned char *)&lensid;
   for (int i=0; i<8; i++)
-    lensid_[i] = exifDatum(src[i]).toLong();
-  return QString::number(lensid, 16); // really should look up in database
+    lensid_[i] = exifDatum(src[7-i]).toLong();
+  if (nikonLenses().contains(lensid)) 
+    return nikonLenses()[lensid];
+
+  src.clear();
+  src << "Exif.NikonLd3.LensIDNumber"
+      << "Exif.NikonLd3.LensFStops"
+      << "Exif.NikonLd3.MinFocalLength"
+      << "Exif.NikonLd3.MaxFocalLength"
+      << "Exif.NikonLd3.MaxApertureAtMinFocal"
+      << "Exif.NikonLd3.MaxApertureAtMaxFocal"
+      << "Exif.NikonLd3.MCUVersion"
+      << "Exif.Nikon3.LensType";
+  for (int i=0; i<8; i++)
+    lensid_[i] = exifDatum(src[7-i]).toLong();
+  if (nikonLenses().contains(lensid)) 
+    return nikonLenses()[lensid];
+  
+  // Could search other databases. Canon?
+  return QString::number(lensid, 16);
 }
 
 double Exif::focalLength_mm() const {
   return exifDatum("Exif.Photo.FocalLength").toFloat();
 }
   
-double Exif::focusDistance_mm() const {
+double Exif::focusDistance_m() const {
   Exiv2::Exifdatum const &d(exifDatum("Exif.NikonLd2.FocusDistance"));
   if (d.count()==1) 
-    return 5*pow(2,d.toLong()/24.0);
-  else
-    return 0;
+    return 0.01*pow(10,d.toLong()/40.0);
+
+  Exiv2::Exifdatum const &d2(exifDatum("Exif.NikonLd3.FocusDistance"));
+  if (d2.count()==1) 
+    return 0.01*pow(10,d2.toLong()/40.0);
+  
+  return 0;
 }
 
 double Exif::exposureTime_s() const {
@@ -114,17 +145,34 @@ QDateTime Exif::dateTime() const {
   Exiv2::Exifdatum const &d(exifDatum("Exif.Photo.DateTimeOriginal"));
   if (d.count()>0) {
     QString dd = d.toString().c_str();
-    return QDateTime::fromString("YYYY:MM:DD hh:mm:ss");
+    return QDateTime::fromString(dd, "yyyy:MM:dd hh:mm:ss");
   } else {
     return QDateTime();
   }
 }
 
 QList<QSize> Exif::previewSizes() const {
-  return QList<QSize>();
+  Exiv2::PreviewManager pm(*image);
+  Exiv2::PreviewPropertiesList lst(pm.getPreviewProperties());
+  QList<QSize> res;
+  for (auto i: lst) 
+    res << QSize(i.width_, i.height_);
+  return res;
 }
 
-QImage Exif::previewImage(QSize const &) const {
+QImage Exif::previewImage(QSize const &s0) const {
+  Exiv2::PreviewManager pm(*image);
+  Exiv2::PreviewPropertiesList lst(pm.getPreviewProperties());
+  for (auto i: lst) {
+    QSize s(i.width_, i.height_);
+    if (s==s0) {
+      Exiv2::PreviewImage img(pm.getPreviewImage(i));
+      QByteArray ba((char const *)img.pData(), img.size());
+      QBuffer buf(&ba);
+      QImageReader rdr(&buf);
+      return rdr.read();
+    }
+  }
   return QImage();
 }
 
