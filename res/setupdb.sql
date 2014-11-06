@@ -11,11 +11,12 @@ create table extensions (
                on delete cascade 
                on update cascade );
 
-create table folder (
+create table folders (
        id integer primary key,
        parentfolder integer,
        leafname text,
        pathname text,
+       lastscan date,
        foreign key(parentfolder) references folder(id) 
                on delete cascade
                on update cascade );
@@ -54,8 +55,9 @@ create table photos (
        focallength real,
        iso real,
        capturedate date,
+       lastscan date,
        -- what else from exif?
-       foreign key(folder) references folder(id)
+       foreign key(folder) references folders(id)
                on delete cascade
                on update cascade,
        foreign key(filetype) references filetypes(id),
@@ -70,15 +72,13 @@ create table versions (
                on delete cascade
                on update cascade );
 
-create table cache (
--- Table of cached images
-       version integer,
-       width integer,
-       height integer,
-       mustrefresh boolean,
-       foreign key(version) references versions(id)
-               on delete cascade
-               on update cascade );
+create table folderstoscan {
+       folder integer,
+       foreign key(folder) references folders(id) );
+
+create table photostoscan {
+       photo integer,
+       foreign key(photto) references photos(id) );
 
 -- ======================================================================
 

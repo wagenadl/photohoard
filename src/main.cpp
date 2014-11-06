@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <QLabel>
+#include "NikonLenses.h"
 
 int main(int argc, char **argv) {
 
@@ -46,7 +47,14 @@ int main(int argc, char **argv) {
     foo.setPixmap(QPixmap::fromImage(img));
     foo.show();
     app.exec();
-  }  
+  }
+
+  if (cmds.contains("lens")) {
+    NikonLenses lenses;
+    quint64 id = 0x7f402d5c2c348406;
+    QString desc = lenses[id];
+    qDebug() << id << ": " << desc;
+  }
   return 0;
 }
 
