@@ -61,7 +61,13 @@ Exif::Rotation Exif::rotation() const {
 QString Exif::camera() const {
   QString c = exifDatum("Exif.Image.Model").toString().c_str();
   c.replace("NIKON", "Nikon");
-  return c;
+  c.replace("KODAK", "Kodak");
+  c.replace("ZOOM", "Zoom");
+  c.replace("DIGITAL", "Digital");
+  c.replace("CAMERA", "Camera");
+  c.replace("REBEL", "Rebel");
+  c.replace("COOLPIX", "Coolpix");
+  return c.trimmed();
 }
 
 QString Exif::lens() const {

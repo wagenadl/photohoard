@@ -12,10 +12,10 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += BasicCache.h   Exif.h   NikonLenses.h   FolderScanner.h
-SOURCES += BasicCache.cpp Exif.cpp NikonLenses.cpp FolderScanner.cpp
-HEADERS += PhotoScanner.h
-SOURCES += PhotoScanner.cpp
+HEADERS += BasicCache.h   Exif.h   NikonLenses.h   
+SOURCES += BasicCache.cpp Exif.cpp NikonLenses.cpp 
+HEADERS += Database.h   PhotoDB.h   SqlFile.h   Scanner.h
+SOURCES += Database.cpp PhotoDB.cpp SqlFile.cpp Scanner.cpp
 SOURCES += main.cpp
 RESOURCES += PhotoHoard.qrc
 LIBS += -lexiv2

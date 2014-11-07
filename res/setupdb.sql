@@ -1,11 +1,15 @@
+create table info (
+       id text,
+       version text );
+
 create table filetypes (
 -- Table of file types with their most common extension
        id integer primary key,
-       stdext text );
+       stdext text unique );
 
 create table extensions (
 -- Table of file extensions
-       extension text,
+       extension text unique,
        filetype integer,
        foreign key(filetype) references filetypes(id) 
                on delete cascade 
@@ -15,7 +19,7 @@ create table folders (
        id integer primary key,
        parentfolder integer,
        leafname text,
-       pathname text,
+       pathname text unique,
        lastscan date,
        foreign key(parentfolder) references folder(id) 
                on delete cascade
@@ -63,7 +67,8 @@ create table photos (
                on update cascade,
        foreign key(filetype) references filetypes(id),
        foreign key(camera) references cameras(id),
-       foreign key(lens) references lenses(id) );
+       foreign key(lens) references lenses(id),
+       unique(folder, filename) );
 
 create table versions (
 -- Table of derived versions of photographs
@@ -74,17 +79,26 @@ create table versions (
                on update cascade );
 
 create table folderstoscan (
-       folder integer,
+       folder integer unique on conflict ignore,
        foreign key(folder) references folders(id) );
 
 create table photostoscan (
-       photo integer,
+       photo integer unique on conflict ignore,
        foreign key(photo) references photos(id) );
 
 -- ======================================================================
 
 insert into filetypes(stdext) values ("jpeg");
-insert into filetypes(stdext) values("nef");
+insert into filetypes(stdext) values ("png");
+insert into filetypes(stdext) values ("tiff");
+insert into filetypes(stdext) values ("nef");
+insert into filetypes(stdext) values ("cr2");
 
 insert into extensions(filetype, extension)
+       select id, stdext from filetypes;
+insert into extensions(filetype, extension)
        select id, "jpg" from filetypes where stdext=="jpeg";
+insert into extensions(filetype, extension)
+       select id, "tif" from filetypes where stdext=="tiff";
+
+insert into info values("PhotoDB", "1.0");

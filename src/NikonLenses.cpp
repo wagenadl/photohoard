@@ -13,7 +13,7 @@ NikonLenses::~NikonLenses() {
 
 QString NikonLenses::operator[](quint64 id) const {
   if (contains(id))
-    return *lenses.find(id);
+    return lenses.find(id)->trimmed();
   else
     return QString();
 }

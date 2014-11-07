@@ -7,8 +7,8 @@
 #include <QLabel>
 #include "NikonLenses.h"
 #include "Exif.h"
-#include "PhotoScanner.h"
-#include "FolderScanner.h"
+#include "Scanner.h"
+#include "PhotoDB.h"
 
 int main(int argc, char **argv) {
 
@@ -85,21 +85,16 @@ int main(int argc, char **argv) {
     app.exec();
   }
 
+  if (cmds.contains("create")) {
+    PhotoDB::create("/tmp/photodb.db");
+  }
   if (cmds.contains("scan")) {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/tmp/photodb.db");
-    if (!db.open()) {
-      qDebug() << "Could not open db";
-      return 1;
-    }
+    PhotoDB db("/tmp/photodb.db");
     QApplication app(argc, argv);
-    PhotoScanner pscan(db);
-    pscan.start();
-    FolderScanner fscan(db, &pscan);
-    fscan.start();
-    fscan.add("/home/wagenaar/PicsTest");
-    QLabel foo("Scanning");
-    foo.show();
+    Scanner scan(db);
+    scan.start();
+    scan.addTree("/home/wagenaar/Pictures");
+    QObject::connect(&scan, SIGNAL(done()), &app, SLOT(quit()));
     app.exec();
   }
   
