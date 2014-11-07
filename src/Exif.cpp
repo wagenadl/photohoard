@@ -94,9 +94,14 @@ QString Exif::lens() const {
     lensid_[i] = exifDatum(src[7-i]).toLong();
   if (nikonLenses().contains(lensid)) 
     return nikonLenses()[lensid];
+
+  Exiv2::Exifdatum const &d(exifDatum("Exif.CanonCs.Lens"));
+  if (d.count()>=2)
+    return QString::number(d.toLong(1)/1e3) + "-"
+      + QString::number(d.toLong(0)/1e3);
   
   // Could search other databases. Canon?
-  return QString::number(lensid, 16);
+  return QString();
 }
 
 double Exif::focalLength_mm() const {
@@ -111,6 +116,10 @@ double Exif::focusDistance_m() const {
   Exiv2::Exifdatum const &d2(exifDatum("Exif.NikonLd3.FocusDistance"));
   if (d2.count()==1) 
     return 0.01*pow(10,d2.toLong()/40.0);
+
+  Exiv2::Exifdatum const &d3(exifDatum("Exif.CanonSi.SubjectDistance"));
+  if (d3.count()==1) 
+    return d3.toLong()/1000; // I don't know if this is at all correct
   
   return 0;
 }

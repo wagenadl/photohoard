@@ -50,9 +50,10 @@ create table photos (
        height integer,
        camera integer,
        lens integer,
-       exposure real,
-       fstop real,
+       exposetime real,
+       fnumber real,
        focallength real,
+       distance real,
        iso real,
        capturedate date,
        lastscan date,
@@ -72,13 +73,13 @@ create table versions (
                on delete cascade
                on update cascade );
 
-create table folderstoscan {
+create table folderstoscan (
        folder integer,
        foreign key(folder) references folders(id) );
 
-create table photostoscan {
+create table photostoscan (
        photo integer,
-       foreign key(photto) references photos(id) );
+       foreign key(photo) references photos(id) );
 
 -- ======================================================================
 

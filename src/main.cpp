@@ -7,6 +7,8 @@
 #include <QLabel>
 #include "NikonLenses.h"
 #include "Exif.h"
+#include "PhotoScanner.h"
+#include "FolderScanner.h"
 
 int main(int argc, char **argv) {
 
@@ -21,9 +23,9 @@ int main(int argc, char **argv) {
     bc = BasicCache::create("/tmp/phfoo");
 
   QStringList fns;
+  fns << "/home/wagenaar/cincinnati-houses/jora/2nd visit/IMG_4841.JPG";
   fns << "/home/wagenaar/PicsTest/2014-09-21/DSC_1701_1.JPG";
   fns << "/home/wagenaar/PicsTest/2014-09-21/DSC_1752.JPG";
-  
   if (cmds.contains("fill")) {
     for (auto fn: fns) {
       QTime t; t.start();
@@ -83,6 +85,24 @@ int main(int argc, char **argv) {
     app.exec();
   }
 
+  if (cmds.contains("scan")) {
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("/tmp/photodb.db");
+    if (!db.open()) {
+      qDebug() << "Could not open db";
+      return 1;
+    }
+    QApplication app(argc, argv);
+    PhotoScanner pscan(db);
+    pscan.start();
+    FolderScanner fscan(db, &pscan);
+    fscan.start();
+    fscan.add("/home/wagenaar/PicsTest/2014-09-21");
+    QLabel foo("Scanning");
+    foo.show();
+    app.exec();
+  }
+  
   if (cmds.contains("lens")) {
     NikonLenses lenses;
     quint64 id = 0x7f402d5c2c348406;
