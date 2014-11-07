@@ -9,6 +9,7 @@
 #include <QSqlError>
 #include <QDir>
 #include "Exif.h"
+#include <QTime>
 
 PhotoScanner::PhotoScanner(QSqlDatabase const &db, class AutoCache *):
   db(db) {
@@ -56,6 +57,11 @@ void PhotoScanner::rescan(quint64 photo, bool internal) {
   }
 }
 
+void PhotoScanner::wakeup() {
+  waiter.wakeOne();
+}
+  
+
 bool PhotoScanner::add(quint64 folder, QString leafname, bool internal) {
   int idx = leafname.lastIndexOf(".");
   if (idx<0)
@@ -66,9 +72,11 @@ bool PhotoScanner::add(quint64 folder, QString leafname, bool internal) {
 
   QSqlQuery q(db);
 
-  if (!q.exec("begin transaction")) {
-    qDebug() << "PhotoScanner::add: Could not begin transaction";
-    return false;
+  if (!internal) {
+    if (!q.exec("begin transaction")) {
+      qDebug() << "PhotoScanner::add: Could not begin transaction";
+      return false;
+    }
   }
   q.prepare("insert into photos(folder, filename, filetype) "
               " values(:f,:n,:t)");
@@ -91,9 +99,11 @@ bool PhotoScanner::add(quint64 folder, QString leafname, bool internal) {
       qDebug() << "  Could not roll back transaction";
     return false;
   }
-  if (!q.exec("commit transaction")) {
-    qDebug() << "  Could not commit transaction";
-    return false;
+  if (!internal) {
+    if (!q.exec("commit transaction")) {
+      qDebug() << "  Could not commit transaction";
+      return false;
+    }
   }
   
   rescan(id, internal);
@@ -103,23 +113,37 @@ bool PhotoScanner::add(quint64 folder, QString leafname, bool internal) {
 void PhotoScanner::run() {
   while (!stopsoon) {
     qDebug() << "PhotoScanner: running";
-    QSqlQuery q(db);
-    q.prepare("select photo from photostoscan limit 1");
+    QSqlQuery qq(db);
+    qq.prepare("select photo from photostoscan limit 100");
     mutex.lock();
-    if (!q.exec()) {
+    if (!qq.exec()) {
       mutex.unlock();
       qDebug() << "PhotoScanner: Could not run select query";
       quit();
     }
-    if (q.next()) {
+    if (qq.next()) {
       mutex.unlock();
-      quint64 id = q.value(0).toULongLong();
-      doscan(id);
-      q.prepare("delete from photostoscan where photo=:i");
-      q.bindValue(":i", id);
-      if (!q.exec()) {
-        qDebug() << "PhotoScanner: Could not remove from scanlist";
+      QSqlQuery q(db);
+      if (!q.exec("begin transaction")) {
+        qDebug() << "PhotoScanner: Cannot begin transaction";
         quit();
+        return;
+      }
+      do {
+        quint64 id = qq.value(0).toULongLong();
+        doscan(id);
+        q.prepare("delete from photostoscan where photo=:i");
+        q.bindValue(":i", id);
+        if (!q.exec()) {
+          qDebug() << "PhotoScanner: Could not remove from scanlist";
+          quit();
+          return;
+        }
+      } while (qq.next());
+      if (!qq.exec("commit transaction")) {
+        qDebug() << "PhotoScanner: Cannot commit transaction";
+        quit();
+        return;
       }
     } else {
       qDebug() << "PhotoScanner: Waiting";
@@ -130,6 +154,7 @@ void PhotoScanner::run() {
 }
 
 void PhotoScanner::doscan(quint64 photo) {
+  QTime t; t.start();
   QSqlQuery q(db);
   q.prepare("select filename,folder from photos where id==:i");
   q.bindValue(":i", photo);
@@ -144,6 +169,7 @@ void PhotoScanner::doscan(quint64 photo) {
   QString filename = q.value(0).toString();
   quint64 folder = q.value(1).toULongLong();
   qDebug() << "Scanning " << folder << ":" << filename;
+  qDebug() << "1: " << t.elapsed();
   q.prepare("select pathname from folders where id==:i");
   q.bindValue(":i", folder);
   if (!q.exec()) {
@@ -155,6 +181,7 @@ void PhotoScanner::doscan(quint64 photo) {
     return;
   }
   QString dirname = q.value(0).toString();
+  qDebug() << "2: " << t.elapsed();
 
   QString pathname = dirname + "/" + filename;
   
@@ -163,6 +190,7 @@ void PhotoScanner::doscan(quint64 photo) {
     qDebug() << "PhotoScanner::doscan: Could not get exif. Oh well.";
     return;
   }
+  qDebug() << "b: " << t.elapsed();
 
   QString cam = exif.camera();
   quint64 camid = 0;
@@ -182,6 +210,7 @@ void PhotoScanner::doscan(quint64 photo) {
       }
     }
   }
+  qDebug() << "3: " << t.elapsed();
   // now camid is valid unless cam is empty
 
 
@@ -203,6 +232,7 @@ void PhotoScanner::doscan(quint64 photo) {
       }
     }
   }
+  qDebug() << "4: " << t.elapsed();
   // now lensid is valid unless lens is empty
 
   q.prepare("update photos set "
@@ -227,4 +257,5 @@ void PhotoScanner::doscan(quint64 photo) {
     qDebug() << "    " << q.lastError().text();
     return;
   }
+  qDebug() << "5: " << t.elapsed();
 }

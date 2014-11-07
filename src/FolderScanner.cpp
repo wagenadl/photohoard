@@ -7,6 +7,7 @@
 #include <QMutexLocker>
 #include <QSqlError>
 #include <QDir>
+#include <QDateTime>
 
 FolderScanner::FolderScanner(QSqlDatabase const &db, PhotoScanner *phscan):
   db(db), phscan(phscan) {
@@ -67,12 +68,13 @@ void FolderScanner::add(QString dirpath, bool internal) {
     parentid = q.value(0).toULongLong();
   }
 
-  q.prepare("begin transaction");
-  if (!q.exec()) {
-    qDebug() << "FolderScanner::add: Could not begin transaction";
-    return;
+  if (!internal) {
+    q.prepare("begin transaction");
+    if (!q.exec()) {
+      qDebug() << "FolderScanner::add: Could not begin transaction";
+      return;
+    }
   }
-
 
   if (hasparent) {
     q.prepare("insert into folders(parentfolder,leafname,pathname) "
@@ -117,9 +119,11 @@ void FolderScanner::add(QString dirpath, bool internal) {
       return;
     }
   }
-  if (!q.exec("commit transaction")) {
-    qDebug() << "FolderScanner::add: Could not commit transaction";
-    return;
+  if (!internal) {
+    if (!q.exec("commit transaction")) {
+      qDebug() << "FolderScanner::add: Could not commit transaction";
+      return;
+    }
   }
 
   rescan(myid, internal);
@@ -128,25 +132,43 @@ void FolderScanner::add(QString dirpath, bool internal) {
 void FolderScanner::run() {
   while (!stopsoon) {
     qDebug() << "FolderScanner: running";
-    QSqlQuery q(db);
-    q.prepare("select folder from folderstoscan limit 1");
+    QSqlQuery qq(db);
+    qq.prepare("select folder from folderstoscan limit 1");
     mutex.lock();
-    if (!q.exec()) {
+    if (!qq.exec()) {
       mutex.unlock();
       qDebug() << "FolderScanner: Could not run select query";
       quit();
     }
-    if (q.next()) {
+    if (qq.next()) {
       mutex.unlock();
-      quint64 id = q.value(0).toULongLong();
+      QSqlQuery q(db);
+      if (!q.exec("begin transaction")) {
+        qDebug() << "FolderScanner: Cannot begin transaction";
+        quit();
+        return;
+      }
+      quint64 id = qq.value(0).toULongLong();
       doscan(id);
+      q.prepare("update folders set lastscan=:ls where id=:id");
+      q.bindValue(":ls", QDateTime::currentDateTime());
+      q.bindValue(":id", id);
+      if (!q.exec()) {
+        qDebug() << "FolderScanner: Could not update lastscan";
+      }
       q.prepare("delete from folderstoscan where folder=:i");
       q.bindValue(":i", id);
       if (!q.exec()) {
         qDebug() << "FolderScanner: Could not remove from scanlist";
         quit();
       }
+      if (!q.exec("commit transaction")) {
+        qDebug() << "FolderScanner: Cannot commit transaction";
+        return;
+      }
+  
     } else {
+      phscan->wakeup();
       qDebug() << "FolderScanner: Waiting";
       waiter.wait(&mutex);
       mutex.unlock();
@@ -170,15 +192,15 @@ void FolderScanner::doscan(quint64 folder) {
   qDebug() << "Scanning " << dir.absolutePath();
   QFileInfoList infos(dir.entryInfoList(QDir::Dirs | QDir::Files
                                         | QDir::NoDotAndDotDot));
+
   for (auto i: infos) {
     qDebug() << "entry" << i.fileName();
     if (i.isDir()) {
       add(i.absoluteFilePath(), true);
     } else {
       if (phscan) {
-        phscan->add(folder, i.fileName());
+        phscan->add(folder, i.fileName(), true);
       }
     }
   }
-  qDebug() << "Done scanning " << dir.absolutePath();
 }

@@ -9,6 +9,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QMap>
+#include <QSet>
 
 class PhotoScanner: public QThread {
 public:
@@ -18,6 +19,7 @@ public:
   void stop();
   void rescan(quint64 photo, bool internal=false);
   bool add(quint64 folder, QString leafname, bool internal=false);
+  void wakeup();
 protected:
   virtual void run() override;
 private:
@@ -29,6 +31,7 @@ private:
   QWaitCondition waiter;
   QMap<QString, quint64> exts;
   // QPointer<AutoCache> cache;
+  //  QSet<quint64> photostoscan;
 };
 
 #endif

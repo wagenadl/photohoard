@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     pscan.start();
     FolderScanner fscan(db, &pscan);
     fscan.start();
-    fscan.add("/home/wagenaar/PicsTest/2014-09-21");
+    fscan.add("/home/wagenaar/PicsTest");
     QLabel foo("Scanning");
     foo.show();
     app.exec();
