@@ -74,9 +74,11 @@ create table versions (
 -- Table of derived versions of photographs
        id integer primary key,
        photo integer,
+       version integer,
        foreign key(photo) references photos(id)
                on delete cascade
-               on update cascade );
+               on update cascade,
+       unique(photo, version));
 
 create table folderstoscan (
        folder integer unique on conflict ignore,

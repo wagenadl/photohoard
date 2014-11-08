@@ -14,8 +14,14 @@ create table cache (
        maxdim integer,
        outdated boolean,
        infile boolean,
-       bits blob );
+       bits blob,
+       unique(version,width,height) );
 
+create index cache_version on cache(version);       
+
+create table queue (
+       version integer unique on conflict ignore );
+       
 insert into memthresh(bytes) values(200000);
 insert into sizes(maxdim) values(128);
 insert into sizes(maxdim) values(384);

@@ -7,25 +7,21 @@
 #include <QDir>
 #include <QSet>
 #include <QImage>
-#include <QSqlDatabase>
+#include "Database.h"
 
 class BasicCache {
 public:
   BasicCache(QString rootdir);
   /*:F constructor
    *:D Opens the cache located at ROOTDIR.
-   *:N Use the ok() function to check that opening was successful.
    */
   ~BasicCache();
-  bool ok() const;
-  /*:F ok
-   *:D Reports whether the cache was successfully opened.
-   */
   static BasicCache *create(QString rootdir);
   /*:F create
    *:D Creates a new basic cache located at ROOTDIR. The directory must not
        already exist.
   */
+  Database const &database() { return db; }
   void add(quint64 id, QImage img);
   /*:F add
    *:D Adds an image to the cache at each of the sizes defined in the cache.
@@ -72,12 +68,12 @@ public:
        contained in a QSize.
   */
 private:
-  BasicCache(QDir root, QSqlDatabase const &db);
+  BasicCache(QDir root, Database const &db);
   void addToCache(quint64 id, QImage const &img);
   void readConfig();
 private:
   QDir root;
-  QSqlDatabase db;
+  Database db;
   QList<int> stdsizes; // in decreasing order
   int memthresh;
 private:

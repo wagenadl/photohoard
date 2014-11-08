@@ -7,11 +7,14 @@
 #include <system_error>
 #include <QDateTime>
 #include "Exif.h"
+#include "CacheFiller.h"
 
 class NoResult {
 };
 
-Scanner::Scanner(PhotoDB const &db): db(db) {
+Scanner::Scanner(PhotoDB const &db, CacheFiller *filler):
+  db(db), filler(filler) {
+  setObjectName("Scanner");
   QSqlQuery q(*db);
   q.prepare("select extension, filetype from extensions");
   if (!q.exec()) {
@@ -23,25 +26,6 @@ Scanner::Scanner(PhotoDB const &db): db(db) {
 }
 
 Scanner::~Scanner() {
-  if (isRunning())
-    stop();
-  if (!wait(1000)) 
-    qDebug() << "Failed to stop Scanner";
-}
-
-void Scanner::start() {
-  if (!isRunning()) {
-    stopsoon = false;
-    QThread::start();
-  }
-}
-
-void Scanner::stop() {
-  if (isRunning()) {
-    QMutexLocker l(&mutex);
-    stopsoon = true;
-    waiter.wakeOne();
-  }
 }
 
 void Scanner::addTree(QString path) {
@@ -106,7 +90,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   quint64 id = q.lastInsertId().toULongLong();
 
   // Create first version - this is preliminary code
-  q.prepare("insert into versions(photo) values(:i)");
+  q.prepare("insert into versions(photo, version) values(:i, 0)");
   q.bindValue(":i", id);
   if (!q.exec()) 
     throw q;
@@ -157,24 +141,28 @@ void Scanner::removeTree(QString path) {
 }
 
 void Scanner::run() {
+  QMutexLocker l(mutex);
   n = 0;
   N = photoQueueLength();
   try {
     while (!stopsoon) {
       qDebug() << "Scanner: running";
-      if (findFoldersToScan()) {
-	// we don't report on folders
-      } else if (findPhotosToScan()) {
-	qDebug() << "Progress: " << n << " / " << N;
+      QSet<quint64> ids;
+      if (!(ids=findFoldersToScan()).isEmpty()) {
+	l.unlock();
+	scanFolders(ids);
+	l.relock();
+      } else if (!(ids=findPhotosToScan()).isEmpty()) {
+	l.unlock();
+	scanPhotos(ids);
 	emit progressed(n, N);
+	l.relock();
       } else {
 	if (N>0)
 	  emit done();
 	n = 0;
 	N = 0;
-	mutex.lock();
 	waiter.wait(&mutex);
-	mutex.unlock();
       }
     }
   } catch (QSqlQuery &q) {
@@ -197,22 +185,38 @@ void Scanner::run() {
   }
 }
 
-bool Scanner::findPhotosToScan() {
-  Transaction t(db);
+QSet<quint64> Scanner::findPhotosToScan() {
   QSqlQuery qq(*db);
   qq.prepare("select photo from photostoscan limit 100");
   if (!qq.exec())
     throw qq;
-
-  bool worked = false;
-  while (qq.next()) {
-    quint64 id = qq.value(0).toULongLong();
+  QSet<quint64> ids;
+  while (qq.next()) 
+    ids << qq.value(0).toULongLong();
+  return ids;
+}
+  
+bool Scanner::scanPhotos(QSet<quint64> ids) {
+  Transaction t(db);
+  QSet<quint64> versions;
+  for (auto id: ids) {
     scanPhoto(id);
+    if (filler) {
+      QSqlQuery q(*db);
+      q.prepare("select id from versions where photo=:p");
+      q.bindValue(":p", id);
+      if (!q.exec())
+	throw q;
+      while (q.next())
+	versions << q.value(0).toULongLong();
+    }
     n++;
     worked = true;
   }
 
   if (worked) {
+    if (filler)
+      filler->recache(versions);
     t.commit();
     return true;
   } else {
@@ -220,19 +224,28 @@ bool Scanner::findPhotosToScan() {
   }
 }
 
-bool Scanner::findFoldersToScan() {
-  Transaction t(db);
+QSet<quint64> Scanner::findFoldersToScan() {
   QSqlQuery qq(*db);
   qq.prepare("select folder from folderstoscan limit 100");
   if (!qq.exec())
     throw qq;
+  QSet<quint64> ids;
+  while (qq.next())
+    ids << qq.value(0).toULongLong();
+  return ids;
+}
+
+bool Scanner::scanFolders(QSet<quint64> ids) {
+  Transaction t(db);
   int N0 = N;
   bool worked = false;
-  while (N-N0<1000 && qq.next()) {
+  for (auto id: ids) {
     // There's work to do
     quint64 id = qq.value(0).toULongLong();
     scanFolder(id);
     worked = true;
+    if (N >= N0 + 1000)
+      break;
   }
   if (worked) {
     t.commit();
@@ -240,6 +253,7 @@ bool Scanner::findFoldersToScan() {
   } else {
     return false;
   }
+}
 }
 
 void Scanner::scanFolder(quint64 id) {

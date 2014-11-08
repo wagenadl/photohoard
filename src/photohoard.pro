@@ -12,8 +12,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += BasicCache.h   Exif.h   NikonLenses.h   
-SOURCES += BasicCache.cpp Exif.cpp NikonLenses.cpp 
+HEADERS += BasicCache.h   Exif.h   NikonLenses.h   BasicThread.h
+SOURCES += BasicCache.cpp Exif.cpp NikonLenses.cpp BasicThread.cpp
 HEADERS += Database.h   PhotoDB.h   SqlFile.h   Scanner.h
 SOURCES += Database.cpp PhotoDB.cpp SqlFile.cpp Scanner.cpp
 SOURCES += main.cpp

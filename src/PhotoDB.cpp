@@ -31,7 +31,7 @@ PhotoDB PhotoDB::create(QString fn) {
       qDebug() << "PhotoDB: Could not setup: " << q.lastError().text();
       qDebug() << "  at " << c;
       db.rollbackAndUnlock();
-      throw q.lastError();
+      throw q;
     }
   }
   db.commitAndUnlock();
