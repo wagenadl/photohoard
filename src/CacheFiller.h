@@ -19,14 +19,17 @@ class CacheFiller: public BasicThread {
 public:
   CacheFiller(PhotoDB const &, BasicCache *);
   virtual ~CacheFiller();
-  void recacheDirectly(quint64 version);
+  void recacheOne(quint64 version);
 public slots:
-  void recache(QSet<quint64> versions);
+  void recache(QSet<quint64> versions); // this locks the db while working
 signals:
   void progressed(int n, int N);
   void done();
 protected:
   virtual void run() override;
+private:
+  QSet<quint64> checkQueue();
+  bool processSome(QSet<quint64>);
 private:
   PhotoDB db;
   BasicCache *cache;

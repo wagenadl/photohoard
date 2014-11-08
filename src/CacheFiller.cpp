@@ -29,7 +29,7 @@ void CacheFiller::recache(QSet<quint64> versions) {
   waiter.wakeOne();
 }
 
-void CacheFiller::recacheDirectly(quint64 version) {
+void CacheFiller::recacheOne(quint64 version) {
   QSqlQuery q(*cache->database());
   q.prepare("update cache set outdated=1 where version==:i");
   q.bindValue(":i", version);
@@ -42,24 +42,25 @@ void CacheFiller::recacheDirectly(quint64 version) {
 }
 
 void CacheFiller::run() {
-  mutex.lock();
+  QMutexLocker l(mutex);
   n = 0;
   N = queueLength();
-  mutex.unlock();
   try {
     while (!stopsoon) {
       qDebug() << "CacheFiller: running";
-      if (findVersionsToCache()) {
+      QSet<quint64> ids;
+      if (!(ids=checkQueue()).isEmpty()) {
+	l.unlock();
+	processSome(ids);
 	qDebug() << "Progress: " << n << " / " << N;
 	emit progressed(n, N);
+	l.relock();
       } else {
 	if (N>0)
 	  emit done();
-	mutex.lock();
 	n = 0;
 	N = 0;
 	waiter.wait(&mutex);
-	mutex.unlock();
       }
     }
   } catch (QSqlQuery &q) {
@@ -82,4 +83,17 @@ void CacheFiller::run() {
   }
 }
     
+
+QSet<quint64> Scanner::checkQueue() {
+  QSqlQuery qq(*db);
+  qq.prepare("select version from queue limit 100");
+  if (!qq.exec())
+    throw qq;
+  QSet<quint64> ids;
+  while (qq.next()) 
+    ids << qq.value(0).toULongLong();
+  return ids;
 }
+
+void Scanner::processSome(QSet<quint64> versions) {
+  
