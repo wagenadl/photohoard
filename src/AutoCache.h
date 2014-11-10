@@ -4,15 +4,27 @@
 
 #define AUTOCACHE_H
 
-class AutoCache: public ThreadedCache {
+#include <QObject>
+#include <QSet>
+#include "PhotoDB.h"
+
+class AutoCache: public QObject {
+  Q_OBJECT;
 public:
-  AutoCache(QDir root);
-  virtual bool request(uint64_t id, QSize size) inherit;
-  virtual QSize requestPreliminary(uint64_t id, QSize size) inherit;
+  AutoCache(PhotoDB const &db, QString rootdir, QObject *parent=0);
+  virtual ~AutoCache();
 public slots:
-  void refresh(uint64_t id); // mark invalid, but do not drop: it will be replaced. Preliminary can still succeed before replacement complete
-signals:
-  void requested(uint64_t); // somebody else will have to provide
+  void recache(QSet<quint64> ids);
+  void recache(quint64 id);
+
+
+signals: // private
+  void forwardRecache(QSet<quint64> ids);
+private:
+  QThread thread;
+  class AC_Worker *worker;
+  PhotoDB db;
+  class BasicCache *cache;
 };
 
 #endif

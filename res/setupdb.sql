@@ -59,6 +59,7 @@ create table photos (
        focallength real,
        distance real,
        iso real,
+       orient integer,
        capturedate date,
        lastscan date,
        -- what else from exif?
@@ -74,11 +75,11 @@ create table versions (
 -- Table of derived versions of photographs
        id integer primary key,
        photo integer,
-       version integer,
+       ver integer,
        foreign key(photo) references photos(id)
                on delete cascade
                on update cascade,
-       unique(photo, version));
+       unique(photo, ver));
 
 create table folderstoscan (
        folder integer unique on conflict ignore,

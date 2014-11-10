@@ -13,7 +13,7 @@
 
 class Exif {
 public:
-  enum class Rotation {
+  enum Orientation {
     Upright,
     CCW,
     UpsideDown,
@@ -22,9 +22,9 @@ public:
 public:
   Exif(QString filename);
   bool ok() const;
-  int width() const; // after rotation corrected
+  int width() const; // after orientation corrected
   int height() const;
-  Rotation rotation() const;
+  Orientation orientation() const;
   QString camera() const;
   QString lens() const;
   double focalLength_mm() const;

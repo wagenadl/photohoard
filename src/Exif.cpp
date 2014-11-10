@@ -32,29 +32,29 @@ Exiv2::Exifdatum const &Exif::exifDatum(QString const &key) const {
 }
   
 int Exif::width() const {
-  Rotation r = rotation();
-  if (r==Rotation::Upright || r==Rotation::UpsideDown)
+  Orientation r = orientation();
+  if (r==Upright || r==UpsideDown)
     return exifDatum("Exif.Photo.PixelXDimension").toLong();
   else
     return exifDatum("Exif.Photo.PixelYDimension").toLong();
 }
 
 int Exif::height() const {
-  Rotation r = rotation();
-  if (r==Rotation::Upright || r==Rotation::UpsideDown)
+  Orientation r = orientation();
+  if (r==Upright || r==UpsideDown)
     return exifDatum("Exif.Photo.PixelYDimension").toLong();
   else
     return exifDatum("Exif.Photo.PixelXDimension").toLong();
 }
 
-Exif::Rotation Exif::rotation() const {
+Exif::Orientation Exif::orientation() const {
   int rot = exifDatum("Exif.Image.Orientation").toLong();
   switch (rot) {
-  case 1: return Rotation::Upright;
-  case 3: return Rotation::UpsideDown;
-  case 5: return Rotation::CW;
-  case 7: return Rotation::CCW;
-  default: return Rotation::Upright;
+  case 1: return Upright;
+  case 3: return UpsideDown;
+  case 5: return CW;
+  case 7: return CCW;
+  default: return Upright;
   }
 }
     

@@ -9,8 +9,10 @@
 #include "Exif.h"
 #include "Scanner.h"
 #include "PhotoDB.h"
+#include "CacheFiller.h"
 
 int main(int argc, char **argv) {
+  try {
 
   QSet<QString> cmds;
   for (int i=1; i<argc; i++)
@@ -87,14 +89,27 @@ int main(int argc, char **argv) {
 
   if (cmds.contains("create")) {
     PhotoDB::create("/tmp/photodb.db");
+    BasicCache::create("/tmp/photodb.cache");
   }
   if (cmds.contains("scan")) {
     PhotoDB db("/tmp/photodb.db");
     QApplication app(argc, argv);
     Scanner scan(db);
     scan.start();
-    scan.addTree("/home/wagenaar/Pictures");
+    scan.addTree("/home/wagenaar/PicsTest");
     QObject::connect(&scan, SIGNAL(done()), &app, SLOT(quit()));
+    app.exec();
+  }
+  if (cmds.contains("cache")) {
+    PhotoDB db("/tmp/photodb.db");
+    BasicCache cache("/tmp/photodb.cache");
+    CacheFiller filler(db, &cache);
+    filler.start();
+    QApplication app(argc, argv);
+    Scanner scan(db, &filler);
+    scan.start();
+    scan.addTree("/home/wagenaar/PicsTest");
+    QObject::connect(&filler, SIGNAL(done()), &app, SLOT(quit()));
     app.exec();
   }
   
@@ -105,6 +120,13 @@ int main(int argc, char **argv) {
     qDebug() << id << ": " << desc;
   }
   return 0;
+
+  } catch (QSqlQuery const &q) {
+    qDebug() << "Main caught " << q.lastError();
+    qDebug() << "  " << q.lastQuery();
+  } catch (...) {
+    qDebug() << "Main caught unknown";
+  }
 }
 
   

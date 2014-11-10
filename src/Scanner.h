@@ -35,7 +35,7 @@ private:
   int photoQueueLength();
 private:
   PhotoDB db;  
-  QMap<QString, quint64> exts;
+  QMap<QString, int> exts;
   int n, N;
   class CacheFiller *filler;
 };

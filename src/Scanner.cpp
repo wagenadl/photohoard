@@ -22,7 +22,7 @@ Scanner::Scanner(PhotoDB const &db, CacheFiller *filler):
     throw q.lastError();
   }
   while (q.next()) 
-    exts[q.value(0).toString()] = q.value(1).toULongLong();
+    exts[q.value(0).toString()] = q.value(1).toInt();
 }
 
 Scanner::~Scanner() {
@@ -90,7 +90,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   quint64 id = q.lastInsertId().toULongLong();
 
   // Create first version - this is preliminary code
-  q.prepare("insert into versions(photo, version) values(:i, 0)");
+  q.prepare("insert into versions(photo, ver) values(:i, 0)");
   q.bindValue(":i", id);
   if (!q.exec()) 
     throw q;
@@ -141,12 +141,11 @@ void Scanner::removeTree(QString path) {
 }
 
 void Scanner::run() {
-  QMutexLocker l(mutex);
+  QMutexLocker l(&mutex);
   n = 0;
   N = photoQueueLength();
   try {
     while (!stopsoon) {
-      qDebug() << "Scanner: running";
       QSet<quint64> ids;
       if (!(ids=findFoldersToScan()).isEmpty()) {
 	l.unlock();
@@ -163,6 +162,7 @@ void Scanner::run() {
 	  emit done();
 	n = 0;
 	N = 0;
+        qDebug() << "Scanner: Going to sleep";
 	waiter.wait(&mutex);
       }
     }
@@ -197,8 +197,9 @@ QSet<quint64> Scanner::findPhotosToScan() {
   return ids;
 }
   
-bool Scanner::scanPhotos(QSet<quint64> ids) {
+void Scanner::scanPhotos(QSet<quint64> ids) {
   Transaction t(db);
+  bool worked = false;
   QSet<quint64> versions;
   for (auto id: ids) {
     scanPhoto(id);
@@ -215,13 +216,11 @@ bool Scanner::scanPhotos(QSet<quint64> ids) {
     worked = true;
   }
 
+  qDebug() << "Scanned versions: " << versions.size() << " *" << worked;
   if (worked) {
     if (filler)
       filler->recache(versions);
     t.commit();
-    return true;
-  } else {
-    return false;
   }
 }
 
@@ -236,25 +235,19 @@ QSet<quint64> Scanner::findFoldersToScan() {
   return ids;
 }
 
-bool Scanner::scanFolders(QSet<quint64> ids) {
+void Scanner::scanFolders(QSet<quint64> ids) {
   Transaction t(db);
   int N0 = N;
   bool worked = false;
   for (auto id: ids) {
     // There's work to do
-    quint64 id = qq.value(0).toULongLong();
     scanFolder(id);
     worked = true;
     if (N >= N0 + 1000)
       break;
   }
-  if (worked) {
+  if (worked) 
     t.commit();
-    return true;
-  } else {
-    return false;
-  }
-}
 }
 
 void Scanner::scanFolder(quint64 id) {
@@ -445,7 +438,7 @@ void Scanner::scanPhoto(quint64 id) {
   // Now lensid is valid unless lens is empty
 
   q.prepare("update photos set "
-            " width=:w, height=:h, camera=:c, lens=:l, "
+            " width=:w, height=:h, camera=:c, lens=:l, orient=:or, "
             " exposetime=:e, fnumber=:f, focallength=:fl, "
             " distance=:d, iso=:iso, capturedate=:cd, "
             " lastscan=:ls where id==:id");
@@ -453,6 +446,7 @@ void Scanner::scanPhoto(quint64 id) {
   q.bindValue(":h", exif.height());
   q.bindValue(":c", cam.isEmpty() ? QVariant() : QVariant(camid));
   q.bindValue(":l", lens.isEmpty() ? QVariant() : QVariant(lensid));
+  q.bindValue(":or", int(exif.orientation()));
   q.bindValue(":e", exif.exposureTime_s());
   q.bindValue(":f", exif.fNumber());
   q.bindValue(":fl", exif.focalLength_mm());

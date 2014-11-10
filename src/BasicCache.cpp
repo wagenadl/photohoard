@@ -9,13 +9,13 @@
 #include <system_error>
 #include "SqlFile.h"
 
-BasicCache::BasicCache(QString rootdir):
-  root(rootdir), db(rootdir + "/cache.db") {
+BasicCache::BasicCache(QString rootdir, QObject *parent):
+  QObject(parent), root(rootdir), db(rootdir + "/cache.db") {
   readConfig();
 }
 
-BasicCache::BasicCache(QDir root, Database const &db):
-  root(root), db(db) {
+BasicCache::BasicCache(QDir root, Database const &db, QObject *parent):
+  QObject(parent), root(root), db(db) {
   readConfig();
 }
 
@@ -81,9 +81,17 @@ int BasicCache::maxdim(QSize const &s) {
   return w>h ? w : h;
 }
 
+QImage BasicCache::sufficientSize(QImage const &img) {
+  int d = maxdim(img.size());
+  if (d>stdsizes[0])
+    return img.scaled(QSize(stdsizes[0], stdsizes[0]), Qt::KeepAspectRatio);
+  else
+    return img;
+}
+
 void BasicCache::add(quint64 id, QImage img) {
   int d = maxdim(img.size());
-  if (d<stdsizes[0]) 
+  if (d<=stdsizes[0]) 
     // cache image directly: it is smaller than our largest desired size
     addToCache(id, img);
   for (auto s: stdsizes) {
@@ -269,7 +277,7 @@ QList<QSize> BasicCache::sizes(quint64 id, bool outdatedOK) {
   return lst;
 }
 
+int BasicCache::maxDim() const {
+  return stdsizes[0];
+}
     
-  
- 
- 

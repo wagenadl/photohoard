@@ -7,6 +7,7 @@
 #include "BasicThread.h"
 #include "PhotoDB.h"
 #include "BasicCache.h"
+#include "Exif.h"
 
 class CacheFiller: public BasicThread {
   /* This is a thread that will work in the background to cache all images
@@ -29,11 +30,19 @@ protected:
   virtual void run() override;
 private:
   QSet<quint64> checkQueue();
-  bool processSome(QSet<quint64>);
+  void processSome(QSet<quint64>);
+  int queueLength();
+private:
+  static QImage rotateCW(QImage const &);
+  static QImage rotateCCW(QImage const &);
+  static void upsideDown(QImage &);
+  QImage getImage(QString path, int ver, int ftype,
+                  Exif::Orientation orient);
 private:
   PhotoDB db;
   BasicCache *cache;
   int n, N;
+  QMap<int, QString> ftypes;
 };
 
 #endif
