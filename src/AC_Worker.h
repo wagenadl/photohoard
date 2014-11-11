@@ -15,12 +15,17 @@ public:
   AC_Worker(PhotoDB const &db, class BasicCache *cache,
             QObject *parent=0);
 public slots:
-  void recache(QSet<quint64> ids);
+  void recache(QSet<quint64> versions);
   void handleFoundImage(quint64 id, QImage img);
 private:
   PhotoDB db;
   class BasicCache *cache;
   class IF_Bank *bank;
+  int n, N;
+  QQueue<quint64> readyToLoad;
+  QSet<quint64> beingLoaded;
+  QSet<quint64> invalidatedWhileLoading;
+  QMap<quint64, QImage> loaded;
 };
 
 #endif
