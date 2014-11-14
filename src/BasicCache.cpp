@@ -213,6 +213,7 @@ int BasicCache::bestSize(quint64 id, int maxdim) {
   }
   int dbest = 0;
   bool outdated = true;
+  bool gotsized = false;
   while (q.next()) {
     int d = q.value(0).toInt();
     bool od = q.value(1).toBool();
@@ -222,21 +223,67 @@ int BasicCache::bestSize(quint64 id, int maxdim) {
       // Always replace outdated with up-to-date.
       dbest = d;
       outdated = false;
+      gotsized = d>=maxdim;
     } else if (d>=maxdim) {
       // Nice and big, but perhaps too big
-      if (d<dbest || dbest<maxdim) {
+      if (d<dbest || !gotsized) {
 	dbest = d;
 	outdated = od;
+	gotsized = true;
       }
     } else {
       // Small, but perhaps better than what we have
-      if (d>dbest && dbest<maxdim) {
+      if (d>dbest && !gotsized) {
 	dbest = d;
 	outdated = od;
       }
     }
   }
   return dbest;  
+}
+
+QSize BasicCache::bestSize(quint64 id, QSize desired) {
+  QSqlQuery q(*db);
+  q.prepare("select width, height, outdated from cache where version==:v");
+  q.bindValue(":v", id);
+  if (!q.exec()) {
+    qDebug() << "BasicCache::bestSize: Could not execute select";
+    throw q;
+  }
+  int dbest = 0;
+  QSize sbest;
+  bool gotsized = false;
+  bool outdated = true;
+  while (q.next()) {
+    int w = q.value(0).toInt();
+    int h = q.value(1).toInt();
+    int d = w*h;
+    bool od = q.value(2).toBool();
+    if (od && !outdated) {
+      // If I have an up-to-date version, never replace w/ outdated.
+    } else if (outdated && !od) {
+      // Always replace outdated with up-to-date.
+      sbest = QSize(w, h);
+      dbest = d;
+      outdated = false;
+    } else if (w>=desired.width() || h>=desired.height()) {
+      // Nice and big, but perhaps too big
+      if (d<dbest || !gotsized) {
+	sbest = QSize(w, h);
+	dbest = d;
+	outdated = od;
+	gotsized = true;
+      }
+    } else {
+      // Small, but perhaps better than what we have
+      if (d>dbest && !gotsized) {
+	sbest = QSize(w, h);
+	dbest = d;
+	outdated = od;
+      }
+    }
+  }
+  return sbest;  
 }
 
 bool BasicCache::contains(quint64 id, bool outdatedOK) {

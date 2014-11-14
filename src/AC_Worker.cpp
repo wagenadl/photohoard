@@ -8,6 +8,8 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   QObject(parent), db(db), cache(cache) {
   bank = new IF_Bank(4, this); // number of threads comes from where?
   bank->setMaxDim(cache->maxDim());
+  connect(bank, SIGNAL(foundImage(quint64, QImage)),
+	  this, SLOT(handleFoundImage(quint64, QImage)));
   n = 0;
   N = 0;
 }
@@ -41,9 +43,10 @@ void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
       invalidatedWhileLoading << v;
     else if (loaded.contains(v))
       loaded.remove(v);
-    if (!rtlSet.contains(v)) {
+    if (!readyToLoad.contains(v)) {
       readyToLoad << v;
-      rtlSet << v;
+      mustCache << v;
+      rtlOrder << v;
       N++;
     }
   }
@@ -69,21 +72,23 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
 }
 
 void AC_Worker::activateBank() {
-  QSet<quint64> notyetready;
+  QList<quint64> notyetready;
   int K = bank->availableThreads();
   while (K>0 && !readyToLoad.isEmpty()) {
-    quint64 id = readyToLoad.dequeue();
+    quint64 id = rtlOrder.takeFirst();
+    if (!readyToLoad.contains(id))
+      continue;
     if (invalidatedWhileLoading.contains(id)) {
       notyetready << id;
     } else {
-      rtlSet.remove(id);
+      readyToLoad.remove(id);
       beingLoaded.insert(id);
       sendToBank(id);
       K--;
     }
   }
   for (auto id: notyetready) 
-    readyToLoad.push_front(id); // put back what we could not do now
+    rtlOrder.push_front(id); // put back what we could not do now
 }
     
 void AC_Worker::handleFoundImage(quint64 id, QImage img) {
@@ -92,16 +97,14 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img) {
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
 
-  //if (urgentlyNeeded(id)) {
-    // ...
-    // emit ...
-  //}
+  if (requests.contains(id))
+    respondToRequest(id, img);
 
   beingLoaded.remove(id);
 
   if (invalidatedWhileLoading.contains(id)) {
     invalidatedWhileLoading.remove(id);
-  } else {
+  } else if (mustCache(id)) {
     loaded[id] = img;
   }
 
@@ -120,4 +123,88 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img) {
   } 
   
   activateBank();  
+}
+
+void AC_Worker::sendToBank(quint64 version) {
+  QSqlQuery q(*cache->database());
+  q.prepare("select photo, ver from versions where id=:v");
+  q.bindValue(":v", version);
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    throw NoResult();
+  quint64 photo = q.value(0).toULongLong();
+  int ver = q.value(1).toInt();
+  q.prepare("select folder, filename, filetype, orient "
+	    " from photos where id=:i");
+  q.bindValue(":i", photo);
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    throw NoResult();
+  quint64 folder = q.value(0).toULongLong();
+  QString fn = q.value(1).toString();
+  int ftype = q.value(2).toInt();
+  //    int wid = q.value(3).toInt();
+  //    int hei = q.value(4).toInt();
+  Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
+  if (!folders.contains(folder)) {
+    q.prepare("select pathname from folders where id=:i");
+    q.bindValue(":i", folder);
+    if (!q.exec())
+      throw q;
+    if (!q.next())
+      throw NoResult();
+    folders[folder] = q.value(0).toString();
+  }
+  QString path = folders[folder] + "/" + fn;
+
+  bank->findImage(version, path, ver, ftype, orient);
+}
+
+void AC_Worker::storeLoadedInDB() {
+  Transaction t(cache->database());
+  QSqlQuery q(*cache->database());
+  for (auto it=loaded.begin(); it!=loaded.end(); it++) {
+    quint64 version = it.key();
+    QImage img = it.value();
+    cache->add(version, img);
+
+    q.prepare("remove from queue where version==:v");
+    q.bindValue(":v", version);
+    if (!q.exec())
+      throw q;
+  }
+  t.commit();
+  n += loaded.size();
+  loaded.clear();
+}
+
+void AC_Worker::requestImage(quint64 version, QSize desired) {
+  QSize actual(0, 0);
+  if (loaded.contains(version)) {
+    emit available(version, desired, loaded[version]);
+    actual = loaded[version].size();
+  } else {
+    int d = cache->bestSize(version, cache->maxdim(desired));
+    if (d>0) {
+      QImage img = cache->get(version, d);
+      emit available(version, desired, img);
+      actual = img.size();
+    }
+  }
+
+  if (actual.width()<desired.width() && actual.height<desired.height()) {
+    requests << QPair<quint64, QSize> (version, desired);
+    if (!beingLoaded.contains(version)) {
+      readyToLoad << version;
+      rtlOrder.push_front(version);
+    }
+  }
+}
+
+void AC_Worker::respondToRequest(quint64 version, QImage img) {
+  for (QSize s: requests[version])
+    emit available(version, s, img);
+  requests.remove(version);
 }

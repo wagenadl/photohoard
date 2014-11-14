@@ -41,6 +41,7 @@ public:
    bestSize().
   */
   int bestSize(quint64 id, int maxdim);
+  QSize bestSize(quint64 id, QSize desired);
   /*:F bestSize
    *:D Determines the best available size of the referenced image.
    *:N If a size greater or equal to MAXDIM is available, the smallest
