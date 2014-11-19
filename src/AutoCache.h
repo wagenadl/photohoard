@@ -7,6 +7,9 @@
 #include <QObject>
 #include <QSet>
 #include "PhotoDB.h"
+#include <QThread>
+#include <QSize>
+#include <QImage>
 
 class AutoCache: public QObject {
   Q_OBJECT;
@@ -16,10 +19,15 @@ public:
 public slots:
   void recache(QSet<quint64> ids);
   void recache(quint64 id);
-
-
+  void request(quint64 version, QSize desired);
+signals: // public
+  void progressed(int n, int N);
+  void doneCaching();
+  void available(quint64 version, QSize requested, QImage img);
+  void exception(QString);
 signals: // private
   void forwardRecache(QSet<quint64> ids);
+  void forwardRequest(quint64 version, QSize desired);
 private:
   QThread thread;
   class AC_Worker *worker;

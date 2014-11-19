@@ -2,12 +2,15 @@
 
 #include "ImageFinder.h"
 #include "IF_Worker.h"
+#include <QMetaType>
 
 ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
+  setObjectName("ImageFinder");
   maxdim = 0; // i.e., infinity
   queuelength = 0;
-  worker = new IF_Worker(this);
+  worker = new IF_Worker(0);
   worker->moveToThread(&thread);
+  qRegisterMetaType<Exif::Orientation>("Exif::Orientation");
   connect(&thread, SIGNAL(finished()), worker, SLOT(deleteLater()));
   connect(this, SIGNAL(forwardFindImage(quint64, QString, int, QString,
                                         Exif::Orientation, int)),
@@ -15,6 +18,9 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
                                  Exif::Orientation, int)));
   connect(worker, SIGNAL(foundImage(quint64, QImage)),
           this, SLOT(handleFoundImage(quint64, QImage)));
+  connect(worker, SIGNAL(exception(QString)),
+	  this, SIGNAL(exception(QString)));
+  thread.start();
 }
 
 ImageFinder::~ImageFinder() {

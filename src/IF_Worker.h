@@ -10,12 +10,13 @@
 class IF_Worker: public QObject {
   Q_OBJECT;
 public:
-  IF_Worker(QObject *parent=0): QObject(parent) {}
+  IF_Worker(QObject *parent=0);
 public slots:
   void findImage(quint64 id, QString path, int ver, QString ext,
                  Exif::Orientation orient, int maxdim);
 signals:
   void foundImage(quint64 id, QImage img);
+  void exception(QString);
 private:
   void upsideDown(QImage &);
   QImage rotateCW(QImage const &);

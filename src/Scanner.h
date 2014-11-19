@@ -8,11 +8,12 @@
 #include "PhotoDB.h"
 #include <QMutex>
 #include <QWaitCondition>
+#include <QSet>
 
 class Scanner: public BasicThread {
   Q_OBJECT;
 public:
-  Scanner(PhotoDB const &, class CacheFiller *filler=0);
+  Scanner(PhotoDB const &);
   virtual ~Scanner();
 public slots:
   void addTree(QString path);
@@ -20,7 +21,8 @@ public slots:
 signals:
   void progressed(int n, int N);
   void done();
-  void updated(quint64 version);
+  void updated(QSet<quint64> versions);
+  void exception(QString);
 protected:
   virtual void run() override;
 private:

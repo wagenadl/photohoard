@@ -1,46 +1,59 @@
 // IF_Worker.cpp
 
 #include "IF_Worker.h"
+#include <QSqlQuery>
+#include <QSqlError>
+
+IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
+  setObjectName("IF_Worker");
+}
 
 void IF_Worker::findImage(quint64 id, QString path, int ver, QString ext,
                           Exif::Orientation orient, int maxdim) {
-  if (ver!=0) {
-    emit foundImage(id, QImage());
-    return;
-  }
-  
-  if (ext=="jpeg" || ext=="png" || ext=="tiff") {
-    // Can do
-    QImage img(path);
-    if (img.isNull()) {
+  try {
+    if (ver!=0) {
       emit foundImage(id, QImage());
       return;
     }
+  
+    if (ext=="jpeg" || ext=="png" || ext=="tiff") {
+      // Can do
+      QImage img(path);
+      if (img.isNull()) {
+	emit foundImage(id, QImage());
+	return;
+      }
     
-    if (maxdim>0) 
-      if (img.width()>maxdim || img.height()>maxdim)
-        img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
+      if (maxdim>0) 
+	if (img.width()>maxdim || img.height()>maxdim)
+	  img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
 
-    switch (orient) {
-    case Exif::Upright:
-      break;
-    case Exif::UpsideDown:
-      upsideDown(img);
-      break;
-    case Exif::CW:
-      img = rotateCW(img);
-      break;
-    case Exif::CCW:
-      img = rotateCCW(img);
-      break;
+      switch (orient) {
+      case Exif::Upright:
+	break;
+      case Exif::UpsideDown:
+	upsideDown(img);
+	break;
+      case Exif::CW:
+	img = rotateCW(img);
+	break;
+      case Exif::CCW:
+	img = rotateCCW(img);
+	break;
+      }
+      emit foundImage(id, img);
+    } else if (ext=="nef" || ext=="cr2") {
+      // Need dcraw
+      emit foundImage(id, QImage());
+    } else {
+      // Unknown format
+      emit foundImage(id, QImage());
     }
-    emit foundImage(id, img);
-  } else if (ext=="nef" || ext=="cr2") {
-    // Need dcraw
-    emit foundImage(id, QImage());
-  } else {
-    // Unknown format
-    emit foundImage(id, QImage());
+  } catch (QSqlQuery &q) {
+    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
+  } catch (...) {
+    emit exception("AC_Worker: Unknown exception");
   }
 }
 

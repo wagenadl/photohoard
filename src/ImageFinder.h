@@ -19,7 +19,8 @@ public slots:
   void findImage(quint64 id, QString path, int ver, QString ext,
                  Exif::Orientation orient);
 signals:
-  void foundImage(quint64 id, QImage img);
+  void foundImage(quint64, QImage);
+  void exception(QString);
 private slots:
   void handleFoundImage(quint64 id, QImage img);
 signals:  // private

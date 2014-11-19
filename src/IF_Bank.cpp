@@ -4,12 +4,17 @@
 #include "ImageFinder.h"
 
 IF_Bank::IF_Bank(int nthreads, QObject *parent): QObject(parent) {
+  setObjectName("IF_Bank");
   for (int n=0; n<nthreads; n++) 
     finders << new ImageFinder(this);
 
   for (auto f: finders)
     connect(f, SIGNAL(foundImage(quint64, QImage)),
             this, SIGNAL(foundImage(quint64, QImage)));
+
+  for (auto f: finders)
+    connect(f, SIGNAL(exception(QString)),
+            this, SIGNAL(exception(QString)));
 }
 
 IF_Bank::~IF_Bank() {

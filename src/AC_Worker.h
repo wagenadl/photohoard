@@ -24,18 +24,22 @@ signals:
   void cacheProgress(int n, int N);
   void doneCaching();
   void available(quint64 version, QSize requested, QImage img);
+  void exception(QString);
 private:
-  QSet<quint64> getSomeFromDBQueue(int maxres);
+  void respondToRequest(quint64 version, QImage img);
+  QSet<quint64> getSomeFromDBQueue(int maxres=100);
   void markReadyToLoad(QSet<quint64> versions);  
   void addToDBQueue(QSet<quint64> versions);
   void activateBank();
   void sendToBank(quint64 version);
   void storeLoadedInDB();
+  void readFTypes();
 private:
   PhotoDB db;
   class BasicCache *cache;
   class IF_Bank *bank;
   int n, N;
+  int threshold;
   QSet<quint64> readyToLoad;
   QList<quint64> rtlOrder;
   QSet<quint64> mustCache;
@@ -44,6 +48,7 @@ private:
   QMap<quint64, QImage> loaded;
   QMap<quint64, QString> folders;
   QMap<quint64, QSet<QSize> > requests;
+  QMap<int, QString> ftypes;
 };
 
 #endif

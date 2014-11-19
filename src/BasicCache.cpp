@@ -11,6 +11,7 @@
 
 BasicCache::BasicCache(QString rootdir, QObject *parent):
   QObject(parent), root(rootdir), db(rootdir + "/cache.db") {
+  setObjectName("BasicCache");
   readConfig();
 }
 

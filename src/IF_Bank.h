@@ -8,6 +8,7 @@
 #include "Exif.h"
 
 class IF_Bank: public QObject {
+  Q_OBJECT;
 public:
   IF_Bank(int nthreads, QObject *parent=0);
   virtual ~IF_Bank();
@@ -18,7 +19,8 @@ public slots:
   void findImage(quint64 id, QString path, int ver, QString ext,
                  Exif::Orientation orient);
 signals:
-  void foundImage(quint64 id, QImage img);
+  void foundImage(quint64, QImage);
+  void exception(QString);
 private:
   QVector<class ImageFinder *> finders;
 };

@@ -7,13 +7,10 @@
 #include <system_error>
 #include <QDateTime>
 #include "Exif.h"
-#include "CacheFiller.h"
+#include "NoResult.h"
 
-class NoResult {
-};
-
-Scanner::Scanner(PhotoDB const &db, CacheFiller *filler):
-  db(db), filler(filler) {
+Scanner::Scanner(PhotoDB const &db):
+  db(db) {
   setObjectName("Scanner");
   QSqlQuery q(*db);
   q.prepare("select extension, filetype from extensions");
@@ -173,16 +170,21 @@ void Scanner::run() {
     for (auto it=vv.begin(); it!=vv.end(); ++it) 
       qDebug() << "    " << it.key() << ": " << it.value();
     qDebug() << "  Thread terminating";
+    emit exception("Scanner: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
   } catch (std::system_error &e) {
     qDebug() << "Scanner: System error: "
 	     << e.code().value() << e.code().message().c_str();
     qDebug() << "  Thread terminating";
+    emit exception("Scanner: System error");
   } catch (NoResult) {
     qDebug() << "Scanner: Expected object not found in table.";
     qDebug() << "  Thread terminating";
+    emit exception("Scanner: No result");
   } catch (...) {
     qDebug() << "Scanner: Unknown exception";
     qDebug() << "  Thread terminating";
+    emit exception("Scanner: Unknown exception");
   }
 }
 
@@ -203,24 +205,21 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
   QSet<quint64> versions;
   for (auto id: ids) {
     scanPhoto(id);
-    if (filler) {
-      QSqlQuery q(*db);
-      q.prepare("select id from versions where photo=:p");
-      q.bindValue(":p", id);
-      if (!q.exec())
-	throw q;
-      while (q.next())
-	versions << q.value(0).toULongLong();
-    }
+    QSqlQuery q(*db);
+    q.prepare("select id from versions where photo==:p and ver==0");
+    q.bindValue(":p", id);
+    if (!q.exec())
+      throw q;
+    while (q.next())
+      versions << q.value(0).toULongLong();
     n++;
     worked = true;
   }
 
   qDebug() << "Scanned versions: " << versions.size() << " *" << worked;
   if (worked) {
-    if (filler)
-      filler->recache(versions);
     t.commit();
+    emit updated(versions);
   }
 }
 

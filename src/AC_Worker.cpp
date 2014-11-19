@@ -2,33 +2,72 @@
 
 #include "AC_Worker.h"
 #include "IF_Bank.h"
+#include "BasicCache.h"
+#include <QVariant>
+#include <QDebug>
+#include "NoResult.h"
+
+inline uint qHash(QSize const &s) {
+  return qHash(QPair<int,int>(s.width(), s.height()));
+}
 
 AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
                      QObject *parent):
   QObject(parent), db(db), cache(cache) {
+  setObjectName("AC_Worker");
+  readFTypes();
+  threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
   bank->setMaxDim(cache->maxDim());
   connect(bank, SIGNAL(foundImage(quint64, QImage)),
 	  this, SLOT(handleFoundImage(quint64, QImage)));
+  connect(bank, SIGNAL(exception(QString)),
+	  this, SIGNAL(exception(QString)));
   n = 0;
   N = 0;
 }
 
+void AC_Worker::readFTypes() {
+  QSqlQuery q(*db);
+  q.prepare("select id, stdext from filetypes");
+  if (!q.exec()) {
+    qDebug() << "Could not select extensions";
+    throw q;
+  }
+  while (q.next()) 
+    ftypes[q.value(0).toInt()] = q.value(1).toString();
+}  
+
 void AC_Worker::recache(QSet<quint64> versions) {
-  addToDBQueue(versions);
-  markReadyToLoad(versions);
-  activateBank();
+  try {
+    qDebug() << " AC_Worker::recache";
+    addToDBQueue(versions);
+    markReadyToLoad(versions);
+    activateBank();
+  } catch (QSqlQuery &q) {
+    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
+  } catch (...) {
+    emit exception("AC_Worker: Unknown exception");
+  }
 }
 
 void AC_Worker::boot() {
-  markReadyToLoad(getSomeFromDBQueue(100));
-  activateBank();
+  try {
+    markReadyToLoad(getSomeFromDBQueue());
+    activateBank();
+  } catch (QSqlQuery &q) {
+    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
+  } catch (...) {
+    emit exception("AC_Worker: Unknown exception");
+  }
 }
 
 QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
   QSqlQuery qq(*cache->database());
   qq.prepare("select version from queue limit :m");
-  qq.bindValue(":m", maxres);
+  qq.bindValue(":m", QVariant(maxres));
   if (!qq.exec())
     throw qq;
   QSet<quint64> ids;
@@ -38,7 +77,7 @@ QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
 }
  
 void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
-  foreach (auto v: versions) {
+  for (auto v: versions) {
     if (beingLoaded.contains(v)) 
       invalidatedWhileLoading << v;
     else if (loaded.contains(v))
@@ -59,11 +98,11 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   QSqlQuery q(*cache->database());
   for (auto v: versions) {
     q.prepare("update cache set outdated=1 where version==:i");
-    q.bindValue(":i", version);
+    q.bindValue(":i", v);
     if (!q.exec())
       throw q;
     q.prepare("insert into queue values(:i)");
-    q.bindValue(":i", version);
+    q.bindValue(":i", v);
     if (!q.exec())
       throw q;
   }
@@ -96,37 +135,43 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img) {
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
+  try {
+    if (requests.contains(id))
+      respondToRequest(id, img);
 
-  if (requests.contains(id))
-    respondToRequest(id, img);
+    beingLoaded.remove(id);
 
-  beingLoaded.remove(id);
-
-  if (invalidatedWhileLoading.contains(id)) {
-    invalidatedWhileLoading.remove(id);
-  } else if (mustCache(id)) {
-    loaded[id] = img;
-  }
-
-  bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
-  if (done || loaded.size() > threshold)
-    storeLoadedInDB();
-  emit cacheProgress(n, N);
-
-  if (done) {
-    markReadyToLoad(getSomeFromDBQueue());
-    if (readyToLoad.isEmpty()) {
-      emit doneCaching();
-      n = 0;
-      N = 0;
+    if (invalidatedWhileLoading.contains(id)) {
+      invalidatedWhileLoading.remove(id);
+    } else if (mustCache.contains(id)) {
+      loaded[id] = img;
     }
-  } 
+
+    bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
+    if (done || loaded.size() > threshold)
+      storeLoadedInDB();
+    emit cacheProgress(n, N);
+
+    if (done) {
+      markReadyToLoad(getSomeFromDBQueue());
+      if (readyToLoad.isEmpty()) {
+	emit doneCaching();
+	n = 0;
+	N = 0;
+      }
+    } 
   
-  activateBank();  
+    activateBank();
+  } catch (QSqlQuery &q) {
+    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
+  } catch (...) {
+    emit exception("AC_Worker: Unknown exception");
+  }
 }
 
 void AC_Worker::sendToBank(quint64 version) {
-  QSqlQuery q(*cache->database());
+  QSqlQuery q(*db);
   q.prepare("select photo, ver from versions where id=:v");
   q.bindValue(":v", version);
   if (!q.exec())
@@ -159,7 +204,7 @@ void AC_Worker::sendToBank(quint64 version) {
   }
   QString path = folders[folder] + "/" + fn;
 
-  bank->findImage(version, path, ver, ftype, orient);
+  bank->findImage(version, path, ver, ftypes[ftype], orient);
 }
 
 void AC_Worker::storeLoadedInDB() {
@@ -170,7 +215,7 @@ void AC_Worker::storeLoadedInDB() {
     QImage img = it.value();
     cache->add(version, img);
 
-    q.prepare("remove from queue where version==:v");
+    q.prepare("delete from queue where version==:v");
     q.bindValue(":v", version);
     if (!q.exec())
       throw q;
@@ -181,25 +226,32 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  QSize actual(0, 0);
-  if (loaded.contains(version)) {
-    emit available(version, desired, loaded[version]);
-    actual = loaded[version].size();
-  } else {
-    int d = cache->bestSize(version, cache->maxdim(desired));
-    if (d>0) {
-      QImage img = cache->get(version, d);
-      emit available(version, desired, img);
-      actual = img.size();
+  try {
+    QSize actual(0, 0);
+    if (loaded.contains(version)) {
+      emit available(version, desired, loaded[version]);
+      actual = loaded[version].size();
+    } else {
+      int d = cache->bestSize(version, cache->maxdim(desired));
+      if (d>0) {
+	QImage img = cache->get(version, d);
+	emit available(version, desired, img);
+	actual = img.size();
+      }
     }
-  }
-
-  if (actual.width()<desired.width() && actual.height<desired.height()) {
-    requests << QPair<quint64, QSize> (version, desired);
-    if (!beingLoaded.contains(version)) {
-      readyToLoad << version;
-      rtlOrder.push_front(version);
+    
+    if (actual.width()<desired.width() && actual.height()<desired.height()) {
+      requests[version] << desired;
+      if (!beingLoaded.contains(version)) {
+	readyToLoad << version;
+	rtlOrder.push_front(version);
+      }
     }
+  } catch (QSqlQuery &q) {
+    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
+  } catch (...) {
+    emit exception("AC_Worker: Unknown exception");
   }
 }
 
