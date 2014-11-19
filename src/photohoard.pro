@@ -22,5 +22,7 @@ HEADERS += ProgressWidget.h   AutoCache.h   AC_Worker.h   ExceptionReporter.h
 SOURCES += ProgressWidget.cpp AutoCache.cpp AC_Worker.cpp ExceptionReporter.cpp
 HEADERS += Application.h
 SOURCES += Application.cpp main.cpp
+HEADERS += Filmstrip.h   Slide.h
+SOURCES += Filmstrip.cpp Slide.cpp
 RESOURCES += PhotoHoard.qrc
 LIBS += -lexiv2
