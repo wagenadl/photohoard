@@ -3,6 +3,7 @@
 #include "Filmstrip.h"
 #include <QPainter>
 #include <QSet>
+#include <QDebug>
 
 #define MAXDIRECT 50
 
@@ -312,6 +313,7 @@ void Filmstrip::relayout() {
   } break;
   }
   update();
+  emit resized();
 }
 	
 void Filmstrip::rescan() {
@@ -332,13 +334,29 @@ int Filmstrip::countInRange(QDateTime begin, QDateTime end) const {
   QSqlQuery q(*db);
   q.prepare("select count(*)"
 	    " from versions inner join photos"
-	    " on versions.id=photos.version"
+	    " on versions.photo=photos.id"
 	    " where photos.capturedate>=:a and photos.capturedate<:b");
   q.bindValue(":a", begin);
   q.bindValue(":b", end);
+  qDebug() << "countinrange";
   if (!q.exec() || !q.next())
     throw q;
+  qDebug() << "  counted versions: " << q.value(0).toInt();
   return q.value(0).toInt();
+}
+
+bool Filmstrip::anyInRange(QDateTime begin, QDateTime end) const {
+  QSqlQuery q(*db);
+  q.prepare("select count(*)"
+	    " from photos"
+	    " where capturedate>=:a and capturedate<:b");
+  q.bindValue(":a", begin);
+  q.bindValue(":b", end);
+  qDebug() << "anyinrange";
+  if (!q.exec() || !q.next())
+    throw q;
+  qDebug() << "  counted photos: " << q.value(0).toInt();
+  return q.value(0).toInt() > 0;
 }
 
 QList<quint64> Filmstrip::versionsInRange(QDateTime begin,
@@ -346,9 +364,9 @@ QList<quint64> Filmstrip::versionsInRange(QDateTime begin,
   QSqlQuery q(*db);
   q.prepare("select versions.id"
 	    " from versions inner join photos"
-	    " on versions.id=photos.version"
+	    " on versions.photo=photos.id"
 	    " where photos.capturedate>=:a and photos.capturedate<:b"
-	    " ordered by photos.capturedate");
+	    " order by photos.capturedate");
   q.bindValue(":a", begin);
   q.bindValue(":b", end);
   if (!q.exec())
@@ -395,16 +413,25 @@ void Filmstrip::rebuildContentsWithSubstrips() {
     QDateTime t1 = endFor(t, subs);
     if (t1==t)
       throw QDateTime(); // should never happen
-    if (countInRange(t, t1)>0) {
+    if (anyInRange(t, t1)) {
       // build or rebuild substrip
       if (!subStrips.contains(t)) {
 	subStrips[t] = new Filmstrip(db, this);
 	connect(subStrips[t], SIGNAL(needImage(quint64, QSize)),
 		this, SIGNAL(needImage(quint64, QSize)));
+	connect(subStrips[t], SIGNAL(pressed(quint64)),
+		this, SIGNAL(pressed(quint64)));
+	connect(subStrips[t], SIGNAL(clicked(quint64)),
+		this, SIGNAL(clicked(quint64)));
+	connect(subStrips[t], SIGNAL(doubleClicked(quint64)),
+		this, SIGNAL(doubleClicked(quint64)));
 	subStrips[t]->collapse();
 	subStrips[t]->setArrangement(arr);
 	subStrips[t]->setTileSize(tilesize);
 	subStrips[t]->setRowWidth(rowwidth);
+	connect(subStrips[t], SIGNAL(resized()),
+		this, SLOT(relayout()), Qt::QueuedConnection);
+	// This could cause excessive calls to relayout--I need to check
       }
       subStrips[t]->setTimeRange(t, subs);
       orderedChildren << subStrips[t];
@@ -419,14 +446,29 @@ void Filmstrip::rebuildContentsWithSubstrips() {
   }
 }
 
+void Filmstrip::requestImage(quint64 id) {
+  emit needImage(id, QSize(tilesize, tilesize));
+}
+
+void Filmstrip::slidePressed(quint64 id) {
+  emit pressed(id);
+}
+
+void Filmstrip::slideClicked(quint64 id) {
+  emit clicked(id);
+}
+
+void Filmstrip::slideDoubleClicked(quint64 id) {
+  emit doubleClicked(id);
+}
+
 void Filmstrip::rebuildContentsDirectly() {
   QSet<quint64> keep;
   QList<quint64> vv = versionsInRange(startDateTime(), endDateTime());
   for (auto id: vv) {
     if (!slides.contains(id)) {
-      slides[id] = new Slide(this);
+      slides[id] = new Slide(id, this);
       slides[id]->setTileSize(tilesize);
-      emit needImage(id, QSize(tilesize, tilesize));
     }
     orderedChildren << slides[id];
     keep << id;
@@ -439,4 +481,14 @@ void Filmstrip::rebuildContentsDirectly() {
       slides.remove(id);
     }
   }
+}
+
+void Filmstrip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
+  expandAll();
+}
+
+void Filmstrip::mousePressEvent(QGraphicsSceneMouseEvent *) {
+}
+
+void Filmstrip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 }

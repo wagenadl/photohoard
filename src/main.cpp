@@ -12,6 +12,7 @@
 #include "ProgressWidget.h"
 #include "AutoCache.h"
 #include "ExceptionReporter.h"
+#include "LightTable.h"
 
 int main(int argc, char **argv) {
   try {
@@ -123,6 +124,17 @@ int main(int argc, char **argv) {
 	      excrep, SLOT(report(QString)));
       runapp = true;
       w->show();
+    }
+    if (cmds.contains("view")) {
+      LightTable *view = new LightTable(db);
+      view->show();
+      if (ac) {
+	QObject::connect(view, SIGNAL(needImage(quint64, QSize)),
+			 ac, SLOT(request(quint64, QSize)));
+	QObject::connect(ac, SIGNAL(available(quint64, QSize, QImage)),
+			 view, SLOT(updateImage(quint64, QSize, QImage)));
+      }
+      runapp = true;
     }
     if (cmds.contains("lens")) {
       NikonLenses lenses;

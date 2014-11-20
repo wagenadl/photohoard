@@ -18,7 +18,7 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   readFTypes();
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  bank->setMaxDim(cache->maxDim());
+  bank->setMaxDim(0); // cache->maxDim());
   connect(bank, SIGNAL(foundImage(quint64, QImage)),
 	  this, SLOT(handleFoundImage(quint64, QImage)));
   connect(bank, SIGNAL(exception(QString)),
@@ -239,12 +239,16 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
 	actual = img.size();
       }
     }
-    
+    qDebug() << "AC_Worker::requestImage"
+	     << version << desired << actual << beingLoaded.contains(version);
     if (actual.width()<desired.width() && actual.height()<desired.height()) {
       requests[version] << desired;
       if (!beingLoaded.contains(version)) {
+	// If it is already being loaded, we may be liable to get
+	// a copy that is too small. But I am not sure.
 	readyToLoad << version;
 	rtlOrder.push_front(version);
+	activateBank();
       }
     }
   } catch (QSqlQuery &q) {
@@ -256,6 +260,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
 }
 
 void AC_Worker::respondToRequest(quint64 version, QImage img) {
+  qDebug() << "AC_Worker::respondToRequest " << version << img.size();
   for (QSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);

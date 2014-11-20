@@ -41,10 +41,19 @@ public:
   /* Returns the strip that would directly host a picture with given date.
      That might be us or a (grand)child. It can also be NULL if the date
      is outside our range. */
-  Slide *slideByVersion(quint64 vsn);
+  class Slide *slideByVersion(quint64 vsn);
   static QDateTime endFor(QDateTime start, TimeScale scl);
+  Arrangement arrangement() const { return arr; }
+protected:
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
 signals:
   void needImage(quint64, QSize);
+  void resized();
+  void pressed(quint64);
+  void clicked(quint64);
+  void doubleClicked(quint64);
 public slots:
   void rescan();
   void updateImage(quint64, QSize, QImage);
@@ -61,13 +70,20 @@ public slots:
      children? */
   void showHeader();
   void hideHeader();
+public: // for slide
+  void requestImage(quint64);
+  void slidePressed(quint64);
+  void slideClicked(quint64);
+  void slideDoubleClicked(quint64);		    
+private slots:
+  void relayout();
 private:
   void clearContents();
   void rebuildContents();
   void rebuildContentsWithSubstrips();
   void rebuildContentsDirectly();
-  void relayout();
   int countInRange(QDateTime t0, QDateTime t1) const;
+  bool anyInRange(QDateTime t0, QDateTime t1) const;
   QList<quint64> versionsInRange(QDateTime t0, QDateTime t1) const;
 private:
   PhotoDB db;
