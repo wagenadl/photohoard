@@ -26,6 +26,11 @@ QSize SlideView::desiredSize() const {
 double SlideView::currentZoom() const {
   if (!fit)
     return zoom;
+  else
+    return fittingZoom();
+}
+
+double SlideView::fi
   
   double hrat = width() / double(naturalSize.width());
   double vrat = height() / double(naturalSize.height());
