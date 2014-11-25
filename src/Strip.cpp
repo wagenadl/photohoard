@@ -1,0 +1,373 @@
+// Strip.cpp
+
+#include "Strip.h"
+#include "Slide.h"
+#include <QPainter>
+#include <QSet>
+#include <QDebug>
+#include <QGraphicsSceneMouseEvent>
+
+Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
+  QGraphicsObject(parent), db(db) {
+  arr = Arrangement::Vertical;
+  scl = TimeScale::None;
+  tilesize = 128;
+  rowwidth = 1024;
+  expanded = false;
+  setPos(1e6, 1e6);
+}
+
+Strip::~Strip() {
+}
+
+
+QDateTime Strip::startDateTime() const {
+  return d0;
+}
+
+QDateTime Strip::endDateTime() const {
+  return endFor(d0, scl);
+}
+
+QDateTime Strip::endFor(QDateTime d0, TimeScale scl) {
+  switch (scl) {
+  case TimeScale::Eternity:
+    return d0.addYears(1000);
+  case TimeScale::Decade:
+    return d0.addYears(10);
+  case TimeScale::Year:
+    return d0.addYears(1);
+  case TimeScale::Month:
+    return d0.addMonths(1);
+  case TimeScale::Day:
+    return d0.addDays(1);
+  case TimeScale::Hour:
+    return d0.addSecs(3600);
+  case TimeScale::DecaMinute:
+    return d0.addSecs(600);
+  case TimeScale::None:
+    return QDateTime();
+  }
+  return QDateTime(); // not executed
+}
+
+Strip::TimeScale Strip::timeScale() const {
+  return scl;
+}
+
+int Strip::labelHeight(int) {
+  return 16;
+}
+
+bool Strip::hasTopLabel() const {
+  return scl==TimeScale::Eternity
+    || scl==TimeScale::Decade
+    || scl==TimeScale::Year;
+}
+
+QRectF Strip::labelBoundingRect() const {
+  switch (arr) {
+  case Arrangement::Horizontal:
+    if (expanded)
+      return QRectF(0, 0, tilesize, tilesize);
+    else
+      return QRectF(0, 0, labelHeight(tilesize), tilesize);
+  case Arrangement::Vertical:
+    if (expanded)
+      return QRectF(0, 0, tilesize, tilesize);
+    else
+      return QRectF(0, 0, tilesize, labelHeight(tilesize));
+  case Arrangement::Grid:
+    if (expanded) {
+      if (hasTopLabel()) 
+	return QRectF(0, 0, rowwidth, labelHeight(tilesize));
+      else 
+	return QRectF(0, 0, labelHeight(tilesize), subBoundingRect().height());
+    } else {
+      return QRectF(0, 0, tilesize, tilesize);
+    }
+  }
+  return QRectF(0, 0, 1, 1); // not executed
+}
+
+QRectF Strip::boundingRect() const {
+  return labelBoundingRect();
+}
+
+QRectF Strip::subBoundingRect() const {
+  return QRectF();
+}
+
+QRectF Strip::netBoundingRect() const {
+  QRectF r = labelBoundingRect();
+  if (expanded)
+    r |= subBoundingRect();
+  return r;
+}
+
+void Strip::paint(QPainter *painter,
+		      const QStyleOptionGraphicsItem *,
+		      QWidget *) {
+  QRectF r = labelBoundingRect();
+  int bggray = (int(scl) & 1) ? 230 : 200;
+  if (expanded) {
+    painter->setPen(QPen(Qt::NoPen));
+    QPolygonF poly;
+    int slantw = 12;
+    if (r.width() >= r.height()) {
+      poly << (r.topLeft() + QPointF(slantw+2, 2));
+      poly << (r.topRight() + QPointF(-slantw, 2));
+      poly << r.bottomRight();
+      poly << (r.bottomLeft() + QPointF(2, 0));
+    } else {
+      poly << (r.topLeft() + QPointF(2, slantw+2));
+      poly << (r.topRight() + QPointF(0, 2));
+      poly << r.bottomRight();
+      poly << (r.bottomLeft() + QPointF(2, -slantw));
+    }      
+    painter->setBrush(QBrush(QColor(129, 129, 129)));
+    painter->drawPolygon(poly);
+    poly.translate(-2, -2);
+    painter->setBrush(QBrush(QColor(240, 240, 240)));
+    painter->drawPolygon(poly);
+    poly.translate(1, 1);
+    painter->setBrush(QBrush(QColor(bggray, bggray, bggray)));
+    painter->drawPolygon(poly); 
+  } else {
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setBrush(QBrush(QColor(129, 129, 129)));
+    painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
+    painter->setBrush(QBrush(QColor(240, 240, 240)));
+    painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
+    painter->setBrush(QBrush(QColor(bggray, bggray, bggray)));
+    painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+  }
+
+  painter->setPen(QPen(QColor(0, 0, 0)));
+  QString lbl = labelFor(d0, scl);
+  
+  if (r.width() >= r.height()) {
+    // Horizontal display
+    painter->drawText(r, Qt::AlignCenter, lbl);
+  } else {
+    // Vertical display
+    painter->rotate(-90);
+    int N = (r.height()+3*tilesize-1)/(3*tilesize);
+    int dx = r.height()/N;
+    for (int n=0; n<N; n++)    
+      painter->drawText(QRectF(-r.height()+dx*n, 0, dx, r.width()),
+                        Qt::AlignCenter, lbl);
+  }  
+}
+
+QString Strip::labelFor(QDateTime d0, Strip::TimeScale scl) {
+  switch (scl) {
+  case TimeScale::Eternity:
+    return "Library";
+  case TimeScale::Decade:
+    return d0.toString("yyyy") + QString::fromUtf8("–’")
+      + d0.addYears(9).toString("yy");
+  case TimeScale::Year:
+    return d0.toString("yyyy");
+  case TimeScale::Month:
+    return d0.toString("MMM yyyy");
+  case TimeScale::Day:
+    return d0.toString(QString::fromUtf8("M/d"));
+  case TimeScale::Hour:
+    return d0.toString("h ap");
+  case TimeScale::DecaMinute:
+    return d0.toString("h:mm");
+  case TimeScale::None:
+    return "None";
+  }
+  return "?";
+}
+
+Slide *Strip::slideByVersion(quint64) const {
+  return NULL;
+}
+
+void Strip::updateImage(quint64 v, QSize, QImage img) {
+  Slide *s = slideByVersion(v);
+  if (s)
+    s->updateImage(img);  
+}
+
+void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
+  scl = scl1;
+  d0 = startFor(t0, scl);
+  clearContents();
+  rebuildContents();
+}
+
+QDateTime Strip::startFor(QDateTime t0, TimeScale scl) {
+  switch (scl) {
+  case TimeScale::Eternity:
+    return QDateTime(QDate(1500, 1, 1), QTime(0, 0, 0));
+  case TimeScale::Decade: {
+    int yr = t0.date().year();
+    while (yr%10 != 1)
+      yr--;
+    return QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
+  }
+  case TimeScale::Year: {
+    int yr = t0.date().year();
+    return QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
+  }
+  case TimeScale::Month: {
+    int yr = t0.date().year();
+    int mo = t0.date().month();
+    return QDateTime(QDate(yr, mo, 1), QTime(0, 0, 0));
+  }
+  case TimeScale::Day:
+    return QDateTime(t0.date(), QTime(0, 0, 0));
+  case TimeScale::Hour: {
+    int h = t0.time().hour();
+    return QDateTime(t0.date(), QTime(h, 0, 0));
+  }
+  case TimeScale::DecaMinute: {
+    int h = t0.time().hour();
+    int dm = t0.time().minute()/10;
+    return QDateTime(t0.date(), QTime(h, 10*dm, 0));
+  }
+  case TimeScale::None:
+    return QDateTime();
+  }
+  return QDateTime();
+}
+
+void Strip::setArrangement(Arrangement arr1) {
+  prepareGeometryChange();
+  arr = arr1;
+  update();
+}
+
+void Strip::setTileSize(int pix) {
+  prepareGeometryChange();
+  tilesize = pix;
+  update();
+}
+
+int Strip::subRowWidth(int pix) const {
+  return (scl==TimeScale::Eternity
+	  || scl==TimeScale::Decade
+	  || scl==TimeScale::Year)
+    ? pix : pix - labelHeight(tilesize);  
+}
+
+void Strip::setRowWidth(int pix) {
+  prepareGeometryChange();
+  rowwidth = pix;
+  update();
+}
+
+void Strip::expand() {
+  prepareGeometryChange();
+  expanded = true;
+  update();
+  emit resized();
+}
+
+void Strip::collapse() {
+  prepareGeometryChange();
+  expanded = false;
+  update();
+  emit resized();
+}
+
+void Strip::expandAll() {
+  expand();
+}
+
+void Strip::collapseAll() {
+  collapse();
+}
+
+void Strip::relayout() {
+}
+	
+void Strip::rescan() {
+  rebuildContents();
+}
+
+void Strip::clearContents() {
+}  
+int Strip::countInRange(QDateTime begin, QDateTime end) const {
+  QSqlQuery q(*db);
+  q.prepare("select count(*)"
+	    " from versions inner join photos"
+	    " on versions.photo=photos.id"
+	    " where photos.capturedate>=:a and photos.capturedate<:b");
+  q.bindValue(":a", begin);
+  q.bindValue(":b", end);
+  if (!q.exec() || !q.next())
+    throw q;
+  return q.value(0).toInt();
+}
+
+QDateTime Strip::firstDateInRange(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q(*db);
+  q.prepare("select capturedate from photos"
+	    " where capturedate>=:a and photos.capturedate<:b"
+	    " order by capturedate limit 1");
+  q.bindValue(":a", t0);
+  q.bindValue(":b", t1);
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    return QDateTime();
+  return q.value(0).toDateTime();
+}
+
+QDateTime Strip::lastDateInRange(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q(*db);
+  q.prepare("select capturedate from photos"
+	    " where capturedate>=:a and photos.capturedate<:b"
+	    " order by capturedate desc"
+	    " limit 1");
+  q.bindValue(":a", t0);
+  q.bindValue(":b", t1);
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    return QDateTime();
+  return q.value(0).toDateTime();
+}
+
+QList<quint64> Strip::versionsInRange(QDateTime begin,
+					  QDateTime end) const {
+  QSqlQuery q(*db);
+  q.prepare("select versions.id"
+	    " from versions inner join photos"
+	    " on versions.photo=photos.id"
+	    " where photos.capturedate>=:a and photos.capturedate<:b"
+	    " order by photos.capturedate");
+  q.bindValue(":a", begin);
+  q.bindValue(":b", end);
+  if (!q.exec())
+    throw q;
+  QList<quint64> vv;
+  while (q.next())
+    vv << q.value(0).toULongLong();
+  return vv;
+}
+
+void Strip::rebuildContents() {
+}
+
+void Strip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
+}
+
+void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (e->modifiers() & Qt::ControlModifier)
+    expandAll();
+  else if (e->modifiers() & Qt::ShiftModifier)
+    collapseAll();
+  else if (expanded)
+    collapse();
+  else
+    expand();
+}
+
+void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
+}

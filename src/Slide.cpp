@@ -6,7 +6,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QDebug>
 
-Slide::Slide(quint64 id, Filmstrip *parent):
+Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
   tilesize = 128;
   setPos(1e6, 1e6);
@@ -24,7 +24,7 @@ void Slide::setTileSize(int pix) {
 }
 
 void Slide::paint(QPainter *painter,
-		  const QStyleOptionGraphicsItem *o,
+		  const QStyleOptionGraphicsItem *,
 		  QWidget *) {
   QRectF r = boundingRect();
   painter->setPen(QPen(Qt::NoPen));

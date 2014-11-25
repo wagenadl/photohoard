@@ -2,19 +2,19 @@
 
 #include "FilmView.h"
 
-#include "Filmstrip.h"
+#include "Datestrip.h"
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent) {
   scene = new QGraphicsScene(this);
   setScene(scene);
   scene->setBackgroundBrush(QColor(255, 255, 255));
-  strip = new Filmstrip(db, 0);
-  strip->setArrangement(Filmstrip::Arrangement::Grid);
+  strip = new Datestrip(db, 0);
+  strip->setArrangement(Datestrip::Arrangement::Grid);
   setScrollbarPolicies();
   strip->setTileSize(80); //width()); // minus scrollbar...
   strip->setTimeRange(QDateTime(),
-		      Filmstrip::TimeScale::Eternity);
+		      Datestrip::TimeScale::Eternity);
   scene->addItem(strip);
   strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
@@ -36,12 +36,12 @@ FilmView::~FilmView() {
 
 void FilmView::setScrollbarPolicies() {
   switch (strip->arrangement()) {
-  case Filmstrip::Arrangement::Horizontal:
+  case Datestrip::Arrangement::Horizontal:
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     break;
-  case Filmstrip::Arrangement::Vertical:
-  case Filmstrip::Arrangement::Grid:
+  case Datestrip::Arrangement::Vertical:
+  case Datestrip::Arrangement::Grid:
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     break;
@@ -56,13 +56,13 @@ void FilmView::stripResized() {
 
 void FilmView::resizeEvent(QResizeEvent *) {
   switch (strip->arrangement()) {
-  case Filmstrip::Arrangement::Horizontal:
+  case Datestrip::Arrangement::Horizontal:
     strip->setTileSize(viewport()->height());
     break;
-  case Filmstrip::Arrangement::Vertical:
+  case Datestrip::Arrangement::Vertical:
     strip->setTileSize(viewport()->width());
     break;
-  case Filmstrip::Arrangement::Grid:
+  case Datestrip::Arrangement::Grid:
     strip->setRowWidth(viewport()->width());
     break;
   }

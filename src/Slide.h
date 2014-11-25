@@ -7,11 +7,11 @@
 #include <QGraphicsItem>
 #include <QPointer>
 
-#include "Filmstrip.h"
+#include "Slidestrip.h"
 
 class Slide: public QGraphicsItem {
 public:
-  Slide(quint64 id, class Filmstrip *parent=0);
+  Slide(quint64 id, class Slidestrip *parent=0);
   void makeReady();
   void updateImage(QImage const &img);
   void setTileSize(int pix);
@@ -26,7 +26,7 @@ public:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
 private:
-  QPointer<Filmstrip> parent;
+  QPointer<Slidestrip> parent;
   quint64 id;
   QImage img;
   QPixmap pm;

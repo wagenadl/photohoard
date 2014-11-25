@@ -26,7 +26,7 @@ protected:
   void setScrollbarPolicies();
 private:
   class QGraphicsScene *scene;
-  class Filmstrip *strip;
+  class Datestrip *strip;
 };
 
 #endif
