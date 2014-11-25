@@ -49,7 +49,9 @@ void FilmView::setScrollbarPolicies() {
 }
 
 void FilmView::stripResized() {
-  scene->setSceneRect(strip->netBoundingRect());
+  QRectF r = strip->netBoundingRect();
+  r |= QRectF(QPointF(0, 0), viewport()->size());
+  scene->setSceneRect(r);
 }
 
 void FilmView::resizeEvent(QResizeEvent *) {

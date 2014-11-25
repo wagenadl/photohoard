@@ -8,6 +8,10 @@
 
 #define MAXDIRECT 50
 
+inline uint qHash(QDateTime const &dt) {
+  return qHash(dt.toMSecsSinceEpoch());
+}
+
 Filmstrip::Filmstrip(PhotoDB const &db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
   arr = Arrangement::Vertical;
@@ -78,7 +82,7 @@ bool Filmstrip::hasTopLabel() const {
     || scl==TimeScale::Year;
 }
 
-QRectF Filmstrip::labelBoundingRect() const {
+QRectF Filmstrip::headerBoundingRect() const {
   if (!showheader)
     return QRectF(0, 0, 1, 1);
   
@@ -107,7 +111,7 @@ QRectF Filmstrip::labelBoundingRect() const {
 }
 
 QRectF Filmstrip::boundingRect() const {
-  return labelBoundingRect();
+  return headerBoundingRect();
 }
 
 QRectF Filmstrip::subBoundingRect() const {
@@ -129,7 +133,7 @@ QRectF Filmstrip::subBoundingRect() const {
 }
 
 QRectF Filmstrip::netBoundingRect() const {
-  QRectF r = labelBoundingRect();
+  QRectF r = headerBoundingRect();
   if (expanded)
     r |= subBoundingRect();
   return r;
@@ -145,7 +149,6 @@ void Filmstrip::paint(QPainter *painter,
 
   if (expanded) {
     painter->setPen(QPen(Qt::NoPen));
-    painter->setBrush(QBrush(QColor(0, 0, 0)));
     QPolygonF poly;
     int slantw = 16; // tilesize/2;
     if (r.width() >= r.height()) {
@@ -159,24 +162,25 @@ void Filmstrip::paint(QPainter *painter,
       poly << r.bottomRight();
       poly << (r.bottomLeft() + QPointF(2, -slantw));
     }      
+    painter->setBrush(QBrush(QColor(129, 129, 129)));
     painter->drawPolygon(poly);
     poly.translate(-2, -2);
-    painter->setBrush(QBrush(QColor(255, 255, 255)));
+    painter->setBrush(QBrush(QColor(230, 230, 230)));
     painter->drawPolygon(poly);
     poly.translate(1, 1);
-    painter->setBrush(QBrush(QColor(127, 127, 127)));
+    painter->setBrush(QBrush(QColor(202, 202, 202)));
     painter->drawPolygon(poly); 
   } else {
     painter->setPen(QPen(Qt::NoPen));
-    painter->setBrush(QBrush(QColor(0, 0, 0)));
+    painter->setBrush(QBrush(QColor(129, 129, 129)));
     painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
-    painter->setBrush(QBrush(QColor(255, 255, 255)));
+    painter->setBrush(QBrush(QColor(230, 230, 230)));
     painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
-    painter->setBrush(QBrush(QColor(127, 127, 127)));
+    painter->setBrush(QBrush(QColor(202, 202, 202)));
     painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
   }
 
-  painter->setPen(QPen(QColor(255, 255, 255)));
+  painter->setPen(QPen(QColor(0, 0, 0)));
   QString lbl = labelFor(d0, scl);
   
   if (r.width() >= r.height()) {
@@ -565,7 +569,7 @@ void Filmstrip::rebuildContentsWithSubstrips() {
   }
   QSet<QDateTime> keep;
   while (t.isValid()) {
-    t = startFor(t);
+    t = startFor(t, subs);
     keep << t;
     QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
