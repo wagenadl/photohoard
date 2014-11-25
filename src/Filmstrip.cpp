@@ -78,7 +78,7 @@ bool Filmstrip::hasTopLabel() const {
     || scl==TimeScale::Year;
 }
 
-QRectF Filmstrip::boundingRect() const {
+QRectF Filmstrip::labelBoundingRect() const {
   if (!showheader)
     return QRectF(0, 0, 1, 1);
   
@@ -106,6 +106,10 @@ QRectF Filmstrip::boundingRect() const {
   return QRectF(0, 0, 1, 1); // not executed
 }
 
+QRectF Filmstrip::boundingRect() const {
+  return labelBoundingRect();
+}
+
 QRectF Filmstrip::subBoundingRect() const {
   if (!slides.isEmpty()) {
     int lw = (scl==TimeScale::Eternity
@@ -114,13 +118,7 @@ QRectF Filmstrip::subBoundingRect() const {
       ? 0 : labelHeight(tilesize);
     int lh = lw ? 0 : labelHeight(tilesize);
     int perrow = (rowwidth - lw) / tilesize;
-    int rows = slides.size()/perrow;
-    if (slides.size()%perrow>0)
-      rows++;
-//    qDebug() << "subBoundingRect" << d0 << int(scl) << ":"
-//	     << lw << perrow << rows << slides.size()
-//	     << ":"
-//	     << QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
+    int rows = (slides.size()+perrow-1)/perrow;
     return QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
   } else {
     QRectF r;
@@ -131,7 +129,7 @@ QRectF Filmstrip::subBoundingRect() const {
 }
 
 QRectF Filmstrip::netBoundingRect() const {
-  QRectF r = boundingRect();
+  QRectF r = labelBoundingRect();
   if (expanded)
     r |= subBoundingRect();
   return r;
@@ -187,8 +185,11 @@ void Filmstrip::paint(QPainter *painter,
   } else {
     // Vertical display
     painter->rotate(-90);
-    painter->drawText(QRectF(-r.height(), 0, r.height(), r.width()),
-		      Qt::AlignCenter, lbl);
+    int N = (r.height()+3*tilesize-1)/(3*tilesize);
+    int dx = r.height()/N;
+    for (int n=0; n<N; n++)    
+      painter->drawText(QRectF(-r.height()+dx*n, 0, dx, r.width()),
+                        Qt::AlignCenter, lbl);
   }  
 }
 
@@ -557,48 +558,48 @@ void Filmstrip::rebuildContentsWithSubstrips() {
     : scl==TimeScale::Day ? TimeScale::Hour
     : TimeScale::DecaMinute;
   QDateTime end = endDateTime();
-  QDateTime start = firstDateIn(startDateTime(), end);
-  if (start.isNull()) {
+  QDateTime t = firstDateIn(startDateTime(), end);
+  if (t.isNull()) {
     clearContents();
     return;
   }
-  end = lastDateIn(start, end);
-  QDateTime t1;
-  for (QDateTime t=startFor(start, subs); t<=end; t=t1) {
-    t1 = endFor(t, subs);
+  QSet<QDateTime> keep;
+  while (t.isValid()) {
+    t = startFor(t);
+    keep << t;
+    QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
-    if (anyInRange(t, t1)) {
-      // build or rebuild substrip
-      if (!subStrips.contains(t)) {
-	subStrips[t] = new Filmstrip(db, this);
-	connect(subStrips[t], SIGNAL(needImage(quint64, QSize)),
-		this, SIGNAL(needImage(quint64, QSize)));
-	connect(subStrips[t], SIGNAL(pressed(quint64)),
-		this, SIGNAL(pressed(quint64)));
-	connect(subStrips[t], SIGNAL(clicked(quint64)),
-		this, SIGNAL(clicked(quint64)));
-	connect(subStrips[t], SIGNAL(doubleClicked(quint64)),
-		this, SIGNAL(doubleClicked(quint64)));
-	subStrips[t]->setArrangement(arr);
-	subStrips[t]->setTileSize(tilesize);
-	subStrips[t]->setRowWidth(subRowWidth(rowwidth));
-	connect(subStrips[t], SIGNAL(resized()),
-		this, SLOT(relayout()), Qt::QueuedConnection);
-	// This could cause excessive calls to relayout--I need to check
-      }
-      subStrips[t]->setTimeRange(t, subs);
-      orderedChildren << subStrips[t];
-      if (expanded)
-	subStrips[t]->show();
-      else
-	subStrips[t]->hide();
-    } else {
-      if (subStrips.contains(t)) {
-	delete subStrips[t];
-	subStrips.remove(t);
-      }
+    // build or rebuild substrip
+    if (!subStrips.contains(t)) {
+      subStrips[t] = new Filmstrip(db, this);
+      connect(subStrips[t], SIGNAL(needImage(quint64, QSize)),
+              this, SIGNAL(needImage(quint64, QSize)));
+      connect(subStrips[t], SIGNAL(pressed(quint64)),
+              this, SIGNAL(pressed(quint64)));
+      connect(subStrips[t], SIGNAL(clicked(quint64)),
+              this, SIGNAL(clicked(quint64)));
+      connect(subStrips[t], SIGNAL(doubleClicked(quint64)),
+              this, SIGNAL(doubleClicked(quint64)));
+      subStrips[t]->setArrangement(arr);
+      subStrips[t]->setTileSize(tilesize);
+      subStrips[t]->setRowWidth(subRowWidth(rowwidth));
+      connect(subStrips[t], SIGNAL(resized()),
+              this, SLOT(relayout()), Qt::QueuedConnection);
+      // This could cause excessive calls to relayout--I need to check
     }
-    t = t1;
+    subStrips[t]->setTimeRange(t, subs);
+    orderedChildren << subStrips[t];
+    if (expanded)
+      subStrips[t]->show();
+    else
+      subStrips[t]->hide();
+    t = firstDateIn(t1, end);
+  }
+  for (auto t: subStrips.keys()) {
+    if (!keep.contains(t)) {
+      delete subStrips[t];
+      subStrips.remove(t);
+    }
   }
 }
 

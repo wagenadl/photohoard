@@ -34,6 +34,7 @@ public:
   QDateTime endDateTime() const;
   TimeScale timeScale() const;
   virtual QRectF boundingRect() const override; // just us, i.e., our header
+  virtual QRectF headerBoundingRect() const; // just us
   virtual QRectF netBoundingRect() const; // us and children
   virtual QRectF subBoundingRect() const; // children
   virtual void paint(QPainter *painter,
@@ -110,6 +111,8 @@ private:
   // Either, all our children are substripts, or all are slides.
   QMap<QDateTime, Filmstrip *> subStrips;
   QMap<quint64, Slide *> slides;
+  QList<quint64> latentVersions;
+  QRectF latentSubRect;
 };
 
 #endif
