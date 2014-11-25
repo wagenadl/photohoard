@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QSet>
 #include <QDebug>
+#include <QGraphicsSceneMouseEvent>
 
 #define MAXDIRECT 50
 
@@ -14,7 +15,9 @@ Filmstrip::Filmstrip(PhotoDB const &db, QGraphicsItem *parent):
   tilesize = 128;
   rowwidth = 1024;
   showheader = true;
-  expanded = true;
+  expanded = false;
+  rebuilding = false;
+  setPos(1e6, 1e6);
 }
 
 Filmstrip::~Filmstrip() {
@@ -31,8 +34,8 @@ QDateTime Filmstrip::endDateTime() const {
 
 QDateTime Filmstrip::endFor(QDateTime d0, TimeScale scl) {
   switch (scl) {
-  case TimeScale::None:
-    return d0;
+  case TimeScale::Eternity:
+    return d0.addYears(1000);
   case TimeScale::Decade:
     return d0.addYears(10);
   case TimeScale::Year:
@@ -45,8 +48,10 @@ QDateTime Filmstrip::endFor(QDateTime d0, TimeScale scl) {
     return d0.addSecs(3600);
   case TimeScale::DecaMinute:
     return d0.addSecs(600);
+  case TimeScale::None:
+    return QDateTime();
   }
-  return d0; // not executed
+  return QDateTime(); // not executed
 }
 
 Filmstrip::TimeScale Filmstrip::timeScale() const {
@@ -63,32 +68,72 @@ void Filmstrip::hideHeader() {
   relayout();
 }
 
+int Filmstrip::labelHeight(int) {
+  return 16;
+}
+
+bool Filmstrip::hasTopLabel() const {
+  return scl==TimeScale::Eternity
+    || scl==TimeScale::Decade
+    || scl==TimeScale::Year;
+}
+
 QRectF Filmstrip::boundingRect() const {
   if (!showheader)
     return QRectF(0, 0, 1, 1);
   
   switch (arr) {
   case Arrangement::Horizontal:
-    return QRectF(0, 0, tilesize/6, tilesize);
-  case Arrangement::Vertical:
-    return QRectF(0, 0, tilesize, tilesize/6);
-  case Arrangement::Grid:
-    if (scl==TimeScale::Decade || scl==TimeScale::Year)
-      return QRectF(0, 0, rowwidth, tilesize/6);
+    if (expanded)
+      return QRectF(0, 0, tilesize, tilesize);
     else
-      return QRectF(0, 0, tilesize/6, tilesize);
+      return QRectF(0, 0, labelHeight(tilesize), tilesize);
+  case Arrangement::Vertical:
+    if (expanded)
+      return QRectF(0, 0, tilesize, tilesize);
+    else
+      return QRectF(0, 0, tilesize, labelHeight(tilesize));
+  case Arrangement::Grid:
+    if (expanded) {
+      if (hasTopLabel()) 
+	return QRectF(0, 0, rowwidth, labelHeight(tilesize));
+      else 
+	return QRectF(0, 0, labelHeight(tilesize), subBoundingRect().height());
+    } else {
+      return QRectF(0, 0, tilesize, tilesize);
+    }
   }
   return QRectF(0, 0, 1, 1); // not executed
 }
 
-QRectF Filmstrip::netBoundingRect() const {
-  QRectF r = boundingRect();
-  if (expanded) {
-    for (auto s: slides)
-      r |= s->mapRectToParent(s->boundingRect());
+QRectF Filmstrip::subBoundingRect() const {
+  if (!slides.isEmpty()) {
+    int lw = (scl==TimeScale::Eternity
+	      || scl==TimeScale::Decade
+	      || scl==TimeScale::Year)
+      ? 0 : labelHeight(tilesize);
+    int lh = lw ? 0 : labelHeight(tilesize);
+    int perrow = (rowwidth - lw) / tilesize;
+    int rows = slides.size()/perrow;
+    if (slides.size()%perrow>0)
+      rows++;
+//    qDebug() << "subBoundingRect" << d0 << int(scl) << ":"
+//	     << lw << perrow << rows << slides.size()
+//	     << ":"
+//	     << QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
+    return QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
+  } else {
+    QRectF r;
     for (auto f: subStrips)
       r |= f->mapRectToParent(f->netBoundingRect());
+    return r;
   }
+}
+
+QRectF Filmstrip::netBoundingRect() const {
+  QRectF r = boundingRect();
+  if (expanded)
+    r |= subBoundingRect();
   return r;
 }
 
@@ -100,53 +145,75 @@ void Filmstrip::paint(QPainter *painter,
 
   QRectF r = boundingRect();
 
-  painter->setPen(QPen(Qt::NoPen));
-  painter->setBrush(QBrush(QColor(0, 0, 0)));
-  painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
-  painter->setBrush(QBrush(QColor(255, 255, 255)));
-  painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
-  painter->setBrush(QBrush(QColor(127, 127, 127)));
-  painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
-
-  painter->setPen(QPen(QColor(0, 0, 0)));
-  painter->setBrush(QBrush(QColor(255, 255, 255)));
-
-  QString lbl;
-  switch (scl) {
-  case TimeScale::None:
-    lbl = "??";
-    break;
-  case TimeScale::Decade:
-    lbl = d0.toString("yyyy") + QString::fromUtf8("–’")
-      + d0.addYears(9).toString("yy");
-    break;
-  case TimeScale::Year:
-    lbl = d0.toString("yyyy");
-    break;
-  case TimeScale::Month:
-    lbl = d0.toString("MMM yyyy");
-    break;
-  case TimeScale::Day:
-    lbl = d0.toString(QString::fromUtf8("MM/dd/’yy"));
-    break;
-  case TimeScale::Hour:
-    lbl = d0.toString("h ap");
-    break;
-  case TimeScale::DecaMinute:
-    lbl = d0.toString("h:mm") + QString::fromUtf8("–")
-      + d0.addSecs(9*60).toString(":mm");
-    break;
+  if (expanded) {
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setBrush(QBrush(QColor(0, 0, 0)));
+    QPolygonF poly;
+    int slantw = 16; // tilesize/2;
+    if (r.width() >= r.height()) {
+      poly << (r.topLeft() + QPointF(slantw+2, 2));
+      poly << (r.topRight() + QPointF(-slantw, 2));
+      poly << r.bottomRight();
+      poly << (r.bottomLeft() + QPointF(2, 0));
+    } else {
+      poly << (r.topLeft() + QPointF(2, slantw+2));
+      poly << (r.topRight() + QPointF(0, 2));
+      poly << r.bottomRight();
+      poly << (r.bottomLeft() + QPointF(2, -slantw));
+    }      
+    painter->drawPolygon(poly);
+    poly.translate(-2, -2);
+    painter->setBrush(QBrush(QColor(255, 255, 255)));
+    painter->drawPolygon(poly);
+    poly.translate(1, 1);
+    painter->setBrush(QBrush(QColor(127, 127, 127)));
+    painter->drawPolygon(poly); 
+  } else {
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setBrush(QBrush(QColor(0, 0, 0)));
+    painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
+    painter->setBrush(QBrush(QColor(255, 255, 255)));
+    painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
+    painter->setBrush(QBrush(QColor(127, 127, 127)));
+    painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
   }
+
+  painter->setPen(QPen(QColor(255, 255, 255)));
+  QString lbl = labelFor(d0, scl);
   
-  if (r.width() > r.height()) {
+  if (r.width() >= r.height()) {
     // Horizontal display
     painter->drawText(r, Qt::AlignCenter, lbl);
   } else {
     // Vertical display
     painter->rotate(-90);
-    painter->drawText(QRectF(0, -r.width(), r.height(), r.width()),
+    painter->drawText(QRectF(-r.height(), 0, r.height(), r.width()),
 		      Qt::AlignCenter, lbl);
   }  
+}
+
+QString Filmstrip::labelFor(QDateTime d0, Filmstrip::TimeScale scl) {
+  switch (scl) {
+  case TimeScale::Eternity:
+    return "Library";
+  case TimeScale::Decade:
+    return d0.toString("yyyy") + QString::fromUtf8("–’")
+      + d0.addYears(9).toString("yy");
+  case TimeScale::Year:
+    return d0.toString("yyyy");
+  case TimeScale::Month:
+    return d0.toString("MMM yyyy");
+  case TimeScale::Day:
+    return d0.toString(QString::fromUtf8("MM/dd/’yy"));
+  case TimeScale::Hour:
+    return d0.toString("h ap");
+  case TimeScale::DecaMinute:
+    return d0.toString("h:mm") + QString::fromUtf8("–")
+      + d0.addSecs(9*60).toString(":mm");
+  case TimeScale::None:
+    return "None";
+  }
+  return "?";
 }
 
 
@@ -185,42 +252,49 @@ void Filmstrip::updateImage(quint64 v, QSize, QImage img) {
 
 void Filmstrip::setTimeRange(QDateTime t0, TimeScale scl1) {
   scl = scl1;
-  switch (scl) {
-  case TimeScale::None: {
-    d0 = t0;
-  } break;
-  case TimeScale::Decade: {
-    int yr = t0.date().year();
-    while (yr%10 != 1)
-      yr--;
-    d0 = QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
-  } break;
-  case TimeScale::Year: {
-    int yr = t0.date().year();
-    d0 = QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
-  } break;
-  case TimeScale::Month: {
-    int yr = t0.date().year();
-    int mo = t0.date().month();
-    d0 = QDateTime(QDate(yr, mo, 1), QTime(0, 0, 0));
-  } break;
-  case TimeScale::Day:
-    d0 = QDateTime(t0.date(), QTime(0, 0, 0));
-  case TimeScale::Hour: {
-    int h = t0.time().hour();
-    d0 = QDateTime(t0.date(), QTime(h, 0, 0));
-  } break;
-  case TimeScale::DecaMinute: {
-    int h = t0.time().hour();
-    int dm = t0.time().minute()/10;
-    d0 = QDateTime(t0.date(), QTime(h, 10*dm, 0));
-  } break;
-  }
+  d0 = startFor(t0, scl);
   clearContents();
   rebuildContents();
 }
 
+QDateTime Filmstrip::startFor(QDateTime t0, TimeScale scl) {
+  switch (scl) {
+  case TimeScale::Eternity:
+    return QDateTime(QDate(1500, 1, 1), QTime(0, 0, 0));
+  case TimeScale::Decade: {
+    int yr = t0.date().year();
+    while (yr%10 != 1)
+      yr--;
+    return QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
+  }
+  case TimeScale::Year: {
+    int yr = t0.date().year();
+    return QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
+  }
+  case TimeScale::Month: {
+    int yr = t0.date().year();
+    int mo = t0.date().month();
+    return QDateTime(QDate(yr, mo, 1), QTime(0, 0, 0));
+  }
+  case TimeScale::Day:
+    return QDateTime(t0.date(), QTime(0, 0, 0));
+  case TimeScale::Hour: {
+    int h = t0.time().hour();
+    return QDateTime(t0.date(), QTime(h, 0, 0));
+  }
+  case TimeScale::DecaMinute: {
+    int h = t0.time().hour();
+    int dm = t0.time().minute()/10;
+    return QDateTime(t0.date(), QTime(h, 10*dm, 0));
+  }
+  case TimeScale::None:
+    return QDateTime();
+  }
+  return QDateTime();
+}
+
 void Filmstrip::setArrangement(Arrangement arr1) {
+  prepareGeometryChange();
   arr = arr1;
   for (auto f: subStrips)
     f->setArrangement(arr1);
@@ -228,6 +302,7 @@ void Filmstrip::setArrangement(Arrangement arr1) {
 }
 
 void Filmstrip::setTileSize(int pix) {
+  prepareGeometryChange();
   tilesize = pix;
   for (auto f: subStrips)
     f->setTileSize(pix);
@@ -236,39 +311,64 @@ void Filmstrip::setTileSize(int pix) {
   relayout();
 }
 
+int Filmstrip::subRowWidth(int pix) const {
+  return (scl==TimeScale::Eternity
+	  || scl==TimeScale::Decade
+	  || scl==TimeScale::Year)
+    ? pix : pix - labelHeight(tilesize);  
+}
+
 void Filmstrip::setRowWidth(int pix) {
+  prepareGeometryChange();
   rowwidth = pix;
+  int subwidth = subRowWidth(pix);
   for (auto f: subStrips)
-    f->setRowWidth(pix);
+    f->setRowWidth(subwidth);
   relayout();
 }
 
 void Filmstrip::expand() {
+  prepareGeometryChange();
   expanded = true;
-  relayout();
+  for (auto c: orderedChildren)
+    c->show();
+  if (needsRebuild)
+    rebuildContents();
+  else
+    relayout();
+  update();
 }
 
 void Filmstrip::collapse() {
+  prepareGeometryChange();
   expanded = false;
-  relayout();
+  for (auto c: orderedChildren)
+    c->hide();
+  update();
+  emit resized();
 }
 
 void Filmstrip::expandAll() {
+  expand();
   for (auto f: subStrips)
     f->expandAll();
-  expand();
 }
 
 void Filmstrip::collapseAll() {
+  collapse();
   for (auto f: subStrips)
     f->collapseAll();
-  collapse();
 }
 
 void Filmstrip::relayout() {
   if (!expanded)
     return;
-  
+  if (rebuilding)
+    return;
+  //  qDebug() << "relayout " << d0 << int(scl);
+
+  prepareGeometryChange();
+    
   switch (arr) {
   case Arrangement::Horizontal: {
     int x = boundingRect().right();
@@ -293,26 +393,39 @@ void Filmstrip::relayout() {
     }
   } break;
   case Arrangement::Grid: {
-    QRectF r = boundingRect();
-    int x = boundingRect().right();
-    int y = 0;
-    int dy = r.height();
+    bool hastoplabel = hasTopLabel();
+    int x0 = hastoplabel ? 0 : labelHeight(tilesize);
+    int y0 = hastoplabel ? labelHeight(tilesize) : 0;
+    int edy = subStrips.isEmpty() ? 0 : 2;
+    int dy = 0;
+    int x = x0;
+    int y = y0;
+    bool atstart = true;
     for (auto c: orderedChildren) {
       Filmstrip *s = dynamic_cast<Filmstrip *>(c);
+      bool ex = s ? s->isExpanded() : false;
       QRectF r1 = s ? s->netBoundingRect() : c->boundingRect();
-      if (x>0 && x+r1.width()>rowwidth) {
-	x = 0;
-	y += dy;
+      if ((ex || x+r1.width()>rowwidth) && !atstart) {
+	y += dy + edy;
+	x = x0;
 	dy = 0;
+	atstart = true;
       }
       c->setPos(x, y);
-      x += r1.width();
       if (r1.height()>dy)
 	dy = r1.height();
+      if (ex) {
+	x = x0;
+	y += dy + edy;
+	dy = 0;
+	atstart = true;
+      } else {
+	x += r1.width();	
+	atstart = false;
+      }
     }
   } break;
   }
-  update();
   emit resized();
 }
 	
@@ -338,10 +451,10 @@ int Filmstrip::countInRange(QDateTime begin, QDateTime end) const {
 	    " where photos.capturedate>=:a and photos.capturedate<:b");
   q.bindValue(":a", begin);
   q.bindValue(":b", end);
-  qDebug() << "countinrange";
+  //  qDebug() << "countinrange" << begin << end;
   if (!q.exec() || !q.next())
     throw q;
-  qDebug() << "  counted versions: " << q.value(0).toInt();
+  //  qDebug() << "  counted versions: " << q.value(0).toInt();
   return q.value(0).toInt();
 }
 
@@ -352,11 +465,42 @@ bool Filmstrip::anyInRange(QDateTime begin, QDateTime end) const {
 	    " where capturedate>=:a and capturedate<:b");
   q.bindValue(":a", begin);
   q.bindValue(":b", end);
-  qDebug() << "anyinrange";
+  //  qDebug() << "anyinrange" << begin << end;
   if (!q.exec() || !q.next())
     throw q;
-  qDebug() << "  counted photos: " << q.value(0).toInt();
+  //  qDebug() << "  counted photos: " << q.value(0).toInt();
   return q.value(0).toInt() > 0;
+}
+
+QDateTime Filmstrip::firstDateIn(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q(*db);
+  q.prepare("select capturedate from photos"
+	    " where capturedate>=:a and photos.capturedate<:b"
+	    " order by capturedate limit 1");
+  q.bindValue(":a", t0);
+  q.bindValue(":b", t1);
+  //  qDebug() << "firstdatein" << t0 << t1;
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    return QDateTime();
+  return q.value(0).toDateTime();
+}
+
+QDateTime Filmstrip::lastDateIn(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q(*db);
+  q.prepare("select capturedate from photos"
+	    " where capturedate>=:a and photos.capturedate<:b"
+	    " order by capturedate desc"
+	    " limit 1");
+  q.bindValue(":a", t0);
+  q.bindValue(":b", t1);
+  //  qDebug() << "lastdatein" << t0 << t1;
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    return QDateTime();
+  return q.value(0).toDateTime();
 }
 
 QList<quint64> Filmstrip::versionsInRange(QDateTime begin,
@@ -369,6 +513,7 @@ QList<quint64> Filmstrip::versionsInRange(QDateTime begin,
 	    " order by photos.capturedate");
   q.bindValue(":a", begin);
   q.bindValue(":b", end);
+  //  qDebug() << "versionsinrange" << begin << end;
   if (!q.exec())
     throw q;
   QList<quint64> vv;
@@ -378,41 +523,50 @@ QList<quint64> Filmstrip::versionsInRange(QDateTime begin,
 }
 
 void Filmstrip::rebuildContents() {
-  int n = countInRange(startDateTime(), endDateTime());
-
-  orderedChildren.clear(); // will rebuild
-
-  if ((n>=MAXDIRECT && scl != TimeScale::DecaMinute)
-      || !subStrips.isEmpty()) {
-    rebuildContentsWithSubstrips();
-    showheader = subStrips.size() > 1;
+  if (expanded) {
+    rebuilding = true;
+    int n = countInRange(startDateTime(), endDateTime());
+    
+    orderedChildren.clear(); // will rebuild
+    
+    if ((n>=MAXDIRECT && scl!=TimeScale::DecaMinute)
+	|| !subStrips.isEmpty()) {
+      rebuildContentsWithSubstrips();
+      showheader = true; // subStrips.size() > 1;
+    } else {
+      rebuildContentsDirectly();
+      showheader = true;
+    }
+    rebuilding = false;
+    relayout();
   } else {
-    rebuildContentsDirectly();
-    showheader = true;
+    needsRebuild = true;
   }
-  
-  relayout();
 }
 
 void Filmstrip::rebuildContentsWithSubstrips() {
-  for (auto s: slides) {
-    // removeItem(s);
+  for (auto s: slides) 
     delete s;
-  }
+  slides.clear();
     
   TimeScale subs =
-    scl==TimeScale::Decade ? TimeScale::Year
+    scl==TimeScale::Eternity ? TimeScale::Decade
+    : scl==TimeScale::Decade ? TimeScale::Year
     : scl==TimeScale::Year ? TimeScale::Month
     : scl==TimeScale::Month ? TimeScale::Day
     : scl==TimeScale::Day ? TimeScale::Hour
     : TimeScale::DecaMinute;
-  QDateTime t = startDateTime();
   QDateTime end = endDateTime();
-
-  while (t<end) {
-    QDateTime t1 = endFor(t, subs);
-    if (t1==t)
-      throw QDateTime(); // should never happen
+  QDateTime start = firstDateIn(startDateTime(), end);
+  if (start.isNull()) {
+    clearContents();
+    return;
+  }
+  end = lastDateIn(start, end);
+  QDateTime t1;
+  for (QDateTime t=startFor(start, subs); t<=end; t=t1) {
+    t1 = endFor(t, subs);
+    Q_ASSERT(t1>t);
     if (anyInRange(t, t1)) {
       // build or rebuild substrip
       if (!subStrips.contains(t)) {
@@ -425,19 +579,21 @@ void Filmstrip::rebuildContentsWithSubstrips() {
 		this, SIGNAL(clicked(quint64)));
 	connect(subStrips[t], SIGNAL(doubleClicked(quint64)),
 		this, SIGNAL(doubleClicked(quint64)));
-	subStrips[t]->collapse();
 	subStrips[t]->setArrangement(arr);
 	subStrips[t]->setTileSize(tilesize);
-	subStrips[t]->setRowWidth(rowwidth);
+	subStrips[t]->setRowWidth(subRowWidth(rowwidth));
 	connect(subStrips[t], SIGNAL(resized()),
 		this, SLOT(relayout()), Qt::QueuedConnection);
 	// This could cause excessive calls to relayout--I need to check
       }
       subStrips[t]->setTimeRange(t, subs);
       orderedChildren << subStrips[t];
+      if (expanded)
+	subStrips[t]->show();
+      else
+	subStrips[t]->hide();
     } else {
       if (subStrips.contains(t)) {
-	// removeItem(subStrips[t]);
 	delete subStrips[t];
 	subStrips.remove(t);
       }
@@ -463,12 +619,20 @@ void Filmstrip::slideDoubleClicked(quint64 id) {
 }
 
 void Filmstrip::rebuildContentsDirectly() {
+  for (auto s: subStrips)
+    delete s;
+  subStrips.clear();
+  
   QSet<quint64> keep;
   QList<quint64> vv = versionsInRange(startDateTime(), endDateTime());
   for (auto id: vv) {
     if (!slides.contains(id)) {
       slides[id] = new Slide(id, this);
       slides[id]->setTileSize(tilesize);
+      if (expanded)
+	slides[id]->show();
+      else
+	slides[id]->hide();
     }
     orderedChildren << slides[id];
     keep << id;
@@ -484,10 +648,17 @@ void Filmstrip::rebuildContentsDirectly() {
 }
 
 void Filmstrip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
-  expandAll();
 }
 
-void Filmstrip::mousePressEvent(QGraphicsSceneMouseEvent *) {
+void Filmstrip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (e->modifiers() & Qt::ControlModifier)
+    expandAll();
+  else if (e->modifiers() & Qt::ShiftModifier)
+    collapseAll();
+  else if (expanded)
+    collapse();
+  else
+    expand();
 }
 
 void Filmstrip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {

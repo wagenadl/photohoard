@@ -8,13 +8,15 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent) {
   scene = new QGraphicsScene(this);
   setScene(scene);
+  scene->setBackgroundBrush(QColor(255, 255, 255));
   strip = new Filmstrip(db, 0);
-  strip->setArrangement(Filmstrip::Arrangement::Vertical);
+  strip->setArrangement(Filmstrip::Arrangement::Grid);
   setScrollbarPolicies();
-  strip->setTileSize(width()); // minus scrollbar...
-  strip->setTimeRange(QDateTime(QDate(2010,1,1), QTime(0,0,0)),
-		      Filmstrip::TimeScale::Decade);
+  strip->setTileSize(80); //width()); // minus scrollbar...
+  strip->setTimeRange(QDateTime(),
+		      Filmstrip::TimeScale::Eternity);
   scene->addItem(strip);
+  strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
   connect(strip, SIGNAL(needImage(quint64, QSize)),
@@ -25,6 +27,7 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
 	  this, SIGNAL(clicked(quint64)));
   connect(strip, SIGNAL(doubleClicked(quint64)),
 	  this, SIGNAL(doubleClicked(quint64)));
+  strip->expand();
   stripResized();
 }
 

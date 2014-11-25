@@ -3,10 +3,13 @@
 #include "Slide.h"
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
+#include <QStyleOptionGraphicsItem>
+#include <QDebug>
 
 Slide::Slide(quint64 id, Filmstrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
   tilesize = 128;
+  setPos(1e6, 1e6);
 }
 
 void Slide::updateImage(QImage const &img1) {
@@ -21,7 +24,7 @@ void Slide::setTileSize(int pix) {
 }
 
 void Slide::paint(QPainter *painter,
-		  const QStyleOptionGraphicsItem *,
+		  const QStyleOptionGraphicsItem *o,
 		  QWidget *) {
   QRectF r = boundingRect();
   painter->setPen(QPen(Qt::NoPen));
@@ -31,7 +34,6 @@ void Slide::paint(QPainter *painter,
   painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
   painter->setBrush(QBrush(QColor(127, 127, 127)));
   painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
-
   int ims = tilesize - 4;
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
@@ -48,6 +50,7 @@ void Slide::paint(QPainter *painter,
 			   tilesize/2-tgt.height()/2), tgt);
 	painter->drawPixmap(dst, pm);
       }
+      // qDebug() << id << scenePos() << r << o->exposedRect;
       parent->requestImage(id);
       return;
     } 
@@ -77,3 +80,4 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     if (parent)
       parent->slideClicked(id);
 }
+

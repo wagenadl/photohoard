@@ -12,6 +12,7 @@
 class Slide: public QGraphicsItem {
 public:
   Slide(quint64 id, class Filmstrip *parent=0);
+  void makeReady();
   void updateImage(QImage const &img);
   void setTileSize(int pix);
   // exif stuff!

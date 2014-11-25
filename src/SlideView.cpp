@@ -30,8 +30,7 @@ double SlideView::currentZoom() const {
     return fittingZoom();
 }
 
-double SlideView::fi
-  
+double SlideView::fittingZoom() const {  
   double hrat = width() / double(naturalSize.width());
   double vrat = height() / double(naturalSize.height());
   double rat = hrat<vrat ? hrat : vrat;

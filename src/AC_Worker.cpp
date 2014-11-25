@@ -111,7 +111,11 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
 }
 
 void AC_Worker::activateBank() {
-  QList<quint64> notyetready;
+  QSet<quint64> notyetready; // This will collect ones that are already
+  // being loaded but need to be loaded again. We cannot start them over
+  // until they are done, because we don't have a way to track which
+  // version of a request is which.
+  
   int K = bank->availableThreads();
   while (K>0 && !readyToLoad.isEmpty()) {
     quint64 id = rtlOrder.takeFirst();
@@ -261,6 +265,8 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
 
 void AC_Worker::respondToRequest(quint64 version, QImage img) {
   qDebug() << "AC_Worker::respondToRequest " << version << img.size();
+  if (img.isNull()) 
+    img = QImage(QSize(1, 1), QImage::Format_RGB32);
   for (QSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);

@@ -13,6 +13,7 @@ public:
   virtual ~SlideView();
   QSize desiredSize() const;
   double currentZoom() const;
+  double fittingZoom() const;
 public slots:
   void newImage(QSize natSize);
   void updateImage(QImage img);
