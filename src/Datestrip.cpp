@@ -3,6 +3,7 @@
 #include "Datestrip.h"
 #include "Slidestrip.h"
 #include <QSet>
+#include <QDebug>
 
 #define MAXDIRECT 50
 
@@ -14,7 +15,7 @@ Datestrip::Datestrip(PhotoDB const &db, QGraphicsItem *parent):
   Strip(db, parent) {
   mustRebuild = false;
   mustRelayout = false;
-  rebuilding = false;
+  rebuilding = 0;
 }
 
 Datestrip::~Datestrip() {
@@ -22,6 +23,10 @@ Datestrip::~Datestrip() {
 
 
 QRectF Datestrip::subBoundingRect() const {
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "subBoundingRect: exp=" << expanded
+	     << " empty=" << stripOrder.isEmpty();
   if (!expanded)
     return QRectF();
   if (stripOrder.isEmpty())
@@ -53,7 +58,11 @@ void Datestrip::rebuildContents() {
     return;
   }
 
-  rebuilding = true;
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "rebuildContents";
+  
+  rebuilding++;
 
   TimeScale subs = subScale();
   QDateTime end = endDateTime();
@@ -95,8 +104,7 @@ void Datestrip::rebuildContents() {
       s->setArrangement(arr);
       s->setTileSize(tilesize);
       s->setRowWidth(subRowWidth(rowwidth));
-      connect(s, SIGNAL(resized()),
-              this, SLOT(relayout()), Qt::QueuedConnection);
+      connect(s, SIGNAL(resized()), this, SLOT(relayout()));
     }
     s->setTimeRange(t, subs);
     stripOrder << s;
@@ -115,8 +123,11 @@ void Datestrip::rebuildContents() {
     }
   }
 
-  rebuilding = false;
+  rebuilding--;
   relayout();
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "rebuild done";
 }
 
 
@@ -124,11 +135,14 @@ void Datestrip::expand() {
   Strip::expand();
   if (mustRebuild)
     rebuildContents();
-  else if (mustRelayout)
+  if (mustRelayout)
     relayout();
 
   for (auto s: stripOrder)
     s->show();
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "expand done";
 }
 
 void Datestrip::collapse() {
@@ -138,9 +152,19 @@ void Datestrip::collapse() {
 }
 
 void Datestrip::expandAll() {
+  rebuilding++;
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "expandAll";
   expand();
   for (auto s: stripOrder)
     s->expandAll();
+  rebuilding--;
+  if (mustRelayout)
+    relayout();
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "expandAll done";
 }
 
 void Datestrip::collapseAll() {
@@ -150,10 +174,15 @@ void Datestrip::collapseAll() {
 }
 
 void Datestrip::relayout() {
-  if (!expanded) {
+  if (!expanded || rebuilding>0) {
     mustRelayout = true;
     return;
   }
+
+  Strip::relayout();
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "relayout";
 
   switch (arr) {
   case Arrangement::Horizontal: {
@@ -206,6 +235,9 @@ void Datestrip::relayout() {
   } break;
   }
   emit resized();
+  if (shouldDebug())
+    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
+	     << "relayout done";
 }
 
 class Slide *Datestrip::slideByVersion(quint64 vsn) const {

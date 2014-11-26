@@ -3,6 +3,7 @@
 #include "Slidestrip.h"
 #include <QSet>
 #include "Slide.h"
+#include <QDebug>
 
 Slidestrip::Slidestrip(PhotoDB const &db, QGraphicsItem *parent):
   Strip(db, parent) {
@@ -16,6 +17,10 @@ Slidestrip::~Slidestrip() {
 
 
 QRectF Slidestrip::subBoundingRect() const {
+  if (shouldDebug())
+    qDebug() << "Slidestrip " << d0 << "(" << int(scl) << "): "
+	     << " subBoundingRect: exp=" << expanded
+	     << " latent=" << hasLatent;
   if (!expanded)
     return QRectF();
   int nslides = hasLatent ? latentVersions.size() : slideOrder.size();
@@ -68,6 +73,10 @@ void Slidestrip::rebuildContents() {
     return;
   }
 
+  if (shouldDebug())
+    qDebug() << "Slidestrip " << d0 << "(" << int(scl) << "): "
+	     << " rebuild";
+  
   mustRebuild = false;
   prepareGeometryChange();
   latentVersions = versionsInRange(startDateTime(), endDateTime());
@@ -130,12 +139,18 @@ void Slidestrip::collapse() {
 }
 
 void Slidestrip::relayout() {
+  if (shouldDebug())
+    qDebug() << "Slidestrip " << d0 << "(" << int(scl) << "): "
+	     << " relayout: exp=" << expanded
+	     << " latent=" << hasLatent;
   if (hasLatent)
     return;
   if (!expanded) {
     mustRelayout = true;
     return;
   }
+
+  Strip::relayout();
   
   switch (arr) {
   case Arrangement::Horizontal: {

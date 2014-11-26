@@ -5,8 +5,10 @@
 #define DATESTRIP_H
 
 #include "Strip.h"
+#include <QTimer>
 
 class Datestrip: public Strip {
+  Q_OBJECT;
 public:
   Datestrip(PhotoDB const &db, QGraphicsItem *parent);
   virtual ~Datestrip();
@@ -32,7 +34,7 @@ protected:
   QList<Strip *> stripOrder;
   bool mustRebuild;
   bool mustRelayout;
-  bool rebuilding;
+  int rebuilding;
 };
 
 #endif

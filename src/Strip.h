@@ -82,6 +82,9 @@ protected:
   QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
   QDateTime lastDateInRange(QDateTime t0, QDateTime t1) const;
 protected:
+  bool shouldDebug() const;
+  int subHeight() const;
+protected:
   PhotoDB db;
   QDateTime d0;
   TimeScale scl;
@@ -89,6 +92,7 @@ protected:
   int tilesize;
   int rowwidth;
   bool expanded;
+  mutable int subheight;
 };
 
 #endif

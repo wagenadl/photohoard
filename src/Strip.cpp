@@ -14,12 +14,18 @@ Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   tilesize = 128;
   rowwidth = 1024;
   expanded = false;
+  subheight = -1;
   setPos(1e6, 1e6);
 }
 
 Strip::~Strip() {
 }
 
+int Strip::subHeight() const {
+  if (subheight<0)
+    subheight = subBoundingRect().height();
+  return subheight;
+}
 
 QDateTime Strip::startDateTime() const {
   return d0;
@@ -82,7 +88,7 @@ QRectF Strip::labelBoundingRect() const {
       if (hasTopLabel()) 
 	return QRectF(0, 0, rowwidth, labelHeight(tilesize));
       else 
-	return QRectF(0, 0, labelHeight(tilesize), subBoundingRect().height());
+	return QRectF(0, 0, labelHeight(tilesize), subHeight());
     } else {
       return QRectF(0, 0, tilesize, tilesize);
     }
@@ -262,6 +268,9 @@ void Strip::setRowWidth(int pix) {
 }
 
 void Strip::expand() {
+  if (shouldDebug())
+    qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
+	     << " expand";
   prepareGeometryChange();
   expanded = true;
   update();
@@ -269,6 +278,9 @@ void Strip::expand() {
 }
 
 void Strip::collapse() {
+  if (shouldDebug())
+    qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
+	     << " collapse";
   prepareGeometryChange();
   expanded = false;
   update();
@@ -284,6 +296,7 @@ void Strip::collapseAll() {
 }
 
 void Strip::relayout() {
+  subheight = -1;
 }
 	
 void Strip::rescan() {
@@ -370,4 +383,11 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
+}
+
+bool Strip::shouldDebug() const {
+  return (d0==QDateTime(QDate(2006,6,1), QTime(0, 0, 0))
+	  && scl==TimeScale::Month)
+    || (d0==QDateTime(QDate(2006,6,21), QTime(8, 0, 0))
+	&& scl==TimeScale::Hour);
 }
