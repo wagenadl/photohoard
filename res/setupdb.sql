@@ -105,3 +105,7 @@ insert into extensions(filetype, extension)
        select id, "tif" from filetypes where stdext=="tiff";
 
 insert into info values("PhotoDB", "1.0");
+
+create index if not exists photodateidx on photos(capturedate);
+create index if not exists parentfolderidx on folders(parentfolder);
+create index if not exists versionidx on versions(photo);

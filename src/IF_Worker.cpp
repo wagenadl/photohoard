@@ -3,6 +3,7 @@
 #include "IF_Worker.h"
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QProcess>
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
@@ -43,17 +44,33 @@ void IF_Worker::findImage(quint64 id, QString path, int ver, QString ext,
       }
       emit foundImage(id, img);
     } else if (ext=="nef" || ext=="cr2") {
-      // Need dcraw
-      emit foundImage(id, QImage());
+      QProcess dcraw;
+      QStringList args;
+      args << "-c";
+      args << path;
+      // If the image is large enough, we might be able to do a quicker
+      // load of a downscaled version
+      dcraw.start("dcraw", args);
+      if (!dcraw.waitForStarted())
+	throw QString("Could not start DCRaw");
+      if (!dcraw.waitForFinished())
+	throw QString("Could not complete DCRaw");
+      QImage img;
+      if (!img.loadFromData(dcraw.readAllStandardOutput()))
+	throw QString("Could not parse DCRaw output");
+      // change orientation if needed
+      emit foundImage(id, img);
     } else {
       // Unknown format
       emit foundImage(id, QImage());
     }
-  } catch (QSqlQuery &q) {
-    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+  } catch (QSqlQuery const &q) {
+    emit exception("IF_Worker: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
+  } catch (QString const &s) {
+    emit exception("IF_Worker: " + s);
   } catch (...) {
-    emit exception("AC_Worker: Unknown exception");
+    emit exception("IF_Worker: Unknown exception");
   }
 }
 
