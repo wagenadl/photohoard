@@ -9,7 +9,7 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
 }
 
 void IF_Worker::findImage(quint64 id, QString path, int ver, QString ext,
-                          Exif::Orientation orient, int maxdim) {
+                          Exif::Orientation orient, int maxdim, QSize ns) {
   try {
     if (ver!=0) {
       emit foundImage(id, QImage());

@@ -28,9 +28,9 @@ ImageFinder::~ImageFinder() {
 }
 
 void ImageFinder::findImage(quint64 id, QString path, int ver, QString ext,
-                            Exif::Orientation orient, int maxdim) {
+                            Exif::Orientation orient, int maxdim, QSize ns) {
   queuelength++;
-  emit forwardFindImage(id, path, ver, ext, orient, maxdim);
+  emit forwardFindImage(id, path, ver, ext, orient, maxdim, ns);
 }
 
 void ImageFinder::handleFoundImage(quint64 id, QImage img) {

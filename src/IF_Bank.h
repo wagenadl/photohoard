@@ -16,7 +16,7 @@ public:
   int queueLength() const;
 public slots:
   void findImage(quint64 id, QString path, int ver, QString ext,
-                 Exif::Orientation orient, int maxdim);
+                 Exif::Orientation orient, int maxdim, QSize natsize);
 signals:
   void foundImage(quint64, QImage);
   void exception(QString);

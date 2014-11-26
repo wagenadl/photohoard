@@ -41,7 +41,7 @@ int IF_Bank::queueLength() const {
 }
 
 void IF_Bank::findImage(quint64 id, QString path, int ver, QString ext,
-                        Exif::Orientation orient, int maxdim) {
+                        Exif::Orientation orient, int maxdim, QSize ns) {
   ImageFinder *f0 = 0;
   int ql0 = 0;
   for (auto f: finders) {
@@ -51,5 +51,5 @@ void IF_Bank::findImage(quint64 id, QString path, int ver, QString ext,
       ql0 = ql;
     }
   }
-  f0->findImage(id, path, ver, ext, orient, maxdim);
+  f0->findImage(id, path, ver, ext, orient, maxdim, ns);
 }

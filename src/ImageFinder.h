@@ -24,7 +24,7 @@ private slots:
   void handleFoundImage(quint64 id, QImage img);
 signals:  // private
   void forwardFindImage(quint64 id, QString path, int ver, QString ext,
-                        Exif::Orientation orient, int maxdim);
+                        Exif::Orientation orient, int maxdim, QSize ns);
 private:
   QThread thread;
   class IF_Worker *worker;

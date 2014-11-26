@@ -183,7 +183,7 @@ void AC_Worker::sendToBank(quint64 version) {
     throw NoResult();
   quint64 photo = q.value(0).toULongLong();
   int ver = q.value(1).toInt();
-  q.prepare("select folder, filename, filetype, orient "
+  q.prepare("select folder, filename, filetype, width, height, orient "
 	    " from photos where id=:i");
   q.bindValue(":i", photo);
   if (!q.exec())
@@ -193,8 +193,8 @@ void AC_Worker::sendToBank(quint64 version) {
   quint64 folder = q.value(0).toULongLong();
   QString fn = q.value(1).toString();
   int ftype = q.value(2).toInt();
-  //    int wid = q.value(3).toInt();
-  //    int hei = q.value(4).toInt();
+  int wid = q.value(3).toInt();
+  int hei = q.value(4).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   if (!folders.contains(folder)) {
     q.prepare("select pathname from folders where id=:i");
@@ -214,7 +214,8 @@ void AC_Worker::sendToBank(quint64 version) {
 	maxdim = md;
     }
   }
-  bank->findImage(version, path, ver, ftypes[ftype], orient, md);
+  bank->findImage(version, path, ver, ftypes[ftype], orient, md, 
+		  QSize(wid,hei));
 }
 
 void AC_Worker::storeLoadedInDB() {
