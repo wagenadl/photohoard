@@ -6,7 +6,6 @@
 
 ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
   setObjectName("ImageFinder");
-  maxdim = 0; // i.e., infinity
   queuelength = 0;
   worker = new IF_Worker(0);
   worker->moveToThread(&thread);
@@ -28,12 +27,8 @@ ImageFinder::~ImageFinder() {
   thread.wait();
 }
 
-void ImageFinder::setMaxDim(int m) {
-  maxdim = m;
-}
-
 void ImageFinder::findImage(quint64 id, QString path, int ver, QString ext,
-                            Exif::Orientation orient) {
+                            Exif::Orientation orient, int maxdim) {
   queuelength++;
   emit forwardFindImage(id, path, ver, ext, orient, maxdim);
 }

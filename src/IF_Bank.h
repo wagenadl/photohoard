@@ -14,10 +14,9 @@ public:
   virtual ~IF_Bank();
   int availableThreads() const;
   int queueLength() const;
-  void setMaxDim(int);
 public slots:
   void findImage(quint64 id, QString path, int ver, QString ext,
-                 Exif::Orientation orient);
+                 Exif::Orientation orient, int maxdim);
 signals:
   void foundImage(quint64, QImage);
   void exception(QString);

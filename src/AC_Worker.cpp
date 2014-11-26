@@ -18,7 +18,6 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   readFTypes();
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  bank->setMaxDim(0); // cache->maxDim());
   connect(bank, SIGNAL(foundImage(quint64, QImage)),
 	  this, SLOT(handleFoundImage(quint64, QImage)));
   connect(bank, SIGNAL(exception(QString)),
@@ -207,8 +206,15 @@ void AC_Worker::sendToBank(quint64 version) {
     folders[folder] = q.value(0).toString();
   }
   QString path = folders[folder] + "/" + fn;
-
-  bank->findImage(version, path, ver, ftypes[ftype], orient);
+  int maxdim = cache->standardSizes().first();
+  if (requests.contains(version)) {
+    for (auto s: requests[version]) {
+      int md = cache->maxdim(s);
+      if (md>maxdim)
+	maxdim = md;
+    }
+  }
+  bank->findImage(version, path, ver, ftypes[ftype], orient, md);
 }
 
 void AC_Worker::storeLoadedInDB() {
@@ -246,10 +252,28 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     qDebug() << "AC_Worker::requestImage"
 	     << version << desired << actual << beingLoaded.contains(version);
     if (actual.width()<desired.width() && actual.height()<desired.height()) {
-      requests[version] << desired;
-      if (!beingLoaded.contains(version)) {
-	// If it is already being loaded, we may be liable to get
-	// a copy that is too small. But I am not sure.
+      if (beingLoaded.contains(version)) {
+	// If it is already being loaded, we are liable to get
+	// a copy that is too small.
+	bool contained = false;
+	for (auto s: requests[version]) {
+	  if (s.width()>=desired.width() && s.height()>=desired.height()) {
+	    contained = true;
+	    break;
+	  }
+	}
+	requests[version] << desired;
+	if (contained) {
+	  // That's easy, we'll get a large enough version
+	} else {
+	  invalidatedWhileLoading << version;
+	  if (!readyToLoad.contains(version)) {
+	    readyToLoad << version;
+	    rtlOrder.push_front(version);
+	  }
+	}
+      } else {
+	requests[version] << desired;
 	readyToLoad << version;
 	rtlOrder.push_front(version);
 	activateBank();

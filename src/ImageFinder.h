@@ -13,11 +13,10 @@ class ImageFinder: public QObject {
 public:
   ImageFinder(QObject *parent=0);
   virtual ~ImageFinder();
-  void setMaxDim(int);
   int queueLength() const { return queuelength; }
 public slots:
   void findImage(quint64 id, QString path, int ver, QString ext,
-                 Exif::Orientation orient);
+                 Exif::Orientation orient, int maxdim);
 signals:
   void foundImage(quint64, QImage);
   void exception(QString);
@@ -29,7 +28,6 @@ signals:  // private
 private:
   QThread thread;
   class IF_Worker *worker;
-  int maxdim;
   int queuelength;
 };
 

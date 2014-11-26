@@ -68,6 +68,7 @@ public:
    *:D Convenience function to return the larger of the two dimensions
    contained in a QSize.
   */
+  QList<int> standardSizes() const { return stdsizes; }
   int maxDim() const;
   QImage sufficientSize(QImage const &);
   /*:F sufficientSize
