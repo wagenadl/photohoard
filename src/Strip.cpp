@@ -16,6 +16,7 @@ Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   rowwidth = 1024;
   expanded = false;
   subheight = -1;
+  headerid = 0;
   setPos(1e6, 1e6);
 }
 
@@ -133,59 +134,109 @@ QRectF Strip::netBoundingRect() const {
   return r;
 }
 
-void Strip::paint(QPainter *painter,
-		      const QStyleOptionGraphicsItem *,
-		      QWidget *) {
-  QRectF r = labelBoundingRect();
-  int bggray = (int(scl) & 1) ? 230 : 200;
-  if (expanded) {
-    painter->setPen(QPen(Qt::NoPen));
-    QPolygonF poly;
-    int slantw = 12;
-    if (r.width() >= r.height()) {
-      poly << (r.topLeft() + QPointF(slantw+2, 2));
-      poly << (r.topRight() + QPointF(-slantw, 2));
-      poly << r.bottomRight();
-      poly << (r.bottomLeft() + QPointF(2, 0));
-    } else {
-      poly << (r.topLeft() + QPointF(2, slantw+2));
-      poly << (r.topRight() + QPointF(0, 2));
-      poly << r.bottomRight();
-      poly << (r.bottomLeft() + QPointF(2, -slantw));
-    }      
-    painter->setBrush(QBrush(QColor(129, 129, 129)));
-    painter->drawPolygon(poly);
-    poly.translate(-2, -2);
-    painter->setBrush(QBrush(QColor(240, 240, 240)));
-    painter->drawPolygon(poly);
-    poly.translate(1, 1);
-    painter->setBrush(QBrush(QColor(bggray, bggray, bggray)));
-    painter->drawPolygon(poly); 
-  } else {
-    painter->setPen(QPen(Qt::NoPen));
-    painter->setBrush(QBrush(QColor(129, 129, 129)));
-    painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
-    painter->setBrush(QBrush(QColor(240, 240, 240)));
-    painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
-    painter->setBrush(QBrush(QColor(bggray, bggray, bggray)));
-    painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
-  }
+void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
+  painter->setPen(QPen(Qt::NoPen));
+  painter->setBrush(QBrush(QColor(129, 129, 129)));
+  painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
+  painter->setBrush(QBrush(QColor(240, 240, 240)));
+  painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
+  painter->setBrush(QBrush(bg));
+  painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+}
 
-  painter->setPen(QPen(QColor(0, 0, 0)));
-  QString lbl = labelFor(d0, scl);
-  
+void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
+  painter->setPen(QPen(Qt::NoPen));
+  QPolygonF poly;
+  int slantw = 12;
   if (r.width() >= r.height()) {
+    poly << (r.topLeft() + QPointF(slantw+2, 2));
+    poly << (r.topRight() + QPointF(-slantw, 2));
+    poly << r.bottomRight();
+    poly << (r.bottomLeft() + QPointF(2, 0));
+  } else {
+    poly << (r.topLeft() + QPointF(2, slantw+2));
+    poly << (r.topRight() + QPointF(0, 2));
+    poly << r.bottomRight();
+    poly << (r.bottomLeft() + QPointF(2, -slantw));
+  }      
+  painter->setBrush(QBrush(QColor(129, 129, 129)));
+  painter->drawPolygon(poly);
+  poly.translate(-2, -2);
+  painter->setBrush(QBrush(QColor(240, 240, 240)));
+  painter->drawPolygon(poly);
+  poly.translate(1, 1);
+  painter->setBrush(QBrush(bg));
+  painter->drawPolygon(poly); 
+}
+
+void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
+  if (headerid==0) 
+    setHeaderID(db.simpleQuery("select versions.id"
+                               " from versions inner join photos"
+                               " on versions.photo=photos.id"
+                               " where photos.capturedate>=:a"
+                               " and photos.capturedate<=:b"
+                               " limit 1", d0, endFor(d0, scl))
+                .toULongLong());
+
+  int ims = tilesize - 4;
+  if (!(headerpm.width()==ims || headerpm.height()==ims)) {
+    if (headerimg.isNull()) {
+      requestImage(headerid);
+      return;
+    } else {
+      headerpm = QPixmap::fromImage(headerimg.scaled(QSize(ims, ims),
+                                                     Qt::KeepAspectRatio));
+      headerimg = QImage();
+    }
+  }
+  painter->drawPixmap(r.width()/2 - headerpm.width()/2,
+                      r.height()/2 - headerpm.height()/2,
+                      headerpm);
+}
+
+void Strip::paintHeaderText(QPainter *painter, QRectF r) {
+  QString lbl = labelFor(d0, scl);
+
+  if (!expanded) {
+    painter->setPen(QPen(QColor(0, 0, 0)));
+    painter->drawText(r.adjusted(2, 4, 0, 0), Qt::AlignCenter, lbl);
+    painter->drawText(r.adjusted(4, 2, 0, 0), Qt::AlignCenter, lbl);
+    painter->drawText(r.adjusted(2, 2, 0, 0), Qt::AlignCenter, lbl);
+    painter->drawText(r.adjusted(2, 0, 0, -2), Qt::AlignCenter, lbl);
+    painter->drawText(r.adjusted(0, 2, 0, -2), Qt::AlignCenter, lbl);
+    painter->drawText(r.adjusted(0, 0, -2, -2), Qt::AlignCenter, lbl);
+    painter->setPen(QPen(QColor(255,255,255)));
+    painter->drawText(r, Qt::AlignCenter, lbl);
+  } else if (r.width() >= r.height()) {
     // Horizontal display
+    painter->setPen(QPen(QColor(0, 0, 0)));
     painter->drawText(r, Qt::AlignCenter, lbl);
   } else {
     // Vertical display
     painter->rotate(-90);
     int N = (r.height()+3*tilesize-1)/(3*tilesize);
     int dx = r.height()/N;
+    painter->setPen(QPen(QColor(0, 0, 0)));
     for (int n=0; n<N; n++)    
       painter->drawText(QRectF(-r.height()+dx*n, 0, dx, r.width()),
                         Qt::AlignCenter, lbl);
   }  
+}
+
+void Strip::paint(QPainter *painter,
+                  const QStyleOptionGraphicsItem *,
+                  QWidget *) {
+  QRectF r = labelBoundingRect();
+  int bggray = (int(scl) & 1) ? 230 : 200;
+  QColor bg(bggray, bggray, bggray);
+  if (expanded) {
+    paintExpandedHeaderBox(painter, r, bg);
+  } else {
+    paintCollapsedHeaderBox(painter, r, bg);
+    paintHeaderImage(painter, r);
+  }
+  paintHeaderText(painter, r);
 }
 
 QString Strip::labelFor(QDateTime d0, Strip::TimeScale scl) {
@@ -224,7 +275,6 @@ void Strip::updateImage(quint64 v, QSize, QImage img) {
 void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
   scl = scl1;
   d0 = startFor(t0, scl);
-  clearContents();
   rebuildContents();
 }
 
@@ -423,4 +473,8 @@ bool Strip::shouldDebug() const {
 void Strip::updateHeader(QImage img) {
   headerimg = img;
   update();
+}
+
+void Strip::requestImage(quint64 id) {
+  emit needImage(id, QSize(tilesize, tilesize));
 }

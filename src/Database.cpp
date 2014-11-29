@@ -6,6 +6,7 @@
 #include <system_error>
 #include <QSqlQuery>
 #include <QMutex>
+#include "NoResult.h"
 
 Database::Database(Database const &o) {
   db = o.db;
@@ -135,3 +136,95 @@ Transaction::~Transaction() {
     db.rollbackAndUnlock();
 }
    
+QVariant Database::simpleQuery(QString s) {
+  QSqlQuery q = query(s);
+  if (!q.next())
+    throw NoResult();
+  return q.value(0);
+}
+
+QVariant Database::simpleQuery(QString s, QVariant a) {
+  QSqlQuery q = query(s, a);
+  if (!q.next())
+    throw NoResult();
+  return q.value(0);
+}
+   
+QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) {
+  QSqlQuery q = query(s, a, b);
+  if (!q.next())
+    throw NoResult();
+  return q.value(0);
+}
+
+QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
+                               QVariant c) {
+  QSqlQuery q = query(s, a, b, c);
+  if (!q.next())
+    throw NoResult();
+  return q.value(0);
+}
+   
+QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
+                               QVariant c, QVariant d) {
+  QSqlQuery q = query(s, a, b, c, d);
+  if (!q.next())
+    throw NoResult();
+  return q.value(0);
+}
+   
+QSqlQuery Database::query(QString s) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}
+
+QSqlQuery Database::query(QString s, QVariant a) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}
+
+QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}
+
+QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  q.bindValue(":c", c);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}
+
+QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
+                          QVariant d) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  q.bindValue(":c", c);
+  q.bindValue(":d", d);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}

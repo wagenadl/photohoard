@@ -115,8 +115,8 @@ void AC_Worker::activateBank() {
   // version of a request is which.
   
   int K = bank->availableThreads();
-  if (K>0 && requests.isEmpty())
-    K = 1; // scan slowly if we don't have actual requests
+  if (K>1 && requests.isEmpty())
+    K--; // scan slightly more slowly if we don't have actual requests
   while (K>0 && !readyToLoad.isEmpty()) {
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id))

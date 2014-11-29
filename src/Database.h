@@ -22,6 +22,18 @@ public:
   void commitAndUnlock();
   void rollbackAndUnlock();
   QString fileName() const { return names()[db]; }
+public:
+  QVariant simpleQuery(QString s);
+  QVariant simpleQuery(QString s, QVariant a);
+  QVariant simpleQuery(QString s, QVariant a, QVariant b);
+  QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c);
+  QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c,
+                       QVariant d);
+  QSqlQuery query(QString s);
+  QSqlQuery query(QString s, QVariant a);
+  QSqlQuery query(QString s, QVariant a, QVariant b);
+  QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c);
+  QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d);
 protected:
   QSqlDatabase *db;
 private:

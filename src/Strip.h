@@ -68,6 +68,7 @@ public:
   static QDateTime endFor(QDateTime start, TimeScale scl);
   static QString labelFor(QDateTime t0, TimeScale scl);
   static int labelHeight(int tilesize);
+  void requestImage(quint64);
 protected:
   virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;
@@ -78,6 +79,10 @@ protected:
   virtual void clearContents();
   virtual void rebuildContents();
   void setHeaderID(quint64);
+  void paintHeaderText(QPainter *painter, QRectF r);  
+  void paintHeaderImage(QPainter *painter, QRectF r);
+  void paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg);
+  void paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg);
 protected:
   int countInRange(QDateTime t0, QDateTime t1) const;
   QList<quint64> versionsInRange(QDateTime t0, QDateTime t1) const;

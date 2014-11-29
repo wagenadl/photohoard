@@ -132,8 +132,11 @@ void Datestrip::rebuildContents() {
     QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
 
-    if (!stripMap.contains(t))
+    if (!stripMap.contains(t)) {
+      qDebug() << "Datestrip" << d0 << int(scl) << (void*)this 
+               << ": New substrip " << t << int(subs);
       stripMap[t] = newSubstrip(t, subs);
+    }
     Strip *s = stripMap[t];
     s->setTimeRange(t, subs);
     stripOrder << s;
@@ -147,6 +150,8 @@ void Datestrip::rebuildContents() {
 
   for (auto id: stripMap.keys()) {
     if (!keep.contains(id)) {
+      qDebug() << "Datestrip" << d0 << int(scl) << (void*)this 
+               << ": Removing substrip" << id;
       delete stripMap[id];
       stripMap.remove(id);
     }

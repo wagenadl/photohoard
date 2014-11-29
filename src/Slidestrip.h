@@ -26,7 +26,6 @@ public slots:
 signals:
   void overfilled(QDateTime); // emitted when we have too many pictures
 public: // for slide only
-  void requestImage(quint64);
   void slidePressed(quint64);
   void slideClicked(quint64);
   void slideDoubleClicked(quint64);		    

@@ -141,24 +141,31 @@ void Scanner::run() {
   QMutexLocker l(&mutex);
   n = 0;
   N = photoQueueLength();
+  bool sleepok = true;
   try {
     while (!stopsoon) {
       QSet<quint64> ids;
+      if (db.simpleQuery("select count(*) from photostoscan").toInt()<200
+          && !(ids=findFoldersToScan()).isEmpty()) {
+	l.unlock();
+	scanFolders(ids);
+        sleepok = false;
+	l.relock();
+      }
       if (!(ids=findPhotosToScan()).isEmpty()) {
 	l.unlock();
 	scanPhotos(ids);
 	qDebug() << "Scan progress: " << n << " / " << N;
 	emit progressed(n, N);
-	l.relock();
-      } else if (!(ids=findFoldersToScan()).isEmpty()) {
-	l.unlock();
-	scanFolders(ids);
+        sleepok = false;
 	l.relock();
       } else {
 	if (N>0)
 	  emit done();
 	n = 0;
 	N = 0;
+      }
+      if (sleepok) {
         qDebug() << "Scanner: Going to sleep";
 	waiter.wait(&mutex);
       }

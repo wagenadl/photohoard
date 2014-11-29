@@ -42,10 +42,6 @@ void Slidestrip::paint(QPainter *painter,
     instantiate();
 }
 
-void Slidestrip::requestImage(quint64 id) {
-  emit needImage(id, QSize(tilesize, tilesize));
-}
-
 void Slidestrip::slidePressed(quint64 id) {
   emit pressed(id);
 }
