@@ -9,7 +9,6 @@
 #include "Exif.h"
 #include "Scanner.h"
 #include "PhotoDB.h"
-#include "ProgressWidget.h"
 #include "AutoCache.h"
 #include "ExceptionReporter.h"
 #include "LightTable.h"
@@ -91,7 +90,7 @@ int main(int argc, char **argv) {
       runapp = true;
     }
 
-    if (cmds.contains("dbcreate")) {
+    if (cmds.contains("create")) {
       PhotoDB::create("/tmp/photodb.db");
       BasicCache::create("/tmp/photodb.cache");
     }
@@ -100,30 +99,25 @@ int main(int argc, char **argv) {
     AutoCache *ac = 0;
     ExceptionReporter *excrep = new ExceptionReporter();
     
-    if (cmds.contains("autocache")) {
+    if (cmds.contains("autocache") || cmds.contains("view")) {
       ac = new AutoCache(db, "/tmp/photodb.cache");
-      ProgressWidget *w = new ProgressWidget("Cache");
-      QObject::connect(ac, SIGNAL(progressed(int,int)),
-		       w, SLOT(markProgress(int,int)));
       QObject::connect(ac, SIGNAL(exception(QString)),
 		       excrep, SLOT(report(QString)));
       runapp = true;
-      w->show();      
     }
-    if (cmds.contains("dbscan")) {
+    if (cmds.contains("scan")) {
       scan = new Scanner(db);
-      ProgressWidget *w = new ProgressWidget("Scanner");
-      QObject::connect(scan, SIGNAL(progressed(int,int)),
-		       w, SLOT(markProgress(int,int)));
-      if (ac && scan) 
+      if (ac && scan) {
 	QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
 			 ac, SLOT(recache(QSet<quint64>)));
+        QObject::connect(scan, SIGNAL(cacheablePreview(quint64, QImage)),
+                         ac, SLOT(cachePreview(quint64, QImage)));
+      }
       scan->start();
       scan->addTree("/home/wagenaar/Pictures");
       QObject::connect(scan, SIGNAL(exception(QString)),
 	      excrep, SLOT(report(QString)));
       runapp = true;
-      w->show();
     }
     if (cmds.contains("view")) {
       LightTable *view = new LightTable(db);
@@ -133,6 +127,10 @@ int main(int argc, char **argv) {
 			 ac, SLOT(request(quint64, QSize)));
 	QObject::connect(ac, SIGNAL(available(quint64, QSize, QImage)),
 			 view, SLOT(updateImage(quint64, QSize, QImage)));
+      }
+      if (scan) {
+        QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
+                         view, SLOT(rescan()));
       }
       runapp = true;
     }

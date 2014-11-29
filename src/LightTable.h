@@ -19,6 +19,7 @@ public slots:
   void unMaximize();
   void select(quint64 id=0);
   void updateImage(quint64, QSize, QImage);
+  void rescan();
 signals:
   void needImage(quint64, QSize);
   void selected(quint64);

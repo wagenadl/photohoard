@@ -90,20 +90,39 @@ QImage BasicCache::sufficientSize(QImage const &img) {
     return img;
 }
 
-void BasicCache::add(quint64 id, QImage img) {
+void BasicCache::add(quint64 id, QImage img, bool instantlyOutdated) {
+  //  qDebug() << "BasicCache::add " << id << instantlyOutdated << img.size();
   int d = maxdim(img.size());
-  if (d<=stdsizes[0]) 
+  bool got = false;
+  if (d<=stdsizes[0]) {
     // cache image directly: it is smaller than our largest desired size
-    addToCache(id, img);
-  for (auto s: stdsizes) {
-    if (s<d) {
-      img = img.scaled(QSize(s,s), Qt::KeepAspectRatio);
-      addToCache(id, img);
+    addToCache(id, img, instantlyOutdated);
+    got = true;
+  }
+  if (!instantlyOutdated || !got) {
+    for (auto s: stdsizes) {
+      if (s<d) {
+        img = img.scaled(QSize(s,s), Qt::KeepAspectRatio);
+        addToCache(id, img);
+        if (instantlyOutdated)
+          break;
+      }
     }
+    if (!instantlyOutdated)
+      dropOutdatedFromCache(id);
   }
 }
 
-void BasicCache::addToCache(quint64 id, QImage const &img) {
+void BasicCache::dropOutdatedFromCache(quint64 id) {
+  QSqlQuery q(*db);
+  q.prepare("delete from cache where id==:i and outdated");
+  q.bindValue(":i", id);
+  if (!q.exec())
+    throw q;
+}
+
+void BasicCache::addToCache(quint64 id, QImage const &img,
+                            bool instantlyOutdated) {
   QBuffer buf;
   QImageWriter writer(&buf, "jpeg");
   writer.write(img);
@@ -123,16 +142,18 @@ void BasicCache::addToCache(quint64 id, QImage const &img) {
     q.prepare("update cache "
 	      " set width=:w, height=:h, outdated=:o, infile=:i, bits=:b "
 	      " where version==:v and maxdim==:d");
+    //    qDebug() << "  updating outdated="<<instantlyOutdated;
   } else {
     q.prepare("insert into cache "
 	      " (version, width, height, maxdim, outdated, infile, bits) "
 	      " values (:v, :w, :h, :d, :o, :i, :b)");
+    //    qDebug() << "  inserting outdated="<<instantlyOutdated;
   }
   q.bindValue(":v", id);
   q.bindValue(":w", img.width());
   q.bindValue(":h", img.height());
   q.bindValue(":d", d);
-  q.bindValue(":o", 0);
+  q.bindValue(":o", instantlyOutdated);
   q.bindValue(":i", infile);
   q.bindValue(":b", infile ? QByteArray() : buf.data());
   if (!q.exec())

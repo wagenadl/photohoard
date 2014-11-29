@@ -12,6 +12,7 @@
 class Slide: public QGraphicsItem {
 public:
   Slide(quint64 id, class Slidestrip *parent=0);
+  virtual ~Slide();
   void makeReady();
   void updateImage(QImage const &img);
   void setTileSize(int pix);

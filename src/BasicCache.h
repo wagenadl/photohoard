@@ -22,7 +22,7 @@ public:
    already exist.
   */
   Database const &database() { return db; }
-  void add(quint64 id, QImage img);
+  void add(quint64 id, QImage img, bool instantlyOutdated=false);
   /*:F add
    *:D Adds an image to the cache at each of the sizes defined in the cache.
    *:N By default, the sizes are 1024, 384, and 128 for the largest dimension.
@@ -76,7 +76,8 @@ public:
    */
 private:
   BasicCache(QDir root, Database const &db, QObject *parent=0 );
-  void addToCache(quint64 id, QImage const &img);
+  void addToCache(quint64 id, QImage const &img, bool instantlyOutdated=false);
+  void dropOutdatedFromCache(quint64 id);
   void readConfig();
 private:
   QDir root;

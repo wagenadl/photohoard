@@ -52,6 +52,56 @@ void Datestrip::clearContents() {
   stripMap.clear();
 }
 
+void Datestrip::convertStrip(QDateTime t) {
+  if (!stripMap.contains(t))
+    return;
+  Strip *s = stripMap[t];
+  bool e = s->isExpanded();
+  TimeScale subs = subScale();
+  stripMap[t] = newSubstrip(t, subs);
+  for (auto it=stripOrder.begin(); it!=stripOrder.end(); it++) {
+    if (*it == s) {
+      *it = stripMap[t];
+      break;
+    }
+  }
+  delete s;
+  stripMap[t]->setTimeRange(t, subs);
+  if (expanded)
+    stripMap[t]->show();
+  else
+    stripMap[t]->hide();
+  if (e)
+    stripMap[t]->expand();
+  relayout();
+}  
+
+Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
+  Strip *s;
+  int n = countInRange(t, endFor(t, subs));
+  bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
+  if (indirect) {
+    s = new Datestrip(db, this);
+  } else {
+    s = new Slidestrip(db, this);
+    connect(s, SIGNAL(overfilled(QDateTime)),
+            this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
+  }
+  connect(s, SIGNAL(needImage(quint64, QSize)),
+          this, SIGNAL(needImage(quint64, QSize)));
+  connect(s, SIGNAL(pressed(quint64)),
+          this, SIGNAL(pressed(quint64)));
+  connect(s, SIGNAL(clicked(quint64)),
+          this, SIGNAL(clicked(quint64)));
+  connect(s, SIGNAL(doubleClicked(quint64)),
+          this, SIGNAL(doubleClicked(quint64)));
+  s->setArrangement(arr);
+  s->setTileSize(tilesize);
+  s->setRowWidth(subRowWidth(rowwidth));
+  connect(s, SIGNAL(resized()), this, SLOT(relayout()));
+  return s;
+}
+
 void Datestrip::rebuildContents() {
   if (!expanded) {
     mustRebuild = true;
@@ -82,30 +132,9 @@ void Datestrip::rebuildContents() {
     QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
 
-    Strip *s;
-    if (stripMap.contains(t)) {
-      s = stripMap[t];
-    } else {
-      int n = countInRange(t, t1);
-      bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
-      if (indirect)
-	s = new Datestrip(db, this);
-      else
-	s = new Slidestrip(db, this);
-      stripMap[t] = s;
-      connect(s, SIGNAL(needImage(quint64, QSize)),
-              this, SIGNAL(needImage(quint64, QSize)));
-      connect(s, SIGNAL(pressed(quint64)),
-              this, SIGNAL(pressed(quint64)));
-      connect(s, SIGNAL(clicked(quint64)),
-              this, SIGNAL(clicked(quint64)));
-      connect(s, SIGNAL(doubleClicked(quint64)),
-              this, SIGNAL(doubleClicked(quint64)));
-      s->setArrangement(arr);
-      s->setTileSize(tilesize);
-      s->setRowWidth(subRowWidth(rowwidth));
-      connect(s, SIGNAL(resized()), this, SLOT(relayout()));
-    }
+    if (!stripMap.contains(t))
+      stripMap[t] = newSubstrip(t, subs);
+    Strip *s = stripMap[t];
     s->setTimeRange(t, subs);
     stripOrder << s;
     if (expanded)

@@ -20,6 +20,7 @@ public slots:
   void recache(QSet<quint64> ids);
   void recache(quint64 id);
   void request(quint64 version, QSize desired);
+  void cachePreview(quint64 id, QImage img);
 signals: // public
   void progressed(int n, int N);
   void doneCaching();
@@ -28,6 +29,7 @@ signals: // public
 signals: // private
   void forwardRecache(QSet<quint64> ids);
   void forwardRequest(quint64 version, QSize desired);
+  void forwardCachePreview(quint64 id, QImage img);
 private:
   QThread thread;
   class AC_Worker *worker;

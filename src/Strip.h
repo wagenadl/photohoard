@@ -40,6 +40,7 @@ public:
 public slots:
   void rescan();
   void updateImage(quint64, QSize, QImage);
+  void updateHeader(QImage);
   void setTimeRange(QDateTime t0, TimeScale scl);
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);
@@ -76,6 +77,7 @@ protected slots:
 protected:
   virtual void clearContents();
   virtual void rebuildContents();
+  void setHeaderID(quint64);
 protected:
   int countInRange(QDateTime t0, QDateTime t1) const;
   QList<quint64> versionsInRange(QDateTime t0, QDateTime t1) const;
@@ -93,6 +95,9 @@ protected:
   int rowwidth;
   bool expanded;
   mutable int subheight;
+  quint64 headerid;
+  QImage headerimg;
+  QPixmap headerpm;
 };
 
 #endif

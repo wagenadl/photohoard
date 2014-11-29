@@ -144,15 +144,15 @@ void Scanner::run() {
   try {
     while (!stopsoon) {
       QSet<quint64> ids;
-      if (!(ids=findFoldersToScan()).isEmpty()) {
-	l.unlock();
-	scanFolders(ids);
-	l.relock();
-      } else if (!(ids=findPhotosToScan()).isEmpty()) {
+      if (!(ids=findPhotosToScan()).isEmpty()) {
 	l.unlock();
 	scanPhotos(ids);
-	qDebug() << "Progress: " << n << " / " << N;
+	qDebug() << "Scan progress: " << n << " / " << N;
 	emit progressed(n, N);
+	l.relock();
+      } else if (!(ids=findFoldersToScan()).isEmpty()) {
+	l.unlock();
+	scanFolders(ids);
 	l.relock();
       } else {
 	if (N>0)
@@ -216,7 +216,6 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
     worked = true;
   }
 
-  qDebug() << "Scanned versions: " << versions.size() << " *" << worked;
   if (worked) {
     t.commit();
     emit updated(versions);
@@ -225,7 +224,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
 
 QSet<quint64> Scanner::findFoldersToScan() {
   QSqlQuery qq(*db);
-  qq.prepare("select folder from folderstoscan limit 100");
+  qq.prepare("select folder from folderstoscan limit 30");
   if (!qq.exec())
     throw qq;
   QSet<quint64> ids;
@@ -264,7 +263,7 @@ void Scanner::scanFolder(quint64 id) {
   if (!q.next())
     throw NoResult();
   QDir dir(q.value(0).toString());
-  qDebug() << "Scanning " << dir.path();
+  //  qDebug() << "Scanning " << dir.path();
 
   QSet<QString> newsubdirs;
   QSet<QString> newphotos;
@@ -343,6 +342,7 @@ void Scanner::scanFolder(quint64 id) {
     if (!q.next())
       throw NoResult();
     QDateTime lastscan = q.value(0).toDateTime();
+    //    qDebug() << "Photo " << s << oldphotos[s] << lastscan << photodate[s];
     if (photodate[s]>lastscan || !lastscan.isValid()) {
       q.prepare("insert into photostoscan values(:i)");
       q.bindValue(":i", oldphotos[s]);
@@ -456,4 +456,24 @@ void Scanner::scanPhoto(quint64 id) {
   q.bindValue(":id", id);
   if (!q.exec())
     throw q;
+
+  QList<QSize> pvsiz = exif.previewSizes();
+  if (!pvsiz.isEmpty()) {
+    q.prepare("select id from versions where photo==:i and ver==0");
+    q.bindValue(":i", id);
+    if (q.exec() && q.next()) {
+      quint64 vsn = q.value(0).toULongLong();
+      QSize maxs = pvsiz[0];
+      int npix = maxs.width()*maxs.height();
+      for (int n=1; n<pvsiz.size(); n++) {
+        QSize s = pvsiz[n];
+        int np = s.width()*s.height();
+        if (np>npix) {
+          maxs = s;
+          npix = np;
+        }
+      }
+      emit cacheablePreview(vsn, exif.previewImage(maxs));
+    }
+  }    
 }

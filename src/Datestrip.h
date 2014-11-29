@@ -26,9 +26,11 @@ public slots:
   virtual void collapseAll();
 protected slots:
   virtual void relayout();
+  virtual void convertStrip(QDateTime);
 protected:
   virtual void clearContents();
   virtual void rebuildContents();
+  Strip *newSubstrip(QDateTime t, Strip::TimeScale subs);
 protected:
   QMap<QDateTime, Strip *> stripMap;
   QList<Strip *> stripOrder;

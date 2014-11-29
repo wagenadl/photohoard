@@ -96,3 +96,7 @@ void LightTable::updateImage(quint64 i, QSize s, QImage img) {
 
   slide->updateImage(img);
 }
+
+void LightTable::rescan() {
+  film->rescan();
+}

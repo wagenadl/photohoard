@@ -6,6 +6,7 @@
 #include <QSet>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include "FilmScene.h"
 
 Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
@@ -19,6 +20,27 @@ Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
 }
 
 Strip::~Strip() {
+  setHeaderID(0);
+}
+
+void Strip::setHeaderID(quint64 id) {
+  if (headerid==id)
+    return;
+  if (headerid) {
+    FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+    if (fs)
+      fs->dropHeaderFor(headerid, this);
+    else
+      qDebug() << "Strip not in a scene - disaster imminent";
+  }
+  if (id) {
+    FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+    if (fs)
+      fs->addHeaderFor(id, this);
+    else
+      qDebug() << "Strip not in a scene - won't show image";
+    headerid = id;
+  }
 }
 
 int Strip::subHeight() const {
@@ -268,6 +290,8 @@ void Strip::setRowWidth(int pix) {
 }
 
 void Strip::expand() {
+  if (expanded)
+    return;
   if (shouldDebug())
     qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
 	     << " expand";
@@ -278,6 +302,8 @@ void Strip::expand() {
 }
 
 void Strip::collapse() {
+  if (!expanded)
+    return;
   if (shouldDebug())
     qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
 	     << " collapse";
@@ -300,11 +326,13 @@ void Strip::relayout() {
 }
 	
 void Strip::rescan() {
+  /* Somehow should avoid closing things that were open */
   rebuildContents();
 }
 
 void Strip::clearContents() {
-}  
+}
+
 int Strip::countInRange(QDateTime begin, QDateTime end) const {
   QSqlQuery q(*db);
   q.prepare("select count(*)"
@@ -390,4 +418,9 @@ bool Strip::shouldDebug() const {
 	  && scl==TimeScale::Month)
     || (d0==QDateTime(QDate(2006,6,21), QTime(8, 0, 0))
 	&& scl==TimeScale::Hour);
+}
+
+void Strip::updateHeader(QImage img) {
+  headerimg = img;
+  update();
 }

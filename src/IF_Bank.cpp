@@ -20,11 +20,6 @@ IF_Bank::IF_Bank(int nthreads, QObject *parent): QObject(parent) {
 IF_Bank::~IF_Bank() {
 }
 
-void IF_Bank::setMaxDim(int m) {
-  for (auto f: finders)
-    f->setMaxDim(m);
-}
-
 int IF_Bank::availableThreads() const {
   int av=0;
   for (auto f: finders)

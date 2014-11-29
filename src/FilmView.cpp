@@ -1,14 +1,13 @@
 // FilmView.cpp
 
 #include "FilmView.h"
-
+#include "FilmScene.h"
 #include "Datestrip.h"
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent) {
-  scene = new QGraphicsScene(this);
+  scene = new FilmScene(db, this);
   setScene(scene);
-  scene->setBackgroundBrush(QColor(255, 255, 255));
   strip = new Datestrip(db, 0);
   strip->setArrangement(Datestrip::Arrangement::Grid);
   setScrollbarPolicies();
@@ -68,6 +67,10 @@ void FilmView::resizeEvent(QResizeEvent *) {
   }
 }
 
-void FilmView::updateImage(quint64 id, QSize s, QImage img) {
-  strip->updateImage(id, s, img);
+void FilmView::updateImage(quint64 id, QSize, QImage img) {
+  scene->updateImage(id, img);
+}
+
+void FilmView::rescan() {
+  strip->rescan();
 }

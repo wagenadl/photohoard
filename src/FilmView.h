@@ -18,6 +18,7 @@ signals:
   void doubleClicked(quint64);
 public slots:
   void updateImage(quint64, QSize, QImage);
+  void rescan();
 protected:
   virtual void resizeEvent(QResizeEvent *) override;
 protected slots:
@@ -25,7 +26,7 @@ protected slots:
 protected:
   void setScrollbarPolicies();
 private:
-  class QGraphicsScene *scene;
+  class FilmScene *scene;
   class Datestrip *strip;
 };
 

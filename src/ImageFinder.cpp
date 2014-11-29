@@ -12,9 +12,9 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
   qRegisterMetaType<Exif::Orientation>("Exif::Orientation");
   connect(&thread, SIGNAL(finished()), worker, SLOT(deleteLater()));
   connect(this, SIGNAL(forwardFindImage(quint64, QString, int, QString,
-                                        Exif::Orientation, int)),
+                                        Exif::Orientation, int, QSize)),
           worker, SLOT(findImage(quint64, QString, int, QString,
-                                 Exif::Orientation, int)));
+                                 Exif::Orientation, int, QSize)));
   connect(worker, SIGNAL(foundImage(quint64, QImage)),
           this, SLOT(handleFoundImage(quint64, QImage)));
   connect(worker, SIGNAL(exception(QString)),

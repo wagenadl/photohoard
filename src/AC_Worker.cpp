@@ -39,7 +39,6 @@ void AC_Worker::readFTypes() {
 
 void AC_Worker::recache(QSet<quint64> versions) {
   try {
-    qDebug() << " AC_Worker::recache";
     addToDBQueue(versions);
     markReadyToLoad(versions);
     activateBank();
@@ -96,7 +95,8 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   Transaction t(cache->database());
   QSqlQuery q(*cache->database());
   for (auto v: versions) {
-    q.prepare("update cache set outdated=1 where version==:i");
+    q.prepare("update cache set outdated=:o where version==:i");
+    q.bindValue(":o", true);
     q.bindValue(":i", v);
     if (!q.exec())
       throw q;
@@ -106,7 +106,6 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
       throw q;
   }
   t.commit();
-  qDebug() << "recache committed";
 }
 
 void AC_Worker::activateBank() {
@@ -116,6 +115,8 @@ void AC_Worker::activateBank() {
   // version of a request is which.
   
   int K = bank->availableThreads();
+  if (K>0 && requests.isEmpty())
+    K = 1; // scan slowly if we don't have actual requests
   while (K>0 && !readyToLoad.isEmpty()) {
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id))
@@ -132,7 +133,20 @@ void AC_Worker::activateBank() {
   for (auto id: notyetready) 
     rtlOrder.push_front(id); // put back what we could not do now
 }
-    
+
+void AC_Worker::cachePreview(quint64 id, QImage img) {
+  if (loaded.contains(id))
+    return;
+  loaded[id] = img;
+  outdatedLoaded << id;
+  bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
+  if (done || loaded.size() > threshold) {
+    storeLoadedInDB();
+    qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;
+    emit cacheProgress(n, N);
+  }
+}
+
 void AC_Worker::handleFoundImage(quint64 id, QImage img) {
   // Actually store in cache if we have enough to make it worth while
   // or if readyToLoad is empty and beingLoaded also (after removing
@@ -143,6 +157,7 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img) {
       respondToRequest(id, img);
 
     beingLoaded.remove(id);
+    outdatedLoaded.remove(id);
 
     if (invalidatedWhileLoading.contains(id)) {
       invalidatedWhileLoading.remove(id);
@@ -151,10 +166,12 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img) {
     }
 
     bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
-    if (done || loaded.size() > threshold)
+    if (done || loaded.size() > threshold) {
       storeLoadedInDB();
-    emit cacheProgress(n, N);
-
+      qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;
+      emit cacheProgress(n, N);
+    }
+    
     if (done) {
       markReadyToLoad(getSomeFromDBQueue());
       if (readyToLoad.isEmpty()) {
@@ -214,17 +231,21 @@ void AC_Worker::sendToBank(quint64 version) {
 	maxdim = md;
     }
   }
-  bank->findImage(version, path, ver, ftypes[ftype], orient, md, 
-		  QSize(wid,hei));
+  bank->findImage(version, path, ver, ftypes[ftype], orient,
+                  maxdim, QSize(wid,hei));
 }
 
 void AC_Worker::storeLoadedInDB() {
   Transaction t(cache->database());
   QSqlQuery q(*cache->database());
+  int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
     quint64 version = it.key();
     QImage img = it.value();
-    cache->add(version, img);
+    bool outd =  outdatedLoaded.contains(version);
+    cache->add(version, img, outd);
+    if (outd)
+      noutdated++;
 
     q.prepare("delete from queue where version==:v");
     q.bindValue(":v", version);
@@ -232,7 +253,7 @@ void AC_Worker::storeLoadedInDB() {
       throw q;
   }
   t.commit();
-  n += loaded.size();
+  n += loaded.size() - noutdated;
   loaded.clear();
 }
 

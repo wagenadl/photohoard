@@ -18,6 +18,7 @@ public slots:
   void boot(); // get initial list of cachable items from db
   void recache(QSet<quint64> versions);
   void requestImage(quint64 version, QSize desired);
+  void cachePreview(quint64 vsn, QImage img);
 private slots:
   void handleFoundImage(quint64 id, QImage img);
 signals:
@@ -46,6 +47,7 @@ private:
   QSet<quint64> beingLoaded;
   QSet<quint64> invalidatedWhileLoading;
   QMap<quint64, QImage> loaded;
+  QSet<quint64> outdatedLoaded;
   QMap<quint64, QString> folders;
   QMap<quint64, QSet<QSize> > requests;
   QMap<int, QString> ftypes;

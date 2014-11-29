@@ -46,10 +46,12 @@ void IF_Worker::findImage(quint64 id, QString path, int ver, QString ext,
     } else if (ext=="nef" || ext=="cr2") {
       QProcess dcraw;
       QStringList args;
-      args << "-c";
-      args << path;
+      if (maxdim*2<=ns.width() || maxdim*2<=ns.height())
+        args << "-h";
       // If the image is large enough, we might be able to do a quicker
       // load of a downscaled version
+      args << "-c";
+      args << path;
       dcraw.start("dcraw", args);
       if (!dcraw.waitForStarted())
 	throw QString("Could not start DCRaw");

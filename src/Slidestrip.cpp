@@ -5,6 +5,8 @@
 #include "Slide.h"
 #include <QDebug>
 
+#define THRESHOLD 100
+
 Slidestrip::Slidestrip(PhotoDB const &db, QGraphicsItem *parent):
   Strip(db, parent) {
   hasLatent = false;
@@ -80,6 +82,12 @@ void Slidestrip::rebuildContents() {
   mustRebuild = false;
   prepareGeometryChange();
   latentVersions = versionsInRange(startDateTime(), endDateTime());
+  if (latentVersions.size()>THRESHOLD) {
+    emit overfilled(d0);
+    while (latentVersions.size()>THRESHOLD) {
+      latentVersions.takeLast();
+    }
+  }
   hasLatent = true;
   for (auto s: slideOrder)
     s->hide();

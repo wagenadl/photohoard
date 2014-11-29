@@ -23,6 +23,8 @@ public slots:
   virtual void setRowWidth(int pix);
   virtual void expand();
   virtual void collapse();
+signals:
+  void overfilled(QDateTime); // emitted when we have too many pictures
 public: // for slide only
   void requestImage(quint64);
   void slidePressed(quint64);

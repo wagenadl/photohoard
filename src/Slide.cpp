@@ -5,11 +5,25 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QStyleOptionGraphicsItem>
 #include <QDebug>
+#include "FilmScene.h"
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
   tilesize = 128;
   setPos(1e6, 1e6);
+  FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+  if (fs)
+    fs->markSlideFor(id, this);
+  else
+    qDebug() << "Slide not in a scene - won't show image";
+}
+
+Slide::~Slide() {
+  FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+  if (fs)
+    fs->dropSlideFor(id);
+  else
+    qDebug() << "Slide not in a scene - disaster imminent";
 }
 
 void Slide::updateImage(QImage const &img1) {
