@@ -9,10 +9,10 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
 }
 
-void IF_Worker::findImage(quint64 id, QString path, int ver, QString ext,
+void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
                           Exif::Orientation orient, int maxdim, QSize ns) {
   try {
-    if (ver!=0) {
+    if (!mods.isEmpty()) {
       emit foundImage(id, QImage());
       return;
     }

@@ -87,7 +87,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   quint64 id = q.lastInsertId().toULongLong();
 
   // Create first version - this is preliminary code
-  q.prepare("insert into versions(photo, ver) values(:i, 0)");
+  q.prepare("insert into versions(photo) values(:i)");
   q.bindValue(":i", id);
   if (!q.exec()) 
     throw q;
@@ -213,7 +213,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
   for (auto id: ids) {
     scanPhoto(id);
     QSqlQuery q(*db);
-    q.prepare("select id from versions where photo==:p and ver==0");
+    q.prepare("select id from versions where photo==:p and mods==''");
     q.bindValue(":p", id);
     if (!q.exec())
       throw q;
@@ -466,7 +466,7 @@ void Scanner::scanPhoto(quint64 id) {
 
   QList<QSize> pvsiz = exif.previewSizes();
   if (!pvsiz.isEmpty()) {
-    q.prepare("select id from versions where photo==:i and ver==0");
+    q.prepare("select id from versions where photo==:i and mods==''");
     q.bindValue(":i", id);
     if (q.exec() && q.next()) {
       quint64 vsn = q.value(0).toULongLong();

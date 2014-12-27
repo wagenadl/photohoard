@@ -12,7 +12,7 @@ class IF_Worker: public QObject {
 public:
   IF_Worker(QObject *parent=0);
 public slots:
-  void findImage(quint64 id, QString path, int ver, QString ext,
+  void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize ns);
 signals:
   void foundImage(quint64 id, QImage img);

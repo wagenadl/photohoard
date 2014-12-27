@@ -15,7 +15,7 @@ public:
   virtual ~ImageFinder();
   int queueLength() const { return queuelength; }
 public slots:
-  void findImage(quint64 id, QString path, int ver, QString ext,
+  void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize ns);
 signals:
   void foundImage(quint64, QImage);
@@ -23,7 +23,7 @@ signals:
 private slots:
   void handleFoundImage(quint64 id, QImage img);
 signals:  // private
-  void forwardFindImage(quint64 id, QString path, int ver, QString ext,
+  void forwardFindImage(quint64 id, QString path, QString mods, QString ext,
                         Exif::Orientation orient, int maxdim, QSize ns);
 private:
   QThread thread;

@@ -115,8 +115,13 @@ void AC_Worker::activateBank() {
   // version of a request is which.
   
   int K = bank->availableThreads();
-  if (K>1 && requests.isEmpty())
-    K--; // scan slightly more slowly if we don't have actual requests
+  if (requests.isEmpty()) {
+    int K1 = bank->totalThreads()/2;
+    if (K1<1)
+      K1 = 1;
+    if (K>K1)
+      K = K1;
+  }
   while (K>0 && !readyToLoad.isEmpty()) {
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id))
@@ -192,14 +197,14 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img) {
 
 void AC_Worker::sendToBank(quint64 version) {
   QSqlQuery q(*db);
-  q.prepare("select photo, ver from versions where id=:v");
+  q.prepare("select photo, mods from versions where id=:v");
   q.bindValue(":v", version);
   if (!q.exec())
     throw q;
   if (!q.next())
     throw NoResult();
   quint64 photo = q.value(0).toULongLong();
-  int ver = q.value(1).toInt();
+  QString mods = q.value(1).toString();
   q.prepare("select folder, filename, filetype, width, height, orient "
 	    " from photos where id=:i");
   q.bindValue(":i", photo);
@@ -231,7 +236,7 @@ void AC_Worker::sendToBank(quint64 version) {
 	maxdim = md;
     }
   }
-  bank->findImage(version, path, ver, ftypes[ftype], orient,
+  bank->findImage(version, path, mods, ftypes[ftype], orient,
                   maxdim, QSize(wid,hei));
 }
 

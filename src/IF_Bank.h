@@ -13,9 +13,10 @@ public:
   IF_Bank(int nthreads, QObject *parent=0);
   virtual ~IF_Bank();
   int availableThreads() const;
+  int totalThreads() const;
   int queueLength() const;
 public slots:
-  void findImage(quint64 id, QString path, int ver, QString ext,
+  void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize natsize);
 signals:
   void foundImage(quint64, QImage);

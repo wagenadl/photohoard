@@ -20,6 +20,10 @@ IF_Bank::IF_Bank(int nthreads, QObject *parent): QObject(parent) {
 IF_Bank::~IF_Bank() {
 }
 
+int IF_Bank::totalThreads() const {
+  return finders.size();
+}
+
 int IF_Bank::availableThreads() const {
   int av=0;
   for (auto f: finders)
@@ -35,7 +39,7 @@ int IF_Bank::queueLength() const {
   return ql;
 }
 
-void IF_Bank::findImage(quint64 id, QString path, int ver, QString ext,
+void IF_Bank::findImage(quint64 id, QString path, QString mods, QString ext,
                         Exif::Orientation orient, int maxdim, QSize ns) {
   ImageFinder *f0 = 0;
   int ql0 = 0;
@@ -46,5 +50,5 @@ void IF_Bank::findImage(quint64 id, QString path, int ver, QString ext,
       ql0 = ql;
     }
   }
-  f0->findImage(id, path, ver, ext, orient, maxdim, ns);
+  f0->findImage(id, path, mods, ext, orient, maxdim, ns);
 }
