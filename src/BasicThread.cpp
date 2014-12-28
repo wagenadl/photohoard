@@ -8,10 +8,20 @@ BasicThread::BasicThread(QObject *parent): QThread(parent) {
 }
 
 BasicThread::~BasicThread() {
-  if (isRunning())
-    stop();
-  if (!wait(1000)) 
-    qDebug() << "Failed to stop thread " << objectName();
+  stopAndWait(1000);
+}
+
+bool BasicThread::stopAndWait(int timeout_ms) {
+  qDebug() << "stopandwait";
+  if (!isRunning())
+    return true;
+  qDebug() << "  running";
+  stop();
+  qDebug() << "  sent stop request";
+  if (wait(timeout_ms))
+    return true;
+  qDebug() << "Failed to stop thread " << objectName();
+    return false;
 }
 
 void BasicThread::start() {
@@ -22,9 +32,13 @@ void BasicThread::start() {
 }
 
 void BasicThread::stop() {
+  qDebug() << "BT::stop";
   if (isRunning()) {
+    qDebug() << "  running";
     QMutexLocker l(&mutex);
+    qDebug() << "  got mutex";
     stopsoon = true;
     waiter.wakeOne();
+    qDebug() << "  sent wakeup";
   }
 }

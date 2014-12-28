@@ -13,6 +13,7 @@ class BasicThread: public QThread {
 public:
   BasicThread(QObject *parent=0);
   virtual ~BasicThread();
+  bool stopAndWait(int timeout_ms=1000);
 public slots:
   void start();
   void stop();

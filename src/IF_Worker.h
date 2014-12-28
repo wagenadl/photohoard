@@ -15,12 +15,12 @@ public slots:
   void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize ns);
 signals:
-  void foundImage(quint64 id, QImage img);
+  void foundImage(quint64 id, QImage img, bool isFullSize);
   void exception(QString);
 private:
-  void upsideDown(QImage &);
-  QImage rotateCW(QImage const &);
-  QImage rotateCCW(QImage const &);
+  QImage upsideDown(QImage &);
+  QImage rotateCW(QImage &);
+  QImage rotateCCW(QImage &);
 };
 
 #endif

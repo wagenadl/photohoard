@@ -464,10 +464,7 @@ void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 }
 
 bool Strip::shouldDebug() const {
-  return (d0==QDateTime(QDate(2006,6,1), QTime(0, 0, 0))
-	  && scl==TimeScale::Month)
-    || (d0==QDateTime(QDate(2006,6,21), QTime(8, 0, 0))
-	&& scl==TimeScale::Hour);
+  return scl==TimeScale::Eternity || scl==TimeScale::Decade;
 }
 
 void Strip::updateHeader(QImage img) {

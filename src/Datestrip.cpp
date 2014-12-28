@@ -118,7 +118,12 @@ void Datestrip::rebuildContents() {
   QDateTime end = endDateTime();
   QDateTime t = firstDateInRange(startDateTime(), end);
 
+  if (shouldDebug()) 
+    qDebug() << "  rebuild " << int(scl) << ": "
+             << end.toString() << int(subs) << t.toString();
+
   if (t.isNull()) {
+    rebuilding--;
     clearContents();
     return;
   }
@@ -131,6 +136,8 @@ void Datestrip::rebuildContents() {
     keep << t;
     QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
+    if (shouldDebug()) 
+      qDebug() << "    rebuild " << int(scl) << ": " << t << t1;
 
     if (!stripMap.contains(t)) {
       qDebug() << "Datestrip" << d0 << int(scl) << (void*)this 

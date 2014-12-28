@@ -18,8 +18,9 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   readFTypes();
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  connect(bank, SIGNAL(foundImage(quint64, QImage)),
-	  this, SLOT(handleFoundImage(quint64, QImage)));
+  connect(bank, SIGNAL(foundImage(quint64, QImage, bool)),
+	  this, SLOT(handleFoundImage(quint64, QImage, bool)),
+          Qt::QueuedConnection);
   connect(bank, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   n = 0;
@@ -96,7 +97,7 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   QSqlQuery q(*cache->database());
   for (auto v: versions) {
     q.prepare("update cache set outdated=:o where version==:i");
-    q.bindValue(":o", true);
+    q.bindValue(":o", 1);
     q.bindValue(":i", v);
     if (!q.exec())
       throw q;
@@ -122,7 +123,10 @@ void AC_Worker::activateBank() {
     if (K>K1)
       K = K1;
   }
+  QSet<quint64> tobesent;
   while (K>0 && !readyToLoad.isEmpty()) {
+    if (rtlOrder.isEmpty()) 
+      qDebug() << "rtlOrder is empty but readyToLoad is not" << readyToLoad.size() << *readyToLoad.begin();
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id))
       continue;
@@ -131,12 +135,15 @@ void AC_Worker::activateBank() {
     } else {
       readyToLoad.remove(id);
       beingLoaded.insert(id);
-      sendToBank(id);
+      tobesent << id;
       K--;
     }
   }
   for (auto id: notyetready) 
-    rtlOrder.push_front(id); // put back what we could not do now
+    rtlOrder.push_front(id); // put back what we cannot do now
+
+  for (auto id: tobesent)
+    sendToBank(id);
 }
 
 void AC_Worker::cachePreview(quint64 id, QImage img) {
@@ -144,6 +151,7 @@ void AC_Worker::cachePreview(quint64 id, QImage img) {
     return;
   loaded[id] = img;
   outdatedLoaded << id;
+  qDebug() << "cachePreview " << id << img.size() << loaded.size();
   bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold) {
     storeLoadedInDB();
@@ -152,15 +160,50 @@ void AC_Worker::cachePreview(quint64 id, QImage img) {
   }
 }
 
-void AC_Worker::handleFoundImage(quint64 id, QImage img) {
+void AC_Worker::ensureDBSizeOK(quint64 vsn, QSize siz) {
+  QSqlQuery q(*db);
+  q.prepare("select photo, mods from versions where id=:v");
+  q.bindValue(":v", vsn);
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    throw NoResult();
+  quint64 photo = q.value(0).toULongLong();
+  QString mods = q.value(1).toString();
+  if (mods!="")
+    return;
+  
+  q.prepare("select width, height "
+            " from photos where id=:i");
+  q.bindValue(":i", photo);
+  if (!q.exec())
+    throw q;
+  if (!q.next())
+    throw NoResult();
+
+  int wid = q.value(0).toInt();
+  int hei = q.value(1).toInt();
+  if (wid!=siz.width() || hei!=siz.height()) {
+    q.prepare("update photos set width=:w, height=:h where id=:i");
+    q.bindValue(":i", photo);
+    q.bindValue(":w", siz.width());
+    q.bindValue(":h", siz.height());
+    if (!q.exec())
+      throw q;
+  }
+}
+
+void AC_Worker::handleFoundImage(quint64 id, QImage img, bool isFullSize) {
   // Actually store in cache if we have enough to make it worth while
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
   try {
-    if (requests.contains(id))
+    if (requests.contains(id)) {
+      if (isFullSize && !img.isNull())
+        ensureDBSizeOK(id, img.size());
       respondToRequest(id, img);
-
+    }
     beingLoaded.remove(id);
     outdatedLoaded.remove(id);
 
@@ -263,48 +306,60 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
+  qDebug() << "AC_Worker::request" << version << desired;
   try {
     QSize actual(0, 0);
+    
     if (loaded.contains(version)) {
+      qDebug() << "  already loaded" << loaded[version].size();
       emit available(version, desired, loaded[version]);
       actual = loaded[version].size();
     } else {
       int d = cache->bestSize(version, cache->maxdim(desired));
+      qDebug() << "  already cached" << d;
       if (d>0) {
-	QImage img = cache->get(version, d);
+        bool od;
+	QImage img = cache->get(version, d, &od);
+        qDebug() << "     i.e., " << img.size() << od;
 	emit available(version, desired, img);
 	actual = img.size();
       }
     }
-    qDebug() << "AC_Worker::requestImage"
-	     << version << desired << actual << beingLoaded.contains(version);
-    if (actual.width()<desired.width() && actual.height()<desired.height()) {
-      if (beingLoaded.contains(version)) {
-	// If it is already being loaded, we are liable to get
-	// a copy that is too small.
-	bool contained = false;
-	for (auto s: requests[version]) {
-	  if (s.width()>=desired.width() && s.height()>=desired.height()) {
-	    contained = true;
-	    break;
-	  }
-	}
-	requests[version] << desired;
-	if (contained) {
-	  // That's easy, we'll get a large enough version
-	} else {
-	  invalidatedWhileLoading << version;
-	  if (!readyToLoad.contains(version)) {
-	    readyToLoad << version;
-	    rtlOrder.push_front(version);
-	  }
-	}
-      } else {
-	requests[version] << desired;
-	readyToLoad << version;
-	rtlOrder.push_front(version);
-	activateBank();
+
+    if (actual.width()>=desired.width() || actual.height()>=desired.height())
+      return; // easy, we're done
+    
+    // We will probably have to request it to get the right size.
+
+    if (beingLoaded.contains(version)) {
+      // If it is already being loaded, we are liable to get
+      // a copy that is too small.
+      bool contained = false;
+      for (auto s: requests[version]) {
+        if (s.width()>=desired.width() && s.height()>=desired.height()) {
+          contained = true;
+          break;
+        }
       }
+      requests[version] << desired;
+      if (contained) {
+        // That's easy, we'll get a large enough version
+      } else {
+        invalidatedWhileLoading << version;
+        if (!readyToLoad.contains(version)) {
+          readyToLoad << version;
+          rtlOrder.push_front(version);
+        }
+      }
+    } else {
+      if (BasicCache::maxdim(actual) < cache->maxDim()) {
+        mustCache << version;
+        N++;
+      }
+      requests[version] << desired;
+      readyToLoad << version;
+      rtlOrder.push_front(version);
+      activateBank();
     }
   } catch (QSqlQuery &q) {
     emit exception("AC_Worker: SqlError: " + q.lastError().text()

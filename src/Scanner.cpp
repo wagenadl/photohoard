@@ -23,6 +23,7 @@ Scanner::Scanner(PhotoDB const &db):
 }
 
 Scanner::~Scanner() {
+  stopAndWait();
 }
 
 void Scanner::addTree(QString path) {
@@ -138,21 +139,25 @@ void Scanner::removeTree(QString path) {
 }
 
 void Scanner::run() {
-  QMutexLocker l(&mutex);
-  n = 0;
-  N = photoQueueLength();
-  bool sleepok = true;
   try {
+    QMutexLocker l(&mutex);
+    n = 0;
+    N = photoQueueLength();
     while (!stopsoon) {
+      bool sleepok = true;
       QSet<quint64> ids;
+      qDebug() << "Looking for folders";
       if (db.simpleQuery("select count(*) from photostoscan").toInt()<200
           && !(ids=findFoldersToScan()).isEmpty()) {
+        qDebug() << "Got folders";
 	l.unlock();
 	scanFolders(ids);
         sleepok = false;
 	l.relock();
       }
+      qDebug() << "Looking for photos to scan";
       if (!(ids=findPhotosToScan()).isEmpty()) {
+        qDebug() << "Got photos";
 	l.unlock();
 	scanPhotos(ids);
 	qDebug() << "Scan progress: " << n << " / " << N;
@@ -160,14 +165,18 @@ void Scanner::run() {
         sleepok = false;
 	l.relock();
       } else {
+        qDebug() << "No photos";
+        l.unlock();
 	if (N>0)
 	  emit done();
 	n = 0;
 	N = 0;
+        l.relock();
       }
-      if (sleepok) {
+      if (sleepok && !stopsoon) {
         qDebug() << "Scanner: Going to sleep";
 	waiter.wait(&mutex);
+        qDebug() << "Scanner: Woke up";
       }
     }
   } catch (QSqlQuery &q) {
@@ -193,6 +202,7 @@ void Scanner::run() {
     qDebug() << "  Thread terminating";
     emit exception("Scanner: Unknown exception");
   }
+  qDebug() << "Scanner end of run";
 }
 
 QSet<quint64> Scanner::findPhotosToScan() {
@@ -213,7 +223,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
   for (auto id: ids) {
     scanPhoto(id);
     QSqlQuery q(*db);
-    q.prepare("select id from versions where photo==:p and mods==''");
+    q.prepare("select id from versions where photo==:p and mods is null");
     q.bindValue(":p", id);
     if (!q.exec())
       throw q;
@@ -466,7 +476,7 @@ void Scanner::scanPhoto(quint64 id) {
 
   QList<QSize> pvsiz = exif.previewSizes();
   if (!pvsiz.isEmpty()) {
-    q.prepare("select id from versions where photo==:i and mods==''");
+    q.prepare("select id from versions where photo==:i and mods is null");
     q.bindValue(":i", id);
     if (q.exec() && q.next()) {
       quint64 vsn = q.value(0).toULongLong();

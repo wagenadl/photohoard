@@ -12,9 +12,23 @@
 #include "AutoCache.h"
 #include "ExceptionReporter.h"
 #include "LightTable.h"
-
+#include "ExifReport.h"
 
 int main(int argc, char **argv) {
+
+  QStringList args;
+  for (int i=1; i<argc; i++)
+    args << argv[i];
+  if (!args.isEmpty()) {
+    if (args[0]=="-exif") {
+      args.takeFirst();
+      for (auto s: args) {
+        exifreport(s);
+      }
+      return 0;
+    }
+  }
+
   QString dbfn = "/tmp/photodb.db";
   QString cachefn = "/tmp/photodb.cache";
   QString picroot = "/home/wagenaar/Pictures";
@@ -23,7 +37,7 @@ int main(int argc, char **argv) {
     if (!QFile(dbfn).exists()) {
       PhotoDB::create(dbfn);
     }
-    if (!QFile(cachefn).exists())
+    if (!QDir(cachefn).exists())
       BasicCache::create(cachefn);
 
     ExceptionReporter *excrep = new ExceptionReporter();
@@ -55,7 +69,19 @@ int main(int argc, char **argv) {
     QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
                      view, SLOT(rescan()));
     
-    return app.exec();
+    int res = app.exec();
+
+    qDebug() << "Stopping scanner";
+    scan->stopAndWait(1000);
+    qDebug() << "Deleting scanner";
+    delete scan;
+    qDebug() << "Done";
+    qDebug() << "Deleting autocache";
+    delete ac;
+    qDebug() << "Done";
+
+    return res;
+    
   } catch (QSqlQuery const &q) {
     qDebug() << "Main caught " << q.lastError();
     qDebug() << "  " << q.lastQuery();
@@ -63,6 +89,3 @@ int main(int argc, char **argv) {
     qDebug() << "Main caught unknown";
   }
 }
-
-  
-

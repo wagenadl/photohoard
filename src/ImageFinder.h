@@ -18,10 +18,10 @@ public slots:
   void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize ns);
 signals:
-  void foundImage(quint64, QImage);
+  void foundImage(quint64, QImage, bool);
   void exception(QString);
 private slots:
-  void handleFoundImage(quint64 id, QImage img);
+  void handleFoundImage(quint64 id, QImage img, bool isFullSize);
 signals:  // private
   void forwardFindImage(quint64 id, QString path, QString mods, QString ext,
                         Exif::Orientation orient, int maxdim, QSize ns);

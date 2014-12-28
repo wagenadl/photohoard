@@ -9,8 +9,8 @@ IF_Bank::IF_Bank(int nthreads, QObject *parent): QObject(parent) {
     finders << new ImageFinder(this);
 
   for (auto f: finders)
-    connect(f, SIGNAL(foundImage(quint64, QImage)),
-            this, SIGNAL(foundImage(quint64, QImage)));
+    connect(f, SIGNAL(foundImage(quint64, QImage, bool)),
+            this, SIGNAL(foundImage(quint64, QImage, bool)));
 
   for (auto f: finders)
     connect(f, SIGNAL(exception(QString)),

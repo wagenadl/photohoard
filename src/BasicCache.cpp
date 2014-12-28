@@ -115,7 +115,7 @@ void BasicCache::add(quint64 id, QImage img, bool instantlyOutdated) {
 
 void BasicCache::dropOutdatedFromCache(quint64 id) {
   QSqlQuery q(*db);
-  q.prepare("delete from cache where id==:i and outdated");
+  q.prepare("delete from cache where id==:i and outdated>0");
   q.bindValue(":i", id);
   if (!q.exec())
     throw q;
@@ -153,8 +153,8 @@ void BasicCache::addToCache(quint64 id, QImage const &img,
   q.bindValue(":w", img.width());
   q.bindValue(":h", img.height());
   q.bindValue(":d", d);
-  q.bindValue(":o", instantlyOutdated);
-  q.bindValue(":i", infile);
+  q.bindValue(":o", instantlyOutdated ? 1 : 0);
+  q.bindValue(":i", infile ? 1 : 0);
   q.bindValue(":b", infile ? QByteArray() : buf.data());
   if (!q.exec())
     throw q;
@@ -211,9 +211,9 @@ void BasicCache::remove(quint64 id) {
     return QImage();
   }
   QString rowid = q.value(0).toString();
-  bool infile = q.value(1).toBool();
+  bool infile = q.value(1).toInt() > 0;
   if (outdated_return)
-    *outdated_return = q.value(3).toBool();
+    *outdated_return = q.value(3).toInt() > 0;
   
   if (infile) {
     return QImage(root.absoluteFilePath(rowid + ".jpg"));
@@ -238,7 +238,7 @@ int BasicCache::bestSize(quint64 id, int maxdim) {
   bool gotsized = false;
   while (q.next()) {
     int d = q.value(0).toInt();
-    bool od = q.value(1).toBool();
+    bool od = q.value(1).toInt()>0;
     if (od && !outdated) {
       // If I have an up-to-date version, never replace w/ outdated.
     } else if (outdated && !od) {
@@ -280,7 +280,7 @@ QSize BasicCache::bestSize(quint64 id, QSize desired) {
     int w = q.value(0).toInt();
     int h = q.value(1).toInt();
     int d = w*h;
-    bool od = q.value(2).toBool();
+    bool od = q.value(2).toInt()>0;
     if (od && !outdated) {
       // If I have an up-to-date version, never replace w/ outdated.
     } else if (outdated && !od) {

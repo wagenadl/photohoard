@@ -69,7 +69,7 @@ public:
    contained in a QSize.
   */
   QList<int> standardSizes() const { return stdsizes; }
-  int maxDim() const;
+  int maxDim() const; // max of all standard sizes
   QImage sufficientSize(QImage const &);
   /*:F sufficientSize
    *:D Reduces an image to the maximum size needed for the cache.

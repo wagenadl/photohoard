@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QProcess>
+#include <QDebug>
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
@@ -13,41 +14,21 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
                           Exif::Orientation orient, int maxdim, QSize ns) {
   try {
     if (!mods.isEmpty()) {
-      emit foundImage(id, QImage());
+      emit foundImage(id, QImage(), false);
       return;
     }
-  
-    if (ext=="jpeg" || ext=="png" || ext=="tiff") {
-      // Can do
-      QImage img(path);
-      if (img.isNull()) {
-	emit foundImage(id, QImage());
-	return;
-      }
-    
-      if (maxdim>0) 
-	if (img.width()>maxdim || img.height()>maxdim)
-	  img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
 
-      switch (orient) {
-      case Exif::Upright:
-	break;
-      case Exif::UpsideDown:
-	upsideDown(img);
-	break;
-      case Exif::CW:
-	img = rotateCW(img);
-	break;
-      case Exif::CCW:
-	img = rotateCCW(img);
-	break;
-      }
-      emit foundImage(id, img);
+    bool fullSize = true;
+    QImage img;
+    if (ext=="jpeg" || ext=="png" || ext=="tiff") {
+      img = QImage(path); // load it directly
     } else if (ext=="nef" || ext=="cr2") {
       QProcess dcraw;
       QStringList args;
-      if (maxdim*2<=ns.width() || maxdim*2<=ns.height())
+      if (maxdim*2<=ns.width() || maxdim*2<=ns.height()) {
         args << "-h";
+        fullSize = false;
+      }
       // If the image is large enough, we might be able to do a quicker
       // load of a downscaled version
       args << "-c";
@@ -57,15 +38,37 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
 	throw QString("Could not start DCRaw");
       if (!dcraw.waitForFinished())
 	throw QString("Could not complete DCRaw");
-      QImage img;
       if (!img.loadFromData(dcraw.readAllStandardOutput()))
 	throw QString("Could not parse DCRaw output");
-      // change orientation if needed
-      emit foundImage(id, img);
     } else {
-      // Unknown format
-      emit foundImage(id, QImage());
+      // Other formats?
+    }            
+
+    if (img.isNull()) {
+      emit foundImage(id, QImage(), false);
+      return;
     }
+    if (maxdim>0) {
+      if (img.width()>maxdim || img.height()>maxdim) {
+        img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
+        fullSize = false;
+      }
+    }
+    
+    switch (orient) {
+    case Exif::Upright:
+      break;
+    case Exif::UpsideDown:
+      img = upsideDown(img);
+      break;
+    case Exif::CW:
+      img = rotateCW(img);
+      break;
+    case Exif::CCW:
+      img = rotateCCW(img);
+      break;
+    }
+    emit foundImage(id, img, fullSize);
   } catch (QSqlQuery const &q) {
     emit exception("IF_Worker: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
@@ -76,68 +79,69 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
   }
 }
 
-void IF_Worker::upsideDown(QImage &img) {
-  int N = img.bytesPerLine()*img.height();
-  if (img.format()==QImage::Format_Indexed8) {
-    unsigned char *bits = img.bits();
-    unsigned char *end = bits + N;
-    end -= img.bytesPerLine()-img.width();
-    int n = N/2;
-    while (--n>=0) {
-      uchar b = *bits;
-      *bits++ = *--end;
-      *end = b;
-    }
-  } else {
-    quint64 *bits = (quint64*)img.bits();
-    quint64 *end = bits + N/4;
-    end -= img.bytesPerLine() - 4*img.width();
-    int n = N/8;
-    while (--n>=0) {
-      quint64 b = *bits;
-      *bits++ = *--end;
-      *end = b;
-    }
-  }
+QImage IF_Worker::upsideDown(QImage &img) {
+  return img.mirrored(true, true);
 }
 
 
-QImage IF_Worker::rotateCW(QImage const &img) {
+QImage IF_Worker::rotateCW(QImage &img) {
   int W = img.height();
   int H = img.width();
+  int DXsrc = img.bytesPerLine();
   QImage im2(QSize(W, H), img.format());
-  if (img.format()==QImage::Format_Indexed8) {
+  switch (img.format()) {
+  case QImage::Format_Indexed8: {
     unsigned char const *src = img.bits();
-    unsigned char *dst = im2.bits();
-    for (int y=0; y<H; y++) 
+    for (int y=0; y<H; y++) {
+      unsigned char *dst = im2.scanLine(y);
       for (int x=0; x<W; x++) 
-        *dst++ = src[(H-1-y) + H*x];
-  } else {
-    quint64 const *src = (quint64 const *)img.bits();
-    quint64 *dst = (quint64 *)im2.bits();
-    for (int y=0; y<H; y++) 
+        *dst++ = src[(H-1-y) + DXsrc*x];
+    }
+  } break;
+  case QImage::Format_RGB32: case QImage::Format_ARGB32: {
+    quint32 const *src = (quint32 const *)img.bits();
+    DXsrc /= 4;
+    for (int y=0; y<H; y++) {
+      quint32 *dst = (quint32 *)im2.scanLine(y);
       for (int x=0; x<W; x++) 
-        *dst++ = src[(H-1-y) + H*x];
+        *dst++ = src[(H-1-y) + DXsrc*x];
+    }
+  } break;
+  default:
+    throw QString("IF_Worker: rotateCW: Unsupported format: %1")
+      .arg(img.format());
+    break;
   }
   return im2;
 }
 
-QImage IF_Worker::rotateCCW(QImage const &img) {
+QImage IF_Worker::rotateCCW(QImage &img) {
   int W = img.height();
   int H = img.width();
+  int DXsrc = img.bytesPerLine();
   QImage im2(QSize(W, H), img.format());
-  if (img.format()==QImage::Format_Indexed8) {
+  switch (img.format()) {
+  case QImage::Format_Indexed8: {
     unsigned char const *src = img.bits();
-    unsigned char *dst = im2.bits();
-    for (int y=0; y<H; y++) 
+    for (int y=0; y<H; y++) {
+      unsigned char *dst = im2.scanLine(y);
       for (int x=0; x<W; x++) 
-        *dst++ = src[y + H*(W-1-x)];
-  } else {
-    quint64 const *src = (quint64 const *)img.bits();
-    quint64 *dst = (quint64 *)im2.bits();
-    for (int y=0; y<H; y++) 
+        *dst++ = src[y + DXsrc*(W-1-x)];
+    }
+  } break;
+  case QImage::Format_RGB32: case QImage::Format_ARGB32: {
+    quint32 const *src = (quint32 const *)img.bits();
+    DXsrc /= 4;
+    for (int y=0; y<H; y++) {
+      quint32 *dst = (quint32 *)im2.scanLine(y);
       for (int x=0; x<W; x++) 
-        *dst++ = src[y + H*(W-1-x)];
+        *dst++ = src[y + DXsrc*(W-1-x)];
+    }
+  } break;
+  default:
+    throw QString("IF_Worker: rotateCCW: Unsupported format: %1")
+      .arg(img.format());
+    break;
   }
   return im2;
 }

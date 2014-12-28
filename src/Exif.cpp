@@ -7,6 +7,7 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QImageReader>
+#include <QDebug>
 
 NikonLenses const &Exif::nikonLenses() {
   static NikonLenses lenses;
@@ -50,11 +51,11 @@ int Exif::height() const {
 Exif::Orientation Exif::orientation() const {
   int rot = exifDatum("Exif.Image.Orientation").toLong();
   switch (rot) {
-  case 1: return Upright;
-  case 3: return UpsideDown;
-  case 5: return CW;
-  case 7: return CCW;
-  default: return Upright;
+  case 1: case 2: return Upright;
+  case 3: case 4: return UpsideDown;
+  case 8: case 5: return CW;
+  case 6: case 7: return CCW;
+  default: return Upright; // this should not happen
   }
 }
     

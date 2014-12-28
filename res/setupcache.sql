@@ -12,8 +12,8 @@ create table cache (
        width integer,
        height integer,
        maxdim integer,
-       outdated boolean,
-       infile boolean,
+       outdated integer,
+       infile integer,
        bits blob,
        unique(version,width,height) );
 

@@ -27,6 +27,7 @@ Slide::~Slide() {
 }
 
 void Slide::updateImage(QImage const &img1) {
+  qDebug() << "Slide " << id << " updateImage" << img1.size();
   img = img1;
   pm = QPixmap();
   update();
@@ -49,6 +50,9 @@ void Slide::paint(QPainter *painter,
   painter->setBrush(QBrush(QColor(127, 127, 127)));
   painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
   int ims = tilesize - 4;
+  qDebug() << "paint " << id
+           << ":" << pm.width() << pm.height() << pm.isNull()
+           << ":" << img.width() << img.height() << img.isNull();
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
