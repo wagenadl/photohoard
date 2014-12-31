@@ -146,18 +146,12 @@ void Scanner::run() {
     while (!stopsoon) {
       bool sleepok = true;
       QSet<quint64> ids;
-      qDebug() << "Looking for folders";
-      if (db.simpleQuery("select count(*) from photostoscan").toInt()<200
-          && !(ids=findFoldersToScan()).isEmpty()) {
-        qDebug() << "Got folders";
+      if (!(ids=findFoldersToScan()).isEmpty()) {
 	l.unlock();
 	scanFolders(ids);
         sleepok = false;
 	l.relock();
-      }
-      qDebug() << "Looking for photos to scan";
-      if (!(ids=findPhotosToScan()).isEmpty()) {
-        qDebug() << "Got photos";
+      } else if (!(ids=findPhotosToScan()).isEmpty()) {
 	l.unlock();
 	scanPhotos(ids);
 	qDebug() << "Scan progress: " << n << " / " << N;
@@ -165,7 +159,6 @@ void Scanner::run() {
         sleepok = false;
 	l.relock();
       } else {
-        qDebug() << "No photos";
         l.unlock();
 	if (N>0)
 	  emit done();

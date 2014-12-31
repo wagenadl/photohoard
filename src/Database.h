@@ -23,12 +23,16 @@ public:
   void rollbackAndUnlock();
   QString fileName() const { return names()[db]; }
 public:
+  // The following execute the query and return the value(0) from the
+  // first result row. They throw an exception if there is no result.
   QVariant simpleQuery(QString s);
   QVariant simpleQuery(QString s, QVariant a);
   QVariant simpleQuery(QString s, QVariant a, QVariant b);
   QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c);
   QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c,
                        QVariant d);
+  // The following execute the query. Result rows can be obtained by repeatedly
+  // calling next(). An exception is thrown if the query cannot execute.
   QSqlQuery query(QString s);
   QSqlQuery query(QString s, QVariant a);
   QSqlQuery query(QString s, QVariant a, QVariant b);

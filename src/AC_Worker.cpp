@@ -36,12 +36,17 @@ void AC_Worker::readFTypes() {
   }
   while (q.next()) 
     ftypes[q.value(0).toInt()] = q.value(1).toString();
-}  
+}
+
+void AC_Worker::countQueue() {
+  return db->simpleQuery("select count(*) from queue").toInt();
+}
 
 void AC_Worker::recache(QSet<quint64> versions) {
   try {
     addToDBQueue(versions);
     markReadyToLoad(versions);
+    countQueue();
     activateBank();
   } catch (QSqlQuery &q) {
     emit exception("AC_Worker: SqlError: " + q.lastError().text()
@@ -85,7 +90,6 @@ void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
       readyToLoad << v;
       mustCache << v;
       rtlOrder << v;
-      N++;
     }
   }
 }  
@@ -354,7 +358,6 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     } else {
       if (BasicCache::maxdim(actual) < cache->maxDim()) {
         mustCache << version;
-        N++;
       }
       requests[version] << desired;
       readyToLoad << version;
