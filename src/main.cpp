@@ -11,7 +11,7 @@
 #include "PhotoDB.h"
 #include "AutoCache.h"
 #include "ExceptionReporter.h"
-#include "LightTable.h"
+#include "MainWindow.h"
 #include "ExifReport.h"
 
 int main(int argc, char **argv) {
@@ -59,15 +59,8 @@ int main(int argc, char **argv) {
     QObject::connect(scan, SIGNAL(exception(QString)),
                      excrep, SLOT(report(QString)));
 
-    LightTable *view = new LightTable(db);
-    view->show();
-    QObject::connect(view, SIGNAL(needImage(quint64, QSize)),
-                     ac, SLOT(request(quint64, QSize)));
-    QObject::connect(ac, SIGNAL(available(quint64, QSize, QImage)),
-                     view, SLOT(updateImage(quint64, QSize, QImage)));
-    
-    QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
-                     view, SLOT(rescan()));
+    MainWindow *mw = new MainWindow(&db, scan, ac);
+    mw->show();
     
     int res = app.exec();
 

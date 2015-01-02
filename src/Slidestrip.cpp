@@ -150,6 +150,7 @@ void Slidestrip::relayout() {
   if (hasLatent)
     return;
   if (!expanded) {
+    recalcLabelRect();
     mustRelayout = true;
     return;
   }
@@ -191,6 +192,7 @@ void Slidestrip::relayout() {
     break;
   }
   }
+  recalcLabelRect();
   emit resized();
 }
 

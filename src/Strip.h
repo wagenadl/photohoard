@@ -91,6 +91,7 @@ protected:
 protected:
   bool shouldDebug() const;
   int subHeight() const;
+  void recalcLabelRect();
 protected:
   PhotoDB db;
   QDateTime d0;
@@ -103,6 +104,7 @@ protected:
   quint64 headerid;
   QImage headerimg;
   QPixmap headerpm;
+  QRectF labelRect;
 };
 
 #endif

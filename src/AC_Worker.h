@@ -14,7 +14,6 @@ class AC_Worker: public QObject {
 public:
   AC_Worker(PhotoDB const &db, class BasicCache *cache,
             QObject *parent=0);
-  int queueLength();
 public slots:
   void boot(); // get initial list of cachable items from db
   void recache(QSet<quint64> versions);
@@ -38,6 +37,7 @@ private:
   void readFTypes();
   void ensureDBSizeOK(quint64 vsn, QSize);
   void countQueue();
+  int queueLength();
 private:
   PhotoDB db;
   class BasicCache *cache;

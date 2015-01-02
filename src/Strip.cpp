@@ -95,28 +95,36 @@ bool Strip::hasTopLabel() const {
 }
 
 QRectF Strip::labelBoundingRect() const {
+  return labelRect;
+}
+
+void Strip::recalcLabelRect() {
+  prepareGeometryChange();
   switch (arr) {
   case Arrangement::Horizontal:
     if (expanded)
-      return QRectF(0, 0, tilesize, tilesize);
+      labelRect = QRectF(0, 0, tilesize, tilesize);
     else
-      return QRectF(0, 0, labelHeight(tilesize), tilesize);
+      labelRect = QRectF(0, 0, labelHeight(tilesize), tilesize);
+    break;
   case Arrangement::Vertical:
     if (expanded)
-      return QRectF(0, 0, tilesize, tilesize);
+      labelRect = QRectF(0, 0, tilesize, tilesize);
     else
-      return QRectF(0, 0, tilesize, labelHeight(tilesize));
+      labelRect = QRectF(0, 0, tilesize, labelHeight(tilesize));
+    break;
   case Arrangement::Grid:
     if (expanded) {
       if (hasTopLabel()) 
-	return QRectF(0, 0, rowwidth, labelHeight(tilesize));
+	labelRect = QRectF(0, 0, rowwidth, labelHeight(tilesize));
       else 
-	return QRectF(0, 0, labelHeight(tilesize), subHeight());
+	labelRect = QRectF(0, 0, labelHeight(tilesize), subHeight());
     } else {
-      return QRectF(0, 0, tilesize, tilesize);
+      labelRect = QRectF(0, 0, tilesize, tilesize);
     }
+    break;
   }
-  return QRectF(0, 0, 1, 1); // not executed
+  update();
 }
 
 QRectF Strip::boundingRect() const {
@@ -315,15 +323,13 @@ QDateTime Strip::startFor(QDateTime t0, TimeScale scl) {
 }
 
 void Strip::setArrangement(Arrangement arr1) {
-  prepareGeometryChange();
   arr = arr1;
-  update();
+  recalcLabelRect();
 }
 
 void Strip::setTileSize(int pix) {
-  prepareGeometryChange();
   tilesize = pix;
-  update();
+  recalcLabelRect();
 }
 
 int Strip::subRowWidth(int pix) const {
@@ -334,9 +340,8 @@ int Strip::subRowWidth(int pix) const {
 }
 
 void Strip::setRowWidth(int pix) {
-  prepareGeometryChange();
   rowwidth = pix;
-  update();
+  recalcLabelRect();
 }
 
 void Strip::expand() {
@@ -345,9 +350,8 @@ void Strip::expand() {
   if (shouldDebug())
     qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
 	     << " expand";
-  prepareGeometryChange();
   expanded = true;
-  update();
+  recalcLabelRect();
   emit resized();
 }
 
@@ -357,9 +361,8 @@ void Strip::collapse() {
   if (shouldDebug())
     qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
 	     << " collapse";
-  prepareGeometryChange();
   expanded = false;
-  update();
+  recalcLabelRect();
   emit resized();
 }
 
@@ -464,7 +467,7 @@ void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 }
 
 bool Strip::shouldDebug() const {
-  return scl==TimeScale::Eternity || scl==TimeScale::Decade;
+  return false;
 }
 
 void Strip::updateHeader(QImage img) {

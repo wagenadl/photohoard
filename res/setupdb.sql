@@ -21,7 +21,7 @@ create table folders (
        leafname text,
        pathname text unique,
        lastscan date,
-       foreign key(parentfolder) references folder(id) 
+       foreign key(parentfolder) references folders(id) 
                on delete cascade
                on update cascade );
 
@@ -29,10 +29,29 @@ create table foldertree (
 -- for ease of referencing grandchild folders
        descendant integer,
        ancestor integer,
-       foreign key(descendant) references folder(id)
+       foreign key(descendant) references folders(id)
                on delete cascade
                on update cascade,
-       foreign key(ancestor) references folder(id)
+       foreign key(ancestor) references folders(id)
+               on delete cascade
+               on update cascade );
+
+create table tags (
+       id integer primary key,
+       tag text,
+       parent integer,
+       foreign key(parent) references tags(id)
+               on delete cascade
+               on update cascade);
+
+create table tagtree (
+-- for ease of referencing grandchild tags
+       descendant integer,
+       ancestor integer,
+       foreign key(descendant) references tags(id)
+               on delete cascade
+               on update cascade,
+       foreign key(ancestor) references tags(id)
                on delete cascade
                on update cascade );
 
@@ -76,9 +95,23 @@ create table versions (
        id integer primary key,
        photo integer,
        mods text,
+       starrating integer,
+       colorlabel integer,
+       acceptreject integer,
        foreign key(photo) references photos(id)
                on delete cascade
                on update cascade);
+
+create table appliedtags (
+-- Table of tags applied to versions
+       tag integer,
+       version integer,
+       foreign key(tag) references tags(id)
+               on delete cascade
+               on update cascade,
+       foreign key(version) references versions(id)
+               on delete cascade
+               on update cascade); 
 
 create table folderstoscan (
        folder integer unique on conflict ignore,

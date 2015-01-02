@@ -21,7 +21,7 @@ public:
    *:D Creates a new basic cache located at ROOTDIR. The directory must not
    already exist.
   */
-  Database const &database() { return db; }
+  Database &database() { return db; }
   void add(quint64 id, QImage img, bool instantlyOutdated=false);
   /*:F add
    *:D Adds an image to the cache at each of the sizes defined in the cache.

@@ -148,7 +148,10 @@ void Scanner::run() {
       QSet<quint64> ids;
       if (!(ids=findFoldersToScan()).isEmpty()) {
 	l.unlock();
+        int N0 = N;
 	scanFolders(ids);
+        if (N>N0)
+          emit collecting(N);
         sleepok = false;
 	l.relock();
       } else if (!(ids=findPhotosToScan()).isEmpty()) {
@@ -273,7 +276,6 @@ void Scanner::scanFolder(quint64 id) {
   if (!q.next())
     throw NoResult();
   QDir dir(q.value(0).toString());
-  //  qDebug() << "Scanning " << dir.path();
 
   QSet<QString> newsubdirs;
   QSet<QString> newphotos;
@@ -352,7 +354,6 @@ void Scanner::scanFolder(quint64 id) {
     if (!q.next())
       throw NoResult();
     QDateTime lastscan = q.value(0).toDateTime();
-    //    qDebug() << "Photo " << s << oldphotos[s] << lastscan << photodate[s];
     if (photodate[s]>lastscan || !lastscan.isValid()) {
       q.prepare("insert into photostoscan values(:i)");
       q.bindValue(":i", oldphotos[s]);
@@ -469,21 +470,29 @@ void Scanner::scanPhoto(quint64 id) {
 
   QList<QSize> pvsiz = exif.previewSizes();
   if (!pvsiz.isEmpty()) {
+    /* Using these thumbnails makes scanning very slow. I don't think
+       it's worth it. Perhaps the cache process can somehow use
+       them? */
     q.prepare("select id from versions where photo==:i and mods is null");
     q.bindValue(":i", id);
     if (q.exec() && q.next()) {
       quint64 vsn = q.value(0).toULongLong();
-      QSize maxs = pvsiz[0];
-      int npix = maxs.width()*maxs.height();
-      for (int n=1; n<pvsiz.size(); n++) {
+      QSize maxs;
+      int npix = 0;
+      for (int n=0; n<pvsiz.size(); n++) {
         QSize s = pvsiz[n];
         int np = s.width()*s.height();
-        if (np>npix) {
+        if (np>npix && np<100*1000) {
           maxs = s;
           npix = np;
         }
       }
-      emit cacheablePreview(vsn, exif.previewImage(maxs));
+
+      if (npix>0) {
+        QImage img = exif.previewImage(maxs);
+        //        qDebug() << "got preview for " << id << " in " << dt << " ms: " << img.size() << " ( " << exif.width() << " x " << exif.height() << ")";
+        emit cacheablePreview(vsn, img);
+      }
     }
   }    
 }

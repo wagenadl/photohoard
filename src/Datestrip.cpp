@@ -215,7 +215,11 @@ void Datestrip::collapseAll() {
 }
 
 void Datestrip::relayout() {
-  if (!expanded || rebuilding>0) {
+  if (!expanded) {
+    recalcLabelRect();
+    mustRelayout = true;
+    return;
+  } else if (rebuilding>0) {
     mustRelayout = true;
     return;
   }
@@ -275,6 +279,7 @@ void Datestrip::relayout() {
     }
   } break;
   }
+  recalcLabelRect();
   emit resized();
   if (shouldDebug())
     qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "

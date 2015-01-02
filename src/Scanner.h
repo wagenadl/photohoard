@@ -20,6 +20,7 @@ public slots:
   void addTree(QString path);
   void removeTree(QString path);
 signals:
+  void collecting(int N);
   void progressed(int n, int N);
   void done();
   void updated(QSet<quint64> versions);

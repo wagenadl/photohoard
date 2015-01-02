@@ -39,7 +39,11 @@ void AC_Worker::readFTypes() {
 }
 
 void AC_Worker::countQueue() {
-  return db->simpleQuery("select count(*) from queue").toInt();
+  N = n + queueLength();
+}
+
+int AC_Worker::queueLength() {
+  return cache->database().simpleQuery("select count(*) from queue").toInt();
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
@@ -155,7 +159,6 @@ void AC_Worker::cachePreview(quint64 id, QImage img) {
     return;
   loaded[id] = img;
   outdatedLoaded << id;
-  qDebug() << "cachePreview " << id << img.size() << loaded.size();
   bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold) {
     storeLoadedInDB();
@@ -310,21 +313,17 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  qDebug() << "AC_Worker::request" << version << desired;
   try {
     QSize actual(0, 0);
     
     if (loaded.contains(version)) {
-      qDebug() << "  already loaded" << loaded[version].size();
       emit available(version, desired, loaded[version]);
       actual = loaded[version].size();
     } else {
       int d = cache->bestSize(version, cache->maxdim(desired));
-      qDebug() << "  already cached" << d;
       if (d>0) {
         bool od;
 	QImage img = cache->get(version, d, &od);
-        qDebug() << "     i.e., " << img.size() << od;
 	emit available(version, desired, img);
 	actual = img.size();
       }
@@ -373,7 +372,6 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
 }
 
 void AC_Worker::respondToRequest(quint64 version, QImage img) {
-  qDebug() << "AC_Worker::respondToRequest " << version << img.size();
   if (img.isNull()) 
     img = QImage(QSize(1, 1), QImage::Format_RGB32);
   for (QSize s: requests[version])

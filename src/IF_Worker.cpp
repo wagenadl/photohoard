@@ -3,7 +3,7 @@
 #include "IF_Worker.h"
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QProcess>
+#include "NiceProcess.h"
 #include <QDebug>
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
@@ -23,7 +23,9 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
     if (ext=="jpeg" || ext=="png" || ext=="tiff") {
       img = QImage(path); // load it directly
     } else if (ext=="nef" || ext=="cr2") {
-      QProcess dcraw;
+      NiceProcess dcraw;
+      if (maxdim>0)
+        dcraw.renice(10);
       QStringList args;
       if (maxdim*2<=ns.width() || maxdim*2<=ns.height()) {
         args << "-h";

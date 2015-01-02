@@ -28,9 +28,11 @@ Slide::~Slide() {
 
 void Slide::updateImage(QImage const &img1) {
   qDebug() << "Slide " << id << " updateImage" << img1.size();
-  img = img1;
   pm = QPixmap();
-  update();
+  if (isVisible()) {
+    img = img1;
+    update();
+  }
 }
 
 void Slide::setTileSize(int pix) {
