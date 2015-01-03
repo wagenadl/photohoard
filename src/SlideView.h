@@ -6,7 +6,7 @@
 
 #include <QLabel>
 
-class SlideView: public QWidget {
+class SlideView: public QFrame {
   Q_OBJECT;
 public:
   SlideView(QWidget *parent=0);
@@ -41,6 +41,7 @@ private:
   bool fit;
   double relx; // 0 for extreme left/top visible, 1 for extreme right/bot
   double rely; // ... not defined when fit
+  QSize lastSize;
 };
 
 #endif

@@ -12,7 +12,7 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
   addWidget(film);
   slide = new SlideView();
   addWidget(slide);
-  arr = Filmstrip::Arrangement::Vertical;
+  arr = Strip::Arrangement::Vertical;
   showmax = false;
 
   connect(film, SIGNAL(needImage(quint64, QSize)),
@@ -26,20 +26,20 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
 LightTable::~LightTable() {
 }
 
-void LightTable::setArrangement(Filmstrip::Arrangement ar) {
+void LightTable::setArrangement(Strip::Arrangement ar) {
   arr = ar;
   switch (arr) {
-  case Filmstrip::Arrangement::Vertical:
+  case Strip::Arrangement::Vertical:
     setOrientation(Qt::Vertical);
     film->show();
     slide->show();
     break;
-  case Filmstrip::Arrangement::Horizontal:
+  case Strip::Arrangement::Horizontal:
     setOrientation(Qt::Horizontal);
     film->show();
     slide->show();
     break;
-  case Filmstrip::Arrangement::Grid:
+  case Strip::Arrangement::Grid:
     film->show();
     slide->hide();
     break;
@@ -67,7 +67,7 @@ void LightTable::select(quint64 i) {
     emit selected(id);
   }
   
-  if (showmax || arr!=Filmstrip::Arrangement::Grid) 
+  if (showmax || arr!=Strip::Arrangement::Grid) 
     emit needImage(id, slide->desiredSize());
 }
 

@@ -5,8 +5,8 @@
 #define LIGHTTABLE_H
 
 #include <QSplitter>
-#include "Filmstrip.h"
 #include "PhotoDB.h"
+#include "Strip.h"
 
 class LightTable: public QSplitter {
   Q_OBJECT;
@@ -14,7 +14,7 @@ public:
   LightTable(PhotoDB const &db, QWidget *parent=0);
   virtual ~LightTable();
 public slots:
-  void setArrangement(Filmstrip::Arrangement ar);
+  void setArrangement(Strip::Arrangement ar);
   void maximize();
   void unMaximize();
   void select(quint64 id=0);
@@ -28,7 +28,7 @@ protected:
   class FilmView *film;
   class SlideView *slide;
   bool showmax;
-  Filmstrip::Arrangement arr;
+  Strip::Arrangement arr;
   quint64 id;
   bool newImage;
 };

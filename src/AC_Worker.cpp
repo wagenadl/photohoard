@@ -280,7 +280,9 @@ void AC_Worker::sendToBank(quint64 version) {
   QString path = folders[folder] + "/" + fn;
   int maxdim = cache->standardSizes().first();
   if (requests.contains(version)) {
+    qDebug() << "Requests contains " << version;
     for (auto s: requests[version]) {
+      qDebug() << " : " << s;
       int md = cache->maxdim(s);
       if (md>maxdim)
 	maxdim = md;

@@ -4,8 +4,14 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QFile>
+
 
 Application::Application(int &argc, char **argv): QApplication(argc, argv) {
+  QFile f(":/style.css");
+  if (!f.open(QFile::ReadOnly))
+    throw QString("Cannot open style");
+  setStyleSheet(QString::fromUtf8(f.readAll()));
 }
 
 bool Application::notify(QObject *receiver, QEvent *e) {

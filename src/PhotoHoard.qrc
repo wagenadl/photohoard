@@ -1,5 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
  <qresource>
+<!-- STYLE -->
+  <file alias="style.css">../res/style.css</file>
+
 <!-- SQL CODE -->
   <file alias="setupcache.sql">../res/setupcache.sql</file>
   <file alias="setupdb.sql">../res/setupdb.sql</file>
