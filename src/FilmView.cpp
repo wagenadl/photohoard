@@ -3,18 +3,18 @@
 #include "FilmView.h"
 #include "FilmScene.h"
 #include "Datestrip.h"
+#include <QDebug>
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent) {
-  scene = new FilmScene(db, this);
-  setScene(scene);
+  scene_ = new FilmScene(db, this);
+  setScene(scene_);
   strip = new Datestrip(db, 0);
-  strip->setArrangement(Datestrip::Arrangement::Grid);
-  setScrollbarPolicies();
+  setArrangement(Datestrip::Arrangement::Grid);
   strip->setTileSize(80); //width()); // minus scrollbar...
   strip->setTimeRange(QDateTime(),
 		      Datestrip::TimeScale::Eternity);
-  scene->addItem(strip);
+  scene_->addItem(strip);
   strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
@@ -31,6 +31,12 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
 }
 
 FilmView::~FilmView() {
+}
+
+void FilmView::setArrangement(Strip::Arrangement ar) {
+  strip->setArrangement(ar);
+  setScrollbarPolicies();
+  recalcSizes();
 }
 
 void FilmView::setScrollbarPolicies() {
@@ -50,10 +56,14 @@ void FilmView::setScrollbarPolicies() {
 void FilmView::stripResized() {
   QRectF r = strip->netBoundingRect();
   r |= QRectF(QPointF(0, 0), viewport()->size());
-  scene->setSceneRect(r);
+  scene_->setSceneRect(r);
 }
 
 void FilmView::resizeEvent(QResizeEvent *) {
+  recalcSizes();
+}
+
+void FilmView::recalcSizes() {
   switch (strip->arrangement()) {
   case Datestrip::Arrangement::Horizontal:
     strip->setTileSize(viewport()->height());
@@ -68,7 +78,7 @@ void FilmView::resizeEvent(QResizeEvent *) {
 }
 
 void FilmView::updateImage(quint64 id, QSize, QImage img) {
-  scene->updateImage(id, img);
+  scene_->updateImage(id, img);
 }
 
 void FilmView::rescan() {

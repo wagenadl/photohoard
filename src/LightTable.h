@@ -7,6 +7,7 @@
 #include <QSplitter>
 #include "PhotoDB.h"
 #include "Strip.h"
+#include "LayoutBar.h"
 
 class LightTable: public QSplitter {
   Q_OBJECT;
@@ -14,9 +15,7 @@ public:
   LightTable(PhotoDB const &db, QWidget *parent=0);
   virtual ~LightTable();
 public slots:
-  void setArrangement(Strip::Arrangement ar);
-  void maximize();
-  void unMaximize();
+  void setLayout(LayoutBar::Action ar);
   void select(quint64 id=0);
   void updateImage(quint64, QSize, QImage);
   void rescan();
@@ -28,9 +27,11 @@ protected:
   class FilmView *film;
   class SlideView *slide;
   bool showmax;
-  Strip::Arrangement arr;
+  LayoutBar::Action lastlay, lay;
   quint64 id;
   bool newImage;
+  int tilesize;
+  int lastgridsize;
 };
 
 #endif

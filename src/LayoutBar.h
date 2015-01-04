@@ -17,17 +17,17 @@ public:
       HLine,
       VLine,
       FullPhoto,
-      Line,
-      HalfGrid,
-      ToggleFullScreen,
-      ToggleFullPhoto,
+      Line, // not a layout: selects HLine or VLine
+      HalfGrid, // not a layout: selects HGrid or VGrid
+      ToggleFullPhoto, // not a layout: selects FullPhoto or previous layout
+      ToggleFullScreen, // not a layout: toggles full screen display
       N
       };
 public:
   LayoutBar(QWidget *parent);
   virtual ~LayoutBar();
 signals:
-  void triggered(Action a);
+  void triggered(LayoutBar::Action a);
 private slots:
   void trigger(QAction *);
 private:

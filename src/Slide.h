@@ -16,7 +16,7 @@ public:
   void makeReady();
   void updateImage(QImage const &img);
   void setTileSize(int pix);
-  // exif stuff!
+  void setBackgroundColor(QColor);
   virtual QRectF boundingRect() const override {
     return QRectF(0, 0, tilesize, tilesize);
   }
@@ -32,6 +32,7 @@ private:
   QImage img;
   QPixmap pm;
   int tilesize;
+  QColor bg;
 };
 
 #endif

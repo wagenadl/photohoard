@@ -10,6 +10,7 @@
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
   tilesize = 128;
+  bg = QColor(128, 128, 128);
   setPos(1e6, 1e6);
   FilmScene *fs = dynamic_cast<FilmScene *>(scene());
   if (fs)
@@ -27,7 +28,6 @@ Slide::~Slide() {
 }
 
 void Slide::updateImage(QImage const &img1) {
-  qDebug() << "Slide " << id << " updateImage" << img1.size();
   pm = QPixmap();
   if (isVisible()) {
     img = img1;
@@ -45,16 +45,13 @@ void Slide::paint(QPainter *painter,
 		  QWidget *) {
   QRectF r = boundingRect();
   painter->setPen(QPen(Qt::NoPen));
-  painter->setBrush(QBrush(QColor(0, 0, 0)));
+  painter->setBrush(bg.darker());
   painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
-  painter->setBrush(QBrush(QColor(255, 255, 255)));
+  painter->setBrush(bg.lighter());
   painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
-  painter->setBrush(QBrush(QColor(127, 127, 127)));
+  painter->setBrush(bg);
   painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
-  int ims = tilesize - 4;
-  qDebug() << "paint " << id
-           << ":" << pm.width() << pm.height() << pm.isNull()
-           << ":" << img.width() << img.height() << img.isNull();
+  int ims = tilesize - 8;
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
@@ -70,7 +67,6 @@ void Slide::paint(QPainter *painter,
 			   tilesize/2-tgt.height()/2), tgt);
 	painter->drawPixmap(dst, pm);
       }
-      // qDebug() << id << scenePos() << r << o->exposedRect;
       parent->requestImage(id);
       return;
     } 

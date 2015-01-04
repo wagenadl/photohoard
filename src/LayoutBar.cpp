@@ -1,8 +1,11 @@
 // LayoutBar.cpp
 
 #include "LayoutBar.h"
+#include <QMetaType>
+#include <QDebug>
 
 LayoutBar::LayoutBar(QWidget *parent): QToolBar(parent) {
+  qRegisterMetaType<LayoutBar::Action>("LayoutBar::Action");
   for (int i=0; i<int(Action::N); i++) {
     Action ii = Action(i);
     QAction *a = new QAction(parent);
@@ -44,7 +47,8 @@ LayoutBar::~LayoutBar() {
 }
 
 void LayoutBar::trigger(QAction *a) {
+  qDebug() << "LayoutBar::trigger" << a << revmap.contains(a);
   if (revmap.contains(a))
-    emit revmap[a];
+    emit triggered(revmap[a]);
 }
 

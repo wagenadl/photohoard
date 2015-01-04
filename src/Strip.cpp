@@ -103,15 +103,15 @@ void Strip::recalcLabelRect() {
   switch (arr) {
   case Arrangement::Horizontal:
     if (expanded)
-      labelRect = QRectF(0, 0, tilesize, tilesize);
-    else
       labelRect = QRectF(0, 0, labelHeight(tilesize), tilesize);
+    else
+      labelRect = QRectF(0, 0, tilesize, tilesize);
     break;
   case Arrangement::Vertical:
     if (expanded)
-      labelRect = QRectF(0, 0, tilesize, tilesize);
-    else
       labelRect = QRectF(0, 0, tilesize, labelHeight(tilesize));
+    else
+      labelRect = QRectF(0, 0, tilesize, tilesize);
     break;
   case Arrangement::Grid:
     if (expanded) {
@@ -155,7 +155,7 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
 void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
-  int slantw = 12;
+  int slantw = scl==TimeScale::Eternity ? 0 : 12;
   if (r.width() >= r.height()) {
     poly << (r.topLeft() + QPointF(slantw+2, 2));
     poly << (r.topRight() + QPointF(-slantw, 2));
@@ -187,7 +187,7 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
                                " limit 1", d0, endFor(d0, scl))
                 .toULongLong());
 
-  int ims = tilesize - 4;
+  int ims = tilesize - 20;
   if (!(headerpm.width()==ims || headerpm.height()==ims)) {
     if (headerimg.isNull()) {
       requestImage(headerid);
@@ -328,6 +328,8 @@ void Strip::setArrangement(Arrangement arr1) {
 }
 
 void Strip::setTileSize(int pix) {
+  if (pix<10)
+    pix = 10;
   tilesize = pix;
   recalcLabelRect();
 }

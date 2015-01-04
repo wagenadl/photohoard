@@ -4,6 +4,9 @@
 #include "NoResult.h"
 #include "FilmView.h"
 #include "SlideView.h"
+#include "Datestrip.h"
+#include <QDebug>
+#include <QScrollBar>
 
 LightTable::LightTable(PhotoDB const &db, QWidget *parent):
   QSplitter(parent), db(db) {
@@ -12,7 +15,13 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
   addWidget(film);
   slide = new SlideView();
   addWidget(slide);
-  arr = Strip::Arrangement::Vertical;
+  tilesize = 80;
+  lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;
+  setStretchFactor(0, 0);
+  setStretchFactor(1, 100);
+  setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+  lay=lastlay=LayoutBar::Action::VGrid;
+  setLayout(lay);
   showmax = false;
 
   connect(film, SIGNAL(needImage(quint64, QSize)),
@@ -26,35 +35,96 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
 LightTable::~LightTable() {
 }
 
-void LightTable::setArrangement(Strip::Arrangement ar) {
-  arr = ar;
-  switch (arr) {
-  case Strip::Arrangement::Vertical:
+void LightTable::setLayout(LayoutBar::Action act) {
+  qDebug() << "LightTable::setLayout" << int(act);
+  lastlay = lay;
+  switch (act) {
+  case LayoutBar::Action::FullGrid:
+    film->show();
+    film->setArrangement(Strip::Arrangement::Grid);
+    film->root()->setTileSize(tilesize);
+    slide->hide();
+    lay = act;
+    break;
+  case LayoutBar::Action::HGrid:
+    setOrientation(Qt::Vertical);
+    if (lay==LayoutBar::Action::HLine
+        || lay==LayoutBar::Action::VLine
+        || lay==LayoutBar::Action::FullPhoto)
+      setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
+    film->show();
+    film->setArrangement(Strip::Arrangement::Grid);
+    film->root()->setTileSize(tilesize);
+    slide->show();
+    lay = act;
+    break;
+  case LayoutBar::Action::VGrid:
+    setOrientation(Qt::Horizontal);
+    if (lay==LayoutBar::Action::HLine
+        || lay==LayoutBar::Action::VLine
+        || lay==LayoutBar::Action::FullPhoto)
+      setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+    film->show();
+    film->setArrangement(Strip::Arrangement::Grid);
+    film->root()->setTileSize(tilesize);
+    slide->show();
+    lay = act;
+    break;
+  case LayoutBar::Action::HLine:
+    if (lay==LayoutBar::Action::HGrid
+        || lay==LayoutBar::Action::HGrid)
+      lastgridsize = sizes()[0];
+    setSizes(QList<int>() << tilesize + film->horizontalScrollBar()->height()
+             << height());
     setOrientation(Qt::Vertical);
     film->show();
+    film->setArrangement(Strip::Arrangement::Horizontal);
     slide->show();
+    lay = act;
     break;
-  case Strip::Arrangement::Horizontal:
+  case LayoutBar::Action::VLine:
+    if (lay==LayoutBar::Action::HGrid
+        || lay==LayoutBar::Action::HGrid)
+      lastgridsize = sizes()[0];
+    setSizes(QList<int>() << tilesize + film->verticalScrollBar()->width()
+             << width());
     setOrientation(Qt::Horizontal);
     film->show();
+    film->setArrangement(Strip::Arrangement::Vertical);
     slide->show();
+    lay = act;
     break;
-  case Strip::Arrangement::Grid:
-    film->show();
-    slide->hide();
+  case LayoutBar::Action::FullPhoto:
+    if (lay==LayoutBar::Action::HGrid
+        || lay==LayoutBar::Action::HGrid)
+      lastgridsize = sizes()[0];
+    film->hide();
+    slide->show();
+    lay = act;
+    break;
+  case LayoutBar::Action::Line:
+    if (orientation()==Qt::Vertical)
+      setLayout(LayoutBar::Action::VLine);
+    else
+      setLayout(LayoutBar::Action::HLine);
+    break;
+  case LayoutBar::Action::HalfGrid:
+    if (orientation()==Qt::Vertical)
+      setLayout(LayoutBar::Action::VGrid);
+    else
+      setLayout(LayoutBar::Action::HGrid);
+    break;
+  case LayoutBar::Action::ToggleFullPhoto:
+    if (lay==LayoutBar::Action::FullPhoto)
+      setLayout(lastlay);
+    else
+      setLayout(LayoutBar::Action::FullPhoto);
+    break;
+  case LayoutBar::Action::ToggleFullScreen:
+    break;
+  case LayoutBar::Action::N:
     break;
   }
-}
-
-void LightTable::maximize() {
-  showmax = true;
-  film->hide();
-  slide->show();
-}
-
-void LightTable::unMaximize() {
-  showmax = false;
-  setArrangement(arr);
 }
 
 void LightTable::select(quint64 i) {
@@ -66,8 +136,7 @@ void LightTable::select(quint64 i) {
     newImage = true;
     emit selected(id);
   }
-  
-  if (showmax || arr!=Strip::Arrangement::Grid) 
+  if (slide->isVisible())
     emit needImage(id, slide->desiredSize());
 }
 

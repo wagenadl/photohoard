@@ -26,14 +26,23 @@ QRectF Slidestrip::subBoundingRect() const {
   if (!expanded)
     return QRectF();
   int nslides = hasLatent ? latentVersions.size() : slideOrder.size();
-  bool horh = hasTopLabel();
-  int lw = horh ? 0 : labelHeight(tilesize);
-  int lh = horh ? labelHeight(tilesize) : 0;
-  int perrow = (rowwidth - lw) / tilesize;
-  if (perrow<1)
-    perrow = 1;
-  int rows = (nslides+perrow-1)/perrow;
-  return QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
+  switch (arr) {
+  case Arrangement::Horizontal: 
+    return QRectF(labelHeight(tilesize), 0, nslides*tilesize, tilesize);
+  case Arrangement::Vertical:
+    return QRectF(0, labelHeight(tilesize), tilesize, nslides*tilesize);
+  case Arrangement::Grid: {
+    bool horh = hasTopLabel();
+    int lw = horh ? 0 : labelHeight(tilesize);
+    int lh = horh ? labelHeight(tilesize) : 0;
+    int perrow = (rowwidth - lw) / tilesize;
+    if (perrow<1)
+      perrow = 1;
+    int rows = (nslides+perrow-1)/perrow;
+    return QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
+  }
+  }
+  return QRectF(); // not executed
 }
 
 void Slidestrip::paint(QPainter *painter,
@@ -80,7 +89,7 @@ void Slidestrip::rebuildContents() {
   mustRebuild = false;
   prepareGeometryChange();
   latentVersions = versionsInRange(startDateTime(), endDateTime());
-  if (latentVersions.size()>THRESHOLD) {
+  if (latentVersions.size()>THRESHOLD && scl<TimeScale::DecaMinute) {
     emit overfilled(d0);
     while (latentVersions.size()>THRESHOLD) {
       latentVersions.takeLast();
@@ -169,9 +178,11 @@ void Slidestrip::relayout() {
   } break;
   case Arrangement::Vertical: {
     int y = labelBoundingRect().bottom();
+    qDebug() << "Slidestrip: relayout" << y;
     for (auto s: slideOrder) {
       s->setPos(0, y);
       y += tilesize;
+      qDebug() << "  : " << y;
     }
   } break;
   case Arrangement::Grid: {
@@ -206,6 +217,8 @@ void Slidestrip::setArrangement(Arrangement arr) {
   
 void Slidestrip::setTileSize(int pix) {
   Strip::setTileSize(pix);
+  for (auto s: slideOrder)
+    s->setTileSize(pix);
   relayout();
 }
 

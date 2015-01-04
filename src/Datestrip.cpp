@@ -234,14 +234,14 @@ void Datestrip::relayout() {
     int x = labelBoundingRect().right();
     for (auto s: stripOrder) {
       s->setPos(x, 0);
-      x += netBoundingRect().width();
+      x += s->netBoundingRect().width();
     }
   } break;
   case Arrangement::Vertical: {
     int y = labelBoundingRect().bottom();
     for (auto s: stripOrder) {
       s->setPos(0, y);
-      y += netBoundingRect().height();
+      y += s->netBoundingRect().height();
     }
   } break;
   case Arrangement::Grid: {
@@ -296,15 +296,18 @@ class Slide *Datestrip::slideByVersion(quint64 vsn) const {
 }
 
 void Datestrip::setArrangement(Arrangement arr) {
+  qDebug() << "Datestrip" << (void*)this << d0 << int(scl) << "setArrangement";
   Strip::setArrangement(arr);
   for (auto s: stripOrder) 
     s->setArrangement(arr);
+  relayout();
 }
   
 void Datestrip::setTileSize(int pix) {
   Strip::setTileSize(pix);
   for (auto s: stripOrder)
     s->setTileSize(pix);
+  relayout();
 }
 
 void Datestrip::setRowWidth(int pix) {
@@ -312,4 +315,5 @@ void Datestrip::setRowWidth(int pix) {
   int subwidth = subRowWidth(pix);
   for (auto s: stripOrder) 
     s->setRowWidth(subwidth);
+  relayout();
 }

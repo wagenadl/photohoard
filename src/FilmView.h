@@ -5,18 +5,22 @@
 #define FILMVIEW_H
 
 #include <QGraphicsView>
+#include "Strip.h"
 
 class FilmView: public QGraphicsView {
   Q_OBJECT;
 public:
   FilmView(class PhotoDB const &db, QWidget *parent=0);
   virtual ~FilmView();
+  class FilmScene *scene() { return scene_; }
+  class Datestrip *root() { return strip; }
 signals:
   void needImage(quint64, QSize);
   void pressed(quint64);
   void clicked(quint64);
   void doubleClicked(quint64);
 public slots:
+  void setArrangement(Strip::Arrangement);
   void updateImage(quint64, QSize, QImage);
   void rescan();
 protected:
@@ -25,8 +29,9 @@ protected slots:
   void stripResized();
 protected:
   void setScrollbarPolicies();
+  void recalcSizes();
 private:
-  class FilmScene *scene;
+  class FilmScene *scene_;
   class Datestrip *strip;
 };
 
