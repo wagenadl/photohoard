@@ -27,7 +27,7 @@ QRectF Datestrip::subBoundingRect() const {
     qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
 	     << "subBoundingRect: exp=" << expanded
 	     << " empty=" << stripOrder.isEmpty();
-  if (!expanded)
+  if (!isExpanded())
     return QRectF();
   if (stripOrder.isEmpty())
     return QRectF();
@@ -67,7 +67,7 @@ void Datestrip::convertStrip(QDateTime t) {
   }
   delete s;
   stripMap[t]->setTimeRange(t, subs);
-  if (expanded)
+  if (isExpanded())
     stripMap[t]->show();
   else
     stripMap[t]->hide();
@@ -187,9 +187,12 @@ void Datestrip::expand() {
 }
 
 void Datestrip::collapse() {
-  Strip::collapse();
-  for (auto s: stripOrder)
+  for (auto s: stripOrder) {
+    if (s->isExpanded()) 
+      s->collapse();
     s->hide();
+  }
+  Strip::collapse();
 }
 
 void Datestrip::expandAll() {
@@ -208,14 +211,9 @@ void Datestrip::expandAll() {
 	     << "expandAll done";
 }
 
-void Datestrip::collapseAll() {
-  collapse();
-  for (auto s: stripOrder)
-    s->collapseAll();
-}
 
 void Datestrip::relayout() {
-  if (!expanded) {
+  if (!isExpanded()) {
     recalcLabelRect();
     mustRelayout = true;
     return;

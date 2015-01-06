@@ -372,10 +372,6 @@ void Strip::expandAll() {
   expand();
 }
 
-void Strip::collapseAll() {
-  collapse();
-}
-
 void Strip::relayout() {
   subheight = -1;
 }
@@ -455,11 +451,9 @@ void Strip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
 }
 
 void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  if (e->modifiers() & Qt::ControlModifier)
+  if (e->modifiers() & Qt::ShiftModifier)
     expandAll();
-  else if (e->modifiers() & Qt::ShiftModifier)
-    collapseAll();
-  else if (expanded)
+  else if (expanded) 
     collapse();
   else
     expand();

@@ -85,8 +85,8 @@ void Slide::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
 }
 
 void Slide::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-    if (parent)
-      parent->slidePressed(id);
+  if (parent)
+    parent->slidePressed(id);
   e->accept();
 }
 

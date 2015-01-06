@@ -48,7 +48,6 @@ public slots:
   virtual void expand();
   virtual void collapse();
   virtual void expandAll();
-  virtual void collapseAll();
 signals:
   void needImage(quint64, QSize);
   void resized();

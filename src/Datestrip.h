@@ -23,7 +23,6 @@ public slots:
   virtual void expand();
   virtual void collapse();
   virtual void expandAll();
-  virtual void collapseAll();
 protected slots:
   virtual void relayout();
   virtual void convertStrip(QDateTime);
