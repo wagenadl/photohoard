@@ -183,7 +183,7 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
                                " from versions inner join photos"
                                " on versions.photo=photos.id"
                                " where photos.capturedate>=:a"
-                               " and photos.capturedate<=:b"
+                               " and photos.capturedate<:b"
                                " limit 1", d0, endFor(d0, scl))
                 .toULongLong());
 

@@ -12,7 +12,7 @@
 class Database {
 public:
   Database(Database const &);
-  Database(QString filename);
+  Database(QString filename, QString id="");
   virtual ~Database();
   Database &operator=(Database const &);
   QSqlDatabase &operator*() const { return *db; }
@@ -21,7 +21,8 @@ public:
   void beginAndLock();
   void commitAndUnlock();
   void rollbackAndUnlock();
-  QString fileName() const { return names()[db]; }
+  QString fileName() const;
+  QString name() const;
 public:
   // The following execute the query and return the value(0) from the
   // first result row. They throw an exception if there is no result.

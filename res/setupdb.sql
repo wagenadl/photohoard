@@ -1,3 +1,6 @@
+pragma synchronous = normal;
+pragma foreign_keys = on;
+
 create table info (
        id text,
        version text );
@@ -141,3 +144,4 @@ insert into info values("PhotoDB", "1.0");
 create index if not exists photodateidx on photos(capturedate);
 create index if not exists parentfolderidx on folders(parentfolder);
 create index if not exists versionidx on versions(photo);
+

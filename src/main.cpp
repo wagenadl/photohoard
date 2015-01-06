@@ -13,8 +13,15 @@
 #include "ExceptionReporter.h"
 #include "MainWindow.h"
 #include "ExifReport.h"
+#include <sqlite3.h>
 
 int main(int argc, char **argv) {
+  /*
+  if (sqlite3_config(SQLITE_CONFIG_SERIALIZED) != SQLITE_OK) {
+    qDebug() << "Could not configure serialized database access";
+    return 1;
+  }
+  */
 
   QStringList args;
   for (int i=1; i<argc; i++)
@@ -29,8 +36,8 @@ int main(int argc, char **argv) {
     }
   }
 
-  QString dbfn = "/tmp/photodb.db";
-  QString cachefn = "/tmp/photodb.cache";
+  QString dbfn = "/home/wagenaar/.local/photohoard/photodb.db";
+  QString cachefn = "/home/wagenaar/.local/photohoard/photodb.cache";
   QString picroot = "/home/wagenaar/Pictures";
   try {
     Application app(argc, argv);

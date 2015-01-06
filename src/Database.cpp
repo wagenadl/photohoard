@@ -22,20 +22,24 @@ Database &Database::operator=(Database const &o) {
   return *this;
 }
   
-Database::Database(QString filename) {
-  if (databases().contains(filename)) {
-    db = databases()[filename];
+Database::Database(QString filename, QString id) {
+  if (id=="")
+    id = filename;
+  if (databases().contains(id)) {
+    db = databases()[id];
   } else {
-    db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", filename));
+    db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", id));
     db->setDatabaseName(filename);
     if (!db->open()) {
       qDebug() << "Could not open database " << filename;
       throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
     }
-    databases()[filename] = db;
+    databases()[id] = db;
     mutexes()[db] = new QMutex;
     refcount()[db] = 0;
-    names()[db] = filename;
+    names()[db] = id;
+
+    query("attach database ':memory:' as M");
   }
   ref();
 }
@@ -227,4 +231,12 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
     return q;
   else
     throw q;
+}
+
+QString Database::fileName() const {
+  return db->databaseName();
+}
+
+QString Database::name() const {
+  return db->connectionName();
 }
