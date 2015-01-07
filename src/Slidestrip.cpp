@@ -53,16 +53,19 @@ void Slidestrip::paint(QPainter *painter,
     instantiate();
 }
 
-void Slidestrip::slidePressed(quint64 id) {
-  emit pressed(id);
+void Slidestrip::slidePressed(quint64 id,
+                              Qt::MouseButton b, Qt::KeyboardModifiers m) {
+  emit pressed(id, b, m);
 }
 
-void Slidestrip::slideClicked(quint64 id) {
-  emit clicked(id);
+void Slidestrip::slideClicked(quint64 id,
+                              Qt::MouseButton b, Qt::KeyboardModifiers m) {
+  emit clicked(id, b, m);
 }
 
-void Slidestrip::slideDoubleClicked(quint64 id) {
-  emit doubleClicked(id);
+void Slidestrip::slideDoubleClicked(quint64 id,
+                              Qt::MouseButton b, Qt::KeyboardModifiers m) {
+  emit doubleClicked(id, b, m);
 }
 
 Slide *Slidestrip::slideByVersion(quint64 vsn) const {

@@ -79,14 +79,14 @@ void Slide::paint(QPainter *painter,
 		      pm);
 }
 
-void Slide::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
+void Slide::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   if (parent)
-    parent->slideDoubleClicked(id);
+    parent->slideDoubleClicked(id, e->button(), e->modifiers());
 }
 
 void Slide::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (parent)
-    parent->slidePressed(id);
+    parent->slidePressed(id, e->button(), e->modifiers());
   e->accept();
 }
 
@@ -94,6 +94,6 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   if ((e->screenPos() - e->buttonDownScreenPos(e->button()))
       .manhattanLength() < 5)
     if (parent)
-      parent->slideClicked(id);
+      parent->slideClicked(id, e->button(), e->modifiers());
 }
 

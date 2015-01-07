@@ -26,9 +26,9 @@ public slots:
 signals:
   void overfilled(QDateTime); // emitted when we have too many pictures
 public: // for slide only
-  void slidePressed(quint64);
-  void slideClicked(quint64);
-  void slideDoubleClicked(quint64);		    
+  void slidePressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void slideClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void slideDoubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
 protected slots:
   virtual void relayout();
 protected:

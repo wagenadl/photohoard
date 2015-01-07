@@ -89,12 +89,19 @@ Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
   }
   connect(s, SIGNAL(needImage(quint64, QSize)),
           this, SIGNAL(needImage(quint64, QSize)));
-  connect(s, SIGNAL(pressed(quint64)),
-          this, SIGNAL(pressed(quint64)));
-  connect(s, SIGNAL(clicked(quint64)),
-          this, SIGNAL(clicked(quint64)));
-  connect(s, SIGNAL(doubleClicked(quint64)),
-          this, SIGNAL(doubleClicked(quint64)));
+  connect(s,
+          SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
+          this,
+          SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(s, SIGNAL(clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
+          this,
+          SIGNAL(clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(s,
+          SIGNAL(doubleClicked(quint64,
+                               Qt::MouseButton, Qt::KeyboardModifiers)),
+          this,
+          SIGNAL(doubleClicked(quint64,
+                               Qt::MouseButton, Qt::KeyboardModifiers)));
   s->setArrangement(arr);
   s->setTileSize(tilesize);
   s->setRowWidth(subRowWidth(rowwidth));

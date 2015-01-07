@@ -26,10 +26,12 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
 
   connect(film, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
-  connect(film, SIGNAL(pressed(quint64)),
-	  this, SLOT(select(quint64)));
+  connect(film, SIGNAL(pressed(quint64,
+                               Qt::MouseButton, Qt::KeyboardModifiers)),
+	  this, SLOT(slidePress(quint64,
+                                Qt::MouseButton, Qt::KeyboardModifiers)));
   connect(slide, SIGNAL(needLargerImage()),
-	  this, SLOT(select()));
+	  this, SLOT(requestLargerImage()));
 }
 
 LightTable::~LightTable() {
@@ -127,18 +129,33 @@ void LightTable::setLayout(LayoutBar::Action act) {
   }
 }
 
-void LightTable::select(quint64 i) {
+void LightTable::slidePress(quint64 i, Qt::MouseButton b,
+                            Qt::KeyboardModifiers mm) {
+  switch (b) {
+  case Qt::LeftButton:
+    select(i, mm);
+    break;
+  default:
+    break;
+  }
+}
+
+void LightTable::select(quint64 i, Qt::KeyboardModifiers) {
   if (i==id)
     return;
 
-  if (i!=0) {
-    id = i;
-    newImage = true;
-    emit selected(id);
-  }
+  id = i;
+  newImage = true;
+  emit selected(id);
+
+  requestLargerImage();
+}
+
+void LightTable::requestLargerImage() {
+  qDebug() << "LightTable::requestLargerImage";
   if (slide->isVisible())
     emit needImage(id, slide->desiredSize());
-}
+}  
 
 void LightTable::updateImage(quint64 i, QSize s, QImage img) {
   film->updateImage(i, s, img);

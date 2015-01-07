@@ -51,9 +51,9 @@ public slots:
 signals:
   void needImage(quint64, QSize);
   void resized();
-  void pressed(quint64);
-  void clicked(quint64);
-  void doubleClicked(quint64);
+  void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
 public:
   virtual QRectF boundingRect() const override; // just us, i.e., our label
   virtual QRectF labelBoundingRect() const; // just us
