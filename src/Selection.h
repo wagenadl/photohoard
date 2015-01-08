@@ -5,22 +5,28 @@
 #define SELECTION_H
 
 #include <QObject>
-#include "Database.h"
+#include "PhotoDB.h"
 #include <QDateTime>
+#include "Strip.h"
+#include <QSet>
 
 class Selection: public QObject {
   Q_OBJECT;
 public:
-  Selection(Database const &photodb, QObject *parent=0);
+  Selection(PhotoDB const &photodb, QObject *parent=0);
 public slots:
   void add(quint64 vsn);
-  void add(QDateTime start, QDateTime inclusiveend); // current impl. doesn't know about filters
+  void addDateRange(QDateTime d1, QDateTime inclusiveend);
+  void addDateRange(QDateTime start, Strip::TimeScale scl);
+  void selectAll(); // current impl. doesn't know about filters
+  // current impl. doesn't know about filters
   void remove(quint64 vsn);
   void clear();
-  void selectAll(); // current impl. doesn't know about filters
   bool contains(quint64 vsn);
+  int count();
+  QSet<quint64> current();
 private:
-  Database db;
+  PhotoDB db;
 };
 
 #endif

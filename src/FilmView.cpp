@@ -20,12 +20,20 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
 	  this, SLOT(stripResized()));
   connect(strip, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
-  connect(strip, SIGNAL(pressed(quint64)),
-	  this, SIGNAL(pressed(quint64)));
-  connect(strip, SIGNAL(clicked(quint64)),
-	  this, SIGNAL(clicked(quint64)));
-  connect(strip, SIGNAL(doubleClicked(quint64)),
-	  this, SIGNAL(doubleClicked(quint64)));
+  connect(strip,
+          SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
+	  this,
+          SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(strip,
+          SIGNAL(clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
+	  this,
+          SIGNAL(clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(strip,
+          SIGNAL(doubleClicked(quint64,
+                               Qt::MouseButton, Qt::KeyboardModifiers)),
+	  this,
+          SIGNAL(doubleClicked(quint64,
+                               Qt::MouseButton, Qt::KeyboardModifiers)));
   strip->expand();
   stripResized();
 }

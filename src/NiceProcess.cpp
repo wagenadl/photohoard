@@ -12,6 +12,9 @@ void NiceProcess::renice(int n) {
 }
 
 void NiceProcess::setupChildProcess() {
-  if (nice)
-    ::nice(nice);
+  if (nice) {
+    if (::nice(nice)) {
+      ;
+    }
+  }
 }

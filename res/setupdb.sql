@@ -124,6 +124,10 @@ create table photostoscan (
        photo integer unique on conflict ignore,
        foreign key(photo) references photos(id) );
 
+create table current (
+       version integer references versions(id) 
+               on delete set null );
+
 -- ======================================================================
 
 insert into filetypes(stdext) values ("jpeg");
@@ -145,3 +149,4 @@ create index if not exists photodateidx on photos(capturedate);
 create index if not exists parentfolderidx on folders(parentfolder);
 create index if not exists versionidx on versions(photo);
 
+insert into current values(null);

@@ -22,11 +22,14 @@ public slots:
   void rescan();
 signals:
   void needImage(quint64, QSize);
-  void selected(quint64);
+  void newCurrent(quint64);
 private slots:
   void requestLargerImage();
 protected:
+  void updateSlide(quint64 id);
+protected:
   PhotoDB db;
+  class Selection *selection;
   class FilmView *film;
   class SlideView *slide;
   bool showmax;

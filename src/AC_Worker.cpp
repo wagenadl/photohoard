@@ -315,6 +315,7 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
+  //  qDebug() << "requestImage" << version << desired;
   try {
     QSize actual(0, 0);
     
@@ -331,6 +332,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       }
     }
 
+    //    qDebug() << "  actual " << actual << " desired " << desired;
     if (actual.width()>=desired.width() || actual.height()>=desired.height())
       return; // easy, we're done
     

@@ -7,10 +7,14 @@
 #include "Datestrip.h"
 #include <QDebug>
 #include <QScrollBar>
+#include "Selection.h"
+#include "Slide.h"
+#include "FilmScene.h"
 
 LightTable::LightTable(PhotoDB const &db, QWidget *parent):
   QSplitter(parent), db(db) {
   setObjectName("LightTable");
+  selection = new Selection(db, this);
   film = new FilmView(db);
   addWidget(film);
   slide = new SlideView();
@@ -140,16 +144,62 @@ void LightTable::slidePress(quint64 i, Qt::MouseButton b,
   }
 }
 
-void LightTable::select(quint64 i, Qt::KeyboardModifiers) {
-  if (i==id)
-    return;
+void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
+  if (m & Qt::ControlModifier) {
+    // Control: Toggle whether image i is selected
+    if (selection->contains(i))
+      selection->remove(i);
+    else
+      selection->add(i);
+  } else if (m & Qt::ShiftModifier) {
+    // Shift: Select a range from current id to new i
+    // Currently, this always adds, but that needs not be the case
+    QDateTime a = db.captureDate(db.photoFromVersion(id));
+    QDateTime b = db.captureDate(db.photoFromVersion(i));
+    if (a>b)
+      selection->addDateRange(b, a);
+    else
+      selection->addDateRange(a, b);
+    film->scene()->update();
+  } else {
+    // Ignore other modifiers for the moment
+    if (i==id)
+      return;
+    if (!selection->contains(i)) {
+      bool localupdate = true; // if we have just a few in selection, we'll
+      // repaint just those slides, otherwise the whole view
+      if (selection->count()<=10) {
+        QSet<quint64> ss = selection->current();
+        selection->clear();
+        for (auto i: ss) {
+          Slide *s = film->root()->slideByVersion(i);
+          if (s)
+            s->update();
+        }
+      } else {
+        localupdate = false;
+        selection->clear();
+      }
+      selection->add(i);
+      if (!localupdate)
+        film->scene()->update();
+    }
+  }
 
-  id = i;
+  db.query("update current set version=:a", i);
+  updateSlide(id);
+  updateSlide(i);
   newImage = true;
-  emit selected(id);
-
+  id = i;
+  emit newCurrent(id);
   requestLargerImage();
 }
+
+void LightTable::updateSlide(quint64 i) {
+  Slide *s = film->root()->slideByVersion(i);
+  if (s)
+    s->update();
+}  
 
 void LightTable::requestLargerImage() {
   qDebug() << "LightTable::requestLargerImage";

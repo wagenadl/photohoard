@@ -37,6 +37,7 @@ public:
   int subRowWidth(int pix) const;
   bool hasTopLabel() const;
   virtual class Slide *slideByVersion(quint64 vsn) const;
+  PhotoDB &database() { return db; }
 public slots:
   void rescan();
   void updateImage(quint64, QSize, QImage);

@@ -29,6 +29,13 @@ LayoutBar::LayoutBar(QWidget *parent): QToolBar(parent) {
   actions[Action::FullPhoto]->setText("Photo only");
   // etcetera
 
+  actions[Action::FullGrid]->setShortcut(QString("F1"));
+  actions[Action::HGrid]->setShortcut(QString("Shift+F2"));
+  actions[Action::VGrid]->setShortcut(QString("F2"));
+  actions[Action::HLine]->setShortcut(QString("Shift+F3"));
+  actions[Action::VLine]->setShortcut(QString("F3"));
+  actions[Action::FullPhoto]->setShortcut(QString("F4"));
+
   actions[Action::ToggleFullScreen]->setShortcut(QString("F5"));
   // etcetera
   

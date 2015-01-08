@@ -38,3 +38,12 @@ PhotoDB PhotoDB::create(QString fn) {
   return PhotoDB(fn);
 }
 
+quint64 PhotoDB::photoFromVersion(quint64 v) {
+  return simpleQuery("select photo from versions where id==:a limit 1", v)
+    .toULongLong();
+}
+
+QDateTime PhotoDB::captureDate(quint64 p) {
+  return simpleQuery("select capturedate from photos where id==:a", p)
+    .toDateTime();
+}

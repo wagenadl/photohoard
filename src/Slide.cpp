@@ -44,13 +44,26 @@ void Slide::paint(QPainter *painter,
 		  const QStyleOptionGraphicsItem *,
 		  QWidget *) {
   QRectF r = boundingRect();
+  bool isCurrent
+    = parent->database().simpleQuery("select version from current")
+    .toULongLong() == id;
+  bool isSelected = isCurrent
+    ? true
+    : parent->database().simpleQuery("select count(*) from selection"
+                                     " where version==:a", id).toInt()>0;
   painter->setPen(QPen(Qt::NoPen));
-  painter->setBrush(bg.darker());
-  painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
-  painter->setBrush(bg.lighter());
-  painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
-  painter->setBrush(bg);
-  painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+  QColor b = bg;
+  if (isSelected)
+    b = b.darker(130);
+  if (isCurrent)
+    b = b.darker(130);
+  int dx = isCurrent ? 2: 1;
+  painter->setBrush(isSelected ? b.lighter() : b.darker());
+  painter->drawRoundedRect(r.adjusted(2*dx, 2*dx, 0, 0), 4, 4);
+  painter->setBrush(isSelected ? b.darker() : b.lighter());
+  painter->drawRoundedRect(r.adjusted(0, 0, -2*dx, -2*dx), 4, 4);
+  painter->setBrush(b);
+  painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
   int ims = tilesize - 8;
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {

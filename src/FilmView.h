@@ -16,9 +16,9 @@ public:
   class Datestrip *root() { return strip; }
 signals:
   void needImage(quint64, QSize);
-  void pressed(quint64);
-  void clicked(quint64);
-  void doubleClicked(quint64);
+  void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
 public slots:
   void setArrangement(Strip::Arrangement);
   void updateImage(quint64, QSize, QImage);
