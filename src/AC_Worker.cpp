@@ -280,9 +280,7 @@ void AC_Worker::sendToBank(quint64 version) {
   QString path = folders[folder] + "/" + fn;
   int maxdim = cache->standardSizes().first();
   if (requests.contains(version)) {
-    qDebug() << "Requests contains " << version;
     for (auto s: requests[version]) {
-      qDebug() << " : " << s;
       int md = cache->maxdim(s);
       if (md>maxdim)
 	maxdim = md;
@@ -315,7 +313,6 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  //  qDebug() << "requestImage" << version << desired;
   try {
     QSize actual(0, 0);
     
@@ -332,7 +329,6 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       }
     }
 
-    //    qDebug() << "  actual " << actual << " desired " << desired;
     if (actual.width()>=desired.width() || actual.height()>=desired.height())
       return; // easy, we're done
     

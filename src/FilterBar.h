@@ -14,9 +14,10 @@ public:
     OpenFilterDialog,
       ApplyFilter,
       ResetFilter,
-      ScaleLarger,
-      ScaleSmaller,
-    N
+      Larger,
+      Smaller,
+      ClearSelection,
+      N
       };
 public:
   FilterBar(QWidget *parent);
@@ -24,6 +25,7 @@ public:
 signals:
   void triggered(FilterBar::Action a);
 private slots:
+  void mtrigger(QObject *);
   void trigger(QAction *);
 private:
   QMap<Action, QAction *> actions;

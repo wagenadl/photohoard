@@ -31,6 +31,8 @@ MainWindow::MainWindow(PhotoDB *db, Scanner *scanner, AutoCache *autocache) {
 	  SLOT(fileAction(FileBar::Action)));
   connect(colorLabelBar, SIGNAL(triggered(ColorLabelBar::Action)),
 	  lightTable, SLOT(setColorLabel(ColorLabelBar::Action)));
+  connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
+	  lightTable, SLOT(filterAction(FilterBar::Action)));
 }
 
   

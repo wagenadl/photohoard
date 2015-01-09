@@ -36,19 +36,21 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
                                 Qt::MouseButton, Qt::KeyboardModifiers)));
   connect(slide, SIGNAL(needLargerImage()),
 	  this, SLOT(requestLargerImage()));
+  connect(film->scene(),
+          SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
+          this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 }
 
 LightTable::~LightTable() {
 }
 
 void LightTable::setLayout(LayoutBar::Action act) {
-  qDebug() << "LightTable::setLayout" << int(act);
   lastlay = lay;
   switch (act) {
   case LayoutBar::Action::FullGrid:
     film->show();
     film->setArrangement(Strip::Arrangement::Grid);
-    film->root()->setTileSize(tilesize);
+    film->setTileSize(tilesize);
     slide->hide();
     lay = act;
     break;
@@ -60,7 +62,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
       setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
     film->show();
     film->setArrangement(Strip::Arrangement::Grid);
-    film->root()->setTileSize(tilesize);
+    film->setTileSize(tilesize);
     slide->show();
     lay = act;
     break;
@@ -72,7 +74,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
       setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
     film->show();
     film->setArrangement(Strip::Arrangement::Grid);
-    film->root()->setTileSize(tilesize);
+    film->setTileSize(tilesize);
     slide->show();
     lay = act;
     break;
@@ -202,7 +204,6 @@ void LightTable::updateSlide(quint64 i) {
 }  
 
 void LightTable::requestLargerImage() {
-  qDebug() << "LightTable::requestLargerImage";
   if (slide->isVisible())
     emit needImage(id, slide->desiredSize());
 }  
@@ -239,4 +240,60 @@ void LightTable::rescan() {
 
 void LightTable::setColorLabel(ColorLabelBar::Action) {
   // NYI
+}
+
+void LightTable::filterAction(FilterBar::Action a) {
+  switch (a) {
+  case FilterBar::Action::Smaller: case FilterBar::Action::Larger:
+    if (a==FilterBar::Action::Smaller) {
+      tilesize = tilesize * 8/10;
+      if (tilesize<50)
+        tilesize = 50;
+    } else {
+      tilesize = tilesize * 10/8;
+      if (tilesize>1024)
+        tilesize = 1024;
+    }
+    film->setTileSize(tilesize);
+    if (lay==LayoutBar::Action::HLine)
+      setSizes(QList<int>() << tilesize + film->horizontalScrollBar()->height()
+               << height());
+    else if (lay==LayoutBar::Action::VLine) 
+      setSizes(QList<int>() << tilesize + film->verticalScrollBar()->width()
+               << width());
+    break;
+  case FilterBar::Action::ClearSelection:
+    clearSelection();
+    break;    
+  default:
+    break;
+  }
+}
+        
+void LightTable::clearSelection() {
+  qDebug() << "clearselection";
+  if (selection->count()<=10) {
+    QSet<quint64> ss = selection->current();
+    selection->clear();
+    for (auto i: ss) {
+      Slide *s = film->root()->slideByVersion(i);
+      if (s)
+        s->update();
+    }
+  } else {
+    selection->clear();
+    film->scene()->update();
+  }
+}  
+
+void LightTable::bgPress(Qt::MouseButton b, Qt::KeyboardModifiers m) {
+  qDebug() << "bgpress " << b << m;
+  switch (b) {
+  case Qt::LeftButton:
+    if (m==Qt::NoModifier)
+      clearSelection();
+    break;
+  default:
+    break;
+  }
 }

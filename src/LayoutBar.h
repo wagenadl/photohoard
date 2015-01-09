@@ -30,6 +30,7 @@ signals:
   void triggered(LayoutBar::Action a);
 private slots:
   void trigger(QAction *);
+  void mtrigger(QObject *);
 private:
   Action currentLayout;
   Action previousLayout;

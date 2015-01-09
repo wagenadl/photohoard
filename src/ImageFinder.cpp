@@ -31,12 +31,10 @@ ImageFinder::~ImageFinder() {
 void ImageFinder::findImage(quint64 id, QString path, QString mods, QString ext,
                             Exif::Orientation orient, int maxdim, QSize ns) {
   queuelength++;
-  qDebug() << "ImageFinder::findImage" << id << maxdim << ns;
   emit forwardFindImage(id, path, mods, ext, orient, maxdim, ns);
 }
 
 void ImageFinder::handleFoundImage(quint64 id, QImage img, bool fs) {
   queuelength--;
-  qDebug() << "ImageFinder::foundImage" << id << img.size() << fs;
   emit foundImage(id, img, fs);
 }

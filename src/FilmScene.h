@@ -20,6 +20,10 @@ public:
   void dropHeaderFor(quint64, class Strip *);
 public slots:
   void updateImage(quint64, QImage);
+signals:
+  void pressed(Qt::MouseButton, Qt::KeyboardModifiers);
+protected:
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
   PhotoDB const &db;
   QMap<quint64, class Slide *> slidemap;

@@ -92,3 +92,7 @@ void FilmView::updateImage(quint64 id, QSize, QImage img) {
 void FilmView::rescan() {
   strip->rescan();
 }
+
+void FilmView::setTileSize(int pix) {
+  strip->setTileSize(pix);
+}

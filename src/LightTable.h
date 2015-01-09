@@ -9,6 +9,7 @@
 #include "Strip.h"
 #include "LayoutBar.h"
 #include "ColorLabelBar.h"
+#include "FilterBar.h"
 
 class LightTable: public QSplitter {
   Q_OBJECT;
@@ -22,6 +23,9 @@ public slots:
   void updateImage(quint64, QSize, QImage);
   void rescan();
   void setColorLabel(ColorLabelBar::Action);
+  void filterAction(FilterBar::Action);
+  void clearSelection();
+  void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);

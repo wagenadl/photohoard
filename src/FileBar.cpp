@@ -7,6 +7,9 @@
 
 FileBar::FileBar(QWidget *parent): QToolBar(parent) {
   qRegisterMetaType<FileBar::Action>("FileBar::Action");
+
+  setWindowTitle("File");
+  
   for (int i=0; i<int(Action::N); i++) {
     Action ii = Action(i);
     QAction *a = new QAction(parent);

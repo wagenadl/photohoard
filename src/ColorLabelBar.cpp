@@ -5,6 +5,8 @@
 ColorLabelBar::ColorLabelBar(QWidget *parent): QToolBar(parent) {
   qRegisterMetaType<ColorLabelBar::Action>("ColorLabelBar::Action");
 
+  setWindowTitle("Color label");
+  
   for (int i=0; i<int(Action::N); i++) {
     Action ii = Action(i);
     QAction *a = new QAction(parent);

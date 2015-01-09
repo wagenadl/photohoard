@@ -20,7 +20,6 @@ SlideView::~SlideView() {
 QSize SlideView::desiredSize() const {
   QSize s = (fit || img.isNull()) ? size()
     : QSize(zoom*naturalSize.width(), zoom*naturalSize.height());
-  qDebug() << "SlideView::desiredSize: " << s;
   return s;
 }
 
@@ -39,7 +38,6 @@ double SlideView::fittingZoom() const {
 }
 
 void SlideView::newImage(QSize nat) {
-  qDebug() << "SlideView::newImage " << nat;
   naturalSize = nat;
   lastSize = QSize();
   img = QImage(); // might invalidate more gently
@@ -48,7 +46,6 @@ void SlideView::newImage(QSize nat) {
 void SlideView::updateImage(QImage img1) {
   if (img.isNull() || img.width() < img1.width())
     img = img1;
-  qDebug() << "SlideView::updateImage " << img1.size();
   update();
 }
 

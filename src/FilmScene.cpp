@@ -3,6 +3,7 @@
 #include "FilmScene.h"
 #include "Slide.h"
 #include "Strip.h"
+#include <QGraphicsSceneMouseEvent>
 
 FilmScene::FilmScene(PhotoDB const &db, QObject *parent):
   QGraphicsScene(parent), db(db) {
@@ -36,3 +37,9 @@ void FilmScene::updateImage(quint64 id, QImage img) {
 }
 
 
+void FilmScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (itemAt(e->scenePos(), QTransform())==0)
+    emit pressed(e->button(), e->modifiers());
+  else
+    QGraphicsScene::mousePressEvent(e);
+}
