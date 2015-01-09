@@ -36,6 +36,7 @@ public:
   bool isExpanded() const { return expanded; }
   int subRowWidth(int pix) const;
   bool hasTopLabel() const;
+  virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
   virtual class Slide *slideByVersion(quint64 vsn) const;
   PhotoDB &database() { return db; }
 public slots:

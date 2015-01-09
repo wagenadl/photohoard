@@ -11,14 +11,25 @@
 #include "Slide.h"
 #include "FilmScene.h"
 
-LightTable::LightTable(PhotoDB const &db, QWidget *parent):
-  QSplitter(parent), db(db) {
+LightTable::LightTable(PhotoDB const &db1, QWidget *parent):
+  QSplitter(parent), db(db1) {
   setObjectName("LightTable");
+
+  bool oldcrash = db.simpleQuery("select count(*) from starting").toInt()>0;
+  if (oldcrash) {
+    db.query("update current set version=null");
+    db.query("delete from expanded");
+  }
+  db.query("insert into starting values(1)");
+  
   selection = new Selection(db, this);
+
   film = new FilmView(db);
   addWidget(film);
+
   slide = new SlideView();
   addWidget(slide);
+
   tilesize = 80;
   lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;
   setStretchFactor(0, 0);
@@ -39,6 +50,13 @@ LightTable::LightTable(PhotoDB const &db, QWidget *parent):
   connect(film->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
+
+  
+  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  if (c)
+    select(c, Qt::NoModifier);
+
+  db.query("delete from starting");
 }
 
 LightTable::~LightTable() {

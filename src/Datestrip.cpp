@@ -322,3 +322,17 @@ void Datestrip::setRowWidth(int pix) {
     s->setRowWidth(subwidth);
   relayout();
 }
+
+Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
+  Strip *a = Strip::stripByDate(d, s);
+  if (a)
+    return a;
+
+  for (Strip *a0: stripMap) {
+    Strip *a = a0->stripByDate(d, s);
+    if (a)
+      return a;
+  }
+
+  return NULL;
+}

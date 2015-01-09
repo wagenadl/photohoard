@@ -353,6 +353,7 @@ void Strip::expand() {
     qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
 	     << " expand";
   expanded = true;
+  db.query("insert into expanded values(:a,:b)", d0, int(scl));
   recalcLabelRect();
   emit resized();
 }
@@ -364,6 +365,7 @@ void Strip::collapse() {
     qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
 	     << " collapse";
   expanded = false;
+  db.query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
   recalcLabelRect();
   emit resized();
 }
@@ -451,12 +453,14 @@ void Strip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
 }
 
 void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  db.beginAndLock();
   if (e->modifiers() & Qt::ShiftModifier)
     expandAll();
   else if (expanded) 
     collapse();
   else
     expand();
+  db.commitAndUnlock();
 }
 
 void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
@@ -473,4 +477,11 @@ void Strip::updateHeader(QImage img) {
 
 void Strip::requestImage(quint64 id) {
   emit needImage(id, QSize(tilesize, tilesize));
+}
+
+Strip *Strip::stripByDate(QDateTime d, TimeScale s) {
+  if (d==d0 && s==scl)
+    return this;
+  else
+    return NULL;
 }

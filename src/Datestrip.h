@@ -14,6 +14,7 @@ public:
   virtual ~Datestrip();
 public:
   virtual QRectF subBoundingRect() const; // children
+  virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
   virtual class Slide *slideByVersion(quint64 vsn) const;
   Strip::TimeScale subScale() const;
 public slots:

@@ -34,7 +34,25 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
 	  this,
           SIGNAL(doubleClicked(quint64,
                                Qt::MouseButton, Qt::KeyboardModifiers)));
-  strip->expand();
+
+  PhotoDB dbx(db);
+  dbx.beginAndLock();
+  QSqlQuery q = dbx.query("select d0, scl from expanded order by scl");
+  bool any = false;
+  while (q.next()) {
+    QDateTime d0 = q.value(0).toDateTime();
+    Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
+    Strip *s = strip->stripByDate(d0, scl);
+    qDebug() << "FilmView: expand?" << d0 << int(scl) << (void*)s;
+    if (s) {
+      s->expand();
+      any = true;
+    }
+  }
+  if (!any)
+    strip->expand();
+  dbx.commitAndUnlock();
+  
   stripResized();
 }
 

@@ -127,6 +127,16 @@ create table current (
        version integer references versions(id) 
                on delete set null );
 
+create table expanded (
+       d0 date,
+       scl int,
+       unique(d0, scl) on conflict ignore);
+
+create table starting ( 
+       -- This table is always empty except while building the LightTable
+       -- That way, we can avoid double crashes.
+       s integer );
+
 -- ======================================================================
 
 insert into filetypes(stdext) values ("jpeg");
