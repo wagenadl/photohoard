@@ -47,6 +47,7 @@ int AC_Worker::queueLength() {
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
+  //  qDebug() << "AC_Worker::recache n=" << versions.size();
   try {
     addToDBQueue(versions);
     markReadyToLoad(versions);
@@ -101,20 +102,16 @@ void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
 void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   if (versions.isEmpty())
     return;
+  //  qDebug() << "addToDBQueue" << versions.size();
   Transaction t(cache->database());
-  QSqlQuery q(*cache->database());
+  //  qDebug() << "  transaction started";
   for (auto v: versions) {
-    q.prepare("update cache set outdated=:o where version==:i");
-    q.bindValue(":o", 1);
-    q.bindValue(":i", v);
-    if (!q.exec())
-      throw q;
-    q.prepare("insert into queue values(:i)");
-    q.bindValue(":i", v);
-    if (!q.exec())
-      throw q;
+    //    qDebug() << "  working on " << v;
+    cache->markOutdated(v);
+    cache->database().query("insert into queue values(:a)", v);
   }
   t.commit();
+  //  qDebug() << "  transaction committed";
 }
 
 void AC_Worker::activateBank() {
@@ -205,6 +202,7 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img, bool isFullSize) {
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
+  //  qDebug() << "HandleFoundImage" << id << img.size();
   try {
     if (requests.contains(id)) {
       if (isFullSize && !img.isNull())
@@ -292,7 +290,6 @@ void AC_Worker::sendToBank(quint64 version) {
 
 void AC_Worker::storeLoadedInDB() {
   Transaction t(cache->database());
-  QSqlQuery q(*cache->database());
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
     quint64 version = it.key();
@@ -302,10 +299,7 @@ void AC_Worker::storeLoadedInDB() {
     if (outd)
       noutdated++;
 
-    q.prepare("delete from queue where version==:v");
-    q.bindValue(":v", version);
-    if (!q.exec())
-      throw q;
+    cache->database().query("delete from queue where version==:a", version);
   }
   t.commit();
   n += loaded.size() - noutdated;
@@ -313,6 +307,7 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
+  //  qDebug() << "AC_Worker::requestImage" << version << desired;
   try {
     QSize actual(0, 0);
     

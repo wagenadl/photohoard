@@ -86,7 +86,9 @@ QMap<QSqlDatabase *, QMutex *> &Database::mutexes() {
 }
 
 void Database::beginAndLock() {
+  //  qDebug() << "beginAndLock" << (void*)db;
   mutexes()[db]->lock();
+  qDebug() << "  OK";
   QSqlQuery q(*db);
   if (!q.exec("begin transaction")) {
     mutexes()[db]->unlock();
@@ -95,6 +97,7 @@ void Database::beginAndLock() {
 }
 
 bool Database::tryBeginAndLock() {
+  //  qDebug() << "tryBeginAndLock" << (void*)db;
   if (!mutexes()[db]->tryLock())
     return false;
   QSqlQuery q(*db);
@@ -108,6 +111,7 @@ bool Database::tryBeginAndLock() {
 }
 
 void Database::commitAndUnlock() {
+  //  qDebug() << "commitAndUnlock" << (void*)db;
   QSqlQuery q(*db);
   bool ok = q.exec("commit transaction");
   mutexes()[db]->unlock();
@@ -116,6 +120,7 @@ void Database::commitAndUnlock() {
 }
 
 void Database::rollbackAndUnlock() {
+  //  qDebug() << "rollbackAndUnlock" << (void*)db;
   QSqlQuery q(*db);
   bool ok = q.exec("rollback transaction");
   mutexes()[db]->unlock();

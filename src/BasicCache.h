@@ -22,7 +22,7 @@ public:
    already exist.
   */
   Database &database() { return db; }
-  void add(quint64 id, QImage img, bool instantlyOutdated=false);
+  void add(quint64 vsn, QImage img, bool instantlyOutdated=false);
   /*:F add
    *:D Adds an image to the cache at each of the sizes defined in the cache.
    *:N By default, the sizes are 1024, 384, and 128 for the largest dimension.
@@ -30,18 +30,18 @@ public:
    If IMG is smaller than the largest size, IMG itself is stored in the
    cache.
   */
-  void remove(quint64 id);
+  void remove(quint64 vsn);
   /*:F remove
    *:D Removes all sizes of the referenced image from the cache.
    */
-  QImage get(quint64 id, int maxdim, bool *outdated_return=NULL);
+  QImage get(quint64 vsn, int maxdim, bool *outdated_return=NULL);
   /*:F get
    *:D Retrieves an image from the cache.
    *:N This only succeeds if the image exists at the given size. See also
    bestSize().
   */
-  int bestSize(quint64 id, int maxdim);
-  QSize bestSize(quint64 id, QSize desired);
+  int bestSize(quint64 vsn, int maxdim);
+  QSize bestSize(quint64 vsn, QSize desired);
   /*:F bestSize
    *:D Determines the best available size of the referenced image.
    *:N If a size greater or equal to MAXDIM is available, the smallest
@@ -50,15 +50,16 @@ public:
    *:N Outdated versions are only returned if there is no up-to-date version
    available at all.
   */
-  bool contains(quint64 id, bool outdatedOK=false);
+  bool contains(quint64 vsn, bool outdatedOK=false);
   /*:F contains
-   *:D Returns true if any images exist in the cache that match ID.
+   *:D Returns true if any images exist in the cache that match VSN.
    *:N By default, only non-outdated images are considered. This can be
    changed by passing true for outdatedOK.
   */
-  QList<QSize> sizes(quint64 id, bool outdatedOK=false);
+  void markOutdated(quint64 vsn);
+  QList<QSize> sizes(quint64 vsn, bool outdatedOK=false);
   /*:F sizes
-   *:D Returns a list of sizes available for images matching ID, sorted
+   *:D Returns a list of sizes available for images matching VSN, sorted
    by their maxdim.
    *:N By default, only non-outdated images are considered. This can be
    changed by passing true for outdatedOK.
@@ -76,9 +77,11 @@ public:
    */
 private:
   BasicCache(QDir root, Database const &db, QObject *parent=0 );
-  void addToCache(quint64 id, QImage const &img, bool instantlyOutdated=false);
-  void dropOutdatedFromCache(quint64 id);
+  void addToCache(quint64 vsn, QImage const &img,
+		  bool instantlyOutdated=false);
+  void dropOutdatedFromCache(quint64 vsn);
   void readConfig();
+  QString constructFilename(quint64 vsn, int d);
 private:
   QDir root;
   Database db;

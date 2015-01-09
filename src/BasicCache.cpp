@@ -13,11 +13,13 @@ BasicCache::BasicCache(QString rootdir, QObject *parent):
   QObject(parent), root(rootdir), db(rootdir + "/cache.db") {
   setObjectName("BasicCache");
   readConfig();
+  qDebug() << "BasicCache constructed 1";
 }
 
 BasicCache::BasicCache(QDir root, Database const &db, QObject *parent):
   QObject(parent), root(root), db(db) {
   readConfig();
+  qDebug() << "BasicCache constructed 2";
 }
 
 BasicCache::~BasicCache() {
@@ -43,6 +45,7 @@ void BasicCache::readConfig() {
 }
   
 BasicCache *BasicCache::create(QString rootdir) {
+  qDebug() << "BasicCache::create";
   QDir root(rootdir);
   
   if (root.exists()) 
@@ -68,6 +71,7 @@ BasicCache *BasicCache::create(QString rootdir) {
       }
     }
     db.commitAndUnlock();
+    qDebug() << "BasicCache created";
     return new BasicCache(root, db);
   } catch (...) {
     root.remove("cache.db");
@@ -90,149 +94,142 @@ QImage BasicCache::sufficientSize(QImage const &img) {
     return img;
 }
 
-void BasicCache::add(quint64 id, QImage img, bool instantlyOutdated) {
-  //  qDebug() << "BasicCache::add " << id << instantlyOutdated << img.size();
+void BasicCache::add(quint64 vsn, QImage img, bool instantlyOutdated) {
   int d = maxdim(img.size());
   bool got = false;
   if (d<=stdsizes[0]) {
     // cache image directly: it is smaller than our largest desired size
-    addToCache(id, img, instantlyOutdated);
+    addToCache(vsn, img, instantlyOutdated);
     got = true;
   }
   if (!instantlyOutdated || !got) {
     for (auto s: stdsizes) {
       if (s<d) {
         img = img.scaled(QSize(s,s), Qt::KeepAspectRatio);
-        addToCache(id, img);
+        addToCache(vsn, img);
         if (instantlyOutdated)
           break;
       }
     }
     if (!instantlyOutdated)
-      dropOutdatedFromCache(id);
+      dropOutdatedFromCache(vsn);
   }
 }
 
-void BasicCache::dropOutdatedFromCache(quint64 id) {
-  QSqlQuery q(*db);
-  q.prepare("delete from cache where id==:i and outdated>0");
-  q.bindValue(":i", id);
-  if (!q.exec())
-    throw q;
+void BasicCache::dropOutdatedFromCache(quint64 vsn) {
+  QSqlQuery q(db.query("select maxdim from cache"
+		       " where version==:a and outdated>0 and infile>0", vsn));
+  while (q.next()) {
+    int d = q.value(0).toInt();
+    QFile(constructFilename(vsn, d)).remove();
+  }
+  db.query("delete from cache where version==:a and outdated>0", vsn);
 }
 
-void BasicCache::addToCache(quint64 id, QImage const &img,
+void BasicCache::addToCache(quint64 vsn, QImage const &img,
                             bool instantlyOutdated) {
   QBuffer buf;
   QImageWriter writer(&buf, "jpeg");
   writer.write(img);
-  QSqlQuery q(*db);
+
   bool infile = buf.data().size() >= memthresh;
   int d = maxdim(img.size());
 
-  q.prepare("select id from cache where version==:v and maxdim==:d");
-  q.bindValue(":v", id);
-  q.bindValue(":d", d);
-  if (!q.exec())
-    throw q;
-  QString rowid;
+  QSqlQuery q = db.query("select id, infile from cache"
+			 " where version==:a and maxdim==:b", vsn, d);
   if (q.next()) {
     // preexist
-    rowid = q.value(0).toString();
-    q.prepare("update cache "
-	      " set width=:w, height=:h, outdated=:o, infile=:i, bits=:b "
-	      " where version==:v and maxdim==:d");
-    //    qDebug() << "  updating outdated="<<instantlyOutdated;
+    quint64 cacheid = q.value(0).toInt();
+    bool wasinfile = q.value(1).toInt()>0;
+    if (infile) {
+      if (!wasinfile) {
+	db.query("delete from blobs where cacheid==:a", cacheid);
+	db.query("update cache set infile=1"
+		 " where version==:a and maxdim==:b", vsn, d);
+      }
+      QFile f(constructFilename(vsn, d));
+      if (f.open(QFile::WriteOnly)) 
+	f.write(buf.data());
+      else
+	throw std::system_error(std::error_code());
+    } else {
+      if (wasinfile) {
+	db.query("insert into blobs (cacheid, bits) values (:a, :b)",
+		 cacheid, buf.data()).lastInsertId().toInt();
+	db.query("update cache set infile=0"
+		 " where version==:b and maxdim==:c", vsn, d);
+	QFile(constructFilename(vsn, d)).remove();
+      } else {
+	db.query("update blobs set bits=:a where cacheid==:b",
+		 buf.data(), cacheid);
+      }
+    }
   } else {
-    q.prepare("insert into cache "
-	      " (version, width, height, maxdim, outdated, infile, bits) "
-	      " values (:v, :w, :h, :d, :o, :i, :b)");
-    //    qDebug() << "  inserting outdated="<<instantlyOutdated;
-  }
-  q.bindValue(":v", id);
-  q.bindValue(":w", img.width());
-  q.bindValue(":h", img.height());
-  q.bindValue(":d", d);
-  q.bindValue(":o", instantlyOutdated ? 1 : 0);
-  q.bindValue(":i", infile ? 1 : 0);
-  q.bindValue(":b", infile ? QByteArray() : buf.data());
-  if (!q.exec())
-    throw q;
-  if (rowid.isNull())
-    rowid = q.lastInsertId().toString();
-  if (infile) {
-    QFile f(root.absoluteFilePath(rowid + ".jpg"));
-    if (f.open(QFile::WriteOnly)) 
-      f.write(buf.data());
-    else
-      throw std::system_error(std::error_code());
-  } else {
-    if (root.exists(rowid + ".jpg"))
-      root.remove(rowid+".jpg");
+    // new result
+    if (infile) {
+      QFile f(constructFilename(vsn, d));
+      if (f.open(QFile::WriteOnly)) 
+	f.write(buf.data());
+      else
+	throw std::system_error(std::error_code());
+      db.query("insert into cache (version, maxdim, outdated, infile)"
+	       " values (:a, :b, :c, 1)", vsn, d, instantlyOutdated?1:0);
+    } else {
+      quint64 cacheid = db.query("insert into cache"
+				 " (version, maxdim, outdated, infile)"
+				 " values (:a, :b, :c, 0)",
+				 vsn, d, instantlyOutdated?1:0)
+	.lastInsertId().toInt();
+      db.query("insert into blobs (cacheid, bits) values (:a, :b)",
+	       cacheid, buf.data());
+    }
   }
 }
-  
 
-void BasicCache::remove(quint64 id) {
-  QSqlQuery q(*db);
-  q.prepare("select id, infile from cache where version==:v");
-  q.bindValue(":v", id);
-  if (!q.exec()) {
-    qDebug() << "BasicCache::remove: Could not execute select";
-    return;
-  }
+void BasicCache::remove(quint64 vsn) {
+  QSqlQuery q(db.query("select maxdim, infile from cache"
+		       " where version==:a", vsn));
   while (q.next()) {
-    QString rowid = q.value(0).toString();
-    bool infile = q.value(1).toInt();
+    int d = q.value(0).toInt();
+    bool infile = q.value(1).toInt()>0;
     if (infile)
-      root.remove(rowid+".jpg");
+      QFile(constructFilename(vsn, d)).remove();
   }
-  q.prepare("delete from cache where version==:v");
-  q.bindValue(":v", id);
-  if (!q.exec()) {
-    qDebug() << "BasicCache::remove: Could not execute delete";
-    return;
-  }
-  
+  db.query("delete from cache where version==:a", vsn);
 }
 
- QImage BasicCache::get(quint64 id, int maxdim, bool *outdated_return) {
-  QSqlQuery q(*db);
-  q.prepare("select id, infile, bits, outdated from cache "
-	    " where version==:v and maxdim==:d");
-  q.bindValue(":v", id);
-  q.bindValue(":d", maxdim);
-  if (!q.exec()) {
-    qDebug() << "BasicCache::get: Could not execute select";
-    return QImage();
-  }
+QImage BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
+  QSqlQuery q = db.query("select id, infile, outdated from cache"
+			 " where version==:a and maxdim==:b limit 1",
+			 vsn, maxdim);
   if (!q.next()) {
-    qDebug() << "BasicCache::get: Could not get row";
-    return QImage();
+    qDebug() << "BasicCache: failed to get" << vsn << maxdim;
+    throw q;
   }
-  QString rowid = q.value(0).toString();
-  bool infile = q.value(1).toInt() > 0;
+  quint64 cacheid = q.value(0).toInt();
+  bool infile = q.value(1).toInt()>0;
+  bool od = q.value(2).toInt()>0;
   if (outdated_return)
-    *outdated_return = q.value(3).toInt() > 0;
-  
+    *outdated_return = od;
   if (infile) {
-    return QImage(root.absoluteFilePath(rowid + ".jpg"));
+    QString fn(constructFilename(vsn, maxdim));
+    if (QFile(fn).exists()) 
+      return QImage(fn);
+    qDebug() << "Missing file " << fn << " from cache";
+    return QImage();
   } else {
-    QByteArray bits(q.value(2).toByteArray());
+    QByteArray bits(db.simpleQuery("select bits from blobs"
+				   " where cacheid==:a", cacheid)
+		    .toByteArray());
     QBuffer buf(&bits);
     QImageReader reader(&buf, "jpeg");
     return reader.read();
-  }  
+  }
 }
 
-int BasicCache::bestSize(quint64 id, int maxdim) {
-  QSqlQuery q(*db);
-  q.prepare("select maxdim, outdated from cache where version==:v");
-  q.bindValue(":v", id);
-  if (!q.exec()) {
-    qDebug() << "BasicCache::bestSize: Could not execute select";
-    return 0;
-  }
+int BasicCache::bestSize(quint64 vsn, int maxdim) {
+  QSqlQuery q = db.query("select maxdim, outdated from cache"
+			 " where version==:a", vsn);
   int dbest = 0;
   bool outdated = true;
   bool gotsized = false;
@@ -264,14 +261,9 @@ int BasicCache::bestSize(quint64 id, int maxdim) {
   return dbest;  
 }
 
-QSize BasicCache::bestSize(quint64 id, QSize desired) {
-  QSqlQuery q(*db);
-  q.prepare("select width, height, outdated from cache where version==:v");
-  q.bindValue(":v", id);
-  if (!q.exec()) {
-    qDebug() << "BasicCache::bestSize: Could not execute select";
-    throw q;
-  }
+QSize BasicCache::bestSize(quint64 vsn, QSize desired) {
+  QSqlQuery q(db.query("select width, height, outdated from cache"
+		       " where version==:a", vsn));
   int dbest = 0;
   QSize sbest;
   bool gotsized = false;
@@ -308,41 +300,28 @@ QSize BasicCache::bestSize(quint64 id, QSize desired) {
   return sbest;  
 }
 
-bool BasicCache::contains(quint64 id, bool outdatedOK) {
-  QSqlQuery q(*db);
+bool BasicCache::contains(quint64 vsn, bool outdatedOK) {
   QString query = "select count(*) from cache where version==:v";
   if (!outdatedOK)
     query += " and outdated==0";
-  q.prepare(query);
-  q.bindValue(":v", id);
-  if (!q.exec() || !q.next()) {
-    qDebug() << "BasicCache::contains: Could not execute query.";
-    return false;
-  }
-  return q.value(0).toInt()>0;
+  query += " limit 1";
+  return db.simpleQuery(query, vsn).toInt()>0;
 }
 
-QList<QSize> BasicCache::sizes(quint64 id, bool outdatedOK) {
-  QSqlQuery q(*db);
+QList<QSize> BasicCache::sizes(quint64 vsn, bool outdatedOK) {
   QString query = "select width, height from cache where version==:v";
   if (!outdatedOK)
     query += " and outdated==0";
   query += " order by maxdim";
-  q.prepare(query);
-  q.bindValue(":v", id);
+  QSqlQuery q(db.query(query, vsn));
   
   QList<QSize> lst;
-  
-  if (!q.exec()) {
-    qDebug() << "BasicCache::contains: Could not execute query.";
-    return lst;
-  }
-
   while (q.next()) {
     int w = q.value(0).toInt();
     int h = q.value(1).toInt();
     lst << QSize(w, h);
   }
+
   return lst;
 }
 
@@ -350,3 +329,22 @@ int BasicCache::maxDim() const {
   return stdsizes[0];
 }
     
+QString BasicCache::constructFilename(quint64 vsn, int d) {
+  QList<int> bits;
+  while (vsn>0) {
+    bits << vsn % 100;
+    vsn /= 100;
+  }
+  QString leaf(QString("%1-%2.jpg").arg(bits.takeFirst()).arg(d));
+  QStringList pathlist;
+  for (auto b: bits)
+    pathlist.push_front(QString("%1").arg(b));
+  pathlist.push_front("thumbs");
+  QString path = pathlist.join("/");
+  root.mkpath(path);
+  return root.absoluteFilePath(path + "/" + leaf);
+}
+
+void BasicCache::markOutdated(quint64 vsn) {
+  db.query("update cache set outdated=1 where version==:a", vsn);
+}
