@@ -8,6 +8,7 @@
 #include "PhotoDB.h"
 #include "Strip.h"
 #include "LayoutBar.h"
+#include "ColorLabelBar.h"
 
 class LightTable: public QSplitter {
   Q_OBJECT;
@@ -20,6 +21,7 @@ public slots:
   void select(quint64 id, Qt::KeyboardModifiers);
   void updateImage(quint64, QSize, QImage);
   void rescan();
+  void setColorLabel(ColorLabelBar::Action);
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);

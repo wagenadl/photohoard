@@ -8,36 +8,24 @@
   <file alias="setupdb.sql">../res/setupdb.sql</file>
 
 <!-- ICONS -->
-  <file alias="icons/cameraImport.svg">../res/icons/cameraImport.svg</file>
   <file alias="icons/colorBlue.svg">../res/icons/colorBlue.svg</file>
   <file alias="icons/colorGreen.svg">../res/icons/colorGreen.svg</file>
   <file alias="icons/colorNone.svg">../res/icons/colorNone.svg</file>
   <file alias="icons/colorPurple.svg">../res/icons/colorPurple.svg</file>
   <file alias="icons/colorRed.svg">../res/icons/colorRed.svg</file>
   <file alias="icons/colorYellow.svg">../res/icons/colorYellow.svg</file>
-  <file alias="icons/folderAdd2.svg">../res/icons/folderAdd2.svg</file>
-  <file alias="icons/folderAdd.svg">../res/icons/folderAdd.svg</file>
   <file alias="icons/layoutGrid.svg">../res/icons/layoutGrid.svg</file>
   <file alias="icons/layoutFull.svg">../res/icons/layoutFull.svg</file>
   <file alias="icons/layoutHGrid.svg">../res/icons/layoutHGrid.svg</file>
   <file alias="icons/layoutHLine.svg">../res/icons/layoutHLine.svg</file>
   <file alias="icons/layoutVGrid.svg">../res/icons/layoutVGrid.svg</file>
   <file alias="icons/layoutVLine.svg">../res/icons/layoutVLine.svg</file>
-  <file alias="icons/scaleA2.svg">../res/icons/scaleA2.svg</file>
-  <file alias="icons/scaleA3.svg">../res/icons/scaleA3.svg</file>
-  <file alias="icons/scaleA4.svg">../res/icons/scaleA4.svg</file>
-  <file alias="icons/scaleB10.svg">../res/icons/scaleB10.svg</file>
-  <file alias="icons/scaleB11.svg">../res/icons/scaleB11.svg</file>
-  <file alias="icons/scaleB12.svg">../res/icons/scaleB12.svg</file>
-  <file alias="icons/scaleB13.svg">../res/icons/scaleB13.svg</file>
-  <file alias="icons/scaleB2.svg">../res/icons/scaleB2.svg</file>
-  <file alias="icons/scaleB3.svg">../res/icons/scaleB3.svg</file>
-  <file alias="icons/scaleB4.svg">../res/icons/scaleB4.svg</file>
-  <file alias="icons/scaleB5.svg">../res/icons/scaleB5.svg</file>
-  <file alias="icons/scaleB6.svg">../res/icons/scaleB6.svg</file>
-  <file alias="icons/scaleB7.svg">../res/icons/scaleB7.svg</file>
-  <file alias="icons/scaleB8.svg">../res/icons/scaleB8.svg</file>
-  <file alias="icons/scaleB9.svg">../res/icons/scaleB9.svg</file>
+  <file alias="icons/scaleLarger.svg">../res/icons/scaleB10.svg</file>
+  <file alias="icons/scaleSmaller.svg">../res/icons/scaleB4.svg</file>
+  <file alias="icons/cameraImport.svg">../res/icons/cameraImport-1.svg</file>
+  <file alias="icons/folderAdd.svg">../res/icons/folderAdd2-1.svg</file>
+  <file alias="icons/export.svg">../res/icons/export-1.svg</file>
+  <file alias="icons/search.svg">../res/icons/searchLines2-1.svg</file>
  </qresource>
 </RCC>
 

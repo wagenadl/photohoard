@@ -23,7 +23,7 @@ public:
   ColorLabelBar(QWidget *parent);
   virtual ~ColorLabelBar();
 signals:
-  void triggered(Action a);
+  void triggered(ColorLabelBar::Action a);
 private slots:
   void trigger(QAction *);
 private:

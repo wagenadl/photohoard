@@ -236,3 +236,7 @@ void LightTable::updateImage(quint64 i, QSize s, QImage img) {
 void LightTable::rescan() {
   film->rescan();
 }
+
+void LightTable::setColorLabel(ColorLabelBar::Action) {
+  // NYI
+}

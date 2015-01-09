@@ -1,4 +1,3 @@
-pragma synchronous = normal;
 pragma foreign_keys = on;
 
 create table info (

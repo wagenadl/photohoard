@@ -17,6 +17,7 @@ Slide::Slide(quint64 id, Slidestrip *parent):
     fs->markSlideFor(id, this);
   else
     qDebug() << "Slide not in a scene - won't show image";
+  dbgstarted = false;
 }
 
 Slide::~Slide() {
@@ -80,9 +81,20 @@ void Slide::paint(QPainter *painter,
 			   tilesize/2-tgt.height()/2), tgt);
 	painter->drawPixmap(dst, pm);
       }
+      if (!dbgstarted) {
+	dbgtime.start();
+	dbgstarted = true;
+      }
       parent->requestImage(id);
       return;
-    } 
+    }
+    if (dbgstarted) {
+      int dt = dbgtime.elapsed();
+      dbgstarted = false;
+      QTime t = QTime::currentTime();
+      qDebug() << "Time" << id << dt
+	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
+    }
     pm = QPixmap::fromImage(img.scaled(QSize(ims, ims),
 				       Qt::KeepAspectRatio));
     img = QImage(); // no need to keep it ad inf

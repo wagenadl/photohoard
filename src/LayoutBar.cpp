@@ -6,6 +6,7 @@
 
 LayoutBar::LayoutBar(QWidget *parent): QToolBar(parent) {
   qRegisterMetaType<LayoutBar::Action>("LayoutBar::Action");
+
   for (int i=0; i<int(Action::N); i++) {
     Action ii = Action(i);
     QAction *a = new QAction(parent);
@@ -21,12 +22,12 @@ LayoutBar::LayoutBar(QWidget *parent): QToolBar(parent) {
   actions[Action::FullPhoto]->setIcon(QIcon(":icons/layoutFull.svg"));
   // etcetera
 
-  actions[Action::FullGrid]->setText("Grid");
-  actions[Action::HGrid]->setText("Hor. grid");
-  actions[Action::VGrid]->setText("Vert. grid");
-  actions[Action::HLine]->setText("Hor. line");
-  actions[Action::VLine]->setText("Vert. line");
-  actions[Action::FullPhoto]->setText("Photo only");
+  actions[Action::FullGrid]->setText("Full grid (F1)");
+  actions[Action::HGrid]->setText("Horizontal grid plus photo (Shift-F2)");
+  actions[Action::VGrid]->setText("Vertical grid plus photo (F2)");
+  actions[Action::HLine]->setText("Horizontal line plus photo (Shift-F3)");
+  actions[Action::VLine]->setText("Vertical line plus photo (F3)");
+  actions[Action::FullPhoto]->setText("Photo only (F4)");
   // etcetera
 
   actions[Action::FullGrid]->setShortcut(QString("F1"));

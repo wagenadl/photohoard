@@ -3,6 +3,8 @@
 #include "ColorLabelBar.h"
 
 ColorLabelBar::ColorLabelBar(QWidget *parent): QToolBar(parent) {
+  qRegisterMetaType<ColorLabelBar::Action>("ColorLabelBar::Action");
+
   for (int i=0; i<int(Action::N); i++) {
     Action ii = Action(i);
     QAction *a = new QAction(parent);
@@ -33,6 +35,6 @@ ColorLabelBar::~ColorLabelBar() {
 
 void ColorLabelBar::trigger(QAction *a) {
   if (revmap.contains(a))
-    emit revmap[a];
+    emit triggered(revmap[a]);
 }
 

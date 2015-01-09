@@ -14,6 +14,7 @@
 #include "MainWindow.h"
 #include "ExifReport.h"
 #include <sqlite3.h>
+#include <QDesktopWidget>
 
 int main(int argc, char **argv) {
   /*
@@ -42,10 +43,13 @@ int main(int argc, char **argv) {
   try {
     Application app(argc, argv);
     if (!QFile(dbfn).exists()) {
+      qDebug() << "Creating database at " << dbfn;
       PhotoDB::create(dbfn);
     }
-    if (!QDir(cachefn).exists())
+    if (!QDir(cachefn).exists()) {
+      qDebug() << "Creating cache at " << cachefn;
       BasicCache::create(cachefn);
+    }
 
     ExceptionReporter *excrep = new ExceptionReporter();
 
@@ -67,6 +71,9 @@ int main(int argc, char **argv) {
                      excrep, SLOT(report(QString)));
 
     MainWindow *mw = new MainWindow(&db, scan, ac);
+    QDesktopWidget *dw = app.desktop();
+    mw->resize(dw->width()*8/10, dw->height()*8/10);
+    mw->move(dw->width()/10, dw->height()/10);
     mw->show();
     
     int res = app.exec();

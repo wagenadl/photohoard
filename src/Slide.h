@@ -33,6 +33,8 @@ private:
   QPixmap pm;
   int tilesize;
   QColor bg;
+  QTime dbgtime;
+  bool dbgstarted;
 };
 
 #endif

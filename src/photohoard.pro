@@ -28,5 +28,7 @@ HEADERS += Strip.h   Slidestrip.h   Datestrip.h   FilmScene.h
 SOURCES += Strip.cpp Slidestrip.cpp Datestrip.cpp FilmScene.cpp
 HEADERS += LayoutBar.h   MainWindow.h   ColorLabelBar.h   Selection.h
 SOURCES += LayoutBar.cpp MainWindow.cpp ColorLabelBar.cpp Selection.cpp
+HEADERS += FileBar.h   FilterBar.h
+SOURCES += FileBar.cpp FilterBar.cpp
 RESOURCES += PhotoHoard.qrc
 LIBS += -lexiv2
