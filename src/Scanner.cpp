@@ -154,7 +154,8 @@ void Scanner::run() {
           emit collecting(N);
         sleepok = false;
 	l.relock();
-      } else if (!(ids=findPhotosToScan()).isEmpty()) {
+      }
+      if (!(ids=findPhotosToScan()).isEmpty()) {
 	l.unlock();
 	scanPhotos(ids);
 	qDebug() << "Scan progress: " << n << " / " << N;

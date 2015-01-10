@@ -9,6 +9,23 @@
 #include <QImageReader>
 #include <QDebug>
 
+void exifLogHandler(int level, char const *message) {
+  qDebug() << "Exif msg (" << level << "): " << message;
+}
+
+void Exif::initialize() {
+  Exiv2::LogMsg::setHandler(exifLogHandler);
+}
+
+class ExifInit {
+public:
+  ExifInit() {
+    Exif::initialize();
+  }
+};
+
+static ExifInit exitInit;
+
 NikonLenses const &Exif::nikonLenses() {
   static NikonLenses lenses;
   return lenses;

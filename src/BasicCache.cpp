@@ -14,12 +14,14 @@ BasicCache::BasicCache(QString rootdir, QObject *parent):
   setObjectName("BasicCache");
   readConfig();
   qDebug() << "BasicCache constructed 1";
+  db.query("pragma synchronous = 0");
 }
 
 BasicCache::BasicCache(QDir root, Database const &db, QObject *parent):
   QObject(parent), root(root), db(db) {
   readConfig();
   qDebug() << "BasicCache constructed 2";
+  this->db.query("pragma synchronous = 0");
 }
 
 BasicCache::~BasicCache() {
@@ -74,6 +76,7 @@ BasicCache *BasicCache::create(QString rootdir) {
     qDebug() << "BasicCache created";
     return new BasicCache(root, db);
   } catch (...) {
+    qDebug() << "BasicCache caught error while creating. Failure.";
     root.remove("cache.db");
     root.rmdir(root.absolutePath());
     throw;

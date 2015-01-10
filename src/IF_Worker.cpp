@@ -37,11 +37,11 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
       args << path;
       dcraw.start("dcraw", args);
       if (!dcraw.waitForStarted())
-	throw QString("Could not start DCRaw");
-      if (!dcraw.waitForFinished())
-	throw QString("Could not complete DCRaw");
+	throw QString("Could not start DCRaw:" + path);
+      if (!dcraw.waitForFinished(300000))
+	throw QString("Could not complete DCRaw:" + path);
       if (!img.loadFromData(dcraw.readAllStandardOutput()))
-	throw QString("Could not parse DCRaw output");
+	throw QString("Could not parse DCRaw output:" + path);
     } else {
       // Other formats?
     }            

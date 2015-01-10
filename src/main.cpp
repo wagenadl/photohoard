@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
     mw->show();
     
     int res = app.exec();
-
+    qDebug() << "App returned " << res;
     qDebug() << "Stopping scanner";
     scan->stopAndWait(1000);
     qDebug() << "Deleting scanner";

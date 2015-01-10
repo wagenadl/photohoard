@@ -58,3 +58,9 @@ pragma synchronous=off;
 -- was created. I do not know why, or if that is really true for sqlite.
 -- I cannot figure out whether it is safe to have multiple connections
 -- to the same database in one application. Tricky!
+
+------------------------------------ CACHING ------
+It is not good to have the blobs in the same table as the other cache info.
+In fact, it might be better to store them in a separate db altogether.
+But certainly in other tables.
+Perhaps an index on maxdim might solve the problem too?

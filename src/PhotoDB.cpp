@@ -14,6 +14,7 @@ PhotoDB::PhotoDB(QString fn): Database(fn) {
   }
   qDebug() << "Opened PhotoDB " << fn
 	   << ": " << q.value(0).toString() << q.value(1).toString();
+  query("pragma synchronous = 0");
 }
 
 PhotoDB PhotoDB::create(QString fn) {

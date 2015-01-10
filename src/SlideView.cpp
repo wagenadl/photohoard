@@ -116,8 +116,9 @@ void SlideView::mouseDoubleClickEvent(QMouseEvent *) {
 }
 
 void SlideView::paintEvent(QPaintEvent *) {
-  //  QStyleOption opt;
-  //  opt.init(this);
+  if (img.isNull())
+    return;
+  
   QPainter p(this);
   //  style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
   QRect r = contentsRect();

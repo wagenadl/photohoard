@@ -88,7 +88,6 @@ QMap<QSqlDatabase *, QMutex *> &Database::mutexes() {
 void Database::beginAndLock() {
   //  qDebug() << "beginAndLock" << (void*)db;
   mutexes()[db]->lock();
-  qDebug() << "  OK";
   QSqlQuery q(*db);
   if (!q.exec("begin transaction")) {
     mutexes()[db]->unlock();

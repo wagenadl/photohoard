@@ -20,6 +20,7 @@ public:
     CW
   };
 public:
+  static void initialize();
   Exif(QString filename);
   bool ok() const;
   int width() const; // after orientation corrected

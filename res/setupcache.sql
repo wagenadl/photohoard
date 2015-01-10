@@ -26,7 +26,7 @@ create table queue (
        
 create index cacheidx on cache(version);
 
-insert into memthresh(bytes) values(200000);
+insert into memthresh(bytes) values(100000);
 insert into sizes(maxdim) values(128);
 insert into sizes(maxdim) values(384);
 insert into sizes(maxdim) values(1024);
