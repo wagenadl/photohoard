@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     }
     if (!QDir(cachefn).exists()) {
       qDebug() << "Creating cache at " << cachefn;
-      BasicCache::create(cachefn);
+      delete BasicCache::create(cachefn);
     }
 
     ExceptionReporter *excrep = new ExceptionReporter();

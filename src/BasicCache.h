@@ -82,6 +82,7 @@ private:
   void dropOutdatedFromCache(quint64 vsn);
   void readConfig();
   QString constructFilename(quint64 vsn, int d);
+  void attach();
 private:
   QDir root;
   Database db;

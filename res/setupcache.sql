@@ -6,11 +6,6 @@ create table memthresh (
        -- Threshold above which an object gets stored in a separate file
        bytes integer );
 
-create table blobs (
-       cacheid integer primary key references cache(id)
-       	       on delete cascade on update cascade,
-       bits blob );
-
 create table cache (
        id integer primary key,
        version integer,
@@ -18,7 +13,7 @@ create table cache (
        width integer,
        height integer,
        outdated integer,
-       infile integer,
+       dbno integer, -- 0 means file
        unique(version, maxdim) on conflict replace );
 
 create table queue (

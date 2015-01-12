@@ -10,7 +10,11 @@
 #include "AutoCache.h"
 #include "PhotoDB.h"
 
+#include "ExportDialog.h"
+
 MainWindow::MainWindow(PhotoDB *db, Scanner *scanner, AutoCache *autocache) {
+  exportDialog = 0;
+  
   setCentralWidget(lightTable = new LightTable(*db, this));
   addToolBar(fileBar = new FileBar(this));
   addToolBar(layoutBar = new LayoutBar(this));
@@ -39,6 +43,14 @@ MainWindow::MainWindow(PhotoDB *db, Scanner *scanner, AutoCache *autocache) {
 MainWindow::~MainWindow() {
 }
 
-void MainWindow::fileAction(FileBar::Action) {
-  // NYI
+void MainWindow::fileAction(FileBar::Action a) {
+  switch (a) {
+  case FileBar::Action::ExportSelection:
+    if (!exportDialog)
+      exportDialog = new ExportDialog();
+    exportDialog->show(); // should this be modal instead?
+    break;
+  default:
+    break;
+  }
 }

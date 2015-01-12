@@ -20,6 +20,8 @@ private:
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
+private:
+  class ExportDialog *exportDialog;
 };
 
 #endif
