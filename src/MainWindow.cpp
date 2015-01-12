@@ -9,8 +9,9 @@
 #include "Scanner.h"
 #include "AutoCache.h"
 #include "PhotoDB.h"
-
 #include "ExportDialog.h"
+
+#include <QDebug>
 
 MainWindow::MainWindow(PhotoDB *db, Scanner *scanner, AutoCache *autocache) {
   exportDialog = 0;
@@ -45,11 +46,14 @@ MainWindow::~MainWindow() {
 
 void MainWindow::fileAction(FileBar::Action a) {
   switch (a) {
-  case FileBar::Action::ExportSelection:
+  case FileBar::Action::OpenExportDialog:
     if (!exportDialog)
       exportDialog = new ExportDialog();
-    exportDialog->show(); // should this be modal instead?
+    if (exportDialog->exec() == ExportDialog::Accepted)
+      fileAction(FileBar::Action::ExportSelected);
     break;
+  case FileBar::Action::ExportSelected:
+    qDebug() << "Export selected";
   default:
     break;
   }

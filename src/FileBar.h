@@ -13,6 +13,7 @@ public:
   enum class Action {
     AddFolder,
       ImportCamera,
+      OpenExportDialog,
       ExportSelected,
       N
       };

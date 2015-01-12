@@ -19,20 +19,20 @@ FileBar::FileBar(QWidget *parent): QToolBar(parent) {
 
   actions[Action::AddFolder]->setIcon(QIcon(":icons/folderAdd.svg"));
   actions[Action::ImportCamera]->setIcon(QIcon(":icons/cameraImport.svg"));
-  actions[Action::ExportSelected]->setIcon(QIcon(":icons/export.svg"));
+  actions[Action::OpenExportDialog]->setIcon(QIcon(":icons/export.svg"));
 
   actions[Action::AddFolder]->setText("(Re-)scan folder (Control-R)");
   actions[Action::ImportCamera]
     ->setText("Import from camera or card (Control-I)");
-  actions[Action::ExportSelected]->setText("Export JPEG(s) (Control-E)");
+  actions[Action::OpenExportDialog]->setText("Export JPEG(s) (Control-E)");
 
   actions[Action::AddFolder]->setShortcut(QString("Control+R"));
   actions[Action::ImportCamera]->setShortcut(QString("Control+I"));
-  actions[Action::ExportSelected]->setShortcut(QString("Control+E"));
+  actions[Action::OpenExportDialog]->setShortcut(QString("Control+E"));
 
   addAction(actions[Action::ImportCamera]);
   addAction(actions[Action::AddFolder]);
-  addAction(actions[Action::ExportSelected]);
+  addAction(actions[Action::OpenExportDialog]);
 
   connect(this, SIGNAL(actionTriggered(QAction*)),
           SLOT(trigger(QAction*)));
