@@ -79,6 +79,8 @@ int main(int argc, char **argv) {
     mw->resize(dw->width()*8/10, dw->height()*8/10);
     mw->move(dw->width()/10, dw->height()/10);
     mw->show();
+
+    mw->scrollToCurrent();
     
     int res = app.exec();
     qDebug() << "App returned " << res;

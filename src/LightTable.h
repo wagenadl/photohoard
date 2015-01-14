@@ -26,6 +26,7 @@ public slots:
   void filterAction(FilterBar::Action);
   void clearSelection();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
+  void scrollToCurrent();
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);

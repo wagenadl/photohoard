@@ -16,7 +16,7 @@ public:
   virtual void paint(QPainter *painter,
 		     const QStyleOptionGraphicsItem *option,
 		     QWidget *widget=0) override;
-  virtual class Slide *slideByVersion(quint64 vsn) const;
+  virtual class Slide *slideByVersion(quint64 vsn);
 public slots:
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);

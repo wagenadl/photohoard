@@ -19,10 +19,6 @@ Slidestrip::~Slidestrip() {
 
 
 QRectF Slidestrip::subBoundingRect() const {
-  if (shouldDebug())
-    qDebug() << "Slidestrip " << d0 << "(" << int(scl) << "): "
-	     << " subBoundingRect: exp=" << expanded
-	     << " latent=" << hasLatent;
   if (!expanded)
     return QRectF();
   int nslides = hasLatent ? latentVersions.size() : slideOrder.size();
@@ -68,7 +64,9 @@ void Slidestrip::slideDoubleClicked(quint64 id,
   emit doubleClicked(id, b, m);
 }
 
-Slide *Slidestrip::slideByVersion(quint64 vsn) const {
+Slide *Slidestrip::slideByVersion(quint64 vsn) {
+  if (latentVersions.contains(vsn))
+    instantiate();
   return slideMap.contains(vsn) ? slideMap[vsn] : 0;
 }
 
@@ -85,10 +83,6 @@ void Slidestrip::rebuildContents() {
     return;
   }
 
-  if (shouldDebug())
-    qDebug() << "Slidestrip " << d0 << "(" << int(scl) << "): "
-	     << " rebuild";
-  
   mustRebuild = false;
   prepareGeometryChange();
   latentVersions = versionsInRange(startDateTime(), endDateTime());
@@ -157,12 +151,11 @@ void Slidestrip::collapse() {
 }
 
 void Slidestrip::relayout() {
-  if (shouldDebug())
-    qDebug() << "Slidestrip " << d0 << "(" << int(scl) << "): "
-	     << " relayout: exp=" << expanded
-	     << " latent=" << hasLatent;
-  if (hasLatent)
+  if (hasLatent) {
+    Strip::relayout();
     return;
+  }
+  
   if (!expanded) {
     recalcLabelRect();
     mustRelayout = true;
@@ -181,11 +174,9 @@ void Slidestrip::relayout() {
   } break;
   case Arrangement::Vertical: {
     int y = labelBoundingRect().bottom();
-    qDebug() << "Slidestrip: relayout" << y;
     for (auto s: slideOrder) {
       s->setPos(0, y);
       y += tilesize;
-      qDebug() << "  : " << y;
     }
   } break;
   case Arrangement::Grid: {

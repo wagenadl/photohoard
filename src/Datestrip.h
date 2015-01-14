@@ -15,7 +15,7 @@ public:
 public:
   virtual QRectF subBoundingRect() const; // children
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
-  virtual class Slide *slideByVersion(quint64 vsn) const;
+  virtual class Slide *slideByVersion(quint64 vsn);
   Strip::TimeScale subScale() const;
 public slots:
   virtual void setArrangement(Arrangement arr);

@@ -17,6 +17,7 @@ public:
   virtual ~MainWindow();
 public slots:
   void fileAction(FileBar::Action);
+  void scrollToCurrent();
 private:
   class Exporter *exporter;
 private:

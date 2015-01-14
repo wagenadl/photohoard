@@ -82,8 +82,8 @@ void Slide::paint(QPainter *painter,
 	painter->drawPixmap(dst, pm);
       }
       if (!dbgstarted) {
-	dbgtime.start();
-	dbgstarted = true;
+	// dbgtime.start();
+        // dbgstarted = true;
       }
       parent->requestImage(id);
       return;

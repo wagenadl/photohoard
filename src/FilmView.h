@@ -20,6 +20,7 @@ signals:
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
 public slots:
+  void scrollTo(quint64);
   void setTileSize(int pix);
   void setArrangement(Strip::Arrangement);
   void updateImage(quint64, QSize, QImage);

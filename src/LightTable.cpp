@@ -279,6 +279,7 @@ void LightTable::filterAction(FilterBar::Action a) {
     else if (lay==LayoutBar::Action::VLine) 
       setSizes(QList<int>() << tilesize + film->verticalScrollBar()->width()
                << width());
+    scrollToCurrent();
     break;
   case FilterBar::Action::ClearSelection:
     clearSelection();
@@ -314,4 +315,10 @@ void LightTable::bgPress(Qt::MouseButton b, Qt::KeyboardModifiers m) {
   default:
     break;
   }
+}
+
+void LightTable::scrollToCurrent() {
+  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  if (c)
+    film->scrollTo(c);
 }

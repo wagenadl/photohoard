@@ -64,3 +64,7 @@ void MainWindow::fileAction(FileBar::Action a) {
     break;
   }
 }
+
+void MainWindow::scrollToCurrent() {
+  lightTable->scrollToCurrent();
+}

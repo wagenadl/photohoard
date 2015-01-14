@@ -23,10 +23,6 @@ Datestrip::~Datestrip() {
 
 
 QRectF Datestrip::subBoundingRect() const {
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "subBoundingRect: exp=" << expanded
-	     << " empty=" << stripOrder.isEmpty();
   if (!isExpanded())
     return QRectF();
   if (stripOrder.isEmpty())
@@ -115,19 +111,11 @@ void Datestrip::rebuildContents() {
     return;
   }
 
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "rebuildContents";
-  
   rebuilding++;
 
   TimeScale subs = subScale();
   QDateTime end = endDateTime();
   QDateTime t = firstDateInRange(startDateTime(), end);
-
-  if (shouldDebug()) 
-    qDebug() << "  rebuild " << int(scl) << ": "
-             << end.toString() << int(subs) << t.toString();
 
   if (t.isNull()) {
     rebuilding--;
@@ -143,12 +131,8 @@ void Datestrip::rebuildContents() {
     keep << t;
     QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
-    if (shouldDebug()) 
-      qDebug() << "    rebuild " << int(scl) << ": " << t << t1;
 
     if (!stripMap.contains(t)) {
-      qDebug() << "Datestrip" << d0 << int(scl) << (void*)this 
-               << ": New substrip " << t << int(subs);
       stripMap[t] = newSubstrip(t, subs);
     }
     Strip *s = stripMap[t];
@@ -164,8 +148,6 @@ void Datestrip::rebuildContents() {
 
   for (auto id: stripMap.keys()) {
     if (!keep.contains(id)) {
-      qDebug() << "Datestrip" << d0 << int(scl) << (void*)this 
-               << ": Removing substrip" << id;
       delete stripMap[id];
       stripMap.remove(id);
     }
@@ -173,9 +155,6 @@ void Datestrip::rebuildContents() {
 
   rebuilding--;
   relayout();
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "rebuild done";
 }
 
 
@@ -188,9 +167,6 @@ void Datestrip::expand() {
 
   for (auto s: stripOrder)
     s->show();
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "expand done";
 }
 
 void Datestrip::collapse() {
@@ -204,18 +180,15 @@ void Datestrip::collapse() {
 
 void Datestrip::expandAll() {
   rebuilding++;
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "expandAll";
+
   expand();
   for (auto s: stripOrder)
     s->expandAll();
+
   rebuilding--;
+
   if (mustRelayout)
     relayout();
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "expandAll done";
 }
 
 
@@ -230,9 +203,6 @@ void Datestrip::relayout() {
   }
 
   Strip::relayout();
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "relayout";
 
   switch (arr) {
   case Arrangement::Horizontal: {
@@ -286,12 +256,9 @@ void Datestrip::relayout() {
   }
   recalcLabelRect();
   emit resized();
-  if (shouldDebug())
-    qDebug() << "Datestrip " << d0 << "(" << int(scl) << "): "
-	     << "relayout done";
 }
 
-class Slide *Datestrip::slideByVersion(quint64 vsn) const {
+class Slide *Datestrip::slideByVersion(quint64 vsn) {
   for (auto f: stripOrder) {
     Slide *s = f->slideByVersion(vsn);
     if (s)
@@ -301,7 +268,6 @@ class Slide *Datestrip::slideByVersion(quint64 vsn) const {
 }
 
 void Datestrip::setArrangement(Arrangement arr) {
-  qDebug() << "Datestrip" << (void*)this << d0 << int(scl) << "setArrangement";
   Strip::setArrangement(arr);
   for (auto s: stripOrder) 
     s->setArrangement(arr);

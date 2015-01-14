@@ -159,7 +159,7 @@ void AC_Worker::cachePreview(quint64 id, QImage img) {
   bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold) {
     storeLoadedInDB();
-    qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;
+    qDebug() << "AC_Worker: Cache preview progress: " << n << "/" << N;
     emit cacheProgress(n, N);
   }
 }
@@ -218,7 +218,8 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img, bool isFullSize) {
       loaded[id] = img;
     }
 
-    bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
+    bool done = loaded.size()>0
+      && readyToLoad.isEmpty() && beingLoaded.isEmpty();
     if (done || loaded.size() > threshold) {
       storeLoadedInDB();
       qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;

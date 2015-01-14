@@ -4,6 +4,7 @@
 #include "FilmScene.h"
 #include "Datestrip.h"
 #include <QDebug>
+#include "Slide.h"
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent) {
@@ -43,7 +44,6 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
     QDateTime d0 = q.value(0).toDateTime();
     Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
     Strip *s = strip->stripByDate(d0, scl);
-    qDebug() << "FilmView: expand?" << d0 << int(scl) << (void*)s;
     if (s) {
       s->expand();
       any = true;
@@ -114,3 +114,12 @@ void FilmView::rescan() {
 void FilmView::setTileSize(int pix) {
   strip->setTileSize(pix);
 }
+
+void FilmView::scrollTo(quint64 vsn) {
+  Slide *s = root()->slideByVersion(vsn);
+  qDebug() << "scrollTo" << vsn << s;
+  if (s)
+    centerOn(s->sceneBoundingRect().center());
+}
+
+  

@@ -270,7 +270,7 @@ QString Strip::labelFor(QDateTime d0, Strip::TimeScale scl) {
   return "?";
 }
 
-Slide *Strip::slideByVersion(quint64) const {
+Slide *Strip::slideByVersion(quint64) {
   return NULL;
 }
 
@@ -349,9 +349,6 @@ void Strip::setRowWidth(int pix) {
 void Strip::expand() {
   if (expanded)
     return;
-  if (shouldDebug())
-    qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
-	     << " expand";
   expanded = true;
   db.query("insert into expanded values(:a,:b)", d0, int(scl));
   recalcLabelRect();
@@ -361,9 +358,6 @@ void Strip::expand() {
 void Strip::collapse() {
   if (!expanded)
     return;
-  if (shouldDebug())
-    qDebug() << "Strip " << d0 << "(" << int(scl) << "): "
-	     << " collapse";
   expanded = false;
   db.query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
   recalcLabelRect();
@@ -464,10 +458,6 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
-}
-
-bool Strip::shouldDebug() const {
-  return false;
 }
 
 void Strip::updateHeader(QImage img) {

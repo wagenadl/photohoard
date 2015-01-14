@@ -37,7 +37,7 @@ public:
   int subRowWidth(int pix) const;
   bool hasTopLabel() const;
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
-  virtual class Slide *slideByVersion(quint64 vsn) const;
+  virtual class Slide *slideByVersion(quint64 vsn);
   PhotoDB &database() { return db; }
 public slots:
   void rescan();
@@ -90,7 +90,6 @@ protected:
   QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
   QDateTime lastDateInRange(QDateTime t0, QDateTime t1) const;
 protected:
-  bool shouldDebug() const;
   int subHeight() const;
   void recalcLabelRect();
 protected:
