@@ -10,17 +10,21 @@
 class MainWindow: public QMainWindow {
   Q_OBJECT;
 public:
-  MainWindow(class PhotoDB *, class Scanner *, class AutoCache *);
+  MainWindow(class PhotoDB const &,
+             class Scanner *,
+             class AutoCache *,
+             class Exporter *);
   virtual ~MainWindow();
 public slots:
   void fileAction(FileBar::Action);
+private:
+  class Exporter *exporter;
 private:
   class LightTable *lightTable;
   class FileBar *fileBar;
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
-private:
   class ExportDialog *exportDialog;
 };
 

@@ -4,10 +4,9 @@
 
 #define LAYOUTBAR_H
 
-#include <QToolBar>
-#include <QAction>
+#include "ActionBar.h"
 
-class LayoutBar: public QToolBar {
+class LayoutBar: public ActionBar {
   Q_OBJECT;
 public:
   enum class Action {
@@ -30,7 +29,6 @@ signals:
   void triggered(LayoutBar::Action a);
 private slots:
   void trigger(QAction *);
-  void mtrigger(QObject *);
 private:
   Action currentLayout;
   Action previousLayout;

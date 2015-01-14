@@ -4,9 +4,8 @@
 
 #include <QMetaType>
 #include <QDebug>
-#include <QSignalMapper>
 
-FilterBar::FilterBar(QWidget *parent): QToolBar(parent) {
+FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
   qRegisterMetaType<FilterBar::Action>("FilterBar::Action");
 
   setWindowTitle("Filter");
@@ -41,18 +40,7 @@ FilterBar::FilterBar(QWidget *parent): QToolBar(parent) {
   addAction(actions[Action::Larger]);
   addAction(actions[Action::OpenFilterDialog]);
 
-  QSignalMapper *mapper = new QSignalMapper(this);
-  connect(mapper, SIGNAL(mapped(QObject*)),
-          SLOT(mtrigger(QObject*)));
-
-  parent->addAction(actions[Action::ClearSelection]);
-  connect(actions[Action::ClearSelection], SIGNAL(triggered(bool)),
-          mapper, SLOT(map()));
-  mapper->setMapping(actions[Action::ClearSelection],
-                     actions[Action::ClearSelection]);
-  
-  connect(this, SIGNAL(actionTriggered(QAction*)),
-          SLOT(trigger(QAction*)));
+  addHiddenAction(actions[Action::ClearSelection]);
 }
 
 FilterBar::~FilterBar() {
@@ -65,6 +53,3 @@ void FilterBar::trigger(QAction *a) {
     emit triggered(revmap[a]);
 }
 
-void FilterBar::mtrigger(QObject *a) {
-  trigger(dynamic_cast<QAction*>(a));
-}

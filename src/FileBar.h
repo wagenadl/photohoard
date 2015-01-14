@@ -4,10 +4,9 @@
 
 #define FILEBAR_H
 
-#include <QToolBar>
-#include <QAction>
+#include "ActionBar.h"
 
-class FileBar: public QToolBar {
+class FileBar: public ActionBar {
   Q_OBJECT;
 public:
   enum class Action {

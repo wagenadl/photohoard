@@ -10,13 +10,16 @@
 #include "AutoCache.h"
 #include "PhotoDB.h"
 #include "ExportDialog.h"
+#include "Exporter.h"
 
 #include <QDebug>
 
-MainWindow::MainWindow(PhotoDB *db, Scanner *scanner, AutoCache *autocache) {
+MainWindow::MainWindow(PhotoDB const &db,
+                       Scanner *scanner, AutoCache *autocache,
+                       Exporter *exporter): exporter(exporter) {
   exportDialog = 0;
   
-  setCentralWidget(lightTable = new LightTable(*db, this));
+  setCentralWidget(lightTable = new LightTable(db, this));
   addToolBar(fileBar = new FileBar(this));
   addToolBar(layoutBar = new LayoutBar(this));
   addToolBar(colorLabelBar = new ColorLabelBar(this));
@@ -54,6 +57,9 @@ void MainWindow::fileAction(FileBar::Action a) {
     break;
   case FileBar::Action::ExportSelected:
     qDebug() << "Export selected";
+    exporter->setup(exportDialog ? exportDialog->settings() : ExportSettings());
+    exporter->addSelection();
+    break;
   default:
     break;
   }

@@ -9,6 +9,7 @@
 #include "Exif.h"
 #include "Scanner.h"
 #include "PhotoDB.h"
+#include "Exporter.h"
 #include "AutoCache.h"
 #include "ExceptionReporter.h"
 #include "MainWindow.h"
@@ -64,13 +65,16 @@ int main(int argc, char **argv) {
                      ac, SLOT(recache(QSet<quint64>)));
     QObject::connect(scan, SIGNAL(cacheablePreview(quint64, QImage)),
                      ac, SLOT(cachePreview(quint64, QImage)));
-
-    scan->start();
-    scan->addTree(picroot);
     QObject::connect(scan, SIGNAL(exception(QString)),
                      excrep, SLOT(report(QString)));
+    scan->start();
 
-    MainWindow *mw = new MainWindow(&db, scan, ac);
+    Exporter *expo = new Exporter(db, 0);
+    expo->start();
+
+    scan->addTree(picroot); // this should not always happen
+
+    MainWindow *mw = new MainWindow(db, scan, ac, expo);
     QDesktopWidget *dw = app.desktop();
     mw->resize(dw->width()*8/10, dw->height()*8/10);
     mw->move(dw->width()/10, dw->height()/10);
@@ -85,6 +89,10 @@ int main(int argc, char **argv) {
     qDebug() << "Done";
     qDebug() << "Deleting autocache";
     delete ac;
+    qDebug() << "Done";
+    qDebug() << "Deleting exporter";
+    expo->stop();
+    delete expo;
     qDebug() << "Done";
 
     return res;

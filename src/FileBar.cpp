@@ -5,7 +5,7 @@
 #include <QMetaType>
 #include <QDebug>
 
-FileBar::FileBar(QWidget *parent): QToolBar(parent) {
+FileBar::FileBar(QWidget *parent): ActionBar(parent) {
   qRegisterMetaType<FileBar::Action>("FileBar::Action");
 
   setWindowTitle("File");
@@ -26,16 +26,16 @@ FileBar::FileBar(QWidget *parent): QToolBar(parent) {
     ->setText("Import from camera or card (Control-I)");
   actions[Action::OpenExportDialog]->setText("Export JPEG(s) (Control-E)");
 
-  actions[Action::AddFolder]->setShortcut(QString("Control+R"));
-  actions[Action::ImportCamera]->setShortcut(QString("Control+I"));
-  actions[Action::OpenExportDialog]->setShortcut(QString("Control+E"));
+  actions[Action::AddFolder]->setShortcut(QString("Ctrl+R"));
+  actions[Action::ImportCamera]->setShortcut(QString("Ctrl+I"));
+  actions[Action::OpenExportDialog]->setShortcut(QString("Ctrl+E"));
+  actions[Action::ExportSelected]->setShortcut(QString("E"));
 
   addAction(actions[Action::ImportCamera]);
   addAction(actions[Action::AddFolder]);
   addAction(actions[Action::OpenExportDialog]);
 
-  connect(this, SIGNAL(actionTriggered(QAction*)),
-          SLOT(trigger(QAction*)));
+  addHiddenAction(actions[Action::ExportSelected]);
 }
 
 FileBar::~FileBar() {
@@ -48,3 +48,5 @@ void FileBar::trigger(QAction *a) {
   if (revmap.contains(a))
     emit triggered(revmap[a]);
 }
+
+

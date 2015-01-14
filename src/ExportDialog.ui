@@ -127,6 +127,9 @@
          </property>
          <item>
           <widget class="QSpinBox" name="maxdim">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="suffix">
             <string> px</string>
            </property>

@@ -4,10 +4,9 @@
 
 #define COLORLABELBAR_H
 
-#include <QToolBar>
-#include <QAction>
+#include "ActionBar.h"
 
-class ColorLabelBar: public QToolBar {
+class ColorLabelBar: public ActionBar {
   Q_OBJECT;
 public:
   enum class Action {

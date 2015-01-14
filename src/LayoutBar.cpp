@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QSignalMapper>
 
-LayoutBar::LayoutBar(QWidget *parent): QToolBar(parent) {
+LayoutBar::LayoutBar(QWidget *parent): ActionBar(parent) {
   qRegisterMetaType<LayoutBar::Action>("LayoutBar::Action");
 
   setWindowTitle("Layout");
@@ -50,18 +50,7 @@ LayoutBar::LayoutBar(QWidget *parent): QToolBar(parent) {
   addAction(actions[Action::VLine]);
   addAction(actions[Action::FullPhoto]);
 
-  QSignalMapper *mapper = new QSignalMapper(this);
-  connect(mapper, SIGNAL(mapped(QObject*)),
-          SLOT(mtrigger(QObject*)));
-
-  parent->addAction(actions[Action::ToggleFullScreen]);
-  connect(actions[Action::ToggleFullScreen], SIGNAL(triggered(bool)),
-          mapper, SLOT(map()));
-  mapper->setMapping(actions[Action::ToggleFullScreen],
-                     actions[Action::ToggleFullScreen]);
-
-  connect(this, SIGNAL(actionTriggered(QAction*)),
-          SLOT(trigger(QAction*)));
+  addHiddenAction(actions[Action::ToggleFullScreen]);
 }
 
 LayoutBar::~LayoutBar() {
@@ -71,8 +60,4 @@ void LayoutBar::trigger(QAction *a) {
   qDebug() << "LayoutBar::trigger" << a << revmap.contains(a);
   if (revmap.contains(a))
     emit triggered(revmap[a]);
-}
-
-void LayoutBar::mtrigger(QObject *a) {
-  trigger(dynamic_cast<QAction*>(a));
 }

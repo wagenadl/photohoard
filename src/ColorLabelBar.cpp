@@ -2,7 +2,7 @@
 
 #include "ColorLabelBar.h"
 
-ColorLabelBar::ColorLabelBar(QWidget *parent): QToolBar(parent) {
+ColorLabelBar::ColorLabelBar(QWidget *parent): ActionBar(parent) {
   qRegisterMetaType<ColorLabelBar::Action>("ColorLabelBar::Action");
 
   setWindowTitle("Color label");
@@ -27,9 +27,6 @@ ColorLabelBar::ColorLabelBar(QWidget *parent): QToolBar(parent) {
   addAction(actions[Action::SetGreen]);
   addAction(actions[Action::SetBlue]);
   addAction(actions[Action::SetPurple]);
-
-  connect(this, SIGNAL(actionTriggered(QAction*)),
-          SLOT(trigger(QAction*)));
 }
 
 ColorLabelBar::~ColorLabelBar() {
