@@ -11,6 +11,9 @@ class IF_Worker: public QObject {
   Q_OBJECT;
 public:
   IF_Worker(QObject *parent=0);
+  QImage findImageNow(QString path, QString mods, QString ext,
+                      Exif::Orientation orient, int maxdim, QSize ns,
+                      bool *fullSizeReturn=0);
 public slots:
   void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize ns);

@@ -10,66 +10,80 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
 }
 
+QImage IF_Worker::findImageNow(QString path, QString mods, QString ext,
+                               Exif::Orientation orient, int maxdim, QSize ns,
+                               bool *fullSizeReturn) {
+  if (!mods.isEmpty()) {
+    if (fullSizeReturn)
+      *fullSizeReturn = false;
+    return QImage();
+  }
+
+  bool fullSize = true;
+  QImage img;
+  if (ext=="jpeg" || ext=="png" || ext=="tiff") {
+    img = QImage(path); // load it directly
+  } else if (ext=="nef" || ext=="cr2") {
+    NiceProcess dcraw;
+    if (maxdim>0)
+      dcraw.renice(10);
+    QStringList args;
+    if (maxdim>0 && (maxdim*2<=ns.width() || maxdim*2<=ns.height())) {
+      args << "-h";
+      fullSize = false;
+    }
+    // If the image is large enough, we might be able to do a quicker
+    // load of a downscaled version
+    args << "-c";
+    args << path;
+    dcraw.start("dcraw", args);
+    if (!dcraw.waitForStarted())
+      throw QString("Could not start DCRaw:" + path);
+    if (!dcraw.waitForFinished(300000))
+      throw QString("Could not complete DCRaw:" + path);
+    if (!img.loadFromData(dcraw.readAllStandardOutput()))
+      throw QString("Could not parse DCRaw output:" + path);
+  } else {
+    // Other formats?
+  }            
+
+  if (img.isNull()) {
+    if (fullSizeReturn)
+      *fullSizeReturn = false;
+    return QImage();
+  }
+  if (maxdim>0) {
+    if (img.width()>maxdim || img.height()>maxdim) {
+      img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
+      fullSize = false;
+    }
+  }
+    
+  switch (orient) {
+  case Exif::Upright:
+    break;
+  case Exif::UpsideDown:
+    img = upsideDown(img);
+    break;
+  case Exif::CW:
+    img = rotateCW(img);
+    break;
+  case Exif::CCW:
+    img = rotateCCW(img);
+    break;
+  }
+
+  if (fullSizeReturn)
+    *fullSizeReturn = fullSize;
+  return img;
+}  
+
 void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
                           Exif::Orientation orient, int maxdim, QSize ns) {
   try {
-    if (!mods.isEmpty()) {
-      emit foundImage(id, QImage(), false);
-      return;
-    }
-
-    bool fullSize = true;
-    QImage img;
-    if (ext=="jpeg" || ext=="png" || ext=="tiff") {
-      img = QImage(path); // load it directly
-    } else if (ext=="nef" || ext=="cr2") {
-      NiceProcess dcraw;
-      if (maxdim>0)
-        dcraw.renice(10);
-      QStringList args;
-      if (maxdim*2<=ns.width() || maxdim*2<=ns.height()) {
-        args << "-h";
-        fullSize = false;
-      }
-      // If the image is large enough, we might be able to do a quicker
-      // load of a downscaled version
-      args << "-c";
-      args << path;
-      dcraw.start("dcraw", args);
-      if (!dcraw.waitForStarted())
-	throw QString("Could not start DCRaw:" + path);
-      if (!dcraw.waitForFinished(300000))
-	throw QString("Could not complete DCRaw:" + path);
-      if (!img.loadFromData(dcraw.readAllStandardOutput()))
-	throw QString("Could not parse DCRaw output:" + path);
-    } else {
-      // Other formats?
-    }            
-
-    if (img.isNull()) {
-      emit foundImage(id, QImage(), false);
-      return;
-    }
-    if (maxdim>0) {
-      if (img.width()>maxdim || img.height()>maxdim) {
-        img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
-        fullSize = false;
-      }
-    }
-    
-    switch (orient) {
-    case Exif::Upright:
-      break;
-    case Exif::UpsideDown:
-      img = upsideDown(img);
-      break;
-    case Exif::CW:
-      img = rotateCW(img);
-      break;
-    case Exif::CCW:
-      img = rotateCCW(img);
-      break;
-    }
+    bool fullSize;
+    QImage img = findImageNow(path, mods, ext, orient, maxdim, ns,
+                              &fullSize);
     emit foundImage(id, img, fullSize);
   } catch (QSqlQuery const &q) {
     emit exception("IF_Worker: SqlError: " + q.lastError().text()

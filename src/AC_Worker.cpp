@@ -245,20 +245,14 @@ void AC_Worker::handleFoundImage(quint64 id, QImage img, bool isFullSize) {
 }
 
 void AC_Worker::sendToBank(quint64 version) {
-  QSqlQuery q(*db);
-  q.prepare("select photo, mods from versions where id=:v");
-  q.bindValue(":v", version);
-  if (!q.exec())
-    throw q;
+  QSqlQuery q(db.query("select photo, mods from versions"
+                       " where id=:a limit 1", version));
   if (!q.next())
     throw NoResult();
   quint64 photo = q.value(0).toULongLong();
   QString mods = q.value(1).toString();
-  q.prepare("select folder, filename, filetype, width, height, orient "
-	    " from photos where id=:i");
-  q.bindValue(":i", photo);
-  if (!q.exec())
-    throw q;
+  q = db.query("select folder, filename, filetype, width, height, orient "
+               " from photos where id=:a limit 1", photo);
   if (!q.next())
     throw NoResult();
   quint64 folder = q.value(0).toULongLong();

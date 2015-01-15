@@ -27,6 +27,7 @@ public:
       };
 public:
   ExportSettings();
+  QString extension() const;
 public:
   FileFormat fileFormat;
   ResolutionMode resolutionMode;
