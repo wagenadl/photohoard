@@ -6,11 +6,11 @@
 #include <QStyleOptionGraphicsItem>
 #include <QDebug>
 #include "FilmScene.h"
+#include "CMS.h"
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
   tilesize = 128;
-  bg = QColor(128, 128, 128);
   setPos(1e6, 1e6);
   FilmScene *fs = dynamic_cast<FilmScene *>(scene());
   if (fs)
@@ -31,7 +31,10 @@ Slide::~Slide() {
 void Slide::updateImage(QImage const &img1) {
   pm = QPixmap();
   if (isVisible()) {
-    img = img1;
+    if (CMS::monitorTransform.isValid())
+      img = CMS::monitorTransform.apply(img1);
+    else
+      img = img1;
     update();
   }
 }
@@ -52,12 +55,18 @@ void Slide::paint(QPainter *painter,
     ? true
     : parent->database().simpleQuery("select count(*) from selection"
                                      " where version==:a", id).toInt()>0;
+
+  int colorLabel
+    = parent->database().simpleQuery("select colorlabel from versions"
+                                     " where id==:a", id).toInt();
   painter->setPen(QPen(Qt::NoPen));
-  QColor b = bg;
+
+  QColor b = colorLabelColor(colorLabel);
   if (isSelected)
     b = b.darker(130);
   if (isCurrent)
     b = b.darker(130);
+
   int dx = isCurrent ? 2: 1;
   painter->setBrush(isSelected ? b.lighter() : b.darker());
   painter->drawRoundedRect(r.adjusted(2*dx, 2*dx, 0, 0), 4, 4);
@@ -123,3 +132,18 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
       parent->slideClicked(id, e->button(), e->modifiers());
 }
 
+ QColor Slide::colorLabelColor(int c) {
+   static QMap<int, QColor> cc;
+   static QColor bg("#808080");
+   if (cc.isEmpty()) {
+     cc[1] = QColor("#bb4455");
+     cc[2] = QColor("#bbaa44");
+     cc[3] = QColor("#66aa66");
+     cc[4] = QColor("#3355bb");
+     cc[5] = QColor("#aa66aa");
+   }
+   if (c && cc.contains(c))
+     return cc[c];
+   else
+     return bg;
+ }

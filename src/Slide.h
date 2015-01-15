@@ -16,7 +16,6 @@ public:
   void makeReady();
   void updateImage(QImage const &img);
   void setTileSize(int pix);
-  void setBackgroundColor(QColor);
   virtual QRectF boundingRect() const override {
     return QRectF(0, 0, tilesize, tilesize);
   }
@@ -27,12 +26,13 @@ public:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
 private:
+  static QColor colorLabelColor(int);
+private:
   QPointer<Slidestrip> parent;
   quint64 id;
   QImage img;
   QPixmap pm;
   int tilesize;
-  QColor bg;
   QTime dbgtime;
   bool dbgstarted;
 };

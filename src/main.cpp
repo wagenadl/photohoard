@@ -16,6 +16,12 @@
 #include "ExifReport.h"
 #include <sqlite3.h>
 #include <QDesktopWidget>
+#include "CMSTransform.h"
+
+namespace CMS {
+  CMSProfile monitorProfile;
+  CMSTransform monitorTransform;
+}
 
 int main(int argc, char **argv) {
   /*
@@ -25,24 +31,49 @@ int main(int argc, char **argv) {
   }
   */
 
+  QString dbdir = "/home/wagenaar/.local/photohoard";
+  QString picroot = "/home/wagenaar/Pictures";
+  QString icc;
+  
   QStringList args;
   for (int i=1; i<argc; i++)
     args << argv[i];
-  if (!args.isEmpty()) {
-    if (args[0]=="-exif") {
-      args.takeFirst();
+  while (!args.isEmpty()) {
+    QString kwd = args.takeFirst();
+    if (kwd=="-exif") {
       for (auto s: args) {
         exifreport(s);
       }
       return 0;
+    } else if (kwd=="-root") {
+      Q_ASSERT(!args.isEmpty());
+      picroot = args.takeFirst();
+    } else if (kwd=="-db") {
+      Q_ASSERT(!args.isEmpty());
+      dbdir = args.takeFirst();
+    } else if (kwd=="-icc") {
+      Q_ASSERT(!args.isEmpty());
+      icc = args.takeFirst();
+    } else {
+      qDebug() << "Unknown command line argument: " << args[0];
+      return 1;
     }
   }
 
-  QString dbfn = "/home/wagenaar/.local/photohoard/photodb.db";
-  QString cachefn = "/home/wagenaar/.local/photohoard/photodb.cache";
-  QString picroot = "/home/wagenaar/Pictures";
+  QString dbfn = dbdir + "/photodb.db";
+  QString cachefn = dbdir + "/photodb.cache";
+
+  Application app(argc, argv);
+
+  CMSProfile rgb(CMSProfile::srgbProfile());
+  if (icc=="")
+    CMS::monitorProfile = CMSProfile::displayProfile();
+  else
+    CMS::monitorProfile = CMSProfile(icc);
+  CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
+                                       CMS::monitorProfile);
+  
   try {
-    Application app(argc, argv);
     if (!QFile(dbfn).exists()) {
       qDebug() << "Creating database at " << dbfn;
       PhotoDB::create(dbfn);

@@ -165,6 +165,8 @@ void LightTable::slidePress(quint64 i, Qt::MouseButton b,
 }
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
+  if (i==0)
+    return;
   if (m & Qt::ControlModifier) {
     // Control: Toggle whether image i is selected
     if (selection->contains(i))
@@ -256,8 +258,20 @@ void LightTable::rescan() {
   film->rescan();
 }
 
-void LightTable::setColorLabel(ColorLabelBar::Action) {
-  // NYI
+void LightTable::setColorLabel(ColorLabelBar::Action a) {
+  int color = int(a);
+  db.query("update versions set colorlabel=:a where id in "
+           " (select version from selection)", color);
+  if (selection->count() > 10) {
+    film->scene()->update();
+  } else {
+    QSet<quint64> cc = selection->current();
+    for (auto vsn: cc) {
+      Slide *s = film->root()->slideByVersion(vsn);
+      if (s)
+        s->update();
+    }
+  }
 }
 
 void LightTable::filterAction(FilterBar::Action a) {
@@ -290,18 +304,22 @@ void LightTable::filterAction(FilterBar::Action a) {
 }
         
 void LightTable::clearSelection() {
-  qDebug() << "clearselection";
-  if (selection->count()<=10) {
-    QSet<quint64> ss = selection->current();
-    selection->clear();
-    for (auto i: ss) {
-      Slide *s = film->root()->slideByVersion(i);
-      if (s)
-        s->update();
-    }
+  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  if (c) {
+    select(c, Qt::NoModifier);
   } else {
-    selection->clear();
-    film->scene()->update();
+    if (selection->count()<=10) {
+      QSet<quint64> ss = selection->current();
+      selection->clear();
+      for (auto i: ss) {
+        Slide *s = film->root()->slideByVersion(i);
+        if (s)
+          s->update();
+      }
+    } else {
+      selection->clear();
+      film->scene()->update();
+    }
   }
 }  
 

@@ -21,6 +21,13 @@ ColorLabelBar::ColorLabelBar(QWidget *parent): ActionBar(parent) {
   actions[Action::SetBlue]->setIcon(QIcon(":icons/colorBlue.svg"));
   actions[Action::SetPurple]->setIcon(QIcon(":icons/colorPurple.svg"));
 
+  actions[Action::SetNone]->setShortcut(QString("0"));
+  actions[Action::SetRed]->setShortcut(QString("1"));
+  actions[Action::SetYellow]->setShortcut(QString("2"));
+  actions[Action::SetGreen]->setShortcut(QString("3"));
+  actions[Action::SetBlue]->setShortcut(QString("4"));
+  actions[Action::SetPurple]->setShortcut(QString("5"));
+
   addAction(actions[Action::SetNone]);
   addAction(actions[Action::SetRed]);
   addAction(actions[Action::SetYellow]);

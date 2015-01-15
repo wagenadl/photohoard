@@ -7,7 +7,7 @@
 #include <QWheelEvent>
 #include <QSize>
 #include <QDebug>
-//#include <QStyleOption>
+#include "CMS.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
@@ -44,8 +44,14 @@ void SlideView::newImage(QSize nat) {
 }  
 
 void SlideView::updateImage(QImage img1) {
-  if (img.isNull() || img.width() < img1.width())
-    img = img1;
+  if (img.isNull() || img.width() < img1.width()) {
+    if (CMS::monitorTransform.isValid()) {
+      img = CMS::monitorTransform.apply(img1);
+      qDebug() << "Applied monitor transform";
+    } else {
+      img = img1;
+    }
+  }
   update();
 }
 
