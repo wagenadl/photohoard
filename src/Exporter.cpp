@@ -177,11 +177,13 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   }
 
   QImage img = worker->findImageNow(path, mods, ftypes[ftype], orient,
-                                    maxdim, QSize(wid, hei));
+                                    0 /*maxdim*/, QSize(wid, hei));
 
   if (img.isNull())
     return false;
 
+  // Current scaling system is primitive. We should do bicubic.
+  // And of course, we should support higher bit depths.
   switch (settings.resolutionMode) {
   case ExportSettings::ResolutionMode::Full:
     break;

@@ -151,3 +151,44 @@ CMSProfile CMSProfile::displayProfile() {
 
   return p;
 }
+
+CMSProfile CMSProfile::labProfile(CMSProfile::StandardIlluminant il) {
+  static QMap<StandardIlluminant, double> x;
+  static QMap<StandardIlluminant, double> y;
+  if (x.isEmpty()) {
+    x[StandardIlluminant::A] = 0.44757;
+    x[StandardIlluminant::B] = 0.34842;
+    x[StandardIlluminant::C] = 0.31006;
+    x[StandardIlluminant::D50] = 0.34567;
+    x[StandardIlluminant::D55] = 0.33242;
+    x[StandardIlluminant::D65] = 0.31271;
+    x[StandardIlluminant::D75] = 0.29902;
+    x[StandardIlluminant::E] = 1.0/3;
+    y[StandardIlluminant::A] = 0.40745;
+    y[StandardIlluminant::B] = 0.35161;
+    y[StandardIlluminant::C] = 0.31616;
+    y[StandardIlluminant::D50] = 0.35850;
+    y[StandardIlluminant::D55] = 0.34743;
+    y[StandardIlluminant::D65] = 0.32902;
+    y[StandardIlluminant::D75] = 0.31485;
+    y[StandardIlluminant::E] = 1.0/3;
+
+    x[StandardIlluminant::A_10] = 0.45117;
+    x[StandardIlluminant::B_10] = 0.34980;
+    x[StandardIlluminant::C_10] = 0.31039;
+    x[StandardIlluminant::D50_10] = 0.34773;
+    x[StandardIlluminant::D55_10] = 0.33411;
+    x[StandardIlluminant::D65_10] = 0.31382;
+    x[StandardIlluminant::D75_10] = 0.29968;
+    y[StandardIlluminant::A_10] = 0.40594;
+    y[StandardIlluminant::B_10] = 0.35270;
+    y[StandardIlluminant::C_10] = 0.31905;
+    y[StandardIlluminant::D50_10] = 0.35952;
+    y[StandardIlluminant::D55_10] = 0.34877;
+    y[StandardIlluminant::D65_10] = 0.33100;
+    y[StandardIlluminant::D75_10] = 0.31740;
+  }
+
+  return labProfile(x[il], y[il], 1);
+  // Should Y=0.54 ?
+}

@@ -9,6 +9,22 @@
 
 class CMSProfile {
 public:
+  enum class StandardIlluminant {
+    A,
+      B,
+      C,
+      D50,
+      D55,
+      D65,
+      D75,
+      E,
+      A_10,
+      D50_10,
+      D55_10,
+      D65_10,
+      D75_10,
+      };
+public:
   CMSProfile(QString filename);
   CMSProfile();
   void load(QString filename);
@@ -19,6 +35,7 @@ public:
   cmsHPROFILE const &profile() const { return prof; }
   static CMSProfile srgbProfile();
   static CMSProfile labProfile(double x_white, double y_white, double Y_white);
+  static CMSProfile labProfile(StandardIlluminant il);
   static CMSProfile xyzProfile();
   static CMSProfile nullProfile();
   static CMSProfile displayProfile();

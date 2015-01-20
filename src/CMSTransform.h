@@ -12,7 +12,7 @@
 class CMSTransform {
 public:
   enum class ImageFormat {
-    ARGB = TYPE_BGRA_8,
+    ARGB = TYPE_BGRA_8, // this is QImage::Format_ARGB32 or _RGB32: 0xaarrggbb.
     // etc.
       };
   enum class RenderingIntent {
