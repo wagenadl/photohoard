@@ -5,6 +5,9 @@
 #define IMAGECONVERTERS_H
 
 namespace ImageConverters {
+  /* In all cases, s represents the color space of the source.
+     The output should probably be in the same color space where possible.
+  */
   Image gray8ToColor8(QImage const &img, Image::Space s);
   Image gray8ToGray16(QImage const &img, Image::Space s);
   Image gray8ToColor16(QImage const &img, Image::Space s);

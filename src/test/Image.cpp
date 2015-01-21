@@ -1,6 +1,9 @@
 // Image.cpp
 
 #include "Image.h"
+#include "ImageConverters.h"
+#include "ImageSpaceConverters.h"
+using namespace ImageSpaceConverters;
 
 Image::Image(): f(Format::Gray8), s(Space::sRGB) {
 }
@@ -29,7 +32,7 @@ Image::Image(uint width, uint height, Image::Format format, Image::Space space):
 
 Image::Image(uchar const *data, uint width, uint height,
              Image::Format format, Image::Space space):
-  f(format), space(s) {
+  f(format), s(space) {
   switch (f) {
   case Format::Gray8:
     d = QImage(data, width, height, QImage::Format_Indexed8);
@@ -66,7 +69,7 @@ Image::Image(uchar const *data, uint width, uint height, uint bytesPerLine,
   }
 }
   
-Image Image::&operator=(Image const &image) {
+Image &Image::operator=(Image const &image) {
   d = image.d;
   f = image.f;
   s = image.s;
@@ -75,10 +78,10 @@ Image Image::&operator=(Image const &image) {
 
 QImage Image::toQImage() const {
   switch (f) {
-  case Format::Gray8: case Format::sRGB8:
-    return d;
+  case Format::Gray8:
+    return convertedToSpace(Space::sRGB).d;
   case Format::Gray16:
-    return convertedToFormat(Format::Gray8).d;
+    return convertedToSpace(Space::sRGB).convertedToFormat(Format::Gray8).d;
   case Format::Color8:
     return convertedToSpace(Space::sRGB).d;
   case Format::Color16:
@@ -95,8 +98,9 @@ Image Image::fromImage(QImage const &image) {
     ret.d = image;
     ret.createGrayLut();
     ret.f = Format::Gray8;
+    ret.s = Space::sRGB;
     break;
-  case QImage::Mono: case QImage::MonoLSB:
+  case QImage::Format_Mono: case QImage::Format_MonoLSB:
     return fromImage(image.convertToFormat(QImage::Format_Indexed8));
   case QImage::Format_RGB32:
     ret.d = image;
@@ -159,13 +163,135 @@ Image Image::convertedToFormat(Format format) const {
   return Image(); // not executed
 }
 
+
 Image Image::convertedToSpace(Space space) const {
-  if (f==Format::Gray8 || f==Format::Gray16)
-    return *this;
   if (space==s)
     return *this;
-  //
+  
+  switch (f) {
+  case Format::Gray8: 
+    if (space==Space::sRGB) {
+      Image out(width(), height(), format(), space);
+      linearToSRGB(out.bits(), bits(), byteCount());
+      return out;
+    } else if (s==Space::sRGB) {
+      Image out(width(), height(), format(), space);
+      sRGBToLinear(out.bits(), bits(), byteCount());
+      return out;
+    } else {
+      Image out(*this);
+      out.s = space;
+      return out;
+    }
+
+  case Format::Color8: {
+    Image *iptr=0;
+    Space sp = s;
+    if (sp==Space::sRGB) {
+      iptr = new Image(width(), height(), format(), sp=Space::LinearRGB);
+      sRGBToLinear(iptr->bits(), bits(), byteCount());
+    } else if (s==Space::LabD50) {
+      iptr = new Image(width(), height(), format(), sp=Space::XYZ);
+      labD50ToXYZ(iptr->bits(), bits(), byteCount()/4, 4, 255);
+    }
+    // Now we have an image in either LinearRGB or RGB
+    if (sp==space) {
+      Image out(*iptr);
+      delete iptr;
+      return out;
+    }
+    if (sp==Space::LinearRGB) {
+      if (iptr) {
+        linearRGBToXYZ(iptr->bits(), iptr->bits(), byteCount()/4, 4);
+      } else {
+        iptr = new Image(width(), height(), format(), sp=Space::XYZ);
+        linearRGBToXYZ(iptr->bits(), bits(), byteCount()/4, 4);
+      }
+    } else {
+      if (iptr) {
+        xyzTolinearRGB(iptr->bits(), iptr->bits(), byteCount()/4, 4);
+      } else {
+        iptr = new Image(width(), height(), format(), sp=Space::LinearRGB);
+        xyzTolinearRGB(iptr->bits(), bits(), byteCount()/4, 4);
+      }
+    }
+    if (space==Space::LabD50) 
+      xyzToLabD50(iptr->bits(), iptr->bits(), byteCount()/4, 4);
+    else if (space==Space::sRGB)
+      linearToSRGB(iptr->bits(), iptr->bits(), byteCount()/4, 4);
+
+    Image out(*iptr);
+    delete iptr;
+    return out;
+  }
+  case Format::Gray16: {
+    if (space==Space::sRGB) {
+      Image out(width(), height(), format(), space);
+      linearToSRGB((ushort *)out.bits(), (ushort const *)bits(), byteCount()/2);
+      return out;
+    } else if (s==Space::sRGB) {
+      Image out(width(), height(), format(), space);
+      sRGBToLinear((ushort *)out.bits(), (ushort const *)bits(), byteCount()/2);
+      return out;
+    } else {
+      Image out(*this);
+      out.s = space;
+      return out;
+    }
+  }
+    
+  case Format::Color16: {
+    Image *iptr=0;
+    Space sp = s;
+    if (sp==Space::sRGB) {
+      iptr = new Image(width(), height(), format(), sp=Space::LinearRGB);
+      sRGBToLinear((ushort *)iptr->bits(), (ushort const *)bits(),
+                   byteCount()/2);
+    } else if (s==Space::LabD50) {
+      iptr = new Image(width(), height(), format(), sp=Space::XYZ);
+      labD50ToXYZ((ushort *)iptr->bits(), (ushort const *)bits(),
+                  byteCount()/6, 3);
+    }
+    // Now we have an image in either LinearRGB or RGB
+    if (sp==space) {
+      Image out(*iptr);
+      delete iptr;
+      return out;
+    }
+    if (sp==Space::LinearRGB) {
+      if (iptr) {
+        linearRGBToXYZ((ushort *)iptr->bits(), (ushort const *)iptr->bits(),
+                       byteCount()/6, 3);
+      } else {
+        iptr = new Image(width(), height(), format(), sp=Space::XYZ);
+        linearRGBToXYZ((ushort *)iptr->bits(), (ushort const *)bits(),
+                       byteCount()/6, 3);
+      }
+    } else {
+      if (iptr) {
+        xyzTolinearRGB((ushort *)iptr->bits(), (ushort const *)iptr->bits(),
+                       byteCount()/6, 3);
+      } else {
+        iptr = new Image(width(), height(), format(), sp=Space::LinearRGB);
+        xyzTolinearRGB((ushort *)iptr->bits(), (ushort const *)bits(),
+                       byteCount()/6, 3);
+      }
+    }
+    if (space==Space::LabD50) 
+      xyzToLabD50((ushort *)iptr->bits(), (ushort const *)iptr->bits(),
+                  byteCount()/6, 3);
+    else if (space==Space::sRGB)
+      linearToSRGB((ushort *)iptr->bits(), (ushort const *)iptr->bits(),
+                   byteCount()/2);
+
+    Image out(*iptr);
+    delete iptr;
+    return out;
+  }
+  }
+  return Image(); // not executed
 }
+
 Image Image::convertedTo(Format format, Space space) const;
 bool Image::inPlaceConvertToSpace(Space space);
 
@@ -175,54 +301,6 @@ Image::operator QVariant() const;
 bool Image::operator==(Image const &) const;
 
 bool Image::operator!=(Image const &) const;
-
-// Basic information
-uint Image::width() const;
-
-uint Image::height() const;
-
-QSize Image::size() const;
-
-uint Image::bytesPerLine() const;
-
-uint Image::byteCount() const;
-
-Format Image::format() const;
-
-bool Image::hasAlphaChannel() const;
-
-bool Image::isGrayscale() const;
-
-bool Image::isNull() const;
-
-// Access functions
-uchar const Image::*constBits() const;
-
-uchar const Image::*bits() const;
-
-uchar Image::*bits();
-
-uchar const Image::*constScanLine(uint y) const;
-
-uchar const Image::*scanLine(uint y) const;
-
-uchar Image::*scanLine(uint y);
-
-uchar const Image::*constPixel(uint x, uint y) const;
-
-uchar const Image::*pixel(uint x, uint y) const;
-
-uchar Image::*pixel(uint x, uint y);
-
-uchar const Image::*constPixel(QPoint const &xy) const;
-
-uchar const Image::*pixel(QPoint const &xy) const;
-
-uchar Image::*pixel(QPoint const &xy);
-
-bool Image::valid(uint x, uint y) const;
-
-bool Image::valid(QPoint const &xy) const;
 
 // Loading and saving
 bool Image::load(QString const &filename, char const *format=0);

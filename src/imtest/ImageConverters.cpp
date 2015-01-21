@@ -4,31 +4,29 @@
 
 namespace ImageConverters {
   
-  Image convertedToGray8(Image const &src) {
-    switch (src.format()) {
-    case Image::Format::Gray8:
-      return src;
-    case Image::Format::sRGB: {
-      uint X = src.width();
-      uint Y = src.height();
-      uint dLs = src.bytesPerLine() - 4*X;
-      Image dst(X, Y, Image::Format::Gray8);
-      uint dLd = dst.bytesPerLine() - X;
-      uint8 const *s = src.bits();
-      uint8 *d = dst.bits();
-      for (uint y=0; y<Y; y++) {
-        for (uint x=0; x<X; x++) {
-          quint16 p = *s++; // B
-          p += quint16(*s++)*3; // G
-          p += quint16(*s++)*2; // R
-          s++; // A
-          *d++ = p/6;
-        }
-        s += dLs;
-        d += dLd;
+  Image color8Togray8(QImage const &src, Image::Space s) {
+    Q_ASSERT(src.format()==QImage::Format_RGB32);
+    uint X = src.width();
+    uint Y = src.height();
+    uint dLs = src.bytesPerLine() - 4*X;
+    Image dst(X, Y, Image::Format::Gray8);
+    uint dLd = dst.bytesPerLine() - X;
+    uint8 const *s = src.bits();
+    uint8 *d = dst.bits();
+    // check color space
+    for (uint y=0; y<Y; y++) {
+      for (uint x=0; x<X; x++) {
+        quint16 p = *s++; // B
+        p += quint16(*s++)*3; // G
+        p += quint16(*s++)*2; // R
+        s++; // A
+        *d++ = p/6;
       }
-      return dst;
+      s += dLs;
+      d += dLd;
     }
+    return dst;
+  }
     case Image::Format::Gray16: {
       uint X = src.width();
       uint Y = src.height();

@@ -4,15 +4,17 @@
 
 #define IMAGE_H
 
+#include <QImage>
+#include <QMetaType>
+
 class Image {
 public:
   enum class Format {
-    Gray8,
     Color8, // that's QImage::Format_RGB32
-    Gray16,
-    Color16,
+    Color14,
   };
   enum class Space {
+    // Color8 is always stored in sRGB
     sRGB,
     LinearRGB,
     XYZ,
@@ -39,42 +41,35 @@ public:
   Image(uchar const *data, uint width, uint height, uint bytesPerLine,
         Format format=Format::Color8, Space space=Space::sRGB);
   Image &operator=(Image const &image);
-  QImage toImage() const;
+  QImage toQImage() const;
   static Image fromImage(QImage const &image);
   Image convertedToFormat(Format format) const;
   Image convertedToSpace(Space space) const;
   Image convertedTo(Format format, Space space) const;
-  bool inPlaceConvertToSpace(Space space);
+  void inPlaceConvertToSpace(Space space);
   operator QVariant() const;
   // Comparision
   bool operator==(Image const &) const;
   bool operator!=(Image const &) const;
   // Basic information
-  uint width() const;
-  uint height() const;
-  QSize size() const;
-  uint bytesPerLine() const;
-  uint byteCount() const;
-  Format format() const;
-  Space space() const;
-  bool isGrayscale() const;
-  bool is8Bits() const;
-  bool isNull() const;
+  uint width() const { return f==Format::Color14 ? d.width()/3 : d.width(); }
+  uint height() const { return d.height(); }
+  QSize size() const { return QSize(width(), height()); }
+  uint bytesPerLine() const { return d.bytesPerLine(); }
+  uint byteCount() const { return d.byteCount(); }
+  Format format() const { return f; }
+  Space space() const { return s; }
+  bool is8Bits() const { return f==Format::Color8; }
+  bool isNull() const { return d.isNull(); }
   // Access functions
-  uchar const *constBits() const;
-  uchar const *bits() const;
-  uchar *bits();
-  uchar const *constScanLine(uint y) const;
-  uchar const *scanLine(uint y) const;
-  uchar *scanLine(uint y);
-  uchar const *constPixel(uint x, uint y) const;
-  uchar const *pixel(uint x, uint y) const;
-  uchar *pixel(uint x, uint y);
-  uchar const *constPixel(QPoint const &xy) const;
-  uchar const *pixel(QPoint const &xy) const;
-  uchar *pixel(QPoint const &xy);
-  bool valid(uint x, uint y) const;
-  bool valid(QPoint const &xy) const;
+  uchar const *constBits() const { return d.constBits(); }
+  uchar const *bits() const { return d.bits(); }
+  uchar *bits() { return d.bits(); }
+  uchar const *constScanLine(uint y) const { return d.constScanLine(y); }
+  uchar const *scanLine(uint y) const { return d.scanLine(y); }
+  uchar *scanLine(uint y) { return d.scanLine(y); }
+  bool valid(uint x, uint y) const { return x<width() && y<height(); }
+  bool valid(QPoint const &xy) const { return valid(xy.x(), xy.y()); }
   // Loading and saving
   bool load(QString const &filename, char const *format=0);
   bool load(class QIODevice *device, char const *format=0);
@@ -114,6 +109,8 @@ public:
     const;
   static QMatrix trueMatrix(QMatrix const &matrix, int width, int height);
   static QTransform trueMatrix(QTransform const &matrix, int width, int height);
+private:
+  void createGrayLut();
 private:
   QImage d;
   Format f;
