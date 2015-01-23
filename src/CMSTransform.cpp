@@ -35,8 +35,8 @@ CMSTransform::CMSTransform(CMSProfile const &input,
   inputfmt(inputfmt), outputfmt(outputfmt),
   intent(intent) {
   initref();
-  xform = cmsCreateTransform(input.profile(), int(inputfmt),
-                             output.profile(), int(outputfmt),
+  xform = cmsCreateTransform(input.profile(), format(input, inputfmt),
+                             output.profile(), format(output, outputfmt),
                              int(intent),
                              0);
 }
@@ -74,7 +74,12 @@ CMSTransform &CMSTransform::operator=(CMSTransform const &o) {
 
   return *this;
 }
-  
+
+void CMSTransform::apply(void *dest, void const *source, int npixels) const {
+  Q_ASSERT(xform);
+  cmsDoTransform(xform, (uchar const *)source, (uchar *)dest, npixels);
+}
+
 QImage CMSTransform::apply(QImage const &src) const {
   if (!isValid())
     return QImage();
@@ -96,3 +101,38 @@ QImage CMSTransform::apply(QImage const &src) const {
 bool CMSTransform::isValid() const {
   return xform!=NULL;
 }
+
+int CMSTransform::format(CMSProfile const &profile,
+                         CMSTransform::ImageFormat fmt) {
+  CMSProfile::ColorSpace space = profile.colorSpace();
+  switch (fmt) {
+  case ImageFormat::uInt8_4:
+    switch (space) {
+    case CMSProfile::ColorSpace::RGB: return TYPE_BGRA_8;
+    default: return TYPE_BGRA_8; // oh well
+    }
+  case ImageFormat::uInt8:
+    switch (space) {
+    case CMSProfile::ColorSpace::RGB: return TYPE_RGB_8;
+    case CMSProfile::ColorSpace::XYZ: return TYPE_RGB_8; // Oh well
+    case CMSProfile::ColorSpace::Lab: return TYPE_Lab_8;
+    default: return TYPE_RGB_8;
+    }
+  case ImageFormat::uInt16:
+    switch (space) {
+    case CMSProfile::ColorSpace::RGB: return TYPE_RGB_16;
+    case CMSProfile::ColorSpace::XYZ: return TYPE_XYZ_16;
+    case CMSProfile::ColorSpace::Lab: return TYPE_Lab_16;
+    default: return TYPE_RGB_16;
+    }
+  case ImageFormat::Float:
+    switch (space) {
+    case CMSProfile::ColorSpace::RGB: return TYPE_RGB_FLT;
+    case CMSProfile::ColorSpace::XYZ: return TYPE_XYZ_FLT;
+    case CMSProfile::ColorSpace::Lab: return TYPE_Lab_FLT;
+    default: return TYPE_RGB_FLT;
+    }
+  }
+  return TYPE_RGB_8; // not executed
+}
+

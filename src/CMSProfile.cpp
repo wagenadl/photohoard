@@ -7,6 +7,7 @@
 #include <QX11Info>
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
+#include <QMap>
 
 void CMSProfile::initref() {
   refctr = new QAtomicInt;
@@ -21,6 +22,21 @@ bool CMSProfile::isValid() const {
 CMSProfile CMSProfile::srgbProfile() {
   CMSProfile p;
   p.prof = cmsCreate_sRGBProfile();
+  return p;
+}
+
+CMSProfile CMSProfile::linearRgbProfile() {
+  cmsCIExyY D65;
+  cmsWhitePointFromTemp(&D65, 6504);
+  
+  cmsCIExyYTRIPLE Rec709Primaries = {
+    {0.6400, 0.3300, 1.0},
+    {0.3000, 0.6000, 1.0},
+    {0.1500, 0.0600, 1.0}
+  };
+  
+  CMSProfile p;
+  p.prof = cmsCreateRGBProfile(&D65, &Rec709Primaries, 0);
   return p;
 }
 
@@ -152,9 +168,8 @@ CMSProfile CMSProfile::displayProfile() {
   return p;
 }
 
-CMSProfile CMSProfile::labProfile(CMSProfile::StandardIlluminant il) {
+double CMSProfile::standardIlluminant_x(CMSProfile::StandardIlluminant il) {
   static QMap<StandardIlluminant, double> x;
-  static QMap<StandardIlluminant, double> y;
   if (x.isEmpty()) {
     x[StandardIlluminant::A] = 0.44757;
     x[StandardIlluminant::B] = 0.34842;
@@ -164,6 +179,21 @@ CMSProfile CMSProfile::labProfile(CMSProfile::StandardIlluminant il) {
     x[StandardIlluminant::D65] = 0.31271;
     x[StandardIlluminant::D75] = 0.29902;
     x[StandardIlluminant::E] = 1.0/3;
+
+    x[StandardIlluminant::A_10] = 0.45117;
+    x[StandardIlluminant::B_10] = 0.34980;
+    x[StandardIlluminant::C_10] = 0.31039;
+    x[StandardIlluminant::D50_10] = 0.34773;
+    x[StandardIlluminant::D55_10] = 0.33411;
+    x[StandardIlluminant::D65_10] = 0.31382;
+    x[StandardIlluminant::D75_10] = 0.29968;
+  }
+  return x[il];
+}
+
+double CMSProfile::standardIlluminant_y(CMSProfile::StandardIlluminant il) {
+  static QMap<StandardIlluminant, double> y;
+  if (y.isEmpty()) {
     y[StandardIlluminant::A] = 0.40745;
     y[StandardIlluminant::B] = 0.35161;
     y[StandardIlluminant::C] = 0.31616;
@@ -173,13 +203,6 @@ CMSProfile CMSProfile::labProfile(CMSProfile::StandardIlluminant il) {
     y[StandardIlluminant::D75] = 0.31485;
     y[StandardIlluminant::E] = 1.0/3;
 
-    x[StandardIlluminant::A_10] = 0.45117;
-    x[StandardIlluminant::B_10] = 0.34980;
-    x[StandardIlluminant::C_10] = 0.31039;
-    x[StandardIlluminant::D50_10] = 0.34773;
-    x[StandardIlluminant::D55_10] = 0.33411;
-    x[StandardIlluminant::D65_10] = 0.31382;
-    x[StandardIlluminant::D75_10] = 0.29968;
     y[StandardIlluminant::A_10] = 0.40594;
     y[StandardIlluminant::B_10] = 0.35270;
     y[StandardIlluminant::C_10] = 0.31905;
@@ -188,7 +211,26 @@ CMSProfile CMSProfile::labProfile(CMSProfile::StandardIlluminant il) {
     y[StandardIlluminant::D65_10] = 0.33100;
     y[StandardIlluminant::D75_10] = 0.31740;
   }
-
-  return labProfile(x[il], y[il], 1);
+  return y[il];
+}
+  
+ 
+CMSProfile CMSProfile::labProfile(CMSProfile::StandardIlluminant il) {
+  return labProfile(standardIlluminant_x(il),
+                    standardIlluminant_y(il),
+                    1);
   // Should Y=0.54 ?
+}
+
+CMSProfile::ColorSpace CMSProfile::colorSpace() const {
+  switch (signature()) {
+  case 0x52474220: return ColorSpace::RGB;
+  case 0x58595a20: return ColorSpace::XYZ;
+  case 0x4c616220: return ColorSpace::Lab;
+  default: return ColorSpace::Unknown;
+  }
+}
+
+int CMSProfile::signature() const {
+  return prof ? cmsGetColorSpace(prof) : 0;
 }

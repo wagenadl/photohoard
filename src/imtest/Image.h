@@ -33,8 +33,12 @@ public:
   /* API is identical to QImage, to the extent possible. */
   // Constructors and format conversion
   Image();
+  Image(QString const &fn, char const *format=0);
+  Image(char const *fn, char const *format=0);
   Image(Image const &image);
   Image(uint width, uint height,
+        Format format=Format::Color8, Space space=Space::sRGB);
+  Image(QSize size,
         Format format=Format::Color8, Space space=Space::sRGB);
   Image(uchar const *data, uint width, uint height,
         Format format=Format::Color8, Space space=Space::sRGB);        
@@ -42,7 +46,7 @@ public:
         Format format=Format::Color8, Space space=Space::sRGB);
   Image &operator=(Image const &image);
   QImage toQImage() const;
-  static Image fromImage(QImage const &image);
+  static Image fromQImage(QImage const &image);
   Image convertedToFormat(Format format) const;
   Image convertedToSpace(Space space) const;
   Image convertedTo(Format format, Space space) const;

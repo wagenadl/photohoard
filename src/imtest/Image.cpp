@@ -6,11 +6,16 @@
 using namespace ImageSpaceConverters;
 
 #include <QVariant>
+#include <QDebug>
 
 Image::Image(): f(Format::Color8), s(Space::sRGB) {
 }
 
 Image::Image(Image const &image): d(image.d), f(image.f), s(image.s) {
+}
+
+Image::Image(QSize size, Image::Format format, Image::Space space):
+  Image(size.width(), size.height(), format, space) {
 }
 
 Image::Image(uint width, uint height, Image::Format format, Image::Space space):
@@ -67,9 +72,9 @@ QImage Image::toQImage() const {
   case Format::Color14:
     return convertedToSpace(Space::sRGB).convertedToFormat(Format::Color8).d;
   }
-}    
+}
 
-Image Image::fromImage(QImage const &image) {
+Image Image::fromQImage(QImage const &image) {
   Image ret;
   switch (image.format()) {
   case QImage::Format_Invalid:
@@ -80,7 +85,7 @@ Image Image::fromImage(QImage const &image) {
     ret.s = Space::sRGB;
     break;
   default:
-    return fromImage(image.convertToFormat(QImage::Format_RGB32));
+    return fromQImage(image.convertToFormat(QImage::Format_RGB32));
   }
   return ret;
 }
@@ -94,50 +99,69 @@ Image Image::convertedToFormat(Format format) const {
       return convertedToSpace(Space::sRGB).convertedToFormat(format);
     
     Image img(width(), height(), Format::Color8);
-    int N = width()*height();
+    int X = width();
+    int Y = height();
+    int dLs = bytesPerLine()/2 - 3*X;
+    int dLd = img.bytesPerLine() - 4*X;
     uchar *dst = img.bits();
     short const *src = (short const *)bits();
-    while (N--) {
-      short R = src[0]/128;
-      dst[2] = R<0 ? 0 : R>255 ? 255 : R;
-      short G = src[1]/128;
-      dst[1] = G<0 ? 0 : G>255 ? 255 : G;
-      short B = src[2]/128;
-      dst[0] = B<0 ? 0 : B>255 ? 255 : B;
-      dst += 4;
-      src += 3;
+    while (Y--) {
+      for (int x=0; x<X; x++) {
+        short R = src[0]/64;
+        dst[2] = R<0 ? 0 : R>255 ? 255 : R;
+        short G = src[1]/64;
+        dst[1] = G<0 ? 0 : G>255 ? 255 : G;
+        short B = src[2]/64;
+        dst[0] = B<0 ? 0 : B>255 ? 255 : B;
+        dst += 4;
+        src += 3;
+      }
+      src += dLs;
+      dst += dLd;
     }
     return img;
   } else {
     Image img(width(), height(), Format::Color14);
-    int N = width()*height();
+    int X = width();
+    int Y = height();
+    int dLs = bytesPerLine() - 4*X;
+    int dLd = img.bytesPerLine()/2 - 3*X;
     short *dst = (short*)img.bits();
     uchar const *src = bits();
-    while (N--) {
-      dst[2] = src[0] * 128;
-      dst[1] = src[1] * 128;
-      dst[0] = src[2] * 128;
-      dst += 3;
-      src += 4;
+    while (Y--) {
+      for (int x=0; x<X; x++) {
+        dst[2] = src[0] * 64;
+        dst[1] = src[1] * 64;
+        dst[0] = src[2] * 64;
+        dst += 3;
+        src += 4;
+      }
+      src += dLs;
+      dst += dLd;
     }
+    return img;
   }
 }
 
 
 void Image::inPlaceConvertToSpace(Space space) {
+  qDebug() << "inplaceconverttospace" << int(space);
   if (space==s || f!=Format::Color14)
     return;
   
   short *dst = (short *)bits();
-  int N = byteCount()/6;
+  int X = width();
+  int Y = height();
+  int L = bytesPerLine()/2;
 
   Space sp = s;
+  s = space;
 
   if (sp==Space::sRGB) {
-    sRGBToLinear(dst, dst, N);
+    sRGBToLinear(dst, dst, X, Y, L);
     sp = Space::LinearRGB;
   } else if (s==Space::LabD50) {
-    labD50ToXYZ(dst, dst, N);
+    labD50ToXYZ(dst, dst, X, Y, L);
     sp = Space::LinearRGB;
   }
   
@@ -145,51 +169,57 @@ void Image::inPlaceConvertToSpace(Space space) {
   if (sp==space)
     return;
   
-  if (sp==Space::LinearRGB) 
-    linearRGBToXYZ(dst, dst, N);
-  else 
-    xyzToLinearRGB(dst, dst, N);
+  if (sp==Space::LinearRGB && space!=Space::sRGB) 
+    linearRGBToXYZ(dst, dst, X, Y, L);
+  else if (sp==Space::XYZ && space!=Space::LabD50)
+    xyzToLinearRGB(dst, dst, X, Y, L);
 
   if (space==Space::LabD50) 
-    xyzToLabD50(dst, dst, N);
+    xyzToLabD50(dst, dst, X, Y, L);
   else if (space==Space::sRGB)
-    linearToSRGB(dst, dst, N);
+    linearToSRGB(dst, dst, X, Y, L);
 }
 
 Image Image::convertedToSpace(Space space) const {
+  qDebug() << "convertedtospace" << int(space);
   if (space==s || f!=Format::Color14)
     return *this;
   
   Image ret(width(), height(), format(), space);
   short *dst = (short *)ret.bits();
   short const *src = (short const *)bits();
-  int N = byteCount()/6;
+  int X = width();
+  int Y = height();
+  int L = bytesPerLine()/2;
 
   Space sp = s;
 
   if (sp==Space::sRGB) {
-    sRGBToLinear(dst, src, N);
+    sRGBToLinear(dst, src, X, Y, L);
     src = dst;
     sp = Space::LinearRGB;
   } else if (s==Space::LabD50) {
-    labD50ToXYZ(dst, src, N);
+    labD50ToXYZ(dst, src, X, Y, L);
     src = dst;
-    sp = Space::LinearRGB;
+    sp = Space::XYZ;
   }
   
   // Now we have an image in either LinearRGB or RGB
   if (sp==space)
     return ret;
   
-  if (sp==Space::LinearRGB) 
-    linearRGBToXYZ(dst, src, N);
-  else 
-    xyzToLinearRGB(dst, src, N);
+  if (sp==Space::LinearRGB && space!=Space::sRGB) {
+    linearRGBToXYZ(dst, src, X, Y, L);
+    src = dst;
+  } else if (sp==Space::XYZ && space!=Space::LabD50) {
+    xyzToLinearRGB(dst, src, X, Y, L);
+    src = dst;
+  }
 
   if (space==Space::LabD50) 
-    xyzToLabD50(dst, dst, N);
+    xyzToLabD50(dst, src, X, Y, L);
   else if (space==Space::sRGB)
-    linearToSRGB(dst, dst, N);
+    linearToSRGB(dst, src, X, Y, L);
 
   return ret;
 }
@@ -214,38 +244,85 @@ bool Image::operator!=(Image const &o) const {
 }
 
 // Loading and saving
+
+Image::Image(QString const &filename, char const *format) {
+  load(filename, format);
+}
+
+Image::Image(char const *filename, char const *format) {
+  load(filename, format);
+}
+
 bool Image::load(QString const &filename, char const *format) {
-  return false;
+  QImage img;
+  if (img.load(filename, format)) {
+    d = img.convertToFormat(QImage::Format_RGB32);
+    f = Format::Color8;
+    s = Space::sRGB;
+    return true;
+  } else {
+    d = QImage();
+    return false;
+  }
 }
 
 bool Image::load(class QIODevice *device, char const *format) {
-  return false;
+  QImage img;
+  if (img.load(device, format)) {
+    d = img.convertToFormat(QImage::Format_RGB32);
+    f = Format::Color8;
+    s = Space::sRGB;
+    return true;
+  } else {
+    d = QImage();
+    return false;
+  }
 }
 
 bool Image::loadFromData(uchar const *data, int length, char const *format) {
-  return false;
+  QImage img;
+  if (img.loadFromData(data, length, format)) {
+    d = img.convertToFormat(QImage::Format_RGB32);
+    f = Format::Color8;
+    s = Space::sRGB;
+    return true;
+  } else {
+    d = QImage();
+    return false;
+  }
 }
 
 bool Image::loadFromData(QByteArray const &data, char const *format) {
-  return false;
+  QImage img;
+  if (img.loadFromData(data, format)) {
+    d = img.convertToFormat(QImage::Format_RGB32);
+    f = Format::Color8;
+    s = Space::sRGB;
+    return true;
+  } else {
+    d = QImage();
+    return false;
+  }
 }
 
 Image Image::fromData(uchar const *data, int size, char const *format) {
-  return Image();
+  return fromQImage(QImage::fromData(data, size, format));
 }
 
 Image Image::fromData(QByteArray const &data, char const *format) {
-  return Image();
+  return fromQImage(QImage::fromData(data, format));
 }
 
 bool Image::save(QString const &fileName,
                  char const *format, int quality) const {
-  return false;
+  QImage img = convertedTo(Format::Color8, Space::sRGB).d;
+  return img.save(fileName, format, quality);
 }
 
 bool Image::save(QIODevice *device,
                  char const *format, int quality) const {
-  return false;
+  QImage img = convertedTo(Format::Color8, Space::sRGB).d;
+  return img.save(device, format, quality);
 }
 
 // In-place manipulation
