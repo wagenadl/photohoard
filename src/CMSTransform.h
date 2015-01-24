@@ -30,7 +30,8 @@ public:
                CMSProfile const &output,
                ImageFormat inputfmt=ImageFormat::uInt8_4,
                ImageFormat outputfmt=ImageFormat::uInt8_4,
-               RenderingIntent intent=RenderingIntent::Perceptual);
+               RenderingIntent intent=RenderingIntent::Perceptual,
+	       bool adaptationState=true);
   // I probably want one also for QImage::Format values as image format?
   CMSTransform(CMSTransform const &);
   CMSTransform &operator=(CMSTransform const &);

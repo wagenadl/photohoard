@@ -30,11 +30,13 @@ CMSTransform::CMSTransform(CMSProfile const &input,
                            CMSProfile const &output,
                            CMSTransform::ImageFormat inputfmt,
                            CMSTransform::ImageFormat outputfmt,
-                           CMSTransform::RenderingIntent intent):
+                           CMSTransform::RenderingIntent intent,
+			   bool adaptationState):
   input(input), output(output),
   inputfmt(inputfmt), outputfmt(outputfmt),
   intent(intent) {
   initref();
+  cmsSetAdaptationState(adaptationState ? 1 : 0);
   xform = cmsCreateTransform(input.profile(), format(input, inputfmt),
                              output.profile(), format(output, outputfmt),
                              int(intent),

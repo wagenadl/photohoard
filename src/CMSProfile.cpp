@@ -20,47 +20,59 @@ bool CMSProfile::isValid() const {
 }
 
 CMSProfile CMSProfile::srgbProfile() {
-  CMSProfile p;
-  p.prof = cmsCreate_sRGBProfile();
+  static CMSProfile p;
+  if (!p.prof)
+    p.prof = cmsCreate_sRGBProfile();
   return p;
 }
 
 CMSProfile CMSProfile::linearRgbProfile() {
-  cmsCIExyY D65;
-  cmsWhitePointFromTemp(&D65, 6504);
-  
-  cmsCIExyYTRIPLE Rec709Primaries = {
-    {0.6400, 0.3300, 1.0},
-    {0.3000, 0.6000, 1.0},
-    {0.1500, 0.0600, 1.0}
-  };
-  
-  CMSProfile p;
-  p.prof = cmsCreateRGBProfile(&D65, &Rec709Primaries, 0);
+  static CMSProfile p;
+  if (!p.prof) {  
+    cmsCIExyY D65;
+    cmsWhitePointFromTemp(&D65, 6504);
+    
+    cmsCIExyYTRIPLE Rec709Primaries = {
+      {0.6400, 0.3300, 1.0},
+      {0.3000, 0.6000, 1.0},
+      {0.1500, 0.0600, 1.0}
+    };
+    
+    cmsToneCurve *curves[3];
+    for (int c=0; c<3; c++)
+      curves[c] = cmsBuildGamma(NULL, 1);
+
+    p.prof = cmsCreateRGBProfile(&D65, &Rec709Primaries, curves);
+  }
   return p;
 }
 
 CMSProfile CMSProfile::labProfile(double x_white,
                                   double y_white,
                                   double Y_white) {
-  CMSProfile p;
-  cmsCIExyY white;
-  white.x = x_white;
-  white.y = y_white;
-  white.Y = Y_white;
-  p.prof = cmsCreateLab2Profile(&white);
+  static CMSProfile p;
+  if (!p.prof) {
+    cmsCIExyY white;
+    white.x = x_white;
+    white.y = y_white;
+    white.Y = Y_white;
+    p.prof = cmsCreateLab2Profile(&white);
+  }
   return p;
 }
 
 CMSProfile CMSProfile::xyzProfile() {
-  CMSProfile p;
-  p.prof = cmsCreateXYZProfile();
+  static CMSProfile p;
+  if (!p.prof) 
+    p.prof = cmsCreateXYZProfile();
+  
   return p;
 }
 
 CMSProfile CMSProfile::nullProfile() {
-  CMSProfile p;
-  p.prof = cmsCreateNULLProfile();
+  static CMSProfile p;
+  if (!p.prof)
+    p.prof = cmsCreateNULLProfile();
   return p;
 }
 

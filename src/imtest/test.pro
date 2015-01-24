@@ -8,7 +8,7 @@ CONFIG += debug
 DEPENDPATH += .
 INCLUDEPATH += .
 QMAKE_CXXFLAGS += -std=c++11	
-LIBS += -llcms2 -lX11
+LIBS += -L/tmp/lcms2-2.5/src/.libs -llcms2 -lX11
 
 # Input
 HEADERS += Image.h ImageSpaceConverters.h ../CMSProfile.h ../CMSTransform.h

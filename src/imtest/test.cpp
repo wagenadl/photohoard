@@ -6,124 +6,129 @@
 #include "../CMSProfile.h"
 #include "../CMSTransform.h"
 
-int main(int argc, char **argv) {
-  Image img("/home/wagenaar/Pictures/Sam at San Rafael 130125.jpg");
-  QTime t0; t0.start();
-  #if 1
-  Image lab14 = img.convertedTo(Image::Format::Color14, Image::Space::LabD50);
-  qDebug() << t0.elapsed();
-  short *data = (short*)lab14.bits();
-  int X = lab14.width();
-  int Y = lab14.height();
-  int dL = lab14.bytesPerLine() - 6*X;
-  qDebug() << X << Y << dL;
-
-  printf("dw = [\n");
-  for (int n=1248; n<X*Y; n+=30*X+150) 
-    printf("%i %i %i\n", data[3*n], data[3*n+1], data[3*n+2]);
-  printf("];\n");
-  t0.restart();
-  for (int y=0; y<Y; y++) {
-    for (int x=0; x<X; x++) {
-      float v = *data / 16384.0f;
-      v = pow(v, 0.8);
-      *data = short(v * 16384.0f);
-      data += 3;
+template <typename T> void report(T const *src, int N, int dN, double scl,
+				  char const *lbl) {
+  printf("%s:\n", lbl);
+  for (int n=0; n<N; n++) {
+    printf("  ");
+    for (int c=0; c<3; c++) {
+      double v = src[c + n*dN] / scl;
+      printf("%10.3f", v);
+      double v0 = fabs(v);
+      double v1 = floor(v0*1000);
+      printf(",%03.0f", (v0-v1/1000)*1e6);
     }
-    data += dL;
+    printf("\n");
   }
-  qDebug() << t0.elapsed();
+}
 
-  qDebug() << int(lab14.format()) << int(lab14.space());;
-
-  t0.restart();
-  Image im1 = lab14.convertedToFormat(Image::Format::Color8);
-  qDebug() << t0.elapsed();
-  
-  im1.save("/tmp/foo.jpg");
-  #endif
-  //////////////////////////////////////////////////////////////////////
-
+int main(int argc, char **argv) {
+  Image img("img.png");
   int N = img.width()*img.height();
+
+  report((uchar const *)img.bits(), N, 4, 255, "sRGB");
+  report((short const *)img
+	 .convertedTo(Image::Format::Color14, Image::Space::LinearRGB).bits(),
+	 N, 3, 16383, "RGB14");
+  report((short const *)img
+	 .convertedTo(Image::Format::Color14, Image::Space::XYZ).bits(),
+	 N, 3, 16383, "XYZ14");
+  report((short const *)img
+	 .convertedTo(Image::Format::Color14, Image::Space::LabD50).bits(),
+	 N, 3, 16383, "LabD50-14");
+  Image lab14 = img.convertedTo(Image::Format::Color14, Image::Space::LabD50);
+  report((uchar const *)lab14.convertedTo(Image::Format::Color8,
+					  Image::Space::sRGB).bits(),
+	 N, 4, 255, "<sRGB");
+  printf("\n");
+
+  report((uchar const *)img.bits(), N, 4, 255, "sRGB");
+  
   short *buf1 = new short[N*3];
+  short *buf2 = new short[N*3];
 
-  CMSProfile srgb = CMSProfile::srgbProfile();
+  //CMSProfile srgb("/usr/share/kde4/apps/libkdcraw/profiles/srgb-d65.icm");
+  // "/home/opt/bibble5/supportfiles/Profiles/srgb.icm");
+   CMSProfile srgb = CMSProfile::srgbProfile();
   CMSProfile rgb =  CMSProfile::linearRgbProfile();
-  CMSProfile lab = CMSProfile::labProfile();
   CMSProfile xyz = CMSProfile::xyzProfile();
-  fprintf(stderr, "srgb: 0x%08x\n", srgb.signature());
-  fprintf(stderr, "rgb:  0x%08x\n", rgb.signature());
-  fprintf(stderr, "lab:  0x%08x\n", lab.signature());
-  fprintf(stderr, "xyz:  0x%08x\n", xyz.signature());
+  CMSProfile lab = CMSProfile::labProfile();
+  CMSProfile lab65 = CMSProfile::labProfile(CMSProfile::StandardIlluminant::D65);
 
-  CMSTransform xform1(srgb, lab,
-                      CMSTransform::ImageFormat::uInt8_4,
-                      CMSTransform::ImageFormat::uInt16);
-  t0.restart();
-  xform1.apply(buf1, img.bits(), N);
-  qDebug() << t0.elapsed();
-  
-  t0.restart();
-  ushort *dat = (ushort*)buf1;
-  printf("ui = [\n");
-  for (int n=1248; n<X*Y; n+=30*X+150) 
-    printf("%i %i %i\n", dat[3*n], dat[3*n+1], dat[3*n+2]);
-  printf("];\n");
-  for (int n=0; n<N; n++) {
-    float v = *dat / 65535.0f;
-    v = pow(v, 0.8);
-    *dat = short(v * 65535.0f);
-    dat += 3;
-  }
-  qDebug() << t0.elapsed();
+  CMSTransform xrgb(srgb, rgb,
+		    CMSTransform::ImageFormat::uInt8_4,
+		    CMSTransform::ImageFormat::uInt16,
+		    CMSTransform::RenderingIntent::Perceptual);
+  CMSTransform xxyz(srgb, xyz,
+		    CMSTransform::ImageFormat::uInt8_4,
+		    CMSTransform::ImageFormat::uInt16,
+		    CMSTransform::RenderingIntent::Perceptual);
+  CMSTransform xlab(srgb, lab,
+		    CMSTransform::ImageFormat::uInt8_4,
+		    CMSTransform::ImageFormat::uInt16,
+		    CMSTransform::RenderingIntent::Perceptual);
 
-  CMSTransform xform2(lab, srgb,
+  xrgb.apply(buf1, img.bits(), N);
+  report((unsigned short *)buf1, N, 3, 65535, "RGB16");
+
+  xxyz.apply(buf1, img.bits(), N);
+  report((unsigned short *)buf1, N, 3, 32767, "XYZ16");
+
+  xlab.apply(buf1, img.bits(), N);
+  report((unsigned short *)buf1, N, 3, 655.35, "Lab16"); 
+
+  CMSTransform xrev(lab65, srgb,
                       CMSTransform::ImageFormat::uInt16,
-                      CMSTransform::ImageFormat::uInt8_4);
-
+		    CMSTransform::ImageFormat::uInt8_4,
+		    CMSTransform::RenderingIntent::AbsoluteColorimetric);
+  CMSTransform xrev65(lab65, xyz,
+                      CMSTransform::ImageFormat::uInt16,
+		    CMSTransform::ImageFormat::uInt16,
+		    CMSTransform::RenderingIntent::AbsoluteColorimetric);
+  xrev65.apply(buf2, buf1, N);
+  report((unsigned short *)buf2, N, 3, 32767, "XYZ16x");
+  
   Image im2 = img;
-  t0.restart();
-  xform2.apply(im2.bits(), buf1, N);
-  qDebug() << t0.elapsed();
+  xrev.apply(im2.bits(), buf1, N);
+  report(im2.bits(), N, 4, 255, "sRGB");
+
+  printf("\n\n");
+//////////////////////////////////////////////////////////////////////
+  float *buf3 = new float[N*3];
+  float *buf4 = new float[N*3];
   
-  im2.save("/tmp/foo1.jpg");
+  CMSTransform xrgb3(srgb, rgb,
+		    CMSTransform::ImageFormat::uInt8_4,
+		    CMSTransform::ImageFormat::Float,
+		    CMSTransform::RenderingIntent::RelativeColorimetric);
+  CMSTransform xxyz3(rgb, xyz,
+		     CMSTransform::ImageFormat::Float,
+		     CMSTransform::ImageFormat::Float,
+		     CMSTransform::RenderingIntent::AbsoluteColorimetric,
+		     false);
+  CMSTransform xlab3(srgb, lab,
+		     CMSTransform::ImageFormat::uInt8_4,
+		     CMSTransform::ImageFormat::Float,
+		     CMSTransform::RenderingIntent::RelativeColorimetric,
+		     false);
+  CMSTransform xlab4(xyz, lab,
+		     CMSTransform::ImageFormat::Float,
+		     CMSTransform::ImageFormat::Float,
+		     CMSTransform::RenderingIntent::AbsoluteColorimetric,
+		     false);
 
-  qDebug() << "Saved";
-  //////////////////////////////////////////////////////////////////////
+  xrgb3.apply(buf3, img.bits(), N);
+  report(buf3, N, 3, 1., "RGB16");
 
-  float *buf2 = new float[N*3];
+  xxyz3.apply(buf4, buf3, N);
+  report(buf4, N, 3, .5, "XYZ16");
 
-  xform1 = CMSTransform(srgb, lab,
-                      CMSTransform::ImageFormat::uInt8_4,
-                      CMSTransform::ImageFormat::Float);
-  t0.restart();
-  xform1.apply(buf2, img.bits(), N);
-  qDebug() << t0.elapsed();
-  
-  t0.restart();
-  float *da = buf2;
-  printf("fl = [\n");
-  for (int n=1248; n<X*Y; n+=30*X+150) 
-    printf("%g %g %g\n", da[3*n], da[3*n+1], da[3*n+2]);
-  printf("];\n");
-  for (int n=0; n<N; n++) {
-    float v = *da / 100;
-    v = pow(v, 0.8);
-    *da = v * 100;
-    da += 3;
-  }
-  qDebug() << t0.elapsed();
+  xlab3.apply(buf4, img.bits(), N);
+  report(buf4, N, 3, 1., "Lab16"); 
 
-  xform2 = CMSTransform(lab, srgb,
-                      CMSTransform::ImageFormat::Float,
-                      CMSTransform::ImageFormat::uInt8_4);
+  xlab4.apply(buf4, buf3, N);
+  report(buf4, N, 3, 1., "Lab16x"); 
 
-  t0.restart();
-  xform2.apply(img.bits(), buf2, N);
-  qDebug() << t0.elapsed();
-
-  img.save("/tmp/foo2.jpg");
-  
   return 0;
   
 }
