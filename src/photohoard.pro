@@ -30,12 +30,16 @@ HEADERS += LayoutBar.h   MainWindow.h   ColorLabelBar.h   Selection.h
 SOURCES += LayoutBar.cpp MainWindow.cpp ColorLabelBar.cpp Selection.cpp
 HEADERS += FileBar.h   FilterBar.h   ExportDialog.h   ActionBar.h
 SOURCES += FileBar.cpp FilterBar.cpp ExportDialog.cpp ActionBar.cpp
-HEADERS += Exporter.h   ExportSettings.h   CMSProfile.h   CMSTransform.h
-SOURCES += Exporter.cpp ExportSettings.cpp CMSProfile.cpp CMSTransform.cpp
+HEADERS += Exporter.h   ExportSettings.h  
+SOURCES += Exporter.cpp ExportSettings.cpp
+HEADERS += CMSToneCurve.h   CMSProfile.h   CMSTransform.h
+SOURCES += CMSToneCurve.cpp CMSProfile.cpp CMSTransform.cpp
+HEADERS += GentleJog.h
+SOURCES += GentleJog.cpp
 
 RESOURCES += PhotoHoard.qrc
 
-FORMS += ExportDialog.ui
+FORMS += ExportDialog.ui 
 
 
 LIBS += -lexiv2
