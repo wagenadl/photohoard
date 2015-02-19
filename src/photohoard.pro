@@ -1,12 +1,18 @@
 # QMake project file for photohoard                -*- mode: shell-script; -*-
 
 TEMPLATE = app
-TARGET = photohoard
+TARGET = ../photohoard
 CONFIG += debug_and_release
 QT += sql
 QMAKE_CXXFLAGS += -std=c++11
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
+
+OBJECTS_DIR=../release
+CONFIG(debug, debug|release) { OBJECTS_DIR=../debug }
+MOC_DIR = $${OBJECTS_DIR}
+RCC_DIR = $${OBJECTS_DIR}
+UI_DIR = $${OBJECTS_DIR}
 
 DEPENDPATH += .
 INCLUDEPATH += .
