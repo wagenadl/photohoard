@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+open CMGR, "colormgr get-devices-by-kind display |"
+  or die "Cannot run colormgr\n";
+my $objectpath;
+while (<CMGR>) {
+  s/Object Path:\s+// or next;
+  chomp;
+  $objectpath = $_;
+  last;
+}
+close CMGR;
+
+die "Cannot find display object path\n" unless defined $objectpath;
+
+open CMGR, "colormgr device-get-default-profile $objectpath |"
+  or die "Cannot run colormgr\n";
+my $profilepath;
+while (<CMGR>) {
+  s/Filename:\s+// or next;
+  chomp;
+  $profilepath = $_;
+  last;
+}
+close CMGR;
+
+die "Cannot find profile\n" unless defined $profilepath;
+
+print "$profilepath\n";
+
+exit 0;
