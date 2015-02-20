@@ -1,0 +1,5 @@
+/* -*- mode: c -*- */
+
+SLIDER(expose, 0)
+SLIDER(highlight, 0)
+SLIDER(saturate, 0)

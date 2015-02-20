@@ -113,6 +113,8 @@ HEADERS += ui/Slidestrip.h
 HEADERS += ui/SlideView.h
 HEADERS += ui/Strip.h
 
+SOURCES += adj/Sliders.cpp
+HEADERS += adj/Sliders.h
 HEADERS += adj/ColorSpaces.h   adj/CS_IPT.h   adj/CS_Lab.h   adj/CS_sRGB.h
 SOURCES += adj/ColorSpaces.cpp adj/CS_IPT.cpp adj/CS_Lab.cpp adj/CS_sRGB.cpp
 HEADERS += adj/Image16.h
