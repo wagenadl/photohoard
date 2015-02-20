@@ -7,12 +7,12 @@
 #include <lcms2.h>
 #include <QString>
 #include "CMSProfile.h"
-#include <QImage>
+#include "Image16.h"
 
 class CMSTransform {
 public:
   enum class ImageFormat {
-    uInt8_4, // four bytes, backwards, i.e., QImage::Format_ARGB
+    uInt8_4, // four bytes, backwards, i.e., Image16::Format_ARGB
     uInt8, // three bytes
     uInt16, // three shorts
     Float // three floats
@@ -32,11 +32,11 @@ public:
                ImageFormat outputfmt=ImageFormat::uInt8_4,
                RenderingIntent intent=RenderingIntent::Perceptual,
 	       bool adaptationState=true);
-  // I probably want one also for QImage::Format values as image format?
+  // I probably want one also for Image16::Format values as image format?
   CMSTransform(CMSTransform const &);
   CMSTransform &operator=(CMSTransform const &);
   virtual ~CMSTransform();
-  QImage apply(QImage const &) const; // null if format mismatch
+  Image16 apply(Image16 const &) const; // null if format mismatch
   void apply(void *dest, void const *source, int npixels) const;
   bool isValid() const;
 private:

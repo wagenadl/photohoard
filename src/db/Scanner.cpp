@@ -490,7 +490,7 @@ void Scanner::scanPhoto(quint64 id) {
       }
 
       if (npix>0) {
-        QImage img = exif.previewImage(maxs);
+        Image16 img = exif.previewImage(maxs);
         //        qDebug() << "got preview for " << id << " in " << dt << " ms: " << img.size() << " ( " << exif.width() << " x " << exif.height() << ")";
         emit cacheablePreview(vsn, img);
       }

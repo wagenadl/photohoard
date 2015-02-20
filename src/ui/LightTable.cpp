@@ -228,7 +228,7 @@ void LightTable::requestLargerImage() {
     emit needImage(id, slide->desiredSize());
 }  
 
-void LightTable::updateImage(quint64 i, QSize s, QImage img) {
+void LightTable::updateImage(quint64 i, QSize s, Image16 img) {
   film->updateImage(i, s, img);
 
   if (i!=id)

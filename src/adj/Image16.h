@@ -39,15 +39,25 @@ public:
   void convertTo(Format format);
   void convertFrom(Image16 const &other);
 public:
+  Image16 scaled(QSize s, Qt::AspectRatioMode arm=Qt::IgnoreAspectRatio) const;
+  Image16 scaledToWidth(uint w,
+                        Qt::TransformationMode tm=Qt::FastTransformation) const;
+  Image16 scaledToHeight(uint h,
+                        Qt::TransformationMode tm=Qt::FastTransformation) const;
+  void rotate90CW();
+  void rotate90CCW();
+  void rotate180();
+public:
   inline uint width() const { return d->width; }
   inline uint height() const { return d->height; }
   inline uint bytesPerLine() const { return d->bytesperline; }
   inline uint wordsPerLine() const { return d->bytesperline/2; }
+  inline uint bytesPerPixel() const { return is8Bits() ? 4 : 6; }
   inline uint byteCount() const { return bytesPerLine()*height(); }
   inline QSize size() const { return QSize(width(), height()); }
   inline Format format() const { return d->format; }
   inline bool is8Bits() const { return format() == Format::sRGB8; }
-  inline bool isNull() const { return height()==0; }
+  inline bool isNull() const { return !d || height()==0; }
   inline uchar const *bytes() const { return d->image.bits(); }
   inline uchar *bytes() { return d->image.bits(); }
   inline quint16 const *words() const { return (quint16 const *)bytes(); }

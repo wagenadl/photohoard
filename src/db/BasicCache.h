@@ -6,7 +6,7 @@
 
 #include <QDir>
 #include <QSet>
-#include <QImage>
+#include "Image16.h"
 #include "Database.h"
 
 class BasicCache: public QObject {
@@ -22,7 +22,7 @@ public:
    already exist.
   */
   Database &database() { return db; }
-  void add(quint64 vsn, QImage img, bool instantlyOutdated=false);
+  void add(quint64 vsn, Image16 img, bool instantlyOutdated=false);
   /*:F add
    *:D Adds an image to the cache at each of the sizes defined in the cache.
    *:N By default, the sizes are 1024, 384, and 128 for the largest dimension.
@@ -34,7 +34,7 @@ public:
   /*:F remove
    *:D Removes all sizes of the referenced image from the cache.
    */
-  QImage get(quint64 vsn, int maxdim, bool *outdated_return=NULL);
+  Image16 get(quint64 vsn, int maxdim, bool *outdated_return=NULL);
   /*:F get
    *:D Retrieves an image from the cache.
    *:N This only succeeds if the image exists at the given size. See also
@@ -71,13 +71,13 @@ public:
   */
   QList<int> standardSizes() const { return stdsizes; }
   int maxDim() const; // max of all standard sizes
-  QImage sufficientSize(QImage const &);
+  Image16 sufficientSize(Image16 const &);
   /*:F sufficientSize
    *:D Reduces an image to the maximum size needed for the cache.
    */
 private:
   BasicCache(QDir root, Database const &db, QObject *parent=0 );
-  void addToCache(quint64 vsn, QImage const &img,
+  void addToCache(quint64 vsn, Image16 const &img,
 		  bool instantlyOutdated=false);
   void dropOutdatedFromCache(quint64 vsn);
   void readConfig();

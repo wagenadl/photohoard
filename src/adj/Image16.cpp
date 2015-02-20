@@ -4,6 +4,16 @@
 #include <QDebug>
 #include "ColorSpaces.h"
 
+class Image16Foo {
+public:
+  Image16Foo() {
+    qRegisterMetaType<Image16>("Image16");
+  }
+};
+
+static Image16Foo foo;
+
+
 Image16::Image16() {
 }
 
@@ -157,3 +167,79 @@ void Image16::convertTo(Format fmt) {
   }
 }
 
+Image16 Image16::scaled(QSize s, Qt::AspectRatioMode arm) const {
+  return fromQImage(toQImage().scaled(s, arm));
+  // This should be smarter
+}
+
+Image16 Image16::scaledToWidth(uint w, Qt::TransformationMode tm) const {
+  return fromQImage(toQImage().scaledToWidth(w, tm));
+  // This should be smarter
+}
+
+Image16 Image16::scaledToHeight(uint h, Qt::TransformationMode tm) const {
+  return fromQImage(toQImage().scaledToHeight(h, tm));
+  // This should be smarter
+}
+
+void Image16::rotate90CW() {
+  Image16 dst(QSize(height(), width()), format());
+  int bpp = bytesPerPixel();
+  int X = dst.width();
+  int Y = dst.height();
+  int SL = bytesPerLine();
+  int DL = dst.bytesPerLine();
+  uchar const *s = bytes();
+  uchar *d = dst.bytes();
+  for (int y=0; y<Y; y++) {
+    uchar const *s1 = s + bpp*(Y-1-y);
+    uchar *d1 = d + DL*y;
+    for (int x=0; x<X; x++) {
+      uchar const *s2 = s1 + SL*(X-1-x);
+      memcpy(d1, s2, bpp);
+      d1 += bpp;
+    }
+  }
+  *this = dst;
+}
+
+void Image16::rotate90CCW() {
+  Image16 dst(QSize(height(), width()), format());
+  int bpp = bytesPerPixel();
+  int X = dst.width();
+  int Y = dst.height();
+  int SL = bytesPerLine();
+  int DL = dst.bytesPerLine();
+  uchar const *s = bytes();
+  uchar *d = dst.bytes();
+  for (int y=0; y<Y; y++) {
+    uchar const *s1 = s + bpp*(Y-1-y);
+    uchar *d1 = d + DL*y;
+    for (int x=0; x<X; x++) {
+      uchar const *s2 = s1 + SL*x;
+      memcpy(d1, s2, bpp);
+      d1 += bpp;
+    }
+  }
+  *this = dst;
+}
+
+void Image16::rotate180() {
+  Image16 dst(size(), format());
+  int X = width();
+  int Y = height();
+  int bpp = bytesPerPixel();
+  int DL = bytesPerLine();
+  uchar const *s = bytes();
+  uchar *d = dst.bytes();
+  for (int y=0; y<Y; y++) {
+    uchar const *s1 = s + DL*(Y-1-y);
+    uchar *d1 = d + DL*y;
+    for (int x=0; x<X; x++) {
+      uchar const *s2 = s1 + (X-1-x)*bpp;
+      memcpy(d1, s2, bpp);
+      d1 += bpp;
+    }
+  }
+  *this = dst;
+}

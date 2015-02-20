@@ -193,7 +193,7 @@ QList<QSize> Exif::previewSizes() const {
   return res;
 }
 
-QImage Exif::previewImage(QSize const &s0) const {
+Image16 Exif::previewImage(QSize const &s0) const {
   Exiv2::PreviewManager pm(*image);
   Exiv2::PreviewPropertiesList lst(pm.getPreviewProperties());
   for (auto i: lst) {
@@ -203,9 +203,9 @@ QImage Exif::previewImage(QSize const &s0) const {
       QByteArray ba((char const *)img.pData(), img.size());
       QBuffer buf(&ba);
       QImageReader rdr(&buf);
-      return rdr.read();
+      return Image16(rdr.read());
     }
   }
-  return QImage();
+  return Image16();
 }
 

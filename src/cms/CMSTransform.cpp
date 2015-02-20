@@ -82,19 +82,12 @@ void CMSTransform::apply(void *dest, void const *source, int npixels) const {
   cmsDoTransform(xform, (uchar const *)source, (uchar *)dest, npixels);
 }
 
-QImage CMSTransform::apply(QImage const &src) const {
+Image16 CMSTransform::apply(Image16 const &src) const {
   if (!isValid())
-    return QImage();
-  switch (src.format()) {
-  case QImage::Format_RGB32:
-  case QImage::Format_ARGB32:
-    break;
-  default:
-    return QImage();
-  }
-  QImage dst = src;
-  uchar *d = dst.bits();
-  uchar const *s = src.bits();
+    return Image16();
+  Image16 dst = src.convertedTo(Image16::Format::sRGB8);
+  uchar *d = dst.bytes();
+  uchar const *s = src.bytes();
   int n = src.bytesPerLine() * src.height() / 4;
   cmsDoTransform(xform, s, d, n);
   return dst; 

@@ -40,10 +40,10 @@ double SlideView::fittingZoom() const {
 void SlideView::newImage(QSize nat) {
   naturalSize = nat;
   lastSize = QSize();
-  img = QImage(); // might invalidate more gently
+  img = Image16(); // might invalidate more gently
 }  
 
-void SlideView::updateImage(QImage img1) {
+void SlideView::updateImage(Image16 img1) {
   if (img.isNull() || img.width() < img1.width()) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
@@ -130,9 +130,11 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
-    QImage i1 = img.scaled(r.size(), Qt::KeepAspectRatio);
-    if (img.width()<naturalSize.width() && i1.width()>img.width()
-        && img.height()<naturalSize.height() && i1.height()>img.height()) {
+    Image16 i1 = img.scaled(r.size(), Qt::KeepAspectRatio);
+    if (img.width()<uint(naturalSize.width())
+        && i1.width()>uint(img.width())
+        && img.height()<uint(naturalSize.height())
+        && i1.height()>uint(img.height())) {
       // I should only request it if I haven't already
       if (img.size()!=lastSize)
         emit needLargerImage();
@@ -142,7 +144,7 @@ void SlideView::paintEvent(QPaintEvent *) {
     }
     p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2,
                        (r.top() + r.bottom())/2 - i1.height()/2),
-		i1);
+		i1.toQImage());
   } else {
     double showWidth = zoom*naturalSize.width();
     double showHeight = zoom*naturalSize.height();
@@ -152,7 +154,8 @@ void SlideView::paintEvent(QPaintEvent *) {
     double availHeight = r.height();
     QRectF sourceRect;
     QRectF destRect;
-    if (img.width()<naturalSize.width() && showWidth>img.width())
+    if (img.width()<uint(naturalSize.width())
+        && showWidth>img.width())
       emit needLargerImage();
     if (showWidth<=availWidth) {
       sourceRect.setLeft(0);
@@ -178,7 +181,7 @@ void SlideView::paintEvent(QPaintEvent *) {
       sourceRect.setTop(rely * (1-availHeight/showHeight) 
 			* imgHeight * availHeight/showHeight);
     }
-    p.drawImage(destRect, img, sourceRect);
+    p.drawImage(destRect, img.toQImage(), sourceRect);
   }
 }
     

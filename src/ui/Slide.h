@@ -14,7 +14,7 @@ public:
   Slide(quint64 id, class Slidestrip *parent=0);
   virtual ~Slide();
   void makeReady();
-  void updateImage(QImage const &img);
+  void updateImage(Image16 const &img);
   void setTileSize(int pix);
   virtual QRectF boundingRect() const override {
     return QRectF(0, 0, tilesize, tilesize);
@@ -30,7 +30,7 @@ private:
 private:
   QPointer<Slidestrip> parent;
   quint64 id;
-  QImage img;
+  Image16 img;
   QPixmap pm;
   int tilesize;
   QTime dbgtime;

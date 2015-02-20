@@ -28,8 +28,8 @@ MainWindow::MainWindow(PhotoDB const &db,
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));
-  connect(autocache, SIGNAL(available(quint64, QSize, QImage)),
-          lightTable, SLOT(updateImage(quint64, QSize, QImage)));
+  connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
+          lightTable, SLOT(updateImage(quint64, QSize, Image16)));
   connect(scanner, SIGNAL(updated(QSet<quint64>)),
           lightTable, SLOT(rescan()));
 

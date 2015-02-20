@@ -28,7 +28,7 @@ Slide::~Slide() {
     qDebug() << "Slide not in a scene - disaster imminent";
 }
 
-void Slide::updateImage(QImage const &img1) {
+void Slide::updateImage(Image16 const &img1) {
   pm = QPixmap();
   if (isVisible()) {
     if (CMS::monitorTransform.isValid())
@@ -105,9 +105,9 @@ void Slide::paint(QPainter *painter,
 	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
     if (!img.isNull())
-      pm = QPixmap::fromImage(img.scaled(QSize(ims, ims),
-                                         Qt::KeepAspectRatio));
-    img = QImage(); // no need to keep it ad inf
+      pm = QPixmap::fromImage(img.toQImage().scaled(QSize(ims, ims),
+                                                    Qt::KeepAspectRatio));
+    img = Image16(); // no need to keep it ad inf
   }
   painter->drawPixmap(tilesize/2 - pm.width()/2,
 		      tilesize/2 - pm.height()/2,

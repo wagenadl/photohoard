@@ -106,7 +106,7 @@ int BasicCache::maxdim(QSize const &s) {
   return w>h ? w : h;
 }
 
-QImage BasicCache::sufficientSize(QImage const &img) {
+Image16 BasicCache::sufficientSize(Image16 const &img) {
   int d = maxdim(img.size());
   if (d>stdsizes[0])
     return img.scaled(QSize(stdsizes[0], stdsizes[0]), Qt::KeepAspectRatio);
@@ -114,7 +114,7 @@ QImage BasicCache::sufficientSize(QImage const &img) {
     return img;
 }
 
-void BasicCache::add(quint64 vsn, QImage img, bool instantlyOutdated) {
+void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   int d = maxdim(img.size());
   bool got = false;
   if (d<=stdsizes[0]) {
@@ -151,11 +151,11 @@ void BasicCache::dropOutdatedFromCache(quint64 vsn) {
   db.query("delete from cache where version==:a and outdated>0", vsn);
 }
 
-void BasicCache::addToCache(quint64 vsn, QImage const &img,
+void BasicCache::addToCache(quint64 vsn, Image16 const &img,
                             bool instantlyOutdated) {
   QBuffer buf;
   QImageWriter writer(&buf, "jpeg");
-  writer.write(img);
+  writer.write(img.toQImage());
 
   int d = maxdim(img.size());
   int k = 0;
@@ -229,7 +229,7 @@ void BasicCache::remove(quint64 vsn) {
   db.query("delete from cache where version==:a", vsn);
 }
 
-QImage BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
+Image16 BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
   QSqlQuery q = db.query("select id, dbno, outdated from cache"
 			 " where version==:a and maxdim==:b limit 1",
 			 vsn, maxdim);
@@ -253,9 +253,9 @@ QImage BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
   } else {
     QString fn(constructFilename(vsn, maxdim));
     if (QFile(fn).exists()) 
-      return QImage(fn);
+      return Image16(fn);
     qDebug() << "Missing file " << fn << " from cache";
-    return QImage();
+    return Image16();
   }
 }
 

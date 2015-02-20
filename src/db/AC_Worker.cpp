@@ -18,8 +18,8 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   readFTypes();
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  connect(bank, SIGNAL(foundImage(quint64, QImage, bool)),
-	  this, SLOT(handleFoundImage(quint64, QImage, bool)),
+  connect(bank, SIGNAL(foundImage(quint64, Image16, bool)),
+	  this, SLOT(handleFoundImage(quint64, Image16, bool)),
           Qt::QueuedConnection);
   connect(bank, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
@@ -151,7 +151,7 @@ void AC_Worker::activateBank() {
     sendToBank(id);
 }
 
-void AC_Worker::cachePreview(quint64 id, QImage img) {
+void AC_Worker::cachePreview(quint64 id, Image16 img) {
   if (loaded.contains(id))
     return;
   loaded[id] = img;
@@ -197,7 +197,7 @@ void AC_Worker::ensureDBSizeOK(quint64 vsn, QSize siz) {
   }
 }
 
-void AC_Worker::handleFoundImage(quint64 id, QImage img, bool isFullSize) {
+void AC_Worker::handleFoundImage(quint64 id, Image16 img, bool isFullSize) {
   // Actually store in cache if we have enough to make it worth while
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
@@ -288,7 +288,7 @@ void AC_Worker::storeLoadedInDB() {
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
     quint64 version = it.key();
-    QImage img = it.value();
+    Image16 img = it.value();
     bool outd =  outdatedLoaded.contains(version);
     cache->add(version, img, outd);
     if (outd)
@@ -313,7 +313,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       int d = cache->bestSize(version, cache->maxdim(desired));
       if (d>0) {
         bool od;
-	QImage img = cache->get(version, d, &od);
+	Image16 img = cache->get(version, d, &od);
 	emit available(version, desired, img);
 	actual = img.size();
       }
@@ -361,9 +361,9 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
   }
 }
 
-void AC_Worker::respondToRequest(quint64 version, QImage img) {
+void AC_Worker::respondToRequest(quint64 version, Image16 img) {
   if (img.isNull()) 
-    img = QImage(QSize(1, 1), QImage::Format_RGB32);
+    img = Image16(QSize(1, 1));
   for (QSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);

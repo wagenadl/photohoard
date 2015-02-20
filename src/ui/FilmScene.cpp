@@ -29,7 +29,7 @@ void FilmScene::dropHeaderFor(quint64 id, class Strip *s) {
   headermap.remove(id, s);
 }
 
-void FilmScene::updateImage(quint64 id, QImage img) {
+void FilmScene::updateImage(quint64 id, Image16 img) {
   if (slidemap.contains(id))
     slidemap[id]->updateImage(img);
   for (auto s: headermap.values(id))

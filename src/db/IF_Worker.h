@@ -11,8 +11,8 @@ class IF_Worker: public QObject {
   Q_OBJECT;
 public:
   IF_Worker(QObject *parent=0);
-  QImage findImageNow(QString path, QString mods, QString ext,
-                      Exif::Orientation orient, int maxdim, QSize ns,
+  Image16 findImageNow(QString path, QString mods, QString ext,
+                      Exif::Orientation orient, uint maxdim, QSize ns,
                       bool *fullSizeReturn=0);
   /* maxdim=0 means do not scale. In that case, ns can be null.
      maxdim>0 means scale to fit in a maxdim-sized rectangle. In that case,
@@ -37,12 +37,12 @@ public slots:
   void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize ns);
 signals:
-  void foundImage(quint64 id, QImage img, bool isFullSize);
+  void foundImage(quint64 id, Image16 img, bool isFullSize);
   void exception(QString);
 private:
-  QImage upsideDown(QImage &);
-  QImage rotateCW(QImage &);
-  QImage rotateCCW(QImage &);
+  Image16 upsideDown(Image16 &);
+  Image16 rotateCW(Image16 &);
+  Image16 rotateCCW(Image16 &);
 };
 
 #endif

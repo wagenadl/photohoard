@@ -94,8 +94,8 @@ int main(int argc, char **argv) {
     Scanner *scan = new Scanner(db);
     QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
                      ac, SLOT(recache(QSet<quint64>)));
-    QObject::connect(scan, SIGNAL(cacheablePreview(quint64, QImage)),
-                     ac, SLOT(cachePreview(quint64, QImage)));
+    QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
+                     ac, SLOT(cachePreview(quint64, Image16)));
     QObject::connect(scan, SIGNAL(exception(QString)),
                      excrep, SLOT(report(QString)));
     scan->start();

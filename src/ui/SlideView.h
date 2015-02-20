@@ -5,6 +5,7 @@
 #define SLIDEVIEW_H
 
 #include <QLabel>
+#include "Image16.h"
 
 class SlideView: public QFrame {
   Q_OBJECT;
@@ -16,7 +17,7 @@ public:
   double fittingZoom() const;
 public slots:
   void newImage(QSize natSize);
-  void updateImage(QImage img);
+  void updateImage(Image16 img);
   void setZoom(double zm);
   void changeZoomLevel(QPoint center, double delta);
   void scaleToFit();
@@ -36,7 +37,7 @@ private:
   //  QPointF mapImageToWidget(QPointF) const;
 private:
   QSize naturalSize;
-  QImage img;
+  Image16 img;
   double zoom;
   bool fit;
   double relx; // 0 for extreme left/top visible, 1 for extreme right/bot

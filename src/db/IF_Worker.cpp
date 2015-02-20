@@ -10,25 +10,26 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
 }
 
-QImage IF_Worker::findImageNow(QString path, QString mods, QString ext,
-                               Exif::Orientation orient, int maxdim, QSize ns,
+Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
+                               Exif::Orientation orient, uint maxdim, QSize ns,
                                bool *fullSizeReturn) {
   if (!mods.isEmpty()) {
     if (fullSizeReturn)
       *fullSizeReturn = false;
-    return QImage();
+    return Image16();
   }
 
   bool fullSize = true;
-  QImage img;
+  Image16 img;
   if (ext=="jpeg" || ext=="png" || ext=="tiff") {
-    img = QImage(path); // load it directly
+    img = Image16(path); // load it directly
   } else if (ext=="nef" || ext=="cr2") {
     NiceProcess dcraw;
     if (maxdim>0)
       dcraw.renice(10);
     QStringList args;
-    if (maxdim>0 && (maxdim*2<=ns.width() || maxdim*2<=ns.height())) {
+    if (maxdim>0
+        && (maxdim*2<=uint(ns.width()) || maxdim*2<=uint(ns.height()))) {
       args << "-h";
       fullSize = false;
     }
@@ -41,7 +42,8 @@ QImage IF_Worker::findImageNow(QString path, QString mods, QString ext,
       throw QString("Could not start DCRaw:" + path);
     if (!dcraw.waitForFinished(300000))
       throw QString("Could not complete DCRaw:" + path);
-    if (!img.loadFromData(dcraw.readAllStandardOutput()))
+    img = QImage::fromData(dcraw.readAllStandardOutput());
+    if (img.isNull())
       throw QString("Could not parse DCRaw output:" + path);
   } else {
     // Other formats?
@@ -50,7 +52,7 @@ QImage IF_Worker::findImageNow(QString path, QString mods, QString ext,
   if (img.isNull()) {
     if (fullSizeReturn)
       *fullSizeReturn = false;
-    return QImage();
+    return Image16();
   }
   if (maxdim>0) {
     if (img.width()>maxdim || img.height()>maxdim) {
@@ -82,7 +84,7 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
                           Exif::Orientation orient, int maxdim, QSize ns) {
   try {
     bool fullSize;
-    QImage img = findImageNow(path, mods, ext, orient, maxdim, ns,
+    Image16 img = findImageNow(path, mods, ext, orient, maxdim, ns,
                               &fullSize);
     emit foundImage(id, img, fullSize);
   } catch (QSqlQuery const &q) {
@@ -95,69 +97,18 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
   }
 }
 
-QImage IF_Worker::upsideDown(QImage &img) {
-  return img.mirrored(true, true);
+Image16 IF_Worker::upsideDown(Image16 &img) {
+  img.rotate180();
+  return img;
 }
 
 
-QImage IF_Worker::rotateCW(QImage &img) {
-  int W = img.height();
-  int H = img.width();
-  int DXsrc = img.bytesPerLine();
-  QImage im2(QSize(W, H), img.format());
-  switch (img.format()) {
-  case QImage::Format_Indexed8: {
-    unsigned char const *src = img.bits();
-    for (int y=0; y<H; y++) {
-      unsigned char *dst = im2.scanLine(y);
-      for (int x=0; x<W; x++) 
-        *dst++ = src[(H-1-y) + DXsrc*x];
-    }
-  } break;
-  case QImage::Format_RGB32: case QImage::Format_ARGB32: {
-    quint32 const *src = (quint32 const *)img.bits();
-    DXsrc /= 4;
-    for (int y=0; y<H; y++) {
-      quint32 *dst = (quint32 *)im2.scanLine(y);
-      for (int x=0; x<W; x++) 
-        *dst++ = src[(H-1-y) + DXsrc*x];
-    }
-  } break;
-  default:
-    throw QString("IF_Worker: rotateCW: Unsupported format: %1")
-      .arg(img.format());
-    break;
-  }
-  return im2;
+Image16 IF_Worker::rotateCW(Image16 &img) {
+  img.rotate90CW();
+  return img;
 }
 
-QImage IF_Worker::rotateCCW(QImage &img) {
-  int W = img.height();
-  int H = img.width();
-  int DXsrc = img.bytesPerLine();
-  QImage im2(QSize(W, H), img.format());
-  switch (img.format()) {
-  case QImage::Format_Indexed8: {
-    unsigned char const *src = img.bits();
-    for (int y=0; y<H; y++) {
-      unsigned char *dst = im2.scanLine(y);
-      for (int x=0; x<W; x++) 
-        *dst++ = src[y + DXsrc*(W-1-x)];
-    }
-  } break;
-  case QImage::Format_RGB32: case QImage::Format_ARGB32: {
-    quint32 const *src = (quint32 const *)img.bits();
-    DXsrc /= 4;
-    for (int y=0; y<H; y++) {
-      quint32 *dst = (quint32 *)im2.scanLine(y);
-      for (int x=0; x<W; x++) 
-        *dst++ = src[y + DXsrc*(W-1-x)];
-    }
-  } break;
-  default:
-    throw QString("IF_Worker: rotateCCW: Unsupported format: %1")
-      .arg(img.format());
-    break;
-  }
-  return im2;
+Image16 IF_Worker::rotateCCW(Image16 &img) {
+  img.rotate90CCW();
+  return img;
 }

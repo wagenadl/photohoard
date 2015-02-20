@@ -14,8 +14,8 @@ MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
 
-DEPENDPATH += . ./db ./ui ./cms
-INCLUDEPATH += . ./db ./ui ./cms
+DEPENDPATH += . ./db ./ui ./cms ./adj
+INCLUDEPATH += . ./db ./ui ./cms ./adj
 
 # Input
 

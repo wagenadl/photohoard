@@ -20,7 +20,7 @@ public slots:
   void setLayout(LayoutBar::Action ar);
   void slidePress(quint64 id, Qt::MouseButton, Qt::KeyboardModifiers);
   void select(quint64 id, Qt::KeyboardModifiers);
-  void updateImage(quint64, QSize, QImage);
+  void updateImage(quint64, QSize, Image16);
   void rescan();
   void setColorLabel(ColorLabelBar::Action);
   void filterAction(FilterBar::Action);

@@ -23,7 +23,7 @@ public slots:
   void scrollTo(quint64);
   void setTileSize(int pix);
   void setArrangement(Strip::Arrangement);
-  void updateImage(quint64, QSize, QImage);
+  void updateImage(quint64, QSize, Image16);
   void rescan();
 protected:
   virtual void resizeEvent(QResizeEvent *) override;

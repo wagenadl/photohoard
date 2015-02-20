@@ -16,8 +16,8 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
                                         Exif::Orientation, int, QSize)),
           worker, SLOT(findImage(quint64, QString, QString, QString,
                                  Exif::Orientation, int, QSize)));
-  connect(worker, SIGNAL(foundImage(quint64, QImage, bool)),
-          this, SLOT(handleFoundImage(quint64, QImage, bool)));
+  connect(worker, SIGNAL(foundImage(quint64, Image16, bool)),
+          this, SLOT(handleFoundImage(quint64, Image16, bool)));
   connect(worker, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   thread.start();
@@ -34,7 +34,7 @@ void ImageFinder::findImage(quint64 id, QString path, QString mods, QString ext,
   emit forwardFindImage(id, path, mods, ext, orient, maxdim, ns);
 }
 
-void ImageFinder::handleFoundImage(quint64 id, QImage img, bool fs) {
+void ImageFinder::handleFoundImage(quint64 id, Image16 img, bool fs) {
   queuelength--;
   emit foundImage(id, img, fs);
 }

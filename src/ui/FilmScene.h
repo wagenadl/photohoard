@@ -8,6 +8,7 @@
 #include <QMap>
 #include <QMultiMap>
 #include "PhotoDB.h"
+#include "Image16.h"
 
 class FilmScene: public QGraphicsScene {
   Q_OBJECT;
@@ -19,7 +20,7 @@ public:
   void addHeaderFor(quint64, class Strip *);
   void dropHeaderFor(quint64, class Strip *);
 public slots:
-  void updateImage(quint64, QImage);
+  void updateImage(quint64, Image16);
 signals:
   void pressed(Qt::MouseButton, Qt::KeyboardModifiers);
 protected:

@@ -8,7 +8,7 @@
 #include <QDateTime>
 #include <QSize>
 #include <QList>
-#include <QImage>
+#include "Image16.h"
 #include <exiv2/exiv2.hpp>
 
 class Exif {
@@ -35,7 +35,7 @@ public:
   double iso() const;
   QDateTime dateTime() const;
   QList<QSize> previewSizes() const;
-  QImage previewImage(QSize const &) const;
+  Image16 previewImage(QSize const &) const;
 private:
   Exiv2::Exifdatum const &exifDatum(QString const &) const;
   static class NikonLenses const &nikonLenses();

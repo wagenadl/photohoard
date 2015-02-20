@@ -7,6 +7,7 @@
 #include <QGraphicsObject>
 #include "PhotoDB.h"
 #include <QDateTime>
+#include "Image16.h"
 
 class Strip: public QGraphicsObject {
   Q_OBJECT;
@@ -41,8 +42,8 @@ public:
   PhotoDB &database() { return db; }
 public slots:
   void rescan();
-  void updateImage(quint64, QSize, QImage);
-  void updateHeader(QImage);
+  void updateImage(quint64, QSize, Image16);
+  void updateHeader(Image16);
   void setTimeRange(QDateTime t0, TimeScale scl);
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);
@@ -102,7 +103,7 @@ protected:
   bool expanded;
   mutable int subheight;
   quint64 headerid;
-  QImage headerimg;
+  Image16 headerimg;
   QPixmap headerpm;
   QRectF labelRect;
 };

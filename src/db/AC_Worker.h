@@ -7,7 +7,7 @@
 #include <QObject>
 #include "PhotoDB.h"
 #include <QSet>
-#include <QImage>
+#include "Image16.h"
 
 class AC_Worker: public QObject {
   Q_OBJECT;
@@ -18,16 +18,16 @@ public slots:
   void boot(); // get initial list of cachable items from db
   void recache(QSet<quint64> versions);
   void requestImage(quint64 version, QSize desired);
-  void cachePreview(quint64 vsn, QImage img);
+  void cachePreview(quint64 vsn, Image16 img);
 private slots:
-  void handleFoundImage(quint64 id, QImage img, bool isFullSize);
+  void handleFoundImage(quint64 id, Image16 img, bool isFullSize);
 signals:
   void cacheProgress(int n, int N);
   void doneCaching();
-  void available(quint64 version, QSize requested, QImage img);
+  void available(quint64 version, QSize requested, Image16 img);
   void exception(QString);
 private:
-  void respondToRequest(quint64 version, QImage img);
+  void respondToRequest(quint64 version, Image16 img);
   QSet<quint64> getSomeFromDBQueue(int maxres=100);
   void markReadyToLoad(QSet<quint64> versions);  
   void addToDBQueue(QSet<quint64> versions);
@@ -49,7 +49,7 @@ private:
   QSet<quint64> mustCache;
   QSet<quint64> beingLoaded;
   QSet<quint64> invalidatedWhileLoading;
-  QMap<quint64, QImage> loaded;
+  QMap<quint64, Image16> loaded;
   QSet<quint64> outdatedLoaded;
   QMap<quint64, QString> folders;
   QMap<quint64, QSet<QSize> > requests;

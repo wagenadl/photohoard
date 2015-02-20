@@ -148,36 +148,9 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
     folders[folder] = q.value(0).toString();
   }
   QString path = folders[folder] + "/" + fn;
-
-  int maxdim = 0;
-  switch (settings.resolutionMode) {
-  case ExportSettings::ResolutionMode::Full:
-    break;
-  case ExportSettings::ResolutionMode::LimitWidth:
-    if (wid>=hei)
-      maxdim = settings.maxdim;
-    else
-      maxdim = settings.maxdim * wid/hei;
-    break;
-  case ExportSettings::ResolutionMode::LimitHeight:
-    if (hei>=wid)
-      maxdim = settings.maxdim;
-    else
-      maxdim = settings.maxdim * hei/wid;
-    break;
-  case ExportSettings::ResolutionMode::LimitMaxDim:
-    maxdim = settings.maxdim;
-    break;
-  case ExportSettings::ResolutionMode::Scale:
-    if (wid>=hei)
-      maxdim = wid*settings.scalePercent/100;
-    else
-      maxdim = hei*settings.scalePercent/100;
-    break;
-  }
-
-  QImage img = worker->findImageNow(path, mods, ftypes[ftype], orient,
-                                    0 /*maxdim*/, QSize(wid, hei));
+  
+  Image16 img = worker->findImageNow(path, mods, ftypes[ftype], orient,
+                                     0, QSize(wid, hei));
 
   if (img.isNull())
     return false;
@@ -238,9 +211,9 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   ofn = settings.destination + "/" + ofn + "." + settings.extension();
 
   if (settings.fileFormat == ExportSettings::FileFormat::JPEG)
-    return img.save(ofn, 0, settings.jpegQuality);
+    return img.toQImage().save(ofn, 0, settings.jpegQuality);
   else
-    return img.save(ofn);
+    return img.toQImage().save(ofn);
 }
 
 void Exporter::readFTypes() {

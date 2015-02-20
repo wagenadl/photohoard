@@ -19,7 +19,7 @@ public slots:
   void findImage(quint64 id, QString path, QString mods, QString ext,
                  Exif::Orientation orient, int maxdim, QSize natsize);
 signals:
-  void foundImage(quint64 id, QImage img, bool isFullSize);
+  void foundImage(quint64 id, Image16 img, bool isFullSize);
   void exception(QString);
 private:
   QVector<class ImageFinder *> finders;

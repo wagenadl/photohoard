@@ -31,9 +31,9 @@ public:
 public:
   FileFormat fileFormat;
   ResolutionMode resolutionMode;
-  int maxdim;
-  int scalePercent;
-  int jpegQuality;
+  uint maxdim;
+  uint scalePercent;
+  uint jpegQuality;
   NamingScheme namingScheme;
   QString destination;  
 };

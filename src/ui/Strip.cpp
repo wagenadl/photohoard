@@ -193,9 +193,10 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
       requestImage(headerid);
       return;
     } else {
-      headerpm = QPixmap::fromImage(headerimg.scaled(QSize(ims, ims),
-                                                     Qt::KeepAspectRatio));
-      headerimg = QImage();
+      headerpm = QPixmap::fromImage(headerimg.toQImage()
+                                    .scaled(QSize(ims, ims),
+                                            Qt::KeepAspectRatio));
+      headerimg = Image16();
     }
   }
   painter->drawPixmap(r.width()/2 - headerpm.width()/2,
@@ -274,7 +275,7 @@ Slide *Strip::slideByVersion(quint64) {
   return NULL;
 }
 
-void Strip::updateImage(quint64 v, QSize, QImage img) {
+void Strip::updateImage(quint64 v, QSize, Image16 img) {
   Slide *s = slideByVersion(v);
   if (s)
     s->updateImage(img);  
@@ -460,7 +461,7 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 }
 
-void Strip::updateHeader(QImage img) {
+void Strip::updateHeader(Image16 img) {
   headerimg = img;
   update();
 }

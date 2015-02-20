@@ -9,7 +9,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QSet>
-#include <QImage>
+#include "Image16.h"
 
 class Scanner: public BasicThread {
   Q_OBJECT;
@@ -24,7 +24,7 @@ signals:
   void progressed(int n, int N);
   void done();
   void updated(QSet<quint64> versions);
-  void cacheablePreview(quint64 vsn, QImage);
+  void cacheablePreview(quint64 vsn, Image16);
   void exception(QString);
 protected:
   virtual void run() override;
