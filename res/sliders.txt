@@ -20,7 +20,7 @@ blackrg: R-G adjust
 -5 5 / 0.1 0.5 2
 Adjustment of black point along red-green axis
 
-rescue: Highlight rescue
+hlrescue: Highlight rescue
 0.00
 0 5 / 0.01 0.1 0.5
 Rescue highlights (stops)
@@ -48,11 +48,6 @@ highlights: Highlights
 0.00
 -5 5 / 0.01 0.1 0.5
 Lift or deepen highlights
-
-midcontrast: Midtone contrast
-0.00
--5 5 / 0.01 0.1 0.5
-Increase or decrease contrast of midtones
 
 
 saturation:: Saturation
@@ -127,3 +122,8 @@ umaskr: Radius
 1.00
 0 5 / 0.02 0.1 0.5
 Unsharp mask radius (pixels)
+
+nlcontrast: Local contrast
+0.00
+-5 5 / 0.01 0.1 0.5
+Increase or decrease local contrast
