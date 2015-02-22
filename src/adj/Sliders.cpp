@@ -1,5 +1,7 @@
 // Sliders.cpp
 
+// g++ -I/usr/share/qt4/include -I/usr/share/qt4/include/QtCore -E Sliders.cpp
+
 #include "Sliders.h"
 #include "math.h"
 #include <QDebug>
@@ -35,6 +37,16 @@ QMap<QString, double> const &Sliders::defaults() {
   return df;
 }
 
+QStringList const &Sliders::keys() {
+  static QStringList kk;
+  if (kk.isEmpty()) {
+#define SLIDER(name, dfl) kk << #name;
+#include "sliders.def"
+#undef SLIDER
+  }
+  return kk;
+}
+
 void Sliders::setAll(QString kvv) {
   QStringList pairs = kvv.split(";");
   for (QString pair: pairs) {
@@ -59,4 +71,32 @@ QString Sliders::getAll() const {
       pairs << (k + "=" + QString::number(v, 'f', 2));
   }
   return pairs.join(";");
+}
+
+bool Sliders::operator==(Sliders const &s) const {
+  return true
+#define SLIDER(name, dfl) && name==s.name
+#include "sliders.def"
+#undef SLIDER
+    ;
+}
+
+bool Sliders::isDefault() const {
+  return true
+#define SLIDER(name, dfl) && name==name##Default
+#include "sliders.def"
+#undef SLIDER
+    ;
+}
+
+bool Sliders::isDefault(QString k) const {
+  return get(k) == defaultFor(k);
+}
+
+bool Sliders::couldBeAncestorOf(Sliders const &s) const {
+  return true
+#define SLIDER(name, dfl) && (name==name##Default || name==s.name)
+#include "sliders.def"
+#undef SLIDER
+    ;
 }
