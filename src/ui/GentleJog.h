@@ -16,6 +16,7 @@ public:
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const  override;
 public slots:
+  void setDefault(double);
   void setMinimum(double);
   void setMaximum(double);
   void setRange(double, double);
@@ -28,6 +29,7 @@ public slots:
   void setSteps(double single, double page=-1, double micro=-1);
   void setLabel(QString);
 public:
+  double defaultValue() const { return dflt_; }
   double minimum() const { return min_; }
   double maximum() const { return max_; }
   int decimals() const { return dec; }
@@ -74,9 +76,10 @@ private:
   static double mapfwd(double);
   static double maprev(double);
 private:
-  float min_, max_;
-  float microstep, singlestep, pagestep, maxdelta;
-  float val;
+  double dflt_;
+  double min_, max_;
+  double microstep, singlestep, pagestep, maxdelta;
+  double val;
   int dec;
   int jogminx, jogmaxx, jogx, jogr;
   double jogdelta;

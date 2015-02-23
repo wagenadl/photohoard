@@ -8,7 +8,6 @@ SLIDER(hlrescue, 0)
 SLIDER(wb, 5000)
 SLIDER(wbg, 0)
 
-SLIDER(tone, 0)
 SLIDER(shadows, 0)
 SLIDER(highlights, 0)
 SLIDER(nlcontrast, 0)

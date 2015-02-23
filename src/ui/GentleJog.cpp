@@ -18,6 +18,7 @@ GentleJog::GentleJog(QWidget *parent): QFrame(parent) {
   
   min_ = -5;
   max_ = 5;
+  dflt_ = 0;
   singlestep = 0.1;
   pagestep = 0.5;
   microstep = 0.01;
@@ -44,7 +45,6 @@ QSize GentleJog::minimumSizeHint() const {
   QSize l2 = valueRect().size();
   QSize s(l1.width() + l2.width() + marg.width(),
           l1.expandedTo(l2).height() + marg.height());
-  qDebug() << "Minimum size hint" << s;
   return s;
 }
 
@@ -55,6 +55,10 @@ QSize GentleJog::sizeHint() const {
 void GentleJog::setLabel(QString s) {
   lbl = s;
   update();
+}
+
+void GentleJog::setDefault(double m) {
+  dflt_ = m;
 }
 
 void GentleJog::setMinimum(double m) {
@@ -129,7 +133,6 @@ QRect GentleJog::labelRect() const {
   QRect r0 = contentsRect();
   QRect r1 = fm.boundingRect(lbl);
   r1.moveTo(r0.left(), r0.top() + (r0.height()-r1.height())/2);
-  qDebug() << r1;
   return r1;
 }
 
@@ -143,7 +146,7 @@ QRect GentleJog::valueRect() const {
 QString GentleJog::valueText() const {
   QString zwnj = QString::fromUtf8("‌"); // zero width non-joiner 0x200c
   double thr = .5*pow(10, -dec);
-  QString sgn = (val>thr) ? QString::fromUtf8("+")
+  QString sgn = (val>thr && min_<0) ? QString::fromUtf8("+")
     : (val<-thr) ? QString::fromUtf8("−")
     : QString::fromUtf8(" ");
   return zwnj + sgn + QString::number(fabs(val), 'f', dec) + zwnj;
@@ -162,7 +165,7 @@ void GentleJog::renderLabel(QStylePainter *p) {
 
 void GentleJog::renderValue(QStylePainter *p) {
   QPen pen(p->pen());
-  pen.setColor(palette().color(fabs(val) < .5*pow(10, -dec)
+  pen.setColor(palette().color(fabs(val-dflt_) < .5*pow(10, -dec)
                                ? QPalette::Disabled : QPalette::Normal,
                                QPalette::WindowText));
   p->setPen(pen);
@@ -248,7 +251,7 @@ void GentleJog::mouseMoveEvent(QMouseEvent *e) {
 
 void GentleJog::mouseDoubleClickEvent(QMouseEvent */* e */) {
   //  if (valueRect().contains(e->pos())) 
-    setValue(0);
+    setValue(dflt_);
 }
 
 double GentleJog::stepFor(Qt::KeyboardModifiers m) {
@@ -341,7 +344,7 @@ double GentleJog::xToDelta(int x) {
   else if (x>jogmaxx)
     return jogdelta;
   else
-    return maprev(((x-jogminx)/((jogmaxx-jogminx)/2.0) - 1.0) * jogdelta);
+    return maprev((x-jogminx)/((jogmaxx-jogminx)/2.0) - 1.0) * jogdelta;
 }
 
 void GentleJog::startJog(int x, Qt::KeyboardModifiers m) {
