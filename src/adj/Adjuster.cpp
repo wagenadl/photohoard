@@ -129,7 +129,9 @@ void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
   if (current.expose==final.expose
       && current.black==final.black
       && current.blackyb==final.blackyb
-      && current.blackrg==final.blackrg)
+      && current.blackrg==final.blackrg
+      && current.wb==final.wb
+      && current.wbg==final.wbg)
     return; // easy
 
   stages << stages.last();
@@ -137,6 +139,8 @@ void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
   tile.image.convertTo(Image16::Format::XYZp16);
   // expose is stored in stops
   double slope = pow(2, final.expose - current.expose);
+  double slopeX = slope*pow(2, (final.wbg - current.wbg)/5);
+  double slopeZ = slope*pow(2, (final.wb - current.wb)/5);
   // black level is stored in percent of white level
   double black_fy = final.black/100.0;
   // black level corrections are stored in percent of main level
@@ -152,13 +156,13 @@ void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
   quint16 xlut[65536], ylut[65536], zlut[65536];
   for (int k=0; k<65536; k++) {
     double x = k/32768.0;
-    x = (x - black_dx)*slope;
+    x = (x - black_dx)*slopeX;
     xlut[k] = (x<0) ? 0 : (x>=65535/32768.) ? 65535 : quint16(x*32768.0 + 0.5);
     double y = k/32768.0;
     y = (y - black_dy)*slope;
     ylut[k] = (y<0) ? 0 : (y>=65535/32768.) ? 65535 : quint16(y*32768.0 + 0.5);
     double z = k/32768.0;
-    z = (z - black_dz)*slope;
+    z = (z - black_dz)*slopeZ;
     zlut[k] = (z<0) ? 0 : (z>=65535/32768.) ? 65535 : quint16(z*32768.0 + 0.5);
   }
   quint16 *words = tile.image.words();

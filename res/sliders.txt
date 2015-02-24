@@ -21,11 +21,11 @@ hlrescue: Highlight rescue
 Rescue highlights (stops)
 
 wb: White balance
-2000 9000 / 10 100 500
-White balance (K)
+-10 10 / .1 .5 2
+White balance adjustment (blue-yellow)
 
 wbg: Green adjust
--5 5 / 0.1 0.5 2
+-10 10 / 0.1 0.5 2
 Adjustment of white point along green-red axis
 # Is that in fact what I want to offer?
 

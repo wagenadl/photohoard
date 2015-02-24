@@ -5,7 +5,7 @@ SLIDER(black, 0)
 SLIDER(blackyb, 0)
 SLIDER(blackrg, 0)
 SLIDER(hlrescue, 0)
-SLIDER(wb, 5000)
+SLIDER(wb, 0)
 SLIDER(wbg, 0)
 
 SLIDER(shadows, 0)
