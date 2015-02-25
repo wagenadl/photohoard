@@ -155,14 +155,12 @@ void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
   qDebug() << "building lut" << slope << black_dx << black_dy << black_dz;  
   quint16 xlut[65536], ylut[65536], zlut[65536];
   for (int k=0; k<65536; k++) {
-    double x = k/32768.0;
-    x = (x - black_dx)*slopeX;
+    double v = k/32768.0;
+    double x = (v - black_dx)*slopeX;
     xlut[k] = (x<0) ? 0 : (x>=65535/32768.) ? 65535 : quint16(x*32768.0 + 0.5);
-    double y = k/32768.0;
-    y = (y - black_dy)*slope;
+    double y = (v - black_dy)*slope;
     ylut[k] = (y<0) ? 0 : (y>=65535/32768.) ? 65535 : quint16(y*32768.0 + 0.5);
-    double z = k/32768.0;
-    z = (z - black_dz)*slopeZ;
+    double z = (v - black_dz)*slopeZ;
     zlut[k] = (z<0) ? 0 : (z>=65535/32768.) ? 65535 : quint16(z*32768.0 + 0.5);
   }
   quint16 *words = tile.image.words();
