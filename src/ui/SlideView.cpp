@@ -131,10 +131,10 @@ void SlideView::paintEvent(QPaintEvent *) {
   
   if (fit) {
     Image16 i1 = img.scaled(r.size(), Qt::KeepAspectRatio);
-    if (img.width()<uint(naturalSize.width())
-        && i1.width()>uint(img.width())
-        && img.height()<uint(naturalSize.height())
-        && i1.height()>uint(img.height())) {
+    if (img.width()<naturalSize.width()
+        && i1.width()>img.width()
+        && img.height()<naturalSize.height()
+        && i1.height()>img.height()) {
       // I should only request it if I haven't already
       if (img.size()!=lastSize)
         emit needLargerImage();
@@ -154,8 +154,7 @@ void SlideView::paintEvent(QPaintEvent *) {
     double availHeight = r.height();
     QRectF sourceRect;
     QRectF destRect;
-    if (img.width()<uint(naturalSize.width())
-        && showWidth>img.width())
+    if (img.width()<naturalSize.width() && showWidth>img.width())
       emit needLargerImage();
     if (showWidth<=availWidth) {
       sourceRect.setLeft(0);

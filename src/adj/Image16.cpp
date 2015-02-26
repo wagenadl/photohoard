@@ -28,7 +28,7 @@ Image16::Image16(char const *fn, char const *format):
 Image16::Image16(Image16 const &image): d(image.d) {
 }
 
-Image16::Image16(uint width, uint height, Image16::Format format):
+Image16::Image16(int width, int height, Image16::Format format):
   d(new Image16::Data(width, height, format)) {
 }
 
@@ -36,7 +36,7 @@ Image16::Image16(QSize size, Image16::Format format):
   Image16(size.width(), size.height(), format) {
 }
 
-Image16::Image16(uchar const *data, uint width, uint height,
+Image16::Image16(uchar const *data, int width, int height,
                  Image16::Format format) {
   if (format==Format::sRGB8) 
     d = new Data(QImage(data, width, height, QImage::Format_RGB32));
@@ -46,7 +46,7 @@ Image16::Image16(uchar const *data, uint width, uint height,
   d->format = format;
 }
 
-Image16::Image16(uchar const *data, uint width, uint height, uint bytesPerLine,
+Image16::Image16(uchar const *data, int width, int height, int bytesPerLine,
                  Image16::Format format) {
   if (format==Format::sRGB8) 
     d = new Data(QImage(data, width, height, bytesPerLine,
@@ -172,12 +172,12 @@ Image16 Image16::scaled(QSize s, Qt::AspectRatioMode arm) const {
   // This should be smarter
 }
 
-Image16 Image16::scaledToWidth(uint w, Qt::TransformationMode tm) const {
+Image16 Image16::scaledToWidth(int w, Qt::TransformationMode tm) const {
   return fromQImage(toQImage().scaledToWidth(w, tm));
   // This should be smarter
 }
 
-Image16 Image16::scaledToHeight(uint h, Qt::TransformationMode tm) const {
+Image16 Image16::scaledToHeight(int h, Qt::TransformationMode tm) const {
   return fromQImage(toQImage().scaledToHeight(h, tm));
   // This should be smarter
 }
@@ -242,4 +242,40 @@ void Image16::rotate180() {
     }
   }
   *this = dst;
+}
+
+void Image16::crop(QRect r) {
+  d->roibyteoffset += r.left()*bytesPerPixel() + r.top()*bytesPerLine();
+  int roitop = d->roibyteoffset / bytesPerLine();
+  int roileft = (d->roibyteoffset % bytesPerLine()) / bytesPerPixel();
+  int imwidth = format()==Image16::Format::sRGB8 ? d->image.width()
+    : (d->image.width()/3);
+  int imheight = d->image.height();
+  d->width = r.width();
+  if (d->width + roileft > imwidth)
+    d->width = imwidth - roileft;
+  d->height = r.height();
+  if (d->height + roitop > imheight)
+    d->height = imheight - roitop;
+  if (d->width<=0 || d->height<=0)
+    *this = Image16();
+}
+
+Image16 Image16::cropped(QRect r) const {
+  Image16 img = *this;
+  img.crop(r);
+  return img;
+}
+
+void Image16::applyROI() {
+  int qwidth = (format()==Image16::Format::sRGB8) ? d->width : (d->width*3);
+  int qheight = d->height;
+  if (d->image.width()==qwidth && d->image.height()==qheight)
+    return;
+
+  int roitop = d->roibyteoffset / bytesPerLine();
+  int roileft = (d->roibyteoffset % bytesPerLine()) / bytesPerPixel();
+  d->image = d->image.copy(roileft, roitop, qwidth, qheight);
+  d->roibyteoffset = 0;
+  d->bytesperline = d->image.bytesPerLine();  
 }
