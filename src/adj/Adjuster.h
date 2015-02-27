@@ -91,7 +91,8 @@ private:
      if caching is enabled; the previous topmost stage may be removed if not.
      The original image is never removed if preserveOriginal is set.
    */
-  void applyBlackPointAndExpose(Sliders const &settings);
+  void applyFirstXYZ(Sliders const &settings);
+  void applyIPT(Sliders const &settings);
   // part of applySignelPixelSettings
 private:
   class AdjustedTile {

@@ -5,11 +5,12 @@
 #define CS_LAB_H
 
 constexpr uint32_t lab_tablesize = 32768;
+constexpr uint32_t labrev_tablesize = 65536;
 extern uint16_t LabFwd[lab_tablesize];
-extern uint16_t LabRev[lab_tablesize];
+extern uint16_t LabRev[labrev_tablesize];
 
 template <> inline void convert<XYZ, XYZp>(XYZ const &src, XYZp &dst) {
-  constexpr int32_t logscale = 16;
+  constexpr int32_t logscale = 15;
   constexpr int32_t scale = 1<<logscale;
   constexpr int32_t xscale = int32_t(scale/d65_X + 0.5);
   constexpr int32_t zscale = int32_t(scale/d65_Z + 0.5);
@@ -20,9 +21,9 @@ template <> inline void convert<XYZ, XYZp>(XYZ const &src, XYZp &dst) {
   x0 *= xscale;
   z0 *= zscale;
 
-  dst.Xp = x0>>logscale;
+  dst.Xp = (x0>=scale*65535) ? 65535 : (x0>>logscale);
   dst.Y = src.Y;
-  dst.Zp = z0>>logscale;
+  dst.Zp = (z0>=scale*65535) ? 65535 : (z0>>logscale);
 }
 
 template <> inline void convert<XYZp, Lab>(XYZp const &src, Lab &dst) {

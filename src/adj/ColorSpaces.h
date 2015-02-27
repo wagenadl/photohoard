@@ -47,7 +47,7 @@ namespace ColorSpaces {
   template <typename SRC, typename DST>
   inline void convert(SRC const &src, DST &dst) {
     XYZ tmp;
-    qDebug() << "Indirect";
+    //    qDebug() << "Indirect";
     convert(src, tmp);
     convert(tmp, dst);
   }

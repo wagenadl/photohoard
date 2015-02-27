@@ -118,9 +118,11 @@ void Adjuster::preserveOriginal(bool po) {
   keeporiginal = po;
 }
 
-void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
+void Adjuster::applyFirstXYZ(Sliders const &final) {
+  /* Here we apply expose, blackXX, and soon whiteXX. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
+  AdjustedTile &prevtile(stages.last());
   Sliders const &current = stages.last().settings;
   /* I know already that the "current" black point is either the default
      or the final, and same for exposure, but I have *not* made sure that
@@ -131,15 +133,18 @@ void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
       && current.blackyb==final.blackyb
       && current.blackrg==final.blackrg
       && current.wb==final.wb
-      && current.wbg==final.wbg)
+      && current.wbg==final.wbg
+      /*&& current.hlrescue==final.hlrescue*/)
     return; // easy
 
-  stages << stages.last();
+  stages << prevtile;
   AdjustedTile &tile(stages.last());
-  tile.image.convertTo(Image16::Format::XYZp16);
+  tile.image = prevtile.image.convertedTo(Image16::Format::XYZp16);
+  
   // expose is stored in stops
-  double slope = pow(2, final.expose - current.expose);
-  double slopeX = slope*pow(2, (final.wbg - current.wbg)/5);
+  double slope = pow(2, (final.expose /*- final.hlrescue*/)
+                     - (current.expose /*- current.hlrescue*/));
+  double slopeX = slope*pow(2, (final.wbg - current.wbg)/15);
   double slopeZ = slope*pow(2, (final.wb - current.wb)/5);
   // black level is stored in percent of white level
   double black_fy = final.black/100.0;
@@ -176,10 +181,83 @@ void Adjuster::applyBlackPointAndExpose(Sliders const &final) {
     words += DL;
   }
   qDebug() << X << Y << DL;
-  tile.settings.expose = final.expose;
+  tile.settings.expose = final.expose /*- (final.hlrescue - current.hlrescue)*/;
   tile.settings.black = final.black;
   tile.settings.blackyb = final.blackyb;
   tile.settings.blackrg = final.blackrg;
+  tile.settings.wb = final.wb;
+  tile.settings.wbg = final.wbg;  
+}
+
+void Adjuster::applyIPT(Sliders const &final) {
+  AdjustedTile &prevtile(stages.last());
+  Sliders const &current = stages.last().settings;
+  if (current.shadows==final.shadows
+      && current.highlights==final.highlights
+      && current.saturation==final.saturation
+      && current.vibrance==final.vibrance
+      /*&& current.hlrescue==final.hlrescue*/
+      /*&& current.expose==final.expose*/)
+    return; // easy
+
+  stages << prevtile;
+  AdjustedTile &tile(stages.last());
+  tile.image = prevtile.image.convertedTo(Image16::Format::Lab16);
+
+  if (current.shadows!=final.shadows
+      || current.highlights!=final.highlights
+      /*|| current.hlrescue!=final.hlrescue*/) {
+    double shadows = pow(2, final.shadows);
+    // current.shadows had better be 0!
+    double highlights = pow(0.5, final.highlights);
+    //    double hlrslope = pow(2, final.hlrescue);
+    //    double hlrpar = final.hlrescue;
+    quint16 ilut[65536];
+    //    double y0 = 0;
+    //    for (int k=0; k<65536; k++) {
+    //      double dydx = tanh(pow(1-y0, hlrpar));
+    //      y0 += hlrslope*dydx/65536.0;
+    //    }
+    //    double y = 0;
+    for (int k=0; k<65536; k++) {
+      double x = k/65535.0;
+      // double dydx = tanh(pow(1-y, hlrpar));
+      //y += hlrslope*dydx/65536.0;
+      double y = x;
+      // if ((k&255) == 0)
+      // qDebug() << x << y/y0;
+      double z = y/*/y0*/ * shadows / (1+(shadows-1)*(1-(1-y)*(1-y)));
+      z = 1 - z;
+      z *= highlights / (1+(highlights-1)*(1-(1-z)*(1-z)));
+      z = 1 - z;
+      ilut[k] = (z<0) ? 0 : (z>=1.) ? 65535 : quint16(z*65535.499 + 0.5);
+    }
+
+    quint16 *words = tile.image.words();
+    int X = tile.image.width();
+    int Y = tile.image.height();
+    int DL = tile.image.wordsPerLine() - 3*X;
+    for (int y=0; y<Y; y++) {
+      for (int x=0; x<X; x++) {
+        *words = ilut[*words];
+        words+=3;
+      }
+      words += DL;
+    }
+
+    tile.settings.shadows = final.shadows;
+    tile.settings.highlights = final.highlights;
+    tile.settings.expose += final.hlrescue - current.hlrescue;
+    tile.settings.hlrescue = final.hlrescue;
+    
+  }
+    
+  if (current.saturation!=final.saturation
+      || current.vibrance!=final.vibrance) {
+    // Apply chroma curve here
+    tile.settings.saturation = final.saturation;
+    tile.settings.vibrance = final.vibrance;
+  }
 }
 
 void Adjuster::applySinglePixelSettings(Sliders const &settings) {
@@ -188,7 +266,8 @@ void Adjuster::applySinglePixelSettings(Sliders const &settings) {
      At this point, we must already know that the topmost stage is
      compatible with our goals.
    */
-  applyBlackPointAndExpose(settings);
+  applyFirstXYZ(settings);
+  applyIPT(settings);
 }
 
 static bool canBeSinglePixelBase(Sliders const &src, Sliders const &dst) {
@@ -219,6 +298,8 @@ static bool canBeSinglePixelBase(Sliders const &src, Sliders const &dst) {
         || (src.black==src.blackDefault
             && src.blackyb==src.blackybDefault
             && src.blackrg==src.blackrgDefault))
+    && ((src.wb==dst.wb && src.wbg==dst.wbg)
+        || (src.wb==src.wbDefault && src.wbg==src.wbgDefault))
     ;
           
 }
