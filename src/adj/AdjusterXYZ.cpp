@@ -4,7 +4,7 @@
 
 QStringList AdjusterXYZ::fields() const {
   static QStringList flds
-    = QString("expose black blackyb blackrg wb wbg hlrescue").split(" ");
+    = QString("expose black blackyb blackrg wb wbg").split(" ");
   return flds;
 }
 
@@ -13,10 +13,10 @@ AdjusterTile AdjusterXYZ::apply(AdjusterTile const &parent,
   AdjusterTile tile = parent;
   
   tile.stage = Stage_XYZ;
-  tile.image.convertTo(Image16::Format::XYZp16);
+  tile.image.convertTo(Image16::Format::LMS16);
   
   // expose is stored in stops
-  double slope = pow(2, final.expose - final.hlrescue);
+  double slope = pow(2, final.expose);
   double slopeX = slope*pow(2, final.wbg/15);
   double slopeZ = slope*pow(2, final.wb/5);
   // black level is stored in percent of white level
@@ -49,7 +49,6 @@ AdjusterTile AdjusterXYZ::apply(AdjusterTile const &parent,
   }
 
   tile.settings.expose = final.expose;
-  tile.settings.hlrescue = final.hlrescue;
   tile.settings.black = final.black;
   tile.settings.blackyb = final.blackyb;
   tile.settings.blackrg = final.blackrg;

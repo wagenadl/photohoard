@@ -4,10 +4,13 @@
 
 #define CS_LAB_H
 
-constexpr uint32_t lab_tablesize = 32768;
-constexpr uint32_t labrev_tablesize = 65536;
+constexpr int32_t lab_tablesize = 32768;
+constexpr int32_t labrev_offset = 16464;
+constexpr int32_t labrev_ceiling = 53740;
+constexpr int32_t labrev_tablesize = labrev_ceiling + labrev_offset;
 extern uint16_t LabFwd[lab_tablesize];
 extern uint16_t LabRev[labrev_tablesize];
+extern uint16_t *LabRevP;
 
 template <> inline void convert<XYZ, XYZp>(XYZ const &src, XYZp &dst) {
   constexpr int32_t logscale = 15;
@@ -52,12 +55,12 @@ template <> inline void convert<Lab, XYZp>(Lab const &src, XYZp &dst) {
   int32_t b = src.b;
   constexpr uint32_t Lscale = 76021; // approx 655.35×116
   constexpr uint32_t Loffset = 4519; // approx ?
-  uint16_t L1 = 32768*L/Lscale + Loffset; //  L' = 32767 [(1/116) (L*+16)]
-  uint16_t a1 = L1 + 32*a/125; //  a' = 32767 [(1/116) (L*+16) + (1/500) a*]
-  uint16_t b1 = L1 - 80*b/125; //  a' = 32767 [(1/116) (L*+16) - (1/200) b*]
-  dst.Xp = LabRev[a1];
-  dst.Y = LabRev[L1];
-  dst.Zp = LabRev[b1];
+  L = 32768*L/Lscale + Loffset; //  L' = 32767 [(1/116) (L*+16)]
+  a = L + 32*a/125; //  a' = 32767 [(1/116) (L*+16) + (1/500) a*]
+  b = L - 80*b/125; //  a' = 32767 [(1/116) (L*+16) - (1/200) b*]
+  dst.Xp = LabRevP[a];
+  dst.Y = LabRevP[L];
+  dst.Zp = LabRevP[b];
 }
 
 template <> inline void convert<XYZp, XYZ>(XYZp const &src, XYZ &dst) {

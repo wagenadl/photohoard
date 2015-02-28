@@ -6,6 +6,7 @@
 namespace ColorSpaces {
   uint16_t LabFwd[lab_tablesize];
   uint16_t LabRev[labrev_tablesize];
+  uint16_t *LabRevP;
 
   class LabBuilder {
   public:
@@ -18,7 +19,7 @@ namespace ColorSpaces {
       }
 
       for (int k=0; k<labrev_tablesize; k++) {
-        double t = k/32767.0;
+        double t = (k-labrev_offset)/32767.0;
         t = (t>6/29.0) ? pow(t, 3.0) : (3*6*6.0)/(29*29)*(t - 4/29.0);
         if (t<0)
           LabRev[k] = 0;
@@ -27,6 +28,7 @@ namespace ColorSpaces {
         else
           LabRev[k] = t*32767.499 + .5;
       }
+      LabRevP = LabRev + labrev_offset;
     }
   };
 
