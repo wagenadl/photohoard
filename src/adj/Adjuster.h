@@ -9,6 +9,7 @@
 #include <QRect>
 #include <QSize>
 #include <QObject>
+#include "AdjusterTile.h"
 
 class Adjuster: public QObject {
   Q_OBJECT;
@@ -79,34 +80,22 @@ public:
      functions const and the stages mutable. Oh well.
   */
 private:
-  void dropIncompatibleStages(Sliders const &settings);
-  /* Drop stages that cannot be ancestors of given settings.
-     Note that this operates slider by slider and does not know about
-     sliders that can only operate in pairs.
-  */
-  void applySinglePixelSettings(Sliders const &settings);
+  bool applySinglePixelSettings(Sliders const &settings);
   /* Apply those settings that work on a per-pixel basis from the given
      settings. This assumes that topmost stage exists and is a suitable
      basis for the requested settings. Intermediate stages may be stored
      if caching is enabled; the previous topmost stage may be removed if not.
      The original image is never removed if preserveOriginal is set.
+     Returns true if it could be done.
    */
-  void applyFirstXYZ(Sliders const &settings);
-  void applyIPT(Sliders const &settings);
+  bool applyFirstXYZ(Sliders const &settings);
+  bool applyIPT(Sliders const &settings);
   // part of applySignelPixelSettings
+  bool ensureAlreadyGood(class AdjusterStage const &adj, int iparent,
+			 Sliders const &final);
+  int findParentStage(Stage s) const;
 private:
-  class AdjustedTile {
-  public:
-    AdjustedTile();
-    explicit AdjustedTile(Image16 const &);
-    explicit AdjustedTile(Image16 const &, QSize osize);
-  public:
-    Image16 image;
-    Sliders settings;
-    QRect roi; // specified in units of the original image
-    double scale;
-  };
-  QList<AdjustedTile> stages;
+  QList<AdjusterTile> stages;
   /* The first stage is always the original image; subsequent stages may
      be used to cache various processing stages to speed up reprocessing.
   */

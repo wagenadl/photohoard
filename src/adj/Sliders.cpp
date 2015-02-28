@@ -92,11 +92,3 @@ bool Sliders::isDefault() const {
 bool Sliders::isDefault(QString k) const {
   return get(k) == defaultFor(k);
 }
-
-bool Sliders::couldBeAncestorOf(Sliders const &s) const {
-  return true
-#define SLIDER(name, dfl) && (name==name##Default || name==s.name)
-#include "sliders.def"
-#undef SLIDER
-    ;
-}

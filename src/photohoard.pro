@@ -121,3 +121,7 @@ HEADERS += adj/Image16.h   adj/Adjuster.h
 SOURCES += adj/Image16.cpp adj/Adjuster.cpp
 HEADERS += ui/AllControls.h   ui/ControlGroup.h
 SOURCES += ui/AllControls.cpp ui/ControlGroup.cpp
+HEADERS += adj/AdjusterTile.h   adj/AdjusterStage.h
+SOURCES += adj/AdjusterTile.cpp adj/AdjusterStage.cpp
+HEADERS += adj/AdjusterXYZ.h   AdjusterIPT.h
+SOURCES += adj/AdjusterXYZ.cpp AdjusterIPT.cpp
