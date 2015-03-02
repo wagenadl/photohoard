@@ -45,6 +45,7 @@ QSize GentleJog::minimumSizeHint() const {
   QSize l2 = valueRect().size();
   QSize s(l1.width() + l2.width() + marg.width(),
           l1.expandedTo(l2).height() + marg.height());
+  qDebug() << "minimumsize" << s;
   return s;
 }
 
@@ -107,14 +108,19 @@ void GentleJog::setMaxDelta(double d) {
   maxdelta = d;
 }
 
-void GentleJog::setValue(double f) {
+void GentleJog::setValueQuietly(double f) {
   double v0 = val;
   val = f;
   clamp();
-  if (v0 != val) {
+  if (v0 != val) 
     update();
+}
+
+void GentleJog::setValue(double f) {
+  double v0 = val;
+  setValueQuietly(f);
+  if (val != v0)
     emit valueChanged(val);
-  }
 }
 
 bool GentleJog::clamp() {

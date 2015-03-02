@@ -18,8 +18,12 @@ public:
   bool contains(QString name) const { return jogs.contains(name); }
 signals:
   void valueChanged(QString name, double value);
+  /* Emitted when the user changes the value and also when changed
+     programmatically except for setQuietly. */
 public slots:
-  bool set(QString name, double value); // true if OK
+  bool set(QString name, double value); // true if OK; does signal
+  bool setQuietly(QString name, double value); // true if OK; does not signal
+  void setQuietly(QMap<QString, double> const &vv); // does not signal
 private slots:
   void valueChange(QString name);
 private:

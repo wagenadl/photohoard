@@ -14,7 +14,7 @@ AllControls::AllControls(QWidget *parent): QFrame(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(valueChange(QString)));
   
-  QFile src("../trunk/res/sliders.txt");
+  QFile src("/home/wagenaar/progs/photohoard/trunk/res/sliders.txt");
   if (!src.open(QFile::ReadOnly)) {
     qDebug() << "Cannot open control defs";
     return;
@@ -84,6 +84,8 @@ AllControls::AllControls(QWidget *parent): QFrame(parent) {
 
   for (auto cg: groups)
     cg->expand();
+
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
 AllControls::~AllControls() {
@@ -104,6 +106,22 @@ double AllControls::get(QString name) const {
   else
     return nan("");
 }
+
+void AllControls::setQuietly(QMap<QString, double> const &vv) {
+  for (auto it=vv.begin(); it!=vv.end(); it++)
+    setQuietly(it.key(), it.value());
+}
+
+bool AllControls::setQuietly(QString name, double value) {
+  GentleJog *j = jog(name);
+  if (j) {
+    j->setValueQuietly(value);
+    return j->value()==value;
+  } else {
+    return false;
+  }
+}
+  
 
 bool AllControls::set(QString name, double value) {
   GentleJog *j = jog(name);

@@ -221,7 +221,14 @@ void LightTable::updateSlide(quint64 i) {
   Slide *s = film->root()->slideByVersion(i);
   if (s)
     s->update();
-}  
+}
+
+QSize LightTable::displaySize() const {
+  if (slide->isVisible())
+    return slide->desiredSize();
+  else
+    return film->root()->tileSize();
+}
 
 void LightTable::requestLargerImage() {
   if (slide->isVisible())

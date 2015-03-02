@@ -32,6 +32,7 @@ ControlGroup::ControlGroup(QString l, QWidget *p): QFrame(p) {
   setLabel(l);
   collapse();
 
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
   //  connect(expander, SIGNAL(clicked()), SLOT(expand()));
 }
 

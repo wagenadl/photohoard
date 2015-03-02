@@ -11,6 +11,9 @@
 #include "PhotoDB.h"
 #include "ExportDialog.h"
 #include "Exporter.h"
+#include "AllControls.h"
+#include "HistoWidget.h"
+#include <QDockWidget>
 
 #include <QDebug>
 
@@ -26,10 +29,18 @@ MainWindow::MainWindow(PhotoDB const &db,
   addToolBar(filterBar = new FilterBar(this));
   // etc.
 
+  QDockWidget *dock = new QDockWidget("Histogram", this);
+  dock->setWidget(histogram = new HistoWidget(this));
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+  
+  dock = new QDockWidget("Adjustments", this);
+  dock->setWidget(allControls = new AllControls(this));
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+  
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));
   connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
-          lightTable, SLOT(updateImage(quint64, QSize, Image16)));
+          SLOT(updateImage(quint64, QSize, Image16)));
   connect(scanner, SIGNAL(updated(QSet<quint64>)),
           lightTable, SLOT(rescan()));
 
@@ -68,3 +79,10 @@ void MainWindow::fileAction(FileBar::Action a) {
 void MainWindow::scrollToCurrent() {
   lightTable->scrollToCurrent();
 }
+
+void MainWindow::updateImage(quint64 i, QSize s, Image16 img) {
+  lightTable->updateImage(i, s, img);
+  if (i==lightTable->current())
+    histogram->setImage(img);
+}
+

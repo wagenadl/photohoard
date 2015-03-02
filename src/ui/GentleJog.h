@@ -21,7 +21,8 @@ public slots:
   void setMaximum(double);
   void setRange(double, double);
   void setDecimals(int);
-  void setValue(double);
+  void setValue(double); // does cause signal to be emitted
+  void setValueQuietly(double); // does not cause signal to be emitted
   void setMaxDelta(double);
   void setPageStep(double);
   void setSingleStep(double);
@@ -41,6 +42,8 @@ public:
   QString label() const { return lbl; }
 signals:
   void valueChanged(double);
+  /* Emitted when the user changes the value and also when changed
+     programmatically except when using setValueQuietly. */
 protected:
   virtual void paintEvent(QPaintEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

@@ -6,6 +6,7 @@
 
 #include <QMainWindow>
 #include "FileBar.h"
+#include "Image16.h"
 
 class MainWindow: public QMainWindow {
   Q_OBJECT;
@@ -18,6 +19,7 @@ public:
 public slots:
   void fileAction(FileBar::Action);
   void scrollToCurrent();
+  void updateImage(quint64, QSize, Image16);
 private:
   class Exporter *exporter;
 private:
@@ -27,6 +29,8 @@ private:
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
   class ExportDialog *exportDialog;
+  class AllControls *allControls;
+  class HistoWidget *histogram;
 };
 
 #endif

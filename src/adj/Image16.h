@@ -69,7 +69,7 @@ public:
   inline QSize size() const { return QSize(width(), height()); }
   inline Format format() const { return d->format; }
   inline bool is8Bits() const { return format() == Format::sRGB8; }
-  inline bool isNull() const { return !d || height()==0; }
+  inline bool isNull() const { return height()==0; }
   inline uchar const *bytes() const { return d->image.bits()+d->roibyteoffset; }
   inline uchar *bytes() { return d->image.bits()+d->roibyteoffset; }
   inline quint16 const *words() const { return (quint16 const *)bytes(); }

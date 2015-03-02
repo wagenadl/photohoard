@@ -125,3 +125,7 @@ HEADERS += adj/AdjusterTile.h   adj/AdjusterStage.h
 SOURCES += adj/AdjusterTile.cpp adj/AdjusterStage.cpp
 HEADERS += adj/AdjusterXYZ.h   AdjusterIPT.h
 SOURCES += adj/AdjusterXYZ.cpp AdjusterIPT.cpp
+HEADERS += adj/Histogram.h
+SOURCES += adj/Histogram.cpp
+HEADERS += ui/HistoWidget.h
+SOURCES += ui/HistoWidget.cpp

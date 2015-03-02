@@ -14,7 +14,7 @@ public:
 static Image16Foo foo;
 
 
-Image16::Image16() {
+Image16::Image16(): Image16(QImage()) {
 }
 
 Image16::Image16(QString const &fn, char const *format):
