@@ -5,20 +5,16 @@
 #include <QSqlError>
 #include "NiceProcess.h"
 #include <QDebug>
+#include "Adjuster.h"
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
+  adjuster = new Adjuster(this);
 }
 
 Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
                                Exif::Orientation orient, uint maxdim, QSize ns,
                                bool *fullSizeReturn) {
-  if (!mods.isEmpty()) {
-    if (fullSizeReturn)
-      *fullSizeReturn = false;
-    return Image16();
-  }
-
   bool fullSize = true;
   Image16 img;
   if (ext=="jpeg" || ext=="png" || ext=="tiff") {
@@ -54,7 +50,9 @@ Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
       *fullSizeReturn = false;
     return Image16();
   }
+  
   if (maxdim>0) {
+    // This should be reconsidered based on the adjuster
     if (img.width()>maxdim || img.height()>maxdim) {
       img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
       fullSize = false;
@@ -75,8 +73,21 @@ Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
     break;
   }
 
+  if (mods != "") {
+    if (fullSize)
+      adjuster->setOriginal(img);
+    else
+      adjuster->setReduced(img, ns);
+    Sliders s(mods);
+    if (maxdim)
+      img = adjuster->retrieveReduced(s, QSize(maxdim, maxdim));
+    else
+      img = adjuster->retrieveFull(s);
+  }
+  
   if (fullSizeReturn)
     *fullSizeReturn = fullSize;
+  
   return img;
 }  
 

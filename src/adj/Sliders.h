@@ -10,6 +10,7 @@
 class Sliders {
 public:
   Sliders();
+  explicit Sliders(QString kv): Sliders() { setAll(kv); }
   void setAll(QString kv);
   QString getAll() const;
   bool set(QString k, double v);

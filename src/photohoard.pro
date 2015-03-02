@@ -129,3 +129,5 @@ HEADERS += adj/Histogram.h
 SOURCES += adj/Histogram.cpp
 HEADERS += ui/HistoWidget.h
 SOURCES += ui/HistoWidget.cpp
+HEADERS += db/OriginalFinder.h
+SOURCES += db/OriginalFinder.cpp

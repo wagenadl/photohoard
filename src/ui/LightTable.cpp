@@ -227,7 +227,7 @@ QSize LightTable::displaySize() const {
   if (slide->isVisible())
     return slide->desiredSize();
   else
-    return film->root()->tileSize();
+    return QSize(film->root()->tileSize(), film->root()->tileSize());
 }
 
 void LightTable::requestLargerImage() {

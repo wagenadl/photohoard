@@ -43,6 +43,8 @@ private:
   Image16 upsideDown(Image16 &);
   Image16 rotateCW(Image16 &);
   Image16 rotateCCW(Image16 &);
+private:
+  class Adjuster *adjuster;
 };
 
 #endif

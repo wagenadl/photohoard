@@ -17,6 +17,7 @@ public:
   LightTable(PhotoDB const &db, QWidget *parent=0);
   virtual ~LightTable();
   quint64 current() const { return id; }
+  QSize displaySize() const;
 public slots:
   void setLayout(LayoutBar::Action ar);
   void slidePress(quint64 id, Qt::MouseButton, Qt::KeyboardModifiers);
