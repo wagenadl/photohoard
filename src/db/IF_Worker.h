@@ -12,7 +12,7 @@ class IF_Worker: public QObject {
 public:
   IF_Worker(QObject *parent=0);
   Image16 findImageNow(QString path, QString mods, QString ext,
-                      Exif::Orientation orient, uint maxdim, QSize ns,
+                      Exif::Orientation orient, int maxdim, QSize ns,
                       bool *fullSizeReturn=0);
   /* maxdim=0 means do not scale. In that case, ns can be null.
      maxdim>0 means scale to fit in a maxdim-sized rectangle. In that case,

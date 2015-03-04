@@ -13,13 +13,21 @@ Adjuster::Adjuster(QObject *parent): QObject(parent) {
 Adjuster::~Adjuster() {
 }
 
-void Adjuster::setOriginal(Image16 const &image) {
+void Adjuster::clear() {
   stages.clear();
+}
+
+bool Adjuster::isEmpty() const {
+  return stages.isEmpty();
+}
+
+void Adjuster::setOriginal(Image16 const &image) {
+  clear();
   stages << AdjusterTile(image);
 }
 
 void Adjuster::setReduced(Image16 const &image, QSize originalSize) {
-  stages.clear();
+  clear();
   stages << AdjusterTile(image, originalSize);
 }
 

@@ -16,6 +16,9 @@ class Adjuster: public QObject {
 public:
   Adjuster(QObject *parent=0);
   virtual ~Adjuster();
+  void clear();
+  /* Drop entire stack */
+  bool isEmpty() const;
   void setOriginal(Image16 const &image);
   /* Loads a new original image into the adjuster */
   void setReduced(Image16 const &image, QSize originalSize);

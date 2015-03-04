@@ -13,7 +13,7 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
 }
 
 Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
-                               Exif::Orientation orient, uint maxdim, QSize ns,
+                               Exif::Orientation orient, int maxdim, QSize ns,
                                bool *fullSizeReturn) {
   bool fullSize = true;
   Image16 img;
@@ -25,7 +25,7 @@ Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
       dcraw.renice(10);
     QStringList args;
     if (maxdim>0
-        && (maxdim*2<=uint(ns.width()) || maxdim*2<=uint(ns.height()))) {
+        && (maxdim*2<=ns.width() || maxdim*2<=ns.height())) {
       args << "-h";
       fullSize = false;
     }

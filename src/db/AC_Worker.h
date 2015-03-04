@@ -34,7 +34,6 @@ private:
   void activateBank();
   void sendToBank(quint64 version);
   void storeLoadedInDB();
-  void readFTypes();
   void ensureDBSizeOK(quint64 vsn, QSize);
   void countQueue();
   int queueLength();
@@ -51,9 +50,7 @@ private:
   QSet<quint64> invalidatedWhileLoading;
   QMap<quint64, Image16> loaded;
   QSet<quint64> outdatedLoaded;
-  QMap<quint64, QString> folders;
   QMap<quint64, QSet<QSize> > requests;
-  QMap<int, QString> ftypes;
 };
 
 #endif

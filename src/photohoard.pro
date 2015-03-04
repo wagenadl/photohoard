@@ -131,3 +131,5 @@ HEADERS += ui/HistoWidget.h
 SOURCES += ui/HistoWidget.cpp
 HEADERS += db/OriginalFinder.h
 SOURCES += db/OriginalFinder.cpp
+HEADERS += ui/LiveAdjuster.h
+SOURCES += ui/LiveAdjuster.cpp

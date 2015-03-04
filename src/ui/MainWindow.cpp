@@ -14,6 +14,7 @@
 #include "AllControls.h"
 #include "HistoWidget.h"
 #include <QDockWidget>
+#include "LiveAdjuster.h"
 
 #include <QDebug>
 
@@ -52,6 +53,12 @@ MainWindow::MainWindow(PhotoDB const &db,
 	  lightTable, SLOT(setColorLabel(ColorLabelBar::Action)));
   connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
 	  lightTable, SLOT(filterAction(FilterBar::Action)));
+
+  adjuster = new LiveAdjuster(db, autocache, allControls, this);
+  connect(lightTable, SIGNAL(newCurrent(quint64)),
+          adjuster, SLOT(setTargetVersion(quint64)));
+  connect(adjuster, SIGNAL(imageChanged(quint64, QSize, Image16)),
+          this, SLOT(updateImage(quint64, QSize, Image16)));
 }
 
   

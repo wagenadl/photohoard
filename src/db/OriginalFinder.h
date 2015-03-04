@@ -23,12 +23,8 @@ signals:
   void scaledOriginalAvailable(quint64 version, QSize requested, Image16 img);
   void exception(QString);
 private:
-  void readFTypes();
-private:
   PhotoDB db;
   class BasicCache *cache;
-  QMap<quint64, QString> folders;
-  QMap<int, QString> ftypes;
   class IF_Worker *ifinder;
 };
 

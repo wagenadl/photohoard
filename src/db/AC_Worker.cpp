@@ -15,7 +15,6 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
                      QObject *parent):
   QObject(parent), db(db), cache(cache) {
   setObjectName("AC_Worker");
-  readFTypes();
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
   connect(bank, SIGNAL(foundImage(quint64, Image16, bool)),
@@ -25,17 +24,6 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
 	  this, SIGNAL(exception(QString)));
   n = 0;
   N = 0;
-}
-
-void AC_Worker::readFTypes() {
-  QSqlQuery q(*db);
-  q.prepare("select id, stdext from filetypes");
-  if (!q.exec()) {
-    qDebug() << "Could not select extensions";
-    throw q;
-  }
-  while (q.next()) 
-    ftypes[q.value(0).toInt()] = q.value(1).toString();
 }
 
 void AC_Worker::countQueue() {
@@ -261,16 +249,7 @@ void AC_Worker::sendToBank(quint64 version) {
   int wid = q.value(3).toInt();
   int hei = q.value(4).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
-  if (!folders.contains(folder)) {
-    q.prepare("select pathname from folders where id=:i");
-    q.bindValue(":i", folder);
-    if (!q.exec())
-      throw q;
-    if (!q.next())
-      throw NoResult();
-    folders[folder] = q.value(0).toString();
-  }
-  QString path = folders[folder] + "/" + fn;
+  QString path = db.folder(folder) + "/" + fn;
   int maxdim = cache->standardSizes().first();
   if (requests.contains(version)) {
     for (auto s: requests[version]) {
@@ -279,7 +258,7 @@ void AC_Worker::sendToBank(quint64 version) {
 	maxdim = md;
     }
   }
-  bank->findImage(version, path, mods, ftypes[ftype], orient,
+  bank->findImage(version, path, mods, db.ftype(ftype), orient,
                   maxdim, QSize(wid,hei));
 }
 

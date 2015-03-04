@@ -31,6 +31,7 @@ private:
   class ExportDialog *exportDialog;
   class AllControls *allControls;
   class HistoWidget *histogram;
+  class LiveAdjuster *adjuster;
 };
 
 #endif

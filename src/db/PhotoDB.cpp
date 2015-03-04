@@ -5,16 +5,37 @@
 #include <QDebug>
 #include "SqlFile.h"
 #include <QFile>
+#include "NoResult.h"
 
-PhotoDB::PhotoDB(QString fn): Database(fn) {
-  QSqlQuery q(*db);
-  if (!q.exec("select id, version from info limit 1") || !q.next()) {
-    qDebug() << "PhotoDB: Bad database";
-    throw q.lastError();
-  }
+PhotoDB::PhotoDB(QString fn): Database(fn),
+                              folders(new QMap<quint64, QString>),
+                              ftypes(new QMap<int, QString>) {
+  QSqlQuery q = query("select id, version from info limit 1");
+  if (!q.next())
+    throw NoResult();
+
   qDebug() << "Opened PhotoDB " << fn
 	   << ": " << q.value(0).toString() << q.value(1).toString();
+
   query("pragma synchronous = 0");
+
+  q = query("select id, stdext from filetypes");
+  while (q.next()) 
+    (*ftypes)[q.value(0).toInt()] = q.value(1).toString();
+}
+
+QString PhotoDB::ftype(int ft) const {
+  return (*ftypes)[ft];
+}
+
+QString PhotoDB::folder(quint64 id) {
+  if (folders->contains(id))
+    return (*folders)[id];
+
+  QString folder = simpleQuery("select pathname from folders where id=:i", id)
+    .toString();
+  (*folders)[id] = folder;
+  return folder;
 }
 
 PhotoDB PhotoDB::create(QString fn) {
