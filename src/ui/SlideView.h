@@ -24,6 +24,7 @@ public slots:
 signals:
   void needLargerImage();
   void doubleClicked();
+  void newSize(QSize);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

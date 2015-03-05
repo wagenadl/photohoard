@@ -32,7 +32,12 @@ void Adjuster::setReduced(Image16 const &image, QSize originalSize) {
 }
 
 double Adjuster::maxAvailableScale() const {
-  return stages.isEmpty() ? 1 : stages[0].scale;
+  if (stages.isEmpty())
+    return 0;
+  else if (stages[0].osize.width()==0)
+    return 0;
+  else
+    return stages[0].image.width() / stages[0].osize.width();
 }
 
 QSize Adjuster::maxAvailableSize() const {
@@ -40,34 +45,64 @@ QSize Adjuster::maxAvailableSize() const {
 }
 
 Image16 Adjuster::retrieveFull(Sliders const &settings) {
+  resetCanceled();
   if (stages.isEmpty())
     return Image16();
-  if (stages[0].scale != 1)
+  if (stages[0].stage != Stage_Original)
     return Image16();
   qDebug() << "retrieveFull";
   if (stages.last().settings == settings)
     return stages.last().image;
 
-  qDebug() << "RF: working";
-  if (stages.isEmpty())
-    return Image16();
   if (!applySinglePixelSettings(settings))
     return Image16();
-  qDebug() << "RF: done";
+
   return stages.last().image;  
 }
 
 Image16 Adjuster::retrieveReduced(Sliders const &settings,
                                   QSize maxSize) {
-  // To be properly implemented later
-  return retrieveFull(settings).scaled(maxSize);
+  resetCanceled();
+  if (stages.isEmpty())
+    return Image16();
+  int k = 0;
+  while (k+1<stages.size()) {
+    if (stages[k+1].stage>Stage_Reduced)
+      break;
+    if (stages[k+1].image.width()<maxSize.width()
+        && stages[k+1].image.height()<maxSize.height())
+      break;
+    if (!stages[k+1].roi.isEmpty())
+      break;
+    k++;
+  }
+  if (!stages[k].roi.isEmpty())
+    return Image16();
+  // Now we have a stage that has no reduced roi and that has a suitable scale
+  if (stages.last().settings==settings)
+    return stages.last().image;
+
+  double wfac = maxSize.width() / (stages[k].image.width()+1e-9);
+  double hfac = maxSize.height() / (stages[k].image.height()+1e-9);
+  double fac = wfac<hfac ? wfac : hfac;
+  if (fac<0.8 || (k<.95 && k+1==stages.size())) {
+    // It's worth scaling
+    stages << AdjusterTile(stages[k].image.scaled(maxSize));
+    k++;
+    stages[k].stage = Stage_Reduced;
+  }
+
+  if (!applySinglePixelSettings(settings))
+    return Image16();
+
+  return stages.last().image;  
 }
 
 QSize Adjuster::finalSize(Sliders const &settings) const {
   // Is this good enough? Should rotate be allowed to expand the image?
   if (stages.isEmpty())
     return QSize(0, 0);
-  QSize s0 = stages[0].image.size();
+  QSize s0 = stages[0].osize;
   return s0 - QSize(settings.cropl + settings.cropr,
                     settings.cropt + settings.cropb);
 }
@@ -138,7 +173,6 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
    */
   qDebug() << "applyXYZ";
   int iparent = findParentStage(Stage_XYZ);
-  qDebug() << iparent << stages.size();
   if (iparent<0)
     return false;
 
@@ -146,7 +180,8 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
   qDebug() << "Not already good";
-  qDebug() << iparent << stages.size();
+  if (isCanceled())
+    return false;
   stages << adj.apply(stages[iparent], final);
 
   return true;
@@ -161,6 +196,8 @@ bool Adjuster::applyIPT(Sliders const &final) {
   AdjusterIPT adj;
    if (ensureAlreadyGood(adj, iparent, final))
     return true;
+  if (isCanceled())
+    return false;
   stages << adj.apply(stages[iparent], final);
   return true;
 }
@@ -175,3 +212,19 @@ bool Adjuster::applySinglePixelSettings(Sliders const &settings) {
   return applyFirstXYZ(settings) && applyIPT(settings);
 }
 
+void Adjuster::cancel() {
+  canceled = true;
+}
+
+bool Adjuster::isCanceled() {
+  if (canceled) {
+    canceled = false;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void Adjuster::resetCanceled() {
+  canceled = false;
+}

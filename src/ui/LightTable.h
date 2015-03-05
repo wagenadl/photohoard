@@ -32,6 +32,7 @@ public slots:
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);
+  void newSlideSize(QSize);
 private slots:
   void requestLargerImage();
 protected:

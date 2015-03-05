@@ -82,6 +82,7 @@ void SlideView::scaleToFit() {
 }
 
 void SlideView::resizeEvent(QResizeEvent *) {
+  emit newSize(size());
   if (fit)
     update();
 }

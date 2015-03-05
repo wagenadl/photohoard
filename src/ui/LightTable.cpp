@@ -51,6 +51,8 @@ LightTable::LightTable(PhotoDB const &db1, QWidget *parent):
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
+  connect(slide, SIGNAL(newSize(QSize)),
+          this, SIGNAL(newSlideSize(QSize)));
   
   quint64 c = db.simpleQuery("select * from current").toULongLong();
   if (c)

@@ -36,10 +36,12 @@ public:
      (returning a null image) if we do not have the full resolution.
   */
   Image16 retrieveReduced(Sliders const &settings, QSize maxSize);
-  /* Retrieves a version of the image with settings applied and reduced
-     in resolution to fit within the given maxSize. This always succeeds,
-     even if we don't have enough resolution to give the requested size.
-     (A further reduced version is returned in that case.)  */
+  /* Retrieves a version of the image with settings applied and possibly
+     reduced in resolution to fit within the given maxSize.
+     This always succeeds, even if we don't have enough resolution to give
+     the requested size. (A further reduced version is returned in that case.)
+     Note that a _larger_ image may also be returned if that is quicker.
+  */
   QSize finalSize(Sliders const &settings) const;
   /* Determine the size of the final image. This may differ from the size
      of the original image due to cropping or other geometric transforms.
@@ -82,7 +84,16 @@ public:
      Note that this feature prevents me from declaring the retrieveXXX
      functions const and the stages mutable. Oh well.
   */
+  void cancel();
+  /* Adjuster is not truly threadsafe, but one exception exists: It is
+     always safe to call cancel(), which will attempt to abort any
+     "retrieve" operation and cause it to return an empty image. There is,
+     however, no guarantee that cancellation will be effective.
+   */
 private:
+  bool isCanceled();
+  /* Test-and-reset the cancellation flag. */
+  void resetCanceled();
   bool applySinglePixelSettings(Sliders const &settings);
   /* Apply those settings that work on a per-pixel basis from the given
      settings. This assumes that topmost stage exists and is a suitable
@@ -102,7 +113,7 @@ private:
   /* The first stage is always the original image; subsequent stages may
      be used to cache various processing stages to speed up reprocessing.
   */
-  bool caching, keeporiginal;
+  bool caching, keeporiginal, canceled;
 };
 
 #endif

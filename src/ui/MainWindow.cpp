@@ -57,8 +57,11 @@ MainWindow::MainWindow(PhotoDB const &db,
   adjuster = new LiveAdjuster(db, autocache, allControls, this);
   connect(lightTable, SIGNAL(newCurrent(quint64)),
           adjuster, SLOT(setTargetVersion(quint64)));
+  connect(lightTable, SIGNAL(newSlideSize(QSize)),
+          adjuster, SLOT(setTargetSize(QSize)));
   connect(adjuster, SIGNAL(imageChanged(quint64, QSize, Image16)),
           this, SLOT(updateImage(quint64, QSize, Image16)));
+  adjuster->setTargetVersion(lightTable->current());
 }
 
   

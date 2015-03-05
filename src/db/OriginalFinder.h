@@ -9,6 +9,7 @@
 #include <QMap>
 #include <QSize>
 #include "Image16.h"
+#include "Exif.h"
 
 class OriginalFinder: public QObject {
   Q_OBJECT;
@@ -20,12 +21,24 @@ public slots:
   void requestScaledOriginal(quint64 version, QSize desired);
 signals:
   void originalAvailable(quint64 version, Image16 img);
-  void scaledOriginalAvailable(quint64 version, QSize requested, Image16 img);
+  void scaledOriginalAvailable(quint64 version, QSize osize, Image16 img);
   void exception(QString);
+private slots:
+  void freaderReady(QString fn);
+  void rreaderReady(QString fn);
+  void read(class InterruptableReader *);
+  void fixOrientation(Image16 &);
 private:
   PhotoDB db;
   class BasicCache *cache;
-  class IF_Worker *ifinder;
+  class InterruptableFileReader *filereader;
+  class InterruptableRawReader *rawreader;
+private:
+  quint64 version;
+  QSize desired;
+  QSize osize;
+  QString filepath;
+  Exif::Orientation orient;
 };
 
 #endif

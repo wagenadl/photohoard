@@ -16,12 +16,13 @@ class AutoCache: public QObject {
 public:
   AutoCache(PhotoDB const &db, QString rootdir, QObject *parent=0);
   virtual ~AutoCache();
+  class BasicCache *basicCache() const { return cache; }
 public slots:
   void recache(QSet<quint64> ids);
   void recache(quint64 id);
   void request(quint64 version, QSize desired);
-  void requestOriginal(quint64 version);
-  void requestScaledOriginal(quint64 version, QSize desired);
+  //  void requestOriginal(quint64 version);
+  //  void requestScaledOriginal(quint64 version, QSize desired);
   void cachePreview(quint64 id, Image16 img);
 signals: // public
   void progressed(int n, int N);
@@ -39,8 +40,8 @@ signals: // private
 private:
   QThread thread;
   class AC_Worker *worker;
-  QThread ofthread;
-  class OriginalFinder *ofinder;
+  //  QThread ofthread;
+  //  class OriginalFinder *ofinder;
   PhotoDB db;
   class BasicCache *cache;
 };

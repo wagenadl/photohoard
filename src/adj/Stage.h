@@ -6,8 +6,7 @@
 
 enum Stage {
   Stage_Original,
-  Stage_ROI,
-  Stage_Scaled,
+  Stage_Reduced, // either by ROI or scale
   Stage_XYZ,
   Stage_IPT,
 };
