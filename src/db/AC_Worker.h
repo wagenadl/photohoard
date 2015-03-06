@@ -20,7 +20,7 @@ public slots:
   void requestImage(quint64 version, QSize desired);
   void cachePreview(quint64 vsn, Image16 img);
 private slots:
-  void handleFoundImage(quint64 id, Image16 img, bool isFullSize);
+  void handleFoundImage(quint64 version, Image16 img, QSize fullSize);
 signals:
   void cacheProgress(int n, int N);
   void doneCaching();
@@ -34,7 +34,7 @@ private:
   void activateBank();
   void sendToBank(quint64 version);
   void storeLoadedInDB();
-  void ensureDBSizeOK(quint64 vsn, QSize);
+  void ensureDBSizeCorrect(quint64 vsn, QSize);
   void countQueue();
   int queueLength();
 private:

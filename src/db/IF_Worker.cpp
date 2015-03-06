@@ -12,22 +12,26 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   adjuster = new Adjuster(this);
 }
 
-Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
-                               Exif::Orientation orient, int maxdim, QSize ns,
-                               bool *fullSizeReturn) {
-  bool fullSize = true;
+Image16 IF_Worker::findImageNow(QString path, QString ext,
+				Exif::Orientation orient, QSize naturalSize,
+				QString mods,				
+				int maxdim, bool urgent,
+				QSize *fullSizeReturn) {
+  if (fullSizeReturn)
+    *fullSizeReturn = QSize();
+  bool halfsize = false;
   Image16 img;
   if (ext=="jpeg" || ext=="png" || ext=="tiff") {
     img = Image16(path); // load it directly
   } else if (ext=="nef" || ext=="cr2") {
     NiceProcess dcraw;
-    if (maxdim>0)
+    if (!urgent)
       dcraw.renice(10);
     QStringList args;
     if (maxdim>0
         && (maxdim*2<=ns.width() || maxdim*2<=ns.height())) {
       args << "-h";
-      fullSize = false;
+      halfsize = true;
     }
     // If the image is large enough, we might be able to do a quicker
     // load of a downscaled version
@@ -45,58 +49,54 @@ Image16 IF_Worker::findImageNow(QString path, QString mods, QString ext,
     // Other formats?
   }            
 
-  if (img.isNull()) {
-    if (fullSizeReturn)
-      *fullSizeReturn = false;
+  if (img.isNull()) 
     return Image16();
-  }
+
+  QSize fullsize = halfsize ? 2*img.size() : img.size();
+  if (fullSizeReturn)
+    *fullSizeReturn = fullsize;
   
-  if (maxdim>0) {
-    // This should be reconsidered based on the adjuster
-    if (img.width()>maxdim || img.height()>maxdim) {
-      img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
-      fullSize = false;
-    }
-  }
+  // This should be reconsidered based on the adjuster
+  if (img.width()>maxdim || img.height()>maxdim) 
+    img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
     
   switch (orient) {
   case Exif::Upright:
     break;
   case Exif::UpsideDown:
-    img = upsideDown(img);
+    img.rotate180();
     break;
   case Exif::CW:
-    img = rotateCW(img);
+    img.rotate90CW();
     break;
   case Exif::CCW:
-    img = rotateCCW(img);
+    img.rotate90CCW();
     break;
   }
 
   if (mods != "") {
-    if (fullSize)
+    if (img.size()==fullsize)
       adjuster->setOriginal(img);
     else
-      adjuster->setReduced(img, ns);
+      adjuster->setReduced(img, fullsize);
+    
     Sliders s(mods);
-    if (maxdim)
-      img = adjuster->retrieveReduced(s, QSize(maxdim, maxdim));
-    else
-      img = adjuster->retrieveFull(s);
+    img = adjuster->retrieveReduced(s, QSize(maxdim, maxdim));
   }
-  
-  if (fullSizeReturn)
-    *fullSizeReturn = fullSize;
   
   return img;
 }  
 
-void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
-                          Exif::Orientation orient, int maxdim, QSize ns) {
+void IF_Worker::findImage(quint64 id, QString path, QString ext,
+                          Exif::Orientation orient, QSize ns,
+			  QString mods,
+			  int maxdim, bool urgent) {
+  Q_ASSERT(maxdim>0);
   try {
-    bool fullSize;
-    Image16 img = findImageNow(path, mods, ext, orient, maxdim, ns,
-                              &fullSize);
+    QSize fullSize;
+    Image16 img = findImageNow(path, ext, orient, ns, mods,
+			       maxdim, urgent,
+			       &fullSize);
     emit foundImage(id, img, fullSize);
   } catch (QSqlQuery const &q) {
     emit exception("IF_Worker: SqlError: " + q.lastError().text()
@@ -108,18 +108,3 @@ void IF_Worker::findImage(quint64 id, QString path, QString mods, QString ext,
   }
 }
 
-Image16 IF_Worker::upsideDown(Image16 &img) {
-  img.rotate180();
-  return img;
-}
-
-
-Image16 IF_Worker::rotateCW(Image16 &img) {
-  img.rotate90CW();
-  return img;
-}
-
-Image16 IF_Worker::rotateCCW(Image16 &img) {
-  img.rotate90CCW();
-  return img;
-}

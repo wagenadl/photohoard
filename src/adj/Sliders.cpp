@@ -6,6 +6,7 @@
 #include "math.h"
 #include <QDebug>
 #include <QStringList>
+#include <limits>
 
 Sliders::Sliders() {
 #define SLIDER(name, dfl) name = dfl;
@@ -24,7 +25,7 @@ double Sliders::get(QString k) const {
 #define SLIDER(name, dfl) if (k==#name) { return name; }
 #include "sliders.def"
 #undef SLIDER
-  return nan("");
+  return std::numeric_limits<double>::quiet_NaN();
 }
 
 QMap<QString, double> const &Sliders::defaults() {

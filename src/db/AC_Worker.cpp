@@ -35,7 +35,6 @@ int AC_Worker::queueLength() {
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
-  //  qDebug() << "AC_Worker::recache n=" << versions.size();
   try {
     addToDBQueue(versions);
     markReadyToLoad(versions);
@@ -119,7 +118,8 @@ void AC_Worker::activateBank() {
   QSet<quint64> tobesent;
   while (K>0 && !readyToLoad.isEmpty()) {
     if (rtlOrder.isEmpty()) 
-      qDebug() << "rtlOrder is empty but readyToLoad is not" << readyToLoad.size() << *readyToLoad.begin();
+      qDebug() << "rtlOrder is empty but readyToLoad is not"
+	       << readyToLoad.size() << *readyToLoad.begin();
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id))
       continue;
@@ -152,60 +152,40 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
   }
 }
 
-void AC_Worker::ensureDBSizeOK(quint64 vsn, QSize siz) {
-  QSqlQuery q(*db);
-  q.prepare("select photo, mods from versions where id=:v");
-  q.bindValue(":v", vsn);
-  if (!q.exec())
-    throw q;
-  if (!q.next())
-    throw NoResult();
-  quint64 photo = q.value(0).toULongLong();
-  QString mods = q.value(1).toString();
-  if (mods!="")
-    return;
-  
-  q.prepare("select width, height "
-            " from photos where id=:i");
-  q.bindValue(":i", photo);
-  if (!q.exec())
-    throw q;
-  if (!q.next())
-    throw NoResult();
+void AC_Worker::ensureDBSizeCorrect(quint64 vsn, QSize siz) {
+  quint64 photo = db.simpleQuery("select photo from versions where id=:a", vsn)
+    .toULongLong();
 
+  QSqlQuery q = db.query("select width, height from photos where id=:a", photo);
+  if (!q.next())
+    throw NoResult();
   int wid = q.value(0).toInt();
   int hei = q.value(1).toInt();
-  if (wid!=siz.width() || hei!=siz.height()) {
-    q.prepare("update photos set width=:w, height=:h where id=:i");
-    q.bindValue(":i", photo);
-    q.bindValue(":w", siz.width());
-    q.bindValue(":h", siz.height());
-    if (!q.exec())
-      throw q;
-  }
+
+  if (wid!=siz.width() || hei!=siz.height())
+    db.query("update photos set width=:a, height=:b where id=:c",
+	     siz.width(), siz.height(), photo);
 }
 
-void AC_Worker::handleFoundImage(quint64 id, Image16 img, bool isFullSize) {
+void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // Actually store in cache if we have enough to make it worth while
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
   //  qDebug() << "HandleFoundImage" << id << img.size();
   try {
-    if (requests.contains(id)) {
-      if (isFullSize && !img.isNull())
-        ensureDBSizeOK(id, img.size());
+    if (!fullSize.isEmpty())
+      ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
+    if (requests.contains(id)) 
       respondToRequest(id, img);
-    }
     beingLoaded.remove(id);
     outdatedLoaded.remove(id);
 
-    if (invalidatedWhileLoading.contains(id)) {
+    if (invalidatedWhileLoading.contains(id)) 
       invalidatedWhileLoading.remove(id);
-    } else if (mustCache.contains(id)) {
+    else if (mustCache.contains(id))
       loaded[id] = img;
-    }
-
+    
     bool done = loaded.size()>0
       && readyToLoad.isEmpty() && beingLoaded.isEmpty();
     if (done || loaded.size() > threshold) {
@@ -251,15 +231,10 @@ void AC_Worker::sendToBank(quint64 version) {
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   QString path = db.folder(folder) + "/" + fn;
   int maxdim = cache->standardSizes().first();
-  if (requests.contains(version)) {
-    for (auto s: requests[version]) {
-      int md = cache->maxdim(s);
-      if (md>maxdim)
-	maxdim = md;
-    }
-  }
-  bank->findImage(version, path, mods, db.ftype(ftype), orient,
-                  maxdim, QSize(wid,hei));
+  bank->findImage(version,
+		  path, db.ftype(ftype), orient, QSize(wid, hei),
+		  mods,
+                  maxdim, requests.contains(version));
 }
 
 void AC_Worker::storeLoadedInDB() {
@@ -283,50 +258,27 @@ void AC_Worker::storeLoadedInDB() {
 void AC_Worker::requestImage(quint64 version, QSize desired) {
   //  qDebug() << "AC_Worker::requestImage" << version << desired;
   try {
-    QSize actual(0, 0);
-    
     if (loaded.contains(version)) {
       emit available(version, desired, loaded[version]);
-      actual = loaded[version].size();
-    } else {
-      int d = cache->bestSize(version, cache->maxdim(desired));
-      if (d>0) {
-        bool od;
-	Image16 img = cache->get(version, d, &od);
-	emit available(version, desired, img);
-	actual = img.size();
-      }
+      return;
+    } 
+
+    int d = cache->bestSize(version, cache->maxdim(desired));
+    if (d>0) {
+      bool od;
+      Image16 img = cache->get(version, d, &od);
+      emit available(version, desired, img);
+      if (!od)
+	return;
     }
 
-    if (actual.width()>=desired.width() || actual.height()>=desired.height())
-      return; // easy, we're done
-    
-    // We will probably have to request it to get the right size.
-
+    // We will have to request it
     if (beingLoaded.contains(version)) {
-      // If it is already being loaded, we are liable to get
-      // a copy that is too small.
-      bool contained = false;
-      for (auto s: requests[version]) {
-        if (s.width()>=desired.width() && s.height()>=desired.height()) {
-          contained = true;
-          break;
-        }
-      }
+      // We'll get it
       requests[version] << desired;
-      if (contained) {
-        // That's easy, we'll get a large enough version
-      } else {
-        invalidatedWhileLoading << version;
-        if (!readyToLoad.contains(version)) {
-          readyToLoad << version;
-          rtlOrder.push_front(version);
-        }
-      }
     } else {
-      if (BasicCache::maxdim(actual) < cache->maxDim()) {
+      if (BasicCache::maxdim(actual) < cache->maxDim()) 
         mustCache << version;
-      }
       requests[version] << desired;
       readyToLoad << version;
       rtlOrder.push_front(version);

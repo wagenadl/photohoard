@@ -15,16 +15,20 @@ public:
   virtual ~ImageFinder();
   int queueLength() const { return queuelength; }
 public slots:
-  void findImage(quint64 id, QString path, QString mods, QString ext,
-                 Exif::Orientation orient, int maxdim, QSize ns);
+  void findImage(quint64 id, QString path, QString ext,
+		 Exif::Orientation orient, QSize ns,
+		 QString mods,
+		 int maxdim, bool urgent);
 signals:
   void foundImage(quint64, Image16, bool);
   void exception(QString);
 private slots:
-  void handleFoundImage(quint64 id, Image16 img, bool isFullSize);
+  void handleFoundImage(quint64 id, Image16 img, QSize originalSize);
 signals:  // private
-  void forwardFindImage(quint64 id, QString path, QString mods, QString ext,
-                        Exif::Orientation orient, int maxdim, QSize ns);
+  void forwardFindImage(quint64 id, QString path, QString ext,
+			Exif::Orientation orient, QSize ns,
+			QString mods,
+			int maxdim, bool urgent);
 private:
   QThread thread;
   class IF_Worker *worker;

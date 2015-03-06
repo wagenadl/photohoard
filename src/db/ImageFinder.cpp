@@ -12,12 +12,14 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
   worker->moveToThread(&thread);
   qRegisterMetaType<Exif::Orientation>("Exif::Orientation");
   connect(&thread, SIGNAL(finished()), worker, SLOT(deleteLater()));
-  connect(this, SIGNAL(forwardFindImage(quint64, QString, QString, QString,
-                                        Exif::Orientation, int, QSize)),
-          worker, SLOT(findImage(quint64, QString, QString, QString,
-                                 Exif::Orientation, int, QSize)));
-  connect(worker, SIGNAL(foundImage(quint64, Image16, bool)),
-          this, SLOT(handleFoundImage(quint64, Image16, bool)));
+  connect(this, SIGNAL(forwardFindImage(quint64, QString, QString,
+                                        Exif::Orientation, QSize,
+					QString, int, bool)),
+          worker, SLOT(findImage(quint64, QString, QString,
+				 Exif::Orientation, QSize,
+				 QString, int, bool)));
+  connect(worker, SIGNAL(foundImage(quint64, Image16, QSize)),
+          this, SLOT(handleFoundImage(quint64, Image16, QSize)));
   connect(worker, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   thread.start();
@@ -28,13 +30,15 @@ ImageFinder::~ImageFinder() {
   thread.wait();
 }
 
-void ImageFinder::findImage(quint64 id, QString path, QString mods, QString ext,
-                            Exif::Orientation orient, int maxdim, QSize ns) {
+void ImageFinder::findImage(quint64 id, QString path, QString ext,
+			    Exif::Orientation orient, QSize ns,
+			    QString mods,
+			    int maxdim, bool urgent) {
   queuelength++;
-  emit forwardFindImage(id, path, mods, ext, orient, maxdim, ns);
+  emit forwardFindImage(id, path, ext, orient, ns, mods, maxdim, urgent);
 }
 
-void ImageFinder::handleFoundImage(quint64 id, Image16 img, bool fs) {
+void ImageFinder::handleFoundImage(quint64 id, Image16 img, QSize fs) {
   queuelength--;
   emit foundImage(id, img, fs);
 }

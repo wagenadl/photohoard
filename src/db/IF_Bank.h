@@ -16,10 +16,12 @@ public:
   int totalThreads() const;
   int queueLength() const;
 public slots:
-  void findImage(quint64 id, QString path, QString mods, QString ext,
-                 Exif::Orientation orient, int maxdim, QSize natsize);
+  void findImage(quint64 id, QString path, QString ext,
+		 Exif::Orientation orient, QSize ns,
+		 QString mods,
+		 int maxdim, bool urgent);
 signals:
-  void foundImage(quint64 id, Image16 img, bool isFullSize);
+  void foundImage(quint64 id, Image16 img, QSize originalSize);
   void exception(QString);
 private:
   QVector<class ImageFinder *> finders;

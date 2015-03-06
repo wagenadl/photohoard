@@ -9,6 +9,7 @@
 #include <QBoxLayout>
 #include <QSignalMapper>
 #include "Sliders.h"
+#include <limits>
 
 AllControls::AllControls(QWidget *parent): QFrame(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
@@ -104,7 +105,7 @@ double AllControls::get(QString name) const {
   if (j)
     return j->value();
   else
-    return nan("");
+    return std::numeric_limits<double>::quiet_NaN();
 }
 
 void AllControls::setQuietly(QMap<QString, double> const &vv) {
