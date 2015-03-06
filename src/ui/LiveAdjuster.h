@@ -12,15 +12,13 @@
 class LiveAdjuster: public QObject {
   Q_OBJECT;
 public:
-  LiveAdjuster(PhotoDB const &db, class AutoCache *cache,
+  LiveAdjuster(PhotoDB const &db, 
                class AllControls *controls,
                QObject *parent=0);
 public slots:
-  void setTargetVersion(quint64 version);
-  void setTargetSize(QSize);
+  void requestAdjusted(quint64 version, QSize size);
 signals:
-  void imageChanged(quint64, QSize, Image16);
-  // The size is the original size
+  void imageChanged(Image16 img, quint64 version);
 private slots:
   void setSlider(QString, double);
   void provideOriginal(quint64, Image16);
@@ -28,7 +26,6 @@ private slots:
   void provideAdjusted(Image16);
 private:
   PhotoDB db;
-  AutoCache *cache; // we do not own
   AllControls *controls; // we do not own
   quint64 version;
   QSize targetsize;

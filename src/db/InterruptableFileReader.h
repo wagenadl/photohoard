@@ -15,6 +15,7 @@ protected:
   virtual QIODevice &source() { return src; }
   virtual bool openCurrent();
   virtual qint64 nextChunkSize();
+  virtual bool atEnd() const;
 private:
   QFile src;
   qint64 size;

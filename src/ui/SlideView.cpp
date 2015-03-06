@@ -52,7 +52,9 @@ void SlideView::updateImage(Image16 img1) {
       img = img1;
     }
   }
+  qDebug() << "  Requesting update";
   update();
+  qDebug() << "  Request posted";
 }
 
 void SlideView::changeZoomLevel(QPoint, double delta) {
@@ -123,6 +125,7 @@ void SlideView::mouseDoubleClickEvent(QMouseEvent *) {
 }
 
 void SlideView::paintEvent(QPaintEvent *) {
+  qDebug() << "SlideView::paint";
   if (img.isNull())
     return;
   
@@ -131,22 +134,28 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
+    qDebug() << "  scaling";
     Image16 i1 = img.scaled(r.size(), Qt::KeepAspectRatio);
+    qDebug() << "  scaled";
     if (img.width()<naturalSize.width()
         && i1.width()>img.width()
         && img.height()<naturalSize.height()
         && i1.height()>img.height()) {
       // I should only request it if I haven't already
-      if (img.size()!=lastSize)
+      if (img.size()!=lastSize) {
+        qDebug() << "  needlargerimage";
         emit needLargerImage();
+      }
       lastSize = img.size();
     } else {
       lastSize = QSize();
     }
+    qDebug() << "  drawing image";
     p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2,
                        (r.top() + r.bottom())/2 - i1.height()/2),
 		i1.toQImage());
   } else {
+    qDebug() << "  not fit";
     double showWidth = zoom*naturalSize.width();
     double showHeight = zoom*naturalSize.height();
     double imgWidth = img.width();

@@ -16,8 +16,8 @@ public:
     Waiting,
     Running,
     Success,
+    Canceled,
     Failed,
-    Canceled
   };    
 public:
   InterruptableReader(QObject *parent=0);
@@ -59,6 +59,7 @@ protected:
   virtual void stopSource() { }
   virtual qint64 nextChunkSize() { return 65536; }
   virtual bool openCurrent()=0;
+  virtual bool atEnd() const=0;
 private:
   void cancelCurrent();
   void readSome();
@@ -73,6 +74,7 @@ protected:
   QWaitCondition waitcond;
   QString errmsg; // valid _only_ in state Failed
   bool stopsoon;
+  bool cancelsoon;
   qint64 reservedsize, offset;
 };
 

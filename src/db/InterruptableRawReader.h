@@ -16,6 +16,7 @@ protected:
   virtual QIODevice &source() { return src; }
   virtual bool openCurrent();
   virtual void stopSource();
+  virtual bool atEnd() const;
 private:
   QProcess src;
 };

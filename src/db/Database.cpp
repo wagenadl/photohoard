@@ -147,21 +147,21 @@ Transaction::~Transaction() {
 QVariant Database::simpleQuery(QString s) {
   QSqlQuery q = query(s);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(s);
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a) {
   QSqlQuery q = query(s, a);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(s);
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) {
   QSqlQuery q = query(s, a, b);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(s);
   return q.value(0);
 }
 
@@ -169,7 +169,7 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c) {
   QSqlQuery q = query(s, a, b, c);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(s);
   return q.value(0);
 }
    
@@ -177,7 +177,7 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c, QVariant d) {
   QSqlQuery q = query(s, a, b, c, d);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(s);
   return q.value(0);
 }
    

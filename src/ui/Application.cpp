@@ -5,7 +5,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QFile>
-
+#include "NoResult.h"
 
 Application::Application(int &argc, char **argv): QApplication(argc, argv) {
   QFile f(":/style.css");
@@ -22,8 +22,10 @@ bool Application::notify(QObject *receiver, QEvent *e) {
     qDebug() << "Uncaught exception: SqlError: " << q.lastError().text()
 	     << " from " << q.lastQuery();
     quit();
+  } catch (NoResult &n) {
+    qDebug() << "Uncaught exception: NoResult" << n.msg << n.n;
   } catch (...) {
-    qDebug() << "Uncaught exception";
+    qDebug() << "Uncaught exception: unknown";
     quit();
   }
   return b;

@@ -158,7 +158,7 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, QSize siz) {
 
   QSqlQuery q = db.query("select width, height from photos where id=:a", photo);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(__FILE__, __LINE__);
   int wid = q.value(0).toInt();
   int hei = q.value(1).toInt();
 
@@ -216,13 +216,13 @@ void AC_Worker::sendToBank(quint64 version) {
   QSqlQuery q(db.query("select photo, mods from versions"
                        " where id=:a limit 1", version));
   if (!q.next())
-    throw NoResult();
+    throw NoResult(__FILE__, __LINE__);
   quint64 photo = q.value(0).toULongLong();
   QString mods = q.value(1).toString();
   q = db.query("select folder, filename, filetype, width, height, orient "
                " from photos where id=:a limit 1", photo);
   if (!q.next())
-    throw NoResult();
+    throw NoResult(__FILE__, __LINE__);
   quint64 folder = q.value(0).toULongLong();
   QString fn = q.value(1).toString();
   int ftype = q.value(2).toInt();
@@ -256,9 +256,10 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  //  qDebug() << "AC_Worker::requestImage" << version << desired;
+  qDebug() << "AC_Worker::requestImage" << version << desired;
   try {
     if (loaded.contains(version)) {
+      qDebug() << "  available from loaded";
       emit available(version, desired, loaded[version]);
       return;
     } 
@@ -266,7 +267,9 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     int d = cache->bestSize(version, cache->maxdim(desired));
     if (d>0) {
       bool od;
+      qDebug() << "  available from cache";
       Image16 img = cache->get(version, d, &od);
+      qDebug() << "  got from cache";
       emit available(version, desired, img);
       if (!od)
 	return;
@@ -275,8 +278,10 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     // We will have to request it
     if (beingLoaded.contains(version)) {
       // We'll get it
+      qDebug() << "  beingloaded";
       requests[version] << desired;
     } else {
+      qDebug() << "  add to bank";
       mustCache << version;
       requests[version] << desired;
       readyToLoad << version;

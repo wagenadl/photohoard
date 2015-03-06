@@ -5,11 +5,16 @@
 bool InterruptableRawReader::openCurrent() {
   QString cmd = "dcraw";
   QStringList args;
-  args << "-4" << "-c" << "-w" << current;
+  args << "-c" << "-w" << current;
+  // eventually we should return 16-bits linear XYZ!
   src.start(cmd, args);
   return true;
 }
 
 void InterruptableRawReader::stopSource() {
   src.terminate();
+}
+
+bool InterruptableRawReader::atEnd() const {
+  return src.atEnd();
 }

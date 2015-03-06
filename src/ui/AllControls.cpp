@@ -108,9 +108,9 @@ double AllControls::get(QString name) const {
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-void AllControls::setQuietly(QMap<QString, double> const &vv) {
-  for (auto it=vv.begin(); it!=vv.end(); it++)
-    setQuietly(it.key(), it.value());
+void AllControls::setQuietly(Sliders const &vv) {
+  for (auto k: vv.keys()) 
+    setQuietly(k, vv.get(k));
 }
 
 bool AllControls::setQuietly(QString name, double value) {

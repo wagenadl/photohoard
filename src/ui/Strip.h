@@ -43,7 +43,7 @@ public:
   PhotoDB &database() { return db; }
 public slots:
   void rescan();
-  void updateImage(quint64, QSize, Image16);
+  void updateImage(quint64, Image16);
   void updateHeader(Image16);
   void setTimeRange(QDateTime t0, TimeScale scl);
   virtual void setArrangement(Arrangement arr);

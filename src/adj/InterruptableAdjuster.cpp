@@ -86,9 +86,9 @@ void InterruptableAdjuster::run() {
           img = adjuster->retrieveReducedROI(sli, r, s);
       }
       mutex.lock();
-      if (cancel || newreq)
-        continue;
-      if (emit_while_locked) {
+      if (cancel || newreq) {
+        cancel = false;
+      } else if (emit_while_locked) {
         emit ready(img);
       } else {
         mutex.unlock();

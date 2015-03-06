@@ -22,13 +22,6 @@ MainWindow::MainWindow(PhotoDB const &db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter): exporter(exporter) {
   exportDialog = 0;
-  
-  setCentralWidget(lightTable = new LightTable(db, this));
-  addToolBar(fileBar = new FileBar(this));
-  addToolBar(layoutBar = new LayoutBar(this));
-  addToolBar(colorLabelBar = new ColorLabelBar(this));
-  addToolBar(filterBar = new FilterBar(this));
-  // etc.
 
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setWidget(histogram = new HistoWidget(this));
@@ -37,7 +30,19 @@ MainWindow::MainWindow(PhotoDB const &db,
   dock = new QDockWidget("Adjustments", this);
   dock->setWidget(allControls = new AllControls(this));
   addDockWidget(Qt::RightDockWidgetArea, dock);
+
+  adjuster = new LiveAdjuster(db, allControls, this);
   
+  setCentralWidget(lightTable = new LightTable(db, adjuster, this));
+  addToolBar(fileBar = new FileBar(this));
+  addToolBar(layoutBar = new LayoutBar(this));
+  addToolBar(colorLabelBar = new ColorLabelBar(this));
+  addToolBar(filterBar = new FilterBar(this));
+  // etc.
+  
+  connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
+          histogram, SLOT(setImage(Image16))); // is this ok?
+
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));
   connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
@@ -53,15 +58,6 @@ MainWindow::MainWindow(PhotoDB const &db,
 	  lightTable, SLOT(setColorLabel(ColorLabelBar::Action)));
   connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
 	  lightTable, SLOT(filterAction(FilterBar::Action)));
-
-  adjuster = new LiveAdjuster(db, autocache, allControls, this);
-  connect(lightTable, SIGNAL(newCurrent(quint64)),
-          adjuster, SLOT(setTargetVersion(quint64)));
-  connect(lightTable, SIGNAL(newSlideSize(QSize)),
-          adjuster, SLOT(setTargetSize(QSize)));
-  connect(adjuster, SIGNAL(imageChanged(quint64, QSize, Image16)),
-          this, SLOT(updateImage(quint64, QSize, Image16)));
-  adjuster->setTargetVersion(lightTable->current());
 }
 
   
@@ -90,8 +86,8 @@ void MainWindow::scrollToCurrent() {
   lightTable->scrollToCurrent();
 }
 
-void MainWindow::updateImage(quint64 i, QSize s, Image16 img) {
-  lightTable->updateImage(i, s, img);
+void MainWindow::updateImage(quint64 i, QSize, Image16 img) {
+  lightTable->updateImage(i, img);
   if (i==lightTable->current())
     histogram->setImage(img);
 }

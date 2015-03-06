@@ -275,7 +275,7 @@ Slide *Strip::slideByVersion(quint64) {
   return NULL;
 }
 
-void Strip::updateImage(quint64 v, QSize, Image16 img) {
+void Strip::updateImage(quint64 v, Image16 img) {
   Slide *s = slideByVersion(v);
   if (s)
     s->updateImage(img);  

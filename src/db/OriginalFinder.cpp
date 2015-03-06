@@ -6,9 +6,9 @@
 #include "NoResult.h"
 #include "Exif.h"
 
-OriginalFinder::OriginalFinder(PhotoDB const &db, class BasicCache *cache,
+OriginalFinder::OriginalFinder(PhotoDB const &db, 
                                QObject *parent):
-  QObject(parent), db(db), cache(cache) {
+  QObject(parent), db(db) {
   filereader = new InterruptableFileReader(this);
   rawreader = new InterruptableRawReader(this);
   connect(filereader, SIGNAL(ready(QString)),
@@ -29,17 +29,13 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     QSqlQuery q = db.query("select photo, mods from versions"
 			   " where id=:a limit 1", vsn);
     if (!q.next())
-      throw NoResult();
+      throw NoResult(__FILE__, __LINE__);
     quint64 photo = q.value(0).toULongLong();
     QString mods = q.value(1).toString();
-    if (mods=="") {
-      // We might have it in our cache.
-      // But for right now, I am not bothering to look.
-    }
     q = db.query("select folder, filename, filetype, width, height, orient "
                " from photos where id=:a limit 1", photo);
     if (!q.next())
-      throw NoResult();
+      throw NoResult(__FILE__, __LINE__);
     quint64 folder = q.value(0).toULongLong();
     QString fn = q.value(1).toString();
     int ftype = q.value(2).toInt();
@@ -71,6 +67,7 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
 }
 
 void OriginalFinder::freaderReady(QString fn) {
+  qDebug() << "freaderready" << fn;
   if (fn==filepath)
     read(filereader);
   else
@@ -101,6 +98,7 @@ void OriginalFinder::fixOrientation(Image16 &img) {
 }  
 
 void OriginalFinder::read(InterruptableReader *reader) {
+  qDebug() << "OriginalFinder::read";
   QByteArray data = reader->readAll(filepath);
   Image16 img = QImage::fromData(data);
   if (desired.isNull()) {

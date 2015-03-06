@@ -103,7 +103,7 @@ void FilmView::recalcSizes() {
   }
 }
 
-void FilmView::updateImage(quint64 id, QSize, Image16 img) {
+void FilmView::updateImage(quint64 id, Image16 img) {
   scene_->updateImage(id, img);
 }
 

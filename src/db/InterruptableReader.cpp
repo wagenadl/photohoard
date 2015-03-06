@@ -8,6 +8,7 @@ InterruptableReader::InterruptableReader(QObject *parent):
   QThread(parent) {
   state_ = State::Waiting;
   requested = "";
+  cancelsoon = false;
   start();
 }
 
@@ -22,11 +23,12 @@ InterruptableReader::~InterruptableReader() {
 }
 
 QByteArray InterruptableReader::readAll(QString fn) {
+  qDebug() << "IR::readAll" << fn;
   QMutexLocker l(&mutex);
   if (state_==State::Success && current==fn) {
     QByteArray result = dest;
     state_ = State::Waiting;
-    requested = "";
+    current = "";
     return result;
   } else {
     return QByteArray();
@@ -42,42 +44,30 @@ QString InterruptableReader::errorMessage(QString fn) const {
 }
 
 void InterruptableReader::request(QString fn) {
+  qDebug() << "IR::request" << fn;
   QMutexLocker l(&mutex);
   requested = fn;
-  if (state_ != State::Waiting && state_ != State::Canceled) {
-    stopSource();
-    state_ = State::Canceled;
-    QString cur = current;
-    l.unlock();
-    emit canceled(cur);
-    l.relock();
-  }
   if (state_ != State::Running) 
     waitcond.wakeOne();
 }
 
 void InterruptableReader::cancel() {
-  mutex.lock();
-  QString c = current;
-  mutex.unlock();
-  cancel(current);
+  qDebug() << "IR::cancel";
+  QMutexLocker l(&mutex);
+  cancelsoon = true;
+  if (state_ != State::Running) 
+    waitcond.wakeOne();
 }
 
 void InterruptableReader::cancel(QString fn) {
+  qDebug() << "IR::cancel" << fn;
   QMutexLocker l(&mutex);
-
   if (requested==fn)
     requested="";
-  if (state_==State::Waiting || state_==State::Canceled)
-    return;
-  if (current!=fn)
-    return;
-
-  stopSource();
-  state_ = State::Canceled;
-  QString cur = current;
-  l.unlock();
-  emit canceled(cur);
+  if (current==fn)
+    cancelsoon = true;
+  if (state_ != State::Running) 
+    waitcond.wakeOne();
 }
 
 void InterruptableReader::start() {
@@ -93,13 +83,17 @@ void InterruptableReader::stop() {
 //////////////////////////////////////////////////////////////////////
 // Thread code
 void InterruptableReader::cancelCurrent() {
-  if (state_==State::Running || state_==State::Canceled) {
+  cancelsoon = false;
+  if (state_==State::Running) {
     mutex.unlock();
+    stopSource();
     source().close();
-    dest.clear();
     mutex.lock();
   }
-  state_ = State::Waiting;
+  if (state_!=State::Waiting) {
+    dest.clear();
+    state_ = State::Waiting;
+  }
 }
 
 void InterruptableReader::readSome() {
@@ -114,35 +108,43 @@ void InterruptableReader::readSome() {
   mutex.lock();
 
   if (n<0) { // error
-    bool cnc = state_==State::Canceled;
+    bool cnc = cancelsoon;
+    cancelsoon = false;
     if (cnc) {
-      state_ = State::Waiting;
+      state_ = State::Canceled;
     } else {
       state_ = State::Failed;
       errmsg = "Read error";
     }
     mutex.unlock();
+    stopSource();
     source().close();
     dest.clear();
-    if (!cnc)
+    if (cnc)
+      emit canceled(current);
+    else
       emit failed(current);
     mutex.lock();
   } else {
     offset += n;
-    if (source().atEnd())
+    if (atEnd())
       complete();
   }
 }
 
 void InterruptableReader::complete() {
-  bool cnc = state_==State::Canceled;
-  if (!cnc)
+  bool cnc = cancelsoon;
+  cancelsoon = false;
+  if (cnc)
+    state_ = State::Canceled;
+  else
     state_ = State::Success;
 
   mutex.unlock();
   source().close();
   if (cnc) {
     dest.clear();
+    emit canceled(current);
   } else {
     dest.resize(offset);
     emit ready(current);
@@ -152,8 +154,11 @@ void InterruptableReader::complete() {
 
 
 void InterruptableReader::newRequest() {
+  cancelCurrent();
+  
   state_ = State::Running;
   current = requested;
+  requested = "";
 
   mutex.unlock();
   offset = 0;
@@ -171,17 +176,14 @@ void InterruptableReader::newRequest() {
 void InterruptableReader::run() {
   mutex.lock();
   while (!stopsoon) {
-    if (state_!=State::Waiting && requested!=current) 
+    if (cancelsoon) 
       cancelCurrent();
-    
-    if (state_==State::Running) {
+    else if (requested!="")
+      newRequest();
+    else if (state_==State::Running)
       readSome();
-    } else {
-      if (requested=="") 
-        waitcond.wait(&mutex);
-      else
-        newRequest();
-    }
+    else
+      waitcond.wait(&mutex);
   }
   mutex.unlock();
 }

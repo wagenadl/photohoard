@@ -11,8 +11,8 @@
 #include "Slide.h"
 #include "FilmScene.h"
 
-LightTable::LightTable(PhotoDB const &db1, QWidget *parent):
-  QSplitter(parent), db(db1) {
+LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
+  QSplitter(parent), db(db1), adjuster(adj) {
   setObjectName("LightTable");
 
   bool oldcrash = db.simpleQuery("select count(*) from starting").toInt()>0;
@@ -53,6 +53,9 @@ LightTable::LightTable(PhotoDB const &db1, QWidget *parent):
 
   connect(slide, SIGNAL(newSize(QSize)),
           this, SIGNAL(newSlideSize(QSize)));
+
+  connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
+          SLOT(updateAdjusted(Image16, quint64)));
   
   quint64 c = db.simpleQuery("select * from current").toULongLong();
   if (c)
@@ -213,9 +216,20 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   db.query("update current set version=:a", i);
   updateSlide(id);
   updateSlide(i);
-  newImage = true;
+
+  QSqlQuery q = db.query("select photos.width, photos.height"
+                         " from photos inner join versions"
+                         " on photos.id=versions.photo"
+                         " where versions.id==:a"
+                         " limit 1", i);
+  if (!q.next())
+    throw NoResult(__FILE__, __LINE__);
+  slide->newImage(QSize(q.value(0).toInt(), q.value(1).toInt()));
+
   id = i;
   emit newCurrent(id);
+  if (slide->isVisible())
+    emit needImage(id, displaySize());
   requestLargerImage();
 }
 
@@ -233,32 +247,25 @@ QSize LightTable::displaySize() const {
 }
 
 void LightTable::requestLargerImage() {
-  if (slide->isVisible())
-    emit needImage(id, slide->desiredSize());
-}  
+  if (slide->isVisible()) 
+    adjuster->requestAdjusted(id, slide->desiredSize());
+}
 
-void LightTable::updateImage(quint64 i, QSize s, Image16 img) {
-  film->updateImage(i, s, img);
+void LightTable::updateAdjusted(Image16 img, quint64 i) {
+  qDebug() << "LightTable::updateAdjusted " << i << img.size() << id
+           << int(img.format());
+  film->updateImage(i, img);
+
+  if (i==id)
+    slide->updateImage(img);
+}
+
+void LightTable::updateImage(quint64 i, Image16 img) {
+  qDebug() << "LightTable::updateImage " << i << img.size();
+  film->updateImage(i, img);
 
   if (i!=id)
     return;
-
-  if (newImage) {
-    QSqlQuery q(*db);
-    q.prepare("select photos.width, photos.height"
-	      " from photos inner join versions"
-	      " on photos.id=versions.photo"
-	      " where versions.id==:i"
-	      " limit 1");
-    q.bindValue(":i", id);
-    if (!q.exec())
-      throw q;
-    if (!q.next())
-      throw NoResult();
-    
-    slide->newImage(QSize(q.value(0).toInt(), q.value(1).toInt()));
-    newImage = false;
-  }
 
   slide->updateImage(img);
 }
