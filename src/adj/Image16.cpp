@@ -32,7 +32,7 @@ Image16::Image16(int width, int height, Image16::Format format):
   d(new Image16::Data(width, height, format)) {
 }
 
-Image16::Image16(QSize size, Image16::Format format):
+Image16::Image16(PSize size, Image16::Format format):
   Image16(size.width(), size.height(), format) {
 }
 
@@ -167,23 +167,29 @@ void Image16::convertTo(Format fmt) {
   }
 }
 
-Image16 Image16::scaled(QSize s, Qt::AspectRatioMode arm) const {
+Image16 Image16::scaled(PSize s, Qt::AspectRatioMode arm) const {
+  if (isNull())
+    return *this;
   return fromQImage(toQImage().scaled(s, arm));
   // This should be smarter
 }
 
 Image16 Image16::scaledToWidth(int w, Qt::TransformationMode tm) const {
+  if (isNull())
+    return *this;
   return fromQImage(toQImage().scaledToWidth(w, tm));
   // This should be smarter
 }
 
 Image16 Image16::scaledToHeight(int h, Qt::TransformationMode tm) const {
+  if (isNull())
+    return *this;
   return fromQImage(toQImage().scaledToHeight(h, tm));
   // This should be smarter
 }
 
 void Image16::rotate90CW() {
-  Image16 dst(QSize(height(), width()), format());
+  Image16 dst(PSize(height(), width()), format());
   int bpp = bytesPerPixel();
   int X = dst.width();
   int Y = dst.height();
@@ -204,7 +210,7 @@ void Image16::rotate90CW() {
 }
 
 void Image16::rotate90CCW() {
-  Image16 dst(QSize(height(), width()), format());
+  Image16 dst(PSize(height(), width()), format());
   int bpp = bytesPerPixel();
   int X = dst.width();
   int Y = dst.height();

@@ -78,6 +78,9 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   }
   if (!stages[k].roi.isEmpty())
     return Image16();
+  if (stages[k].image.isNull())
+    return Image16();
+  
   // Now we have a stage that has no reduced roi and that has a suitable scale
   if (stages.last().settings==settings)
     return stages.last().image;

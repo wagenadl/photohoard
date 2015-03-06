@@ -107,9 +107,10 @@ int BasicCache::maxdim(QSize const &s) {
 }
 
 Image16 BasicCache::sufficientSize(Image16 const &img) {
-  int d = maxdim(img.size());
-  if (d>stdsizes[0])
-    return img.scaled(QSize(stdsizes[0], stdsizes[0]), Qt::KeepAspectRatio);
+  int d = img.size().maxdim();
+  int s0 = stdsizes[0];
+  if (d>s0)
+    return img.scaled(PSize(s0, s0), Qt::KeepAspectRatio);
   else
     return img;
 }

@@ -17,8 +17,8 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   setObjectName("AC_Worker");
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  connect(bank, SIGNAL(foundImage(quint64, Image16, bool)),
-	  this, SLOT(handleFoundImage(quint64, Image16, bool)),
+  connect(bank, SIGNAL(foundImage(quint64, Image16, QSize)),
+	  this, SLOT(handleFoundImage(quint64, Image16, QSize)),
           Qt::QueuedConnection);
   connect(bank, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
@@ -277,8 +277,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       // We'll get it
       requests[version] << desired;
     } else {
-      if (BasicCache::maxdim(actual) < cache->maxDim()) 
-        mustCache << version;
+      mustCache << version;
       requests[version] << desired;
       readyToLoad << version;
       rtlOrder.push_front(version);

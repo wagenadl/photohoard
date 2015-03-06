@@ -6,6 +6,7 @@
 #include "NiceProcess.h"
 #include <QDebug>
 #include "Adjuster.h"
+#include "PSize.h"
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
@@ -28,8 +29,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     if (!urgent)
       dcraw.renice(10);
     QStringList args;
-    if (maxdim>0
-        && (maxdim*2<=ns.width() || maxdim*2<=ns.height())) {
+    if (maxdim>0 && PSize(naturalSize).exceeds(PSize(2*maxdim,2*maxdim))) {
       args << "-h";
       halfsize = true;
     }
@@ -57,8 +57,8 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     *fullSizeReturn = fullsize;
   
   // This should be reconsidered based on the adjuster
-  if (img.width()>maxdim || img.height()>maxdim) 
-    img = img.scaled(QSize(maxdim, maxdim), Qt::KeepAspectRatio);
+  if (PSize(img.size()).exceeds(PSize(maxdim, maxdim)))
+    img = img.scaled(PSize(maxdim, maxdim), Qt::KeepAspectRatio);
     
   switch (orient) {
   case Exif::Upright:

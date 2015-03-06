@@ -11,7 +11,6 @@
 Exporter::Exporter(PhotoDB const &db, QObject *parent):
   QThread(parent), db(db) {
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");
-  readFTypes();
   worker = new IF_Worker(this);
 }
 
@@ -137,21 +136,11 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   int hei = q.value(4).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   QDateTime date = q.value(6).toDateTime();
+  QString path = db.folder(folder) + "/" + fn;
   
-  if (!folders.contains(folder)) {
-    q.prepare("select pathname from folders where id=:i");
-    q.bindValue(":i", folder);
-    if (!q.exec())
-      throw q;
-    if (!q.next())
-      throw NoResult();
-    folders[folder] = q.value(0).toString();
-  }
-  QString path = folders[folder] + "/" + fn;
-  
-  Image16 img = worker->findImageNow(path, mods, ftypes[ftype], orient,
-                                     0, QSize(wid, hei));
-
+  Image16 img = worker
+    ->findImageNow(path, db.ftype(ftype), orient, QSize(wid, hei),
+                   mods, 0, true);
   if (img.isNull())
     return false;
 
@@ -216,13 +205,3 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
     return img.toQImage().save(ofn);
 }
 
-void Exporter::readFTypes() {
-  QSqlQuery q(*db);
-  q.prepare("select id, stdext from filetypes");
-  if (!q.exec()) {
-    qDebug() << "Could not select extensions";
-    throw q;
-  }
-  while (q.next()) 
-    ftypes[q.value(0).toInt()] = q.value(1).toString();
-}

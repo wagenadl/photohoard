@@ -137,3 +137,5 @@ HEADERS += db/InterruptableReader.h
 HEADERS += db/InterruptableRawReader.h db/InterruptableFileReader.h
 SOURCES += db/InterruptableReader.cpp
 SOURCES += db/InterruptableRawReader.cpp db/InterruptableFileReader.cpp
+HEADERS += db/PSize.h
+SOURCES += db/PSize.cpp

@@ -45,7 +45,6 @@ QSize GentleJog::minimumSizeHint() const {
   QSize l2 = valueRect().size();
   QSize s(l1.width() + l2.width() + marg.width(),
           l1.expandedTo(l2).height() + marg.height());
-  qDebug() << "minimumsize" << s;
   return s;
 }
 

@@ -80,7 +80,10 @@ double PSize::scaleFactorToContain(QSize const &s) const {
   if (s.isEmpty())
     return isEmpty() ? 1 : 0;
   else if (isEmpty())
-    return std::numeric_limits<double>::inifity();
+    return std::numeric_limits<double>::infinity();
+  double xf = s.width() / double(width());
+  double yf = s.height() / double(height());
+  return xf>yf ? xf : yf;
 }
 
 double PSize::scaleUpFactorToContain(QSize const &s) const {

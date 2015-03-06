@@ -8,6 +8,7 @@
 #include <QMetaType>
 #include <QSharedDataPointer>
 #include <QDebug>
+#include "PSize.h"
 
 class Image16 {
 public:
@@ -26,7 +27,7 @@ public:
   Image16(Image16 const &image);
   Image16(QImage const &image);
   Image16(int width, int height, Format format=Format::sRGB8);
-  Image16(QSize size, Format format=Format::sRGB8);
+  Image16(PSize size, Format format=Format::sRGB8);
   Image16(uchar const *data, int width, int height,
           Format format=Format::sRGB8);
   Image16(uchar const *data, int width, int height, int bytesPerLine,
@@ -39,7 +40,7 @@ public:
   void convertTo(Format format);
   void convertFrom(Image16 const &other);
 public:
-  Image16 scaled(QSize s, Qt::AspectRatioMode arm=Qt::IgnoreAspectRatio) const;
+  Image16 scaled(PSize s, Qt::AspectRatioMode arm=Qt::IgnoreAspectRatio) const;
   Image16 scaledToWidth(int w,
                         Qt::TransformationMode tm=Qt::FastTransformation) const;
   Image16 scaledToHeight(int h,
@@ -66,7 +67,7 @@ public:
   inline int wordsPerLine() const { return d->bytesperline/2; }
   inline int bytesPerPixel() const { return is8Bits() ? 4 : 6; }
   inline int byteCount() const { return bytesPerLine()*height(); }
-  inline QSize size() const { return QSize(width(), height()); }
+  inline PSize size() const { return PSize(width(), height()); }
   inline Format format() const { return d->format; }
   inline bool is8Bits() const { return format() == Format::sRGB8; }
   inline bool isNull() const { return height()==0; }

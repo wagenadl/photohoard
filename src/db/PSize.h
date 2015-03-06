@@ -28,6 +28,7 @@ public:
   double scaleUpFactorToContain(QSize const &s) const;
   PSize rotated90() const;
   void rotate90();
+  int maxdim() const { return width()>height() ? width() : height(); }
 };
 
 #endif

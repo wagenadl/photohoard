@@ -20,7 +20,7 @@ public slots:
 		 QString mods,
 		 int maxdim, bool urgent);
 signals:
-  void foundImage(quint64, Image16, bool);
+  void foundImage(quint64, Image16, QSize);
   void exception(QString);
 private slots:
   void handleFoundImage(quint64 id, Image16 img, QSize originalSize);

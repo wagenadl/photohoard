@@ -38,7 +38,6 @@ protected:
   virtual void run();
 private:
   bool doExport(quint64 vsn, ExportSettings const &settings);
-  void readFTypes();
 private:
   QMutex mutex;
   QWaitCondition cond;
@@ -46,8 +45,6 @@ private:
   PhotoDB db;
   QList<Job> jobs;
   bool stopsoon;
-  QMap<int, QString> ftypes;
-  QMap<quint64, QString> folders;
   class IF_Worker *worker;
 };
 
