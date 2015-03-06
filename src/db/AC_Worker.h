@@ -17,14 +17,14 @@ public:
 public slots:
   void boot(); // get initial list of cachable items from db
   void recache(QSet<quint64> versions);
-  void requestImage(quint64 version, QSize desired);
+  void requestImage(quint64 version, PSize desired);
   void cachePreview(quint64 vsn, Image16 img);
 private slots:
-  void handleFoundImage(quint64 version, Image16 img, QSize fullSize);
+  void handleFoundImage(quint64 version, Image16 img, PSize fullSize);
 signals:
   void cacheProgress(int n, int N);
   void doneCaching();
-  void available(quint64 version, QSize requested, Image16 img);
+  void available(quint64 version, PSize requested, Image16 img);
   void exception(QString);
 private:
   void respondToRequest(quint64 version, Image16 img);
@@ -34,7 +34,7 @@ private:
   void activateBank();
   void sendToBank(quint64 version);
   void storeLoadedInDB();
-  void ensureDBSizeCorrect(quint64 vsn, QSize);
+  void ensureDBSizeCorrect(quint64 vsn, PSize);
   void countQueue();
   int queueLength();
 private:
@@ -50,7 +50,7 @@ private:
   QSet<quint64> invalidatedWhileLoading;
   QMap<quint64, Image16> loaded;
   QSet<quint64> outdatedLoaded;
-  QMap<quint64, QSet<QSize> > requests;
+  QMap<quint64, QSet<PSize> > requests;
 };
 
 #endif

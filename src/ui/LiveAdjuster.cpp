@@ -20,12 +20,12 @@ LiveAdjuster::LiveAdjuster(PhotoDB const &db,
           SLOT(setSlider(QString, double)));
   connect(ofinder, SIGNAL(originalAvailable(quint64, Image16)),
           SLOT(provideOriginal(quint64, Image16)));
-  connect(ofinder, SIGNAL(scaledOriginalAvailable(quint64, QSize, Image16)),
-          SLOT(provideScaledOriginal(quint64, QSize, Image16)));
+  connect(ofinder, SIGNAL(scaledOriginalAvailable(quint64, PSize, Image16)),
+          SLOT(provideScaledOriginal(quint64, PSize, Image16)));
   version = 0;
 }
 
-void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
+void LiveAdjuster::requestAdjusted(quint64 v, PSize s) {
   bool newvsn = version!=v;
   if (newvsn) {
     QString mods = db.simpleQuery("select mods from versions"
@@ -74,7 +74,7 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
     adjuster->requestReduced(sliders, targetsize);
 }
 
-void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
+void LiveAdjuster::provideScaledOriginal(quint64 v, PSize osize, Image16 img) {
   qDebug() << "LiveAdjuster::provideScaledOriginal" << v << img.size() << osize;
   if (v!=version)
     return;

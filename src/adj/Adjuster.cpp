@@ -26,7 +26,7 @@ void Adjuster::setOriginal(Image16 const &image) {
   stages << AdjusterTile(image);
 }
 
-void Adjuster::setReduced(Image16 const &image, QSize originalSize) {
+void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
   clear();
   stages << AdjusterTile(image, originalSize);
 }
@@ -40,8 +40,8 @@ double Adjuster::maxAvailableScale() const {
     return stages[0].image.width() / stages[0].osize.width();
 }
 
-QSize Adjuster::maxAvailableSize() const {
-  return stages.isEmpty() ? QSize(0,0) : stages[0].image.size();
+PSize Adjuster::maxAvailableSize() const {
+  return stages.isEmpty() ? PSize(0,0) : stages[0].image.size();
 }
 
 Image16 Adjuster::retrieveFull(Sliders const &settings) {
@@ -61,7 +61,7 @@ Image16 Adjuster::retrieveFull(Sliders const &settings) {
 }
 
 Image16 Adjuster::retrieveReduced(Sliders const &settings,
-                                  QSize maxSize) {
+                                  PSize maxSize) {
   resetCanceled();
   if (stages.isEmpty())
     return Image16();
@@ -101,12 +101,12 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   return stages.last().image;  
 }
 
-QSize Adjuster::finalSize(Sliders const &settings) const {
+PSize Adjuster::finalSize(Sliders const &settings) const {
   // Is this good enough? Should rotate be allowed to expand the image?
   if (stages.isEmpty())
-    return QSize(0, 0);
-  QSize s0 = stages[0].osize;
-  return s0 - QSize(settings.cropl + settings.cropr,
+    return PSize(0, 0);
+  PSize s0 = stages[0].osize;
+  return s0 - PSize(settings.cropl + settings.cropr,
                     settings.cropt + settings.cropb);
 }
 
@@ -116,18 +116,18 @@ Image16 Adjuster::retrieveROI(Sliders const &, QRect) {
 }
 
 Image16 Adjuster::retrieveReducedROI(Sliders const &,
-                                     QRect, QSize) {
+                                     QRect, PSize) {
   // NYI
   return Image16();
 }
 
-double Adjuster::estimateScale(Sliders const &, QSize) {
+double Adjuster::estimateScale(Sliders const &, PSize) {
   // NYI
   return 1; 
 }
 
 double Adjuster::estimateScaleForROI(Sliders const &,
-                                     QRect, QSize) {
+                                     QRect, PSize) {
   // NYI
   return 1;
 }

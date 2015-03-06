@@ -53,7 +53,7 @@ public slots:
   virtual void collapse();
   virtual void expandAll();
 signals:
-  void needImage(quint64, QSize);
+  void needImage(quint64, PSize);
   void resized();
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);

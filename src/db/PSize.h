@@ -8,6 +8,7 @@
 
 class PSize: public QSize {
 public:
+  PSize(): QSize(0, 0) { }
   PSize(QSize const &s): QSize(s) { }
   PSize(int w, int h): QSize(w, h) { }
   bool contains(QSize const &s) const {

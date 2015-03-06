@@ -19,7 +19,7 @@ public:
 public slots:
   void fileAction(FileBar::Action);
   void scrollToCurrent();
-  void updateImage(quint64, QSize, Image16);
+  void updateImage(quint64, PSize, Image16);
 private:
   class Exporter *exporter;
 private:

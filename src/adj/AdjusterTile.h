@@ -13,12 +13,12 @@ class AdjusterTile {
 public:
   AdjusterTile();
   explicit AdjusterTile(Image16 const &);
-  explicit AdjusterTile(Image16 const &, QSize osize);
+  explicit AdjusterTile(Image16 const &, PSize osize);
 public:
   Image16 image;
   Sliders settings;
   QRect roi; // specified in units of the original image or empty for no-roi
-  QSize osize;
+  PSize osize;
   Stage stage;
 };
 

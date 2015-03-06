@@ -39,8 +39,8 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   setLayout(lay);
   showmax = false;
 
-  connect(film, SIGNAL(needImage(quint64, QSize)),
-	  this, SIGNAL(needImage(quint64, QSize)));
+  connect(film, SIGNAL(needImage(quint64, PSize)),
+	  this, SIGNAL(needImage(quint64, PSize)));
   connect(film, SIGNAL(pressed(quint64,
                                Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this, SLOT(slidePress(quint64,
@@ -51,8 +51,8 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
-  connect(slide, SIGNAL(newSize(QSize)),
-          this, SIGNAL(newSlideSize(QSize)));
+  connect(slide, SIGNAL(newSize(PSize)),
+          this, SIGNAL(newSlideSize(PSize)));
 
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           SLOT(updateAdjusted(Image16, quint64)));
@@ -224,7 +224,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
                          " limit 1", i);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
-  slide->newImage(QSize(q.value(0).toInt(), q.value(1).toInt()));
+  slide->newImage(PSize(q.value(0).toInt(), q.value(1).toInt()));
 
   id = i;
   emit newCurrent(id);
@@ -239,11 +239,11 @@ void LightTable::updateSlide(quint64 i) {
     s->update();
 }
 
-QSize LightTable::displaySize() const {
+PSize LightTable::displaySize() const {
   if (slide->isVisible())
     return slide->desiredSize();
   else
-    return QSize(film->root()->tileSize(), film->root()->tileSize());
+    return PSize(film->root()->tileSize(), film->root()->tileSize());
 }
 
 void LightTable::requestLargerImage() {

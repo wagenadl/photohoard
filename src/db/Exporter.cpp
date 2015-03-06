@@ -139,7 +139,7 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   QString path = db.folder(folder) + "/" + fn;
   
   Image16 img = worker
-    ->findImageNow(path, db.ftype(ftype), orient, QSize(wid, hei),
+    ->findImageNow(path, db.ftype(ftype), orient, PSize(wid, hei),
                    mods, 0, true);
   if (img.isNull())
     return false;

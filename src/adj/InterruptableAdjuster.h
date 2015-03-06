@@ -16,9 +16,9 @@ public:
   InterruptableAdjuster(class Adjuster *adjuster, QObject *parent=0);
   virtual ~InterruptableAdjuster();
   void requestFull(Sliders const &settings);
-  void requestReduced(Sliders const &settings, QSize maxSize);
+  void requestReduced(Sliders const &settings, PSize maxSize);
   void requestROI(Sliders const &settings, QRect roi);
-  void requestReducedROI(Sliders const &settings, QRect roi, QSize maxSize);
+  void requestReducedROI(Sliders const &settings, QRect roi, PSize maxSize);
   void cancelRequest();
   void emitWhileLocked();
   void emitWhileUnlocked();
@@ -45,7 +45,7 @@ private:
   bool cancel, newreq;
   Sliders rqSliders;
   QRect rqRect;
-  QSize rqSize;
+  PSize rqSize;
   bool stopsoon;
   bool emit_while_locked;
 };

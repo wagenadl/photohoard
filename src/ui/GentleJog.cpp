@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QTimer>
+#include "PSize.h"
 
 GentleJog::GentleJog(QString s, QWidget *parent): GentleJog(parent) {
   setLabel(s);
@@ -38,12 +39,12 @@ GentleJog::~GentleJog() {
 }
 
 QSize GentleJog::minimumSizeHint() const {
-  QSize me = size();
-  QSize use = contentsRect().size();
-  QSize marg = me - use;
-  QSize l1 = labelRect().size();
-  QSize l2 = valueRect().size();
-  QSize s(l1.width() + l2.width() + marg.width(),
+  PSize me = size();
+  PSize use = contentsRect().size();
+  PSize marg = me - use;
+  PSize l1 = labelRect().size();
+  PSize l2 = valueRect().size();
+  PSize s(l1.width() + l2.width() + marg.width(),
           l1.expandedTo(l2).height() + marg.height());
   return s;
 }

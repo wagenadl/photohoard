@@ -469,7 +469,7 @@ void Scanner::scanPhoto(quint64 id) {
   if (!q.exec())
     throw q;
 
-  QList<QSize> pvsiz = exif.previewSizes();
+  QList<PSize> pvsiz = exif.previewSizes();
   if (!pvsiz.isEmpty()) {
     /* Using these thumbnails makes scanning very slow. I don't think
        it's worth it. Perhaps the cache process can somehow use
@@ -478,10 +478,10 @@ void Scanner::scanPhoto(quint64 id) {
     q.bindValue(":i", id);
     if (q.exec() && q.next()) {
       quint64 vsn = q.value(0).toULongLong();
-      QSize maxs;
+      PSize maxs;
       int npix = 0;
       for (int n=0; n<pvsiz.size(); n++) {
-        QSize s = pvsiz[n];
+        PSize s = pvsiz[n];
         int np = s.width()*s.height();
         if (np>npix && np<100*1000) {
           maxs = s;

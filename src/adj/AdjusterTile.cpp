@@ -11,7 +11,7 @@ AdjusterTile::AdjusterTile(Image16 const &img): image(img) {
   stage = Stage_Original;
 }
 
-AdjusterTile::AdjusterTile(Image16 const &img, QSize osize):
+AdjusterTile::AdjusterTile(Image16 const &img, PSize osize):
   image(img), osize(osize) {
   stage = Stage_Reduced;
 }

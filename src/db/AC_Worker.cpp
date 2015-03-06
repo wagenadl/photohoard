@@ -7,7 +7,7 @@
 #include <QDebug>
 #include "NoResult.h"
 
-inline uint qHash(QSize const &s) {
+inline uint qHash(PSize const &s) {
   return qHash(QPair<int,int>(s.width(), s.height()));
 }
 
@@ -17,8 +17,8 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   setObjectName("AC_Worker");
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  connect(bank, SIGNAL(foundImage(quint64, Image16, QSize)),
-	  this, SLOT(handleFoundImage(quint64, Image16, QSize)),
+  connect(bank, SIGNAL(foundImage(quint64, Image16, PSize)),
+	  this, SLOT(handleFoundImage(quint64, Image16, PSize)),
           Qt::QueuedConnection);
   connect(bank, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
@@ -152,7 +152,7 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
   }
 }
 
-void AC_Worker::ensureDBSizeCorrect(quint64 vsn, QSize siz) {
+void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   quint64 photo = db.simpleQuery("select photo from versions where id=:a", vsn)
     .toULongLong();
 
@@ -167,7 +167,7 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, QSize siz) {
 	     siz.width(), siz.height(), photo);
 }
 
-void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
+void AC_Worker::handleFoundImage(quint64 id, Image16 img, PSize fullSize) {
   // Actually store in cache if we have enough to make it worth while
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
@@ -232,7 +232,7 @@ void AC_Worker::sendToBank(quint64 version) {
   QString path = db.folder(folder) + "/" + fn;
   int maxdim = cache->standardSizes().first();
   bank->findImage(version,
-		  path, db.ftype(ftype), orient, QSize(wid, hei),
+		  path, db.ftype(ftype), orient, PSize(wid, hei),
 		  mods,
                   maxdim, requests.contains(version));
 }
@@ -255,7 +255,7 @@ void AC_Worker::storeLoadedInDB() {
   loaded.clear();
 }
 
-void AC_Worker::requestImage(quint64 version, QSize desired) {
+void AC_Worker::requestImage(quint64 version, PSize desired) {
   qDebug() << "AC_Worker::requestImage" << version << desired;
   try {
     if (loaded.contains(version)) {
@@ -298,8 +298,8 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
 
 void AC_Worker::respondToRequest(quint64 version, Image16 img) {
   if (img.isNull()) 
-    img = Image16(QSize(1, 1));
-  for (QSize s: requests[version])
+    img = Image16(PSize(1, 1));
+  for (PSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);
 }

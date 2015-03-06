@@ -10,8 +10,8 @@ IF_Bank::IF_Bank(int nthreads, QObject *parent): QObject(parent) {
     finders << new ImageFinder(this);
 
   for (auto f: finders)
-    connect(f, SIGNAL(foundImage(quint64, Image16, QSize)),
-            this, SIGNAL(foundImage(quint64, Image16, QSize)));
+    connect(f, SIGNAL(foundImage(quint64, Image16, PSize)),
+            this, SIGNAL(foundImage(quint64, Image16, PSize)));
 
   for (auto f: finders)
     connect(f, SIGNAL(exception(QString)),
@@ -41,7 +41,7 @@ int IF_Bank::queueLength() const {
 }
 
 void IF_Bank::findImage(quint64 id, QString path, QString ext,
-			Exif::Orientation orient, QSize ns,
+			Exif::Orientation orient, PSize ns,
 			QString mods,
 			int maxdim, bool urgent) {
   ImageFinder *f0 = 0;

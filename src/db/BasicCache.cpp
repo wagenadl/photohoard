@@ -100,7 +100,7 @@ BasicCache *BasicCache::create(QString rootdir) {
   }
 }
 
-int BasicCache::maxdim(QSize const &s) {
+int BasicCache::maxdim(PSize const &s) {
   int w = s.width();
   int h = s.height();
   return w>h ? w : h;
@@ -126,7 +126,7 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   if (!instantlyOutdated || !got) {
     for (auto s: stdsizes) {
       if (s<d) {
-        img = img.scaled(QSize(s,s), Qt::KeepAspectRatio);
+        img = img.scaled(PSize(s,s), Qt::KeepAspectRatio);
         addToCache(vsn, img);
         if (instantlyOutdated)
           break;
@@ -294,11 +294,11 @@ int BasicCache::bestSize(quint64 vsn, int maxdim) {
   return dbest;  
 }
 
-QSize BasicCache::bestSize(quint64 vsn, QSize desired) {
+PSize BasicCache::bestSize(quint64 vsn, PSize desired) {
   QSqlQuery q(db.query("select width, height, outdated from cache"
 		       " where version==:a", vsn));
   int dbest = 0;
-  QSize sbest;
+  PSize sbest;
   bool gotsized = false;
   bool outdated = true;
   while (q.next()) {
@@ -310,13 +310,13 @@ QSize BasicCache::bestSize(quint64 vsn, QSize desired) {
       // If I have an up-to-date version, never replace w/ outdated.
     } else if (outdated && !od) {
       // Always replace outdated with up-to-date.
-      sbest = QSize(w, h);
+      sbest = PSize(w, h);
       dbest = d;
       outdated = false;
     } else if (w>=desired.width() || h>=desired.height()) {
       // Nice and big, but perhaps too big
       if (d<dbest || !gotsized) {
-	sbest = QSize(w, h);
+	sbest = PSize(w, h);
 	dbest = d;
 	outdated = od;
 	gotsized = true;
@@ -324,7 +324,7 @@ QSize BasicCache::bestSize(quint64 vsn, QSize desired) {
     } else {
       // Small, but perhaps better than what we have
       if (d>dbest && !gotsized) {
-	sbest = QSize(w, h);
+	sbest = PSize(w, h);
 	dbest = d;
 	outdated = od;
       }
@@ -341,18 +341,18 @@ bool BasicCache::contains(quint64 vsn, bool outdatedOK) {
   return db.simpleQuery(query, vsn).toInt()>0;
 }
 
-QList<QSize> BasicCache::sizes(quint64 vsn, bool outdatedOK) {
+QList<PSize> BasicCache::sizes(quint64 vsn, bool outdatedOK) {
   QString query = "select width, height from cache where version==:v";
   if (!outdatedOK)
     query += " and outdated==0";
   query += " order by maxdim";
   QSqlQuery q(db.query(query, vsn));
   
-  QList<QSize> lst;
+  QList<PSize> lst;
   while (q.next()) {
     int w = q.value(0).toInt();
     int h = q.value(1).toInt();
-    lst << QSize(w, h);
+    lst << PSize(w, h);
   }
 
   return lst;

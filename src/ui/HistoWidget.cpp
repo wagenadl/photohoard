@@ -54,10 +54,10 @@ void HistoWidget::paintEvent(QPaintEvent *) {
 }
 
 QSize HistoWidget::sizeHint() const {
-  return QSize(200, 160);
+  return PSize(200, 160);
 }
 
 QSize HistoWidget::minimumSizeHint() const {
-  return QSize(50, 40);
+  return PSize(50, 40);
 }
   

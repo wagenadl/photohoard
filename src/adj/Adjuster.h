@@ -7,7 +7,7 @@
 #include "Image16.h"
 #include "Sliders.h"
 #include <QRect>
-#include <QSize>
+#include "PSize.h"
 #include <QObject>
 #include "AdjusterTile.h"
 
@@ -21,28 +21,28 @@ public:
   bool isEmpty() const;
   void setOriginal(Image16 const &image);
   /* Loads a new original image into the adjuster */
-  void setReduced(Image16 const &image, QSize originalSize);
+  void setReduced(Image16 const &image, PSize originalSize);
   /* Loads a new original image into the adjuster, but not at its full
      resolution. The image may be at any resolution (smaller than the
      original); the original size is specified. We determine the scale
      of the reduced image from the actual and original sizes, taking the
      average of the X and Y scale factors.
   */
-  QSize maxAvailableSize() const;
+  PSize maxAvailableSize() const;
   double maxAvailableScale() const;
   /* Returns the maximum available size or scale of the image. */
   Image16 retrieveFull(Sliders const &settings);
   /* Retrieves a version of the image with settings applied. This fails
      (returning a null image) if we do not have the full resolution.
   */
-  Image16 retrieveReduced(Sliders const &settings, QSize maxSize);
+  Image16 retrieveReduced(Sliders const &settings, PSize maxSize);
   /* Retrieves a version of the image with settings applied and possibly
      reduced in resolution to fit within the given maxSize.
      This always succeeds, even if we don't have enough resolution to give
      the requested size. (A further reduced version is returned in that case.)
      Note that a _larger_ image may also be returned if that is quicker.
   */
-  QSize finalSize(Sliders const &settings) const;
+  PSize finalSize(Sliders const &settings) const;
   /* Determine the size of the final image. This may differ from the size
      of the original image due to cropping or other geometric transforms.
   */
@@ -52,7 +52,7 @@ public:
      (returning a null image) if we do not have the full resolution image.
   */
   Image16 retrieveReducedROI(Sliders const &settings,
-                             QRect roi, QSize maxSize);
+                             QRect roi, PSize maxSize);
   /* Retrieves a tile from the image with settings applied and reduced
      in resolution to fit within the given maxSize.
      ROI is specified in units of pixels of the *unreduced* final image.
@@ -60,10 +60,10 @@ public:
      to fill maxSize. (A further reduced version is returned in that
      case.)
   */
-  double estimateScale(Sliders const &settings, QSize imageSize);
+  double estimateScale(Sliders const &settings, PSize imageSize);
   /* Estimates the scale of a retrieved image given its size. */
   double estimateScaleForROI(Sliders const &settings,
-                             QRect roi, QSize imageSize);
+                             QRect roi, PSize imageSize);
   /* As estimateScale, but for a final image that represents a ROI of the
      original image. ROI should be as given to retrieveReducedROI when
      obtaining the respective image. */

@@ -12,11 +12,11 @@ class SlideView: public QFrame {
 public:
   SlideView(QWidget *parent=0);
   virtual ~SlideView();
-  QSize desiredSize() const;
+  PSize desiredSize() const;
   double currentZoom() const;
   double fittingZoom() const;
 public slots:
-  void newImage(QSize natSize);
+  void newImage(PSize natSize);
   void updateImage(Image16 img);
   void setZoom(double zm);
   void changeZoomLevel(QPoint center, double delta);
@@ -24,7 +24,7 @@ public slots:
 signals:
   void needLargerImage();
   void doubleClicked();
-  void newSize(QSize);
+  void newSize(PSize);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;
@@ -37,13 +37,13 @@ private:
   //  QPointF mapWidgetToImage(QPointF) const;
   //  QPointF mapImageToWidget(QPointF) const;
 private:
-  QSize naturalSize;
+  PSize naturalSize;
   Image16 img;
   double zoom;
   bool fit;
   double relx; // 0 for extreme left/top visible, 1 for extreme right/bot
   double rely; // ... not defined when fit
-  QSize lastSize;
+  PSize lastSize;
 };
 
 #endif

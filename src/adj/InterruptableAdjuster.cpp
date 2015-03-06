@@ -22,20 +22,20 @@ InterruptableAdjuster::~InterruptableAdjuster() {
 }
 
 void InterruptableAdjuster::requestFull(Sliders const &settings) {
-  requestReducedROI(settings, QRect(), QSize());
+  requestReducedROI(settings, QRect(), PSize());
 }
 
 void InterruptableAdjuster::requestReduced(Sliders const &settings,
-                                           QSize maxSize) {
+                                           PSize maxSize) {
   requestReducedROI(settings, QRect(), maxSize);
 }
   
 void InterruptableAdjuster::requestROI(Sliders const &settings, QRect roi) {
-  requestReducedROI(settings, roi, QSize());
+  requestReducedROI(settings, roi, PSize());
 }
 
 void InterruptableAdjuster::requestReducedROI(Sliders const &settings,
-                                              QRect roi, QSize maxSize) {
+                                              QRect roi, PSize maxSize) {
   QMutexLocker l(&mutex);
   adjuster->cancel();
   newreq = true;
@@ -68,7 +68,7 @@ void InterruptableAdjuster::run() {
   while (!stopsoon) {
     if (newreq) {
       QRect r = rqRect;
-      QSize s = rqSize;
+      PSize s = rqSize;
       Sliders sli = rqSliders;
       newreq = false;
       cancel = false;

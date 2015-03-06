@@ -14,12 +14,12 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
 }
 
 Image16 IF_Worker::findImageNow(QString path, QString ext,
-				Exif::Orientation orient, QSize naturalSize,
+				Exif::Orientation orient, PSize naturalSize,
 				QString mods,				
 				int maxdim, bool urgent,
-				QSize *fullSizeReturn) {
+				PSize *fullSizeReturn) {
   if (fullSizeReturn)
-    *fullSizeReturn = QSize();
+    *fullSizeReturn = PSize();
   bool halfsize = false;
   Image16 img;
   if (ext=="jpeg" || ext=="png" || ext=="tiff") {
@@ -52,7 +52,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
   if (img.isNull()) 
     return Image16();
 
-  QSize fullsize = halfsize ? 2*img.size() : img.size();
+  PSize fullsize = halfsize ? 2*img.size() : img.size();
   if (fullSizeReturn)
     *fullSizeReturn = fullsize;
   
@@ -81,19 +81,19 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
       adjuster->setReduced(img, fullsize);
     
     Sliders s(mods);
-    img = adjuster->retrieveReduced(s, QSize(maxdim, maxdim));
+    img = adjuster->retrieveReduced(s, PSize(maxdim, maxdim));
   }
   
   return img;
 }  
 
 void IF_Worker::findImage(quint64 id, QString path, QString ext,
-                          Exif::Orientation orient, QSize ns,
+                          Exif::Orientation orient, PSize ns,
 			  QString mods,
 			  int maxdim, bool urgent) {
   Q_ASSERT(maxdim>0);
   try {
-    QSize fullSize;
+    PSize fullSize;
     Image16 img = findImageNow(path, ext, orient, ns, mods,
 			       maxdim, urgent,
 			       &fullSize);

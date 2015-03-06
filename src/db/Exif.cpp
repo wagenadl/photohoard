@@ -184,20 +184,20 @@ QDateTime Exif::dateTime() const {
   }
 }
 
-QList<QSize> Exif::previewSizes() const {
+QList<PSize> Exif::previewSizes() const {
   Exiv2::PreviewManager pm(*image);
   Exiv2::PreviewPropertiesList lst(pm.getPreviewProperties());
-  QList<QSize> res;
+  QList<PSize> res;
   for (auto i: lst) 
-    res << QSize(i.width_, i.height_);
+    res << PSize(i.width_, i.height_);
   return res;
 }
 
-Image16 Exif::previewImage(QSize const &s0) const {
+Image16 Exif::previewImage(PSize const &s0) const {
   Exiv2::PreviewManager pm(*image);
   Exiv2::PreviewPropertiesList lst(pm.getPreviewProperties());
   for (auto i: lst) {
-    QSize s(i.width_, i.height_);
+    PSize s(i.width_, i.height_);
     if (s==s0) {
       Exiv2::PreviewImage img(pm.getPreviewImage(i));
       QByteArray ba((char const *)img.pData(), img.size());

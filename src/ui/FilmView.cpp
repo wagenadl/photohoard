@@ -19,8 +19,8 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
-  connect(strip, SIGNAL(needImage(quint64, QSize)),
-	  this, SIGNAL(needImage(quint64, QSize)));
+  connect(strip, SIGNAL(needImage(quint64, PSize)),
+	  this, SIGNAL(needImage(quint64, PSize)));
   connect(strip,
           SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this,

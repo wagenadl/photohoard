@@ -15,7 +15,7 @@ public:
   class FilmScene *scene() { return scene_; }
   class Datestrip *root() { return strip; }
 signals:
-  void needImage(quint64, QSize);
+  void needImage(quint64, PSize);
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);

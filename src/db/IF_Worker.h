@@ -12,10 +12,10 @@ class IF_Worker: public QObject {
 public:
   IF_Worker(QObject *parent=0);
   Image16 findImageNow(QString path, QString ext,
-		       Exif::Orientation orient, QSize ns,
+		       Exif::Orientation orient, PSize ns,
 		       QString mods,
 		       int maxdim, bool urgent,
-		       QSize *fullSizeReturn=0);
+		       PSize *fullSizeReturn=0);
   /* Scale to fit in a maxdim-sized rectangle.
      ns may be the natural size of the image. This can be faster for
      big raw files, because dcraw can be called with "-h" flag.
@@ -29,11 +29,11 @@ public:
                                              
 public slots:
   void findImage(quint64 id, QString path, QString ext,
-		 Exif::Orientation orient, QSize ns,
+		 Exif::Orientation orient, PSize ns,
 		 QString mods,
 		 int maxdim, bool urgent);
 signals:
-  void foundImage(quint64 id, Image16 img, QSize originalSize);
+  void foundImage(quint64 id, Image16 img, PSize originalSize);
   void exception(QString);
 private:
   class Adjuster *adjuster;

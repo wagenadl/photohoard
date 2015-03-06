@@ -21,7 +21,7 @@ public:
              QWidget *parent=0);
   virtual ~LightTable();
   quint64 current() const { return id; }
-  QSize displaySize() const;
+  PSize displaySize() const;
 public slots:
   void setLayout(LayoutBar::Action ar);
   void slidePress(quint64 id, Qt::MouseButton, Qt::KeyboardModifiers);
@@ -34,9 +34,9 @@ public slots:
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
 signals:
-  void needImage(quint64, QSize);
+  void needImage(quint64, PSize);
   void newCurrent(quint64);
-  void newSlideSize(QSize);
+  void newSlideSize(PSize);
 private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);

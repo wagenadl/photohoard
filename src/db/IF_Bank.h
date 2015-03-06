@@ -17,11 +17,11 @@ public:
   int queueLength() const;
 public slots:
   void findImage(quint64 id, QString path, QString ext,
-		 Exif::Orientation orient, QSize ns,
+		 Exif::Orientation orient, PSize ns,
 		 QString mods,
 		 int maxdim, bool urgent);
 signals:
-  void foundImage(quint64 id, Image16 img, QSize originalSize);
+  void foundImage(quint64 id, Image16 img, PSize originalSize);
   void exception(QString);
 private:
   QVector<class ImageFinder *> finders;

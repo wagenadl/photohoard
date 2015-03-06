@@ -83,8 +83,8 @@ Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
     connect(s, SIGNAL(overfilled(QDateTime)),
             this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
   }
-  connect(s, SIGNAL(needImage(quint64, QSize)),
-          this, SIGNAL(needImage(quint64, QSize)));
+  connect(s, SIGNAL(needImage(quint64, PSize)),
+          this, SIGNAL(needImage(quint64, PSize)));
   connect(s,
           SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
           this,

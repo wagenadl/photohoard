@@ -2,6 +2,16 @@
 
 #include "PSize.h"
 #include <limits>
+#include <QMetaType>
+
+class PSize_Registrar {
+public:
+  PSize_Registrar() {
+    qRegisterMetaType<PSize>("PSize");
+  }
+};
+
+static PSize_Registrar psizeRegistrar;
 
 PSize PSize::scaledDownToFitIn(QSize const &s) const {
   if (isEmpty() || s.isEmpty())

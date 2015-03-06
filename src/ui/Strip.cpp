@@ -194,7 +194,7 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
       return;
     } else {
       headerpm = QPixmap::fromImage(headerimg.toQImage()
-                                    .scaled(QSize(ims, ims),
+                                    .scaled(PSize(ims, ims),
                                             Qt::KeepAspectRatio));
       headerimg = Image16();
     }
@@ -467,7 +467,7 @@ void Strip::updateHeader(Image16 img) {
 }
 
 void Strip::requestImage(quint64 id) {
-  emit needImage(id, QSize(tilesize, tilesize));
+  emit needImage(id, PSize(tilesize, tilesize));
 }
 
 Strip *Strip::stripByDate(QDateTime d, TimeScale s) {

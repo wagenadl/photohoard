@@ -41,7 +41,7 @@ public:
    bestSize().
   */
   int bestSize(quint64 vsn, int maxdim);
-  QSize bestSize(quint64 vsn, QSize desired);
+  PSize bestSize(quint64 vsn, PSize desired);
   /*:F bestSize
    *:D Determines the best available size of the referenced image.
    *:N If a size greater or equal to MAXDIM is available, the smallest
@@ -57,17 +57,17 @@ public:
    changed by passing true for outdatedOK.
   */
   void markOutdated(quint64 vsn);
-  QList<QSize> sizes(quint64 vsn, bool outdatedOK=false);
+  QList<PSize> sizes(quint64 vsn, bool outdatedOK=false);
   /*:F sizes
    *:D Returns a list of sizes available for images matching VSN, sorted
    by their maxdim.
    *:N By default, only non-outdated images are considered. This can be
    changed by passing true for outdatedOK.
   */      
-  static int maxdim(QSize const &s);
+  static int maxdim(PSize const &s);
   /*:F maxdim
    *:D Convenience function to return the larger of the two dimensions
-   contained in a QSize.
+   contained in a PSize.
   */
   QList<int> standardSizes() const { return stdsizes; }
   int maxDim() const; // max of all standard sizes

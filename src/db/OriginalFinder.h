@@ -7,7 +7,7 @@
 #include <QObject>
 #include "PhotoDB.h"
 #include <QMap>
-#include <QSize>
+#include "PSize.h"
 #include "Image16.h"
 #include "Exif.h"
 
@@ -18,10 +18,10 @@ public:
   virtual ~OriginalFinder();
 public slots:
   void requestOriginal(quint64 version);
-  void requestScaledOriginal(quint64 version, QSize desired);
+  void requestScaledOriginal(quint64 version, PSize desired);
 signals:
   void originalAvailable(quint64 version, Image16 img);
-  void scaledOriginalAvailable(quint64 version, QSize osize, Image16 img);
+  void scaledOriginalAvailable(quint64 version, PSize osize, Image16 img);
   void exception(QString);
 private slots:
   void freaderReady(QString fn);
@@ -34,8 +34,8 @@ private:
   class InterruptableRawReader *rawreader;
 private:
   quint64 version;
-  QSize desired;
-  QSize osize;
+  PSize desired;
+  PSize osize;
   QString filepath;
   Exif::Orientation orient;
 };

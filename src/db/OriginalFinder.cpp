@@ -21,10 +21,10 @@ OriginalFinder::~OriginalFinder() {
 }
 
 void OriginalFinder::requestOriginal(quint64 version) {
-  requestScaledOriginal(version, QSize(0, 0));
+  requestScaledOriginal(version, PSize(0, 0));
 }
 
-void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
+void OriginalFinder::requestScaledOriginal(quint64 vsn, PSize ds) {
   try {
     QSqlQuery q = db.query("select photo, mods from versions"
 			   " where id=:a limit 1", vsn);
@@ -41,7 +41,7 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     int ftype = q.value(2).toInt();
     int wid = q.value(3).toInt();
     int hei = q.value(4).toInt();
-    osize = QSize(wid, hei);
+    osize = PSize(wid, hei);
     orient = Exif::Orientation(q.value(5).toInt());
     QString path = db.folder(folder) + "/" + fn;
     QString ext = db.ftype(ftype);
@@ -105,9 +105,9 @@ void OriginalFinder::read(InterruptableReader *reader) {
     fixOrientation(img); // this should happen later
     emit originalAvailable(version, img);
   } else {
-    QSize desi = desired;
+    PSize desi = desired;
     if (orient==Exif::CW || orient==Exif::CCW) 
-      desi = QSize(desired.height(), desired.width());
+      desi = PSize(desired.height(), desired.width());
     img = img.scaled(desi, Qt::KeepAspectRatio);
     fixOrientation(img);
     emit scaledOriginalAvailable(version, osize, img);

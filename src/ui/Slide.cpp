@@ -85,7 +85,7 @@ void Slide::paint(QPainter *painter,
 	double hrat = double(ims) / pm.width();
 	double vrat = double(ims) / pm.height();
 	double rat = hrat<vrat ? hrat: vrat;
-	QSize tgt(rat*pm.width(), rat*pm.height());
+	PSize tgt(rat*pm.width(), rat*pm.height());
 	QRect dst(QPoint(tilesize/2-tgt.width()/2,
 			   tilesize/2-tgt.height()/2), tgt);
 	painter->drawPixmap(dst, pm);
@@ -105,7 +105,7 @@ void Slide::paint(QPainter *painter,
 	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
     if (!img.isNull())
-      pm = QPixmap::fromImage(img.toQImage().scaled(QSize(ims, ims),
+      pm = QPixmap::fromImage(img.toQImage().scaled(PSize(ims, ims),
                                                     Qt::KeepAspectRatio));
     img = Image16(); // no need to keep it ad inf
   }

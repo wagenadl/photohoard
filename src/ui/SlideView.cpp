@@ -5,7 +5,7 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QWheelEvent>
-#include <QSize>
+#include "PSize.h"
 #include <QDebug>
 #include "CMS.h"
 
@@ -17,9 +17,9 @@ SlideView::SlideView(QWidget *parent): QFrame(parent) {
 SlideView::~SlideView() {
 }
 
-QSize SlideView::desiredSize() const {
-  QSize s = (fit || img.isNull()) ? size()
-    : QSize(zoom*naturalSize.width(), zoom*naturalSize.height());
+PSize SlideView::desiredSize() const {
+  PSize s = (fit || img.isNull()) ? size()
+    : PSize(zoom*naturalSize.width(), zoom*naturalSize.height());
   return s;
 }
 
@@ -37,9 +37,9 @@ double SlideView::fittingZoom() const {
   return rat;
 }
 
-void SlideView::newImage(QSize nat) {
+void SlideView::newImage(PSize nat) {
   naturalSize = nat;
-  lastSize = QSize();
+  lastSize = PSize();
   img = Image16(); // might invalidate more gently
 }  
 
@@ -148,7 +148,7 @@ void SlideView::paintEvent(QPaintEvent *) {
       }
       lastSize = img.size();
     } else {
-      lastSize = QSize();
+      lastSize = PSize();
     }
     qDebug() << "  drawing image";
     p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2,
