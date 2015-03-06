@@ -16,9 +16,17 @@ public:
   bool containedIn(QSize const &s) const {
     return width()<=s.width() && height()<=s.height(); }
   bool exceeds(QSize const &s) const {
-    return width()>s.width() || height()>=s.height(); }
+    return width()>s.width() || height()>s.height(); }
   bool exceededBy(QSize const &s) const {
     return s.width()>width() || s.height()>height(); }
+  bool bigEnoughFor(QSize const &s) const {
+    /* Returns true if scaling us to fit in s would not scale us up. */
+    return width()>=s.width() || height()>=s.height();
+  }
+  bool operator<(QSize const &s) const {
+    // Smaller in area
+    return width()*height() < s.width()*s.height();
+  }
   PSize scaledDownToFitIn(QSize const &s) const;
   PSize scaledToFitIn(QSize const &s) const;
   PSize scaledToContain(QSize const &s) const;
@@ -29,7 +37,8 @@ public:
   double scaleUpFactorToContain(QSize const &s) const;
   PSize rotated90() const;
   void rotate90();
-  int maxdim() const { return width()>height() ? width() : height(); }
+  int maxDim() const { return width()>height() ? width() : height(); }
+  static PSize square(int w) { return PSize(w, w); }
 };
 
 #endif

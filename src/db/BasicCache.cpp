@@ -58,9 +58,12 @@ void BasicCache::readConfig() {
 
   if (!q.exec("select maxdim from sizes"))
     throw q;
+  QList<int> sizes;
   while (q.next())
-    stdsizes << q.value(0).toInt();
-  qSort(stdsizes.begin(), stdsizes.end(), qGreater<int>());
+    sizes << q.value(0).toInt();
+  qSort(sizes.begin(), sizes.end(), qGreater<int>());
+  for (int s: sizes)
+    stdsizes << PSize::square(s);
 }
   
 BasicCache *BasicCache::create(QString rootdir) {
@@ -100,41 +103,34 @@ BasicCache *BasicCache::create(QString rootdir) {
   }
 }
 
-int BasicCache::maxdim(PSize const &s) {
-  int w = s.width();
-  int h = s.height();
-  return w>h ? w : h;
-}
-
 Image16 BasicCache::sufficientSize(Image16 const &img) {
-  int d = img.size().maxdim();
-  int s0 = stdsizes[0];
-  if (d>s0)
-    return img.scaled(PSize(s0, s0), Qt::KeepAspectRatio);
+  PSize s0 = maxSize();
+  if (img.size().exceeds(s0))
+    return img.scaled(s0, Qt::KeepAspectRatio);
   else
     return img;
 }
 
 void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
-  int d = maxdim(img.size());
-  bool got = false;
-  if (d<=stdsizes[0]) {
-    // cache image directly: it is smaller than our largest desired size
+  PSize s0 = maxSize();
+  bool done = false;
+  if (img.size().containedIn(s0)) {
+    // cache image directly: it is no larger than our largest desired size
     addToCache(vsn, img, instantlyOutdated);
-    got = true;
+    done = instantlyOutdated;
   }
-  if (!instantlyOutdated || !got) {
+  if (!done) {
     for (auto s: stdsizes) {
-      if (s<d) {
-        img = img.scaled(PSize(s,s), Qt::KeepAspectRatio);
-        addToCache(vsn, img);
+      if (img.size().exceeds(s)) {
+        img = img.scaled(s, Qt::KeepAspectRatio);
+        addToCache(vsn, img, instantlyOutdated);
         if (instantlyOutdated)
           break;
       }
     }
-    if (!instantlyOutdated)
-      dropOutdatedFromCache(vsn);
   }
+  if (!instantlyOutdated)
+    dropOutdatedFromCache(vsn);
 }
 
 void BasicCache::dropOutdatedFromCache(quint64 vsn) {
@@ -158,22 +154,25 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
   QImageWriter writer(&buf, "jpeg");
   writer.write(img.toQImage());
 
-  int d = maxdim(img.size());
+  PSize s = img.size();
+  Q_ASSERT(!s.exceeds(maxSize()));
   int k = 0;
   if (buf.data().size() < memthresh) {
     k = 1;
-    for (int l=1; l<stdsizes.size(); l++)
-      if (d>stdsizes[l])
+    for (int l=1; l<stdsizes.size()-1; l++)
+      if (s.exceeds(stdsizes[l]))
         k++;
   }
 
+  int d = s.maxDim();
+
   QSqlQuery q = db.query("select id, dbno from cache"
-			 " where version==:a and maxdim==:b", vsn, d);
+			 " where version==:a and maxdim==:b",
+			 vsn, d);
   if (q.next()) {
     // preexist
     quint64 cacheid = q.value(0).toULongLong();
     int oldk = q.value(1).toInt();
-    qDebug() << "addToCache UPDATE" << vsn << d << cacheid << oldk << k;
     if (oldk && k!=oldk) 
       db.query(QString("delete from B%1.blobs where cacheid==:a").arg(oldk),
                cacheid);
@@ -200,7 +199,6 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
                                " values (:a, :b, :c, :d)",
                                vsn, d, instantlyOutdated?1:0, k)
       .lastInsertId().toULongLong();
-    qDebug() << "addToCache NEW" << vsn << d << cacheid << k;
     if (k) {
       db.query(QString("insert into B%1.blobs (cacheid, bits) values (:a, :b)")
                .arg(k), cacheid, buf.data());
@@ -230,12 +228,12 @@ void BasicCache::remove(quint64 vsn) {
   db.query("delete from cache where version==:a", vsn);
 }
 
-Image16 BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
+Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
   QSqlQuery q = db.query("select id, dbno, outdated from cache"
 			 " where version==:a and maxdim==:b limit 1",
-			 vsn, maxdim);
+			 vsn, s.maxDim());
   if (!q.next()) {
-    qDebug() << "BasicCache: failed to get" << vsn << maxdim;
+    qDebug() << "BasicCache: failed to get" << vsn << s;
     throw q;
   }
   quint64 cacheid = q.value(0).toInt();
@@ -252,7 +250,7 @@ Image16 BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
     QImageReader reader(&buf, "jpeg");
     return reader.read();
   } else {
-    QString fn(constructFilename(vsn, maxdim));
+    QString fn(constructFilename(vsn, s.maxDim()));
     if (QFile(fn).exists()) 
       return Image16(fn);
     qDebug() << "Missing file " << fn << " from cache";
@@ -260,72 +258,32 @@ Image16 BasicCache::get(quint64 vsn, int maxdim, bool *outdated_return) {
   }
 }
 
-int BasicCache::bestSize(quint64 vsn, int maxdim) {
-  QSqlQuery q = db.query("select maxdim, outdated from cache"
-			 " where version==:a", vsn);
-  int dbest = 0;
-  bool outdated = true;
-  bool gotsized = false;
-  while (q.next()) {
-    int d = q.value(0).toInt();
-    bool od = q.value(1).toInt()>0;
-    if (od && !outdated) {
-      // If I have an up-to-date version, never replace w/ outdated.
-    } else if (outdated && !od) {
-      // Always replace outdated with up-to-date.
-      dbest = d;
-      outdated = false;
-      gotsized = d>=maxdim;
-    } else if (d>=maxdim) {
-      // Nice and big, but perhaps too big
-      if (d<dbest || !gotsized) {
-	dbest = d;
-	outdated = od;
-	gotsized = true;
-      }
-    } else {
-      // Small, but perhaps better than what we have
-      if (d>dbest && !gotsized) {
-	dbest = d;
-	outdated = od;
-      }
-    }
-  }
-  return dbest;  
-}
-
 PSize BasicCache::bestSize(quint64 vsn, PSize desired) {
   QSqlQuery q(db.query("select width, height, outdated from cache"
 		       " where version==:a", vsn));
-  int dbest = 0;
   PSize sbest;
-  bool gotsized = false;
+  bool gotbig = false;
   bool outdated = true;
   while (q.next()) {
-    int w = q.value(0).toInt();
-    int h = q.value(1).toInt();
-    int d = w*h;
+    PSize s(q.value(0).toInt(), q.value(1).toInt());
     bool od = q.value(2).toInt()>0;
     if (od && !outdated) {
       // If I have an up-to-date version, never replace w/ outdated.
     } else if (outdated && !od) {
       // Always replace outdated with up-to-date.
-      sbest = PSize(w, h);
-      dbest = d;
+      sbest = s;
       outdated = false;
-    } else if (w>=desired.width() || h>=desired.height()) {
+    } else if (s.bigEnoughFor(desired)) {
       // Nice and big, but perhaps too big
-      if (d<dbest || !gotsized) {
-	sbest = PSize(w, h);
-	dbest = d;
+      if (s<sbest || !gotbig) {
+	sbest = s;
 	outdated = od;
-	gotsized = true;
+	gotbig = true;
       }
     } else {
       // Small, but perhaps better than what we have
-      if (d>dbest && !gotsized) {
-	sbest = PSize(w, h);
-	dbest = d;
+      if (sbest<s && !gotbig) {
+	sbest = s;
 	outdated = od;
       }
     }
@@ -358,10 +316,6 @@ QList<PSize> BasicCache::sizes(quint64 vsn, bool outdatedOK) {
   return lst;
 }
 
-int BasicCache::maxDim() const {
-  return stdsizes[0];
-}
-    
 QString BasicCache::constructFilename(quint64 vsn, int d) {
   QList<int> bits;
   while (vsn>0) {
@@ -380,4 +334,8 @@ QString BasicCache::constructFilename(quint64 vsn, int d) {
 
 void BasicCache::markOutdated(quint64 vsn) {
   db.query("update cache set outdated=1 where version==:a", vsn);
+}
+
+PSize BasicCache::maxSize() const {
+  return stdsizes[0];
 }

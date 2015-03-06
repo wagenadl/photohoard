@@ -34,13 +34,12 @@ public:
   /*:F remove
    *:D Removes all sizes of the referenced image from the cache.
    */
-  Image16 get(quint64 vsn, int maxdim, bool *outdated_return=NULL);
+  Image16 get(quint64 vsn, PSize s, bool *outdated_return=NULL);
   /*:F get
    *:D Retrieves an image from the cache.
    *:N This only succeeds if the image exists at the given size. See also
    bestSize().
   */
-  int bestSize(quint64 vsn, int maxdim);
   PSize bestSize(quint64 vsn, PSize desired);
   /*:F bestSize
    *:D Determines the best available size of the referenced image.
@@ -64,13 +63,8 @@ public:
    *:N By default, only non-outdated images are considered. This can be
    changed by passing true for outdatedOK.
   */      
-  static int maxdim(PSize const &s);
-  /*:F maxdim
-   *:D Convenience function to return the larger of the two dimensions
-   contained in a PSize.
-  */
-  QList<int> standardSizes() const { return stdsizes; }
-  int maxDim() const; // max of all standard sizes
+  QList<PSize> standardSizes() const { return stdsizes; }
+  PSize maxSize() const; // max of all standard sizes
   Image16 sufficientSize(Image16 const &);
   /*:F sufficientSize
    *:D Reduces an image to the maximum size needed for the cache.
@@ -86,7 +80,7 @@ private:
 private:
   QDir root;
   Database db;
-  QList<int> stdsizes; // in decreasing order
+  QList<PSize> stdsizes; // in decreasing order
   int memthresh;
 };
 

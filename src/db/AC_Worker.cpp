@@ -230,7 +230,7 @@ void AC_Worker::sendToBank(quint64 version) {
   int hei = q.value(4).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   QString path = db.folder(folder) + "/" + fn;
-  int maxdim = cache->standardSizes().first();
+  int maxdim = cache->maxSize().maxDim();
   bank->findImage(version,
 		  path, db.ftype(ftype), orient, PSize(wid, hei),
 		  mods,
@@ -257,31 +257,31 @@ void AC_Worker::storeLoadedInDB() {
 
 void AC_Worker::requestImage(quint64 version, PSize desired) {
   qDebug() << "AC_Worker::requestImage" << version << desired;
+  PSize actual;
   try {
     if (loaded.contains(version)) {
-      qDebug() << "  available from loaded";
       emit available(version, desired, loaded[version]);
-      return;
-    } 
-
-    int d = cache->bestSize(version, cache->maxdim(desired));
-    if (d>0) {
+      actual = loaded[version].size();
+    } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
       bool od;
-      qDebug() << "  available from cache";
-      Image16 img = cache->get(version, d, &od);
-      qDebug() << "  got from cache";
-      emit available(version, desired, img);
-      if (!od)
-	return;
+      Image16 img = cache->get(version, actual, &od);
+      if (img.isNull()) // can this happen?
+	actual = PSize();
+      else
+	emit available(version, desired, img);
+      if (od)
+	actual = PSize();
     }
 
-    // We will have to request it
+    if (actual.contains(desired) || actual.contains(cache->maxSize()))
+      // We cannot do better than that
+      return;
+
+    // We will request it
     if (beingLoaded.contains(version)) {
-      // We'll get it
-      qDebug() << "  beingloaded";
+      // We're getting it already
       requests[version] << desired;
     } else {
-      qDebug() << "  add to bank";
       mustCache << version;
       requests[version] << desired;
       readyToLoad << version;
