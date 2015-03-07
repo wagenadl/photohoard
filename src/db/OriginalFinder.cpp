@@ -11,10 +11,10 @@ OriginalFinder::OriginalFinder(PhotoDB const &db,
   QObject(parent), db(db) {
   filereader = new InterruptableFileReader(this);
   rawreader = new InterruptableRawReader(this);
-  connect(filereader, SIGNAL(ready(QString)),
-          SLOT(freaderReady(QString)));
-  connect(rawreader, SIGNAL(ready(QString)),
-          SLOT(rreaderReady(QString)));
+  connect(filereader, SIGNAL(ready(QString, QByteArray)),
+          SLOT(provide(QString, QByteArray)));
+  connect(rawreader, SIGNAL(ready(QString, QByteArray)),
+          SLOT(provide(QString, QByteArray)));
 }
 
 OriginalFinder::~OriginalFinder() {
@@ -66,21 +66,6 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, PSize ds) {
   }  
 }
 
-void OriginalFinder::freaderReady(QString fn) {
-  qDebug() << "freaderready" << fn;
-  if (fn==filepath)
-    read(filereader);
-  else
-    filereader->cancel(fn);
-}
-
-void OriginalFinder::rreaderReady(QString fn) {
-  if (fn==filepath)
-    read(rawreader);
-  else
-    filereader->cancel(fn);
-}
-
 void OriginalFinder::fixOrientation(Image16 &img) {
   switch (orient) {
   case Exif::Upright:
@@ -97,12 +82,18 @@ void OriginalFinder::fixOrientation(Image16 &img) {
   }
 }  
 
-void OriginalFinder::read(InterruptableReader *reader) {
-  qDebug() << "OriginalFinder::read";
-  QByteArray data = reader->readAll(filepath);
+void OriginalFinder::provide(QString fn, QByteArray data) {
+  if (fn!=filepath)
+    return;
+
   Image16 img = QImage::fromData(data);
+  if (img.isNull()) {
+    qDebug() << "  got null image";
+    return;
+  }
+
   if (desired.isNull()) {
-    fixOrientation(img); // this should happen later
+    fixOrientation(img);
     emit originalAvailable(version, img);
   } else {
     PSize desi = desired;

@@ -1,20 +1,24 @@
 // InterruptableRawReader.cpp
 
 #include "InterruptableRawReader.h"
+#include <QDebug>
 
-bool InterruptableRawReader::openCurrent() {
+InterruptableRawReader::InterruptableRawReader(QObject *parent):
+  InterruptableReader(parent) {
+  src = new QProcess(this);
+}
+
+bool InterruptableRawReader::open() {
   QString cmd = "dcraw";
   QStringList args;
-  args << "-c" << "-w" << current;
+  args << "-c" << "-w" << requested;
   // eventually we should return 16-bits linear XYZ!
-  src.start(cmd, args);
-  return true;
+  qDebug() << cmd << args;
+  src->start(cmd, args, QProcess::ReadOnly);
+  return src->waitForStarted();
 }
 
-void InterruptableRawReader::stopSource() {
-  src.terminate();
-}
-
-bool InterruptableRawReader::atEnd() const {
-  return src.atEnd();
+void InterruptableRawReader::abort() {
+  qDebug() << "IRR: stopSource";
+  src->terminate();
 }

@@ -39,6 +39,10 @@ public:
   QSqlQuery query(QString s, QVariant a, QVariant b);
   QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c);
   QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d);
+  QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d,
+		  QVariant e);
+  QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d,
+		  QVariant e, QVariant f);
 protected:
   QSqlDatabase *db;
 private:

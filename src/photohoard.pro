@@ -6,6 +6,10 @@ CONFIG += debug_and_release
 QT += sql
 QMAKE_CXXFLAGS += -std=c++11
 
+QMAKE_CXXFLAGS_DEBUG += -fPIE -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O3 -ffast-math -march=native
+
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
 OBJECTS_DIR=../release
@@ -29,7 +33,6 @@ LIBS += -llcms2
 LIBS += -lX11
 
 SOURCES += cms/CMSProfile.cpp
-SOURCES += cms/CMSToneCurve.cpp
 SOURCES += cms/CMSTransform.cpp
 SOURCES += db/AC_Worker.cpp
 SOURCES += db/AutoCache.cpp
@@ -72,7 +75,6 @@ SOURCES += ui/Strip.cpp
 
 HEADERS += cms/CMS.h
 HEADERS += cms/CMSProfile.h
-HEADERS += cms/CMSToneCurve.h
 HEADERS += cms/CMSTransform.h
 HEADERS += db/AC_Worker.h
 HEADERS += db/AutoCache.h
@@ -117,8 +119,10 @@ SOURCES += adj/Sliders.cpp
 HEADERS += adj/Sliders.h
 HEADERS += adj/ColorSpaces.h   adj/CS_IPT.h   adj/CS_Lab.h   adj/CS_sRGB.h
 SOURCES += adj/ColorSpaces.cpp adj/CS_IPT.cpp adj/CS_Lab.cpp adj/CS_sRGB.cpp
-HEADERS += adj/Image16.h   adj/Adjuster.h
-SOURCES += adj/Image16.cpp adj/Adjuster.cpp
+HEADERS += adj/Image16.h adj/Image16Base.h adj/Image16Data.h
+HEADERS += adj/Adjuster.h
+SOURCES += adj/Image16.cpp
+SOURCES += adj/Adjuster.cpp
 HEADERS += ui/AllControls.h   ui/ControlGroup.h
 SOURCES += ui/AllControls.cpp ui/ControlGroup.cpp
 HEADERS += adj/AdjusterTile.h   adj/AdjusterStage.h

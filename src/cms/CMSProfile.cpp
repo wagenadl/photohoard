@@ -8,7 +8,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
 #include <QMap>
-#include "CMSToneCurve.h"
 
 void CMSProfile::initref() {
   refctr = new QAtomicInt;
@@ -47,130 +46,6 @@ CMSProfile CMSProfile::linearRgbProfile() {
   }
   return p;
 }
-
-CMSProfile CMSProfile::curvedRgbProfile(CMSToneCurve const &r,
-                                        CMSToneCurve const &g,
-                                        CMSToneCurve const &b) {
-  CMSProfile p;
-  cmsCIExyY D65;
-  cmsWhitePointFromTemp(&D65, 6504);
-    
-  cmsCIExyYTRIPLE Rec709Primaries = {
-    {0.6400, 0.3300, 1.0},
-    {0.3000, 0.6000, 1.0},
-    {0.1500, 0.0600, 1.0}
-  };
-    
-  cmsToneCurve *curves[3] = { r.curve(), g.curve(), b.curve() };
-  p.prof = cmsCreateRGBProfile(&D65, &Rec709Primaries, curves);
-  return p;
-}
-
-/* Copied from lcms2 code cmsvirt.c */
-static cmsBool SetTextTags(cmsHPROFILE hProfile, const wchar_t* Description) {
-  cmsMLU *DescriptionMLU, *CopyrightMLU;
-  cmsBool  rc = FALSE;
-  cmsContext ContextID = cmsGetProfileContextID(hProfile);
-  
-  DescriptionMLU  = cmsMLUalloc(ContextID, 1);
-  CopyrightMLU    = cmsMLUalloc(ContextID, 1);
-  
-  if (DescriptionMLU == NULL || CopyrightMLU == NULL)
-    goto Error;
-  
-  if (!cmsMLUsetWide(DescriptionMLU, "en", "US", Description))
-    goto Error;
-  if (!cmsMLUsetWide(CopyrightMLU, "en", "US", L"No copyright, use freely"))
-    goto Error;
-  
-  if (!cmsWriteTag(hProfile, cmsSigProfileDescriptionTag, DescriptionMLU))
-    goto Error;
-  if (!cmsWriteTag(hProfile, cmsSigCopyrightTag, CopyrightMLU))
-    goto Error;
-  
-  rc = TRUE;
-
- Error:
-  if (DescriptionMLU)
-    cmsMLUfree(DescriptionMLU);
-  if (CopyrightMLU)
-    cmsMLUfree(CopyrightMLU);
-  return rc;
-}
-
-
-CMSProfile CMSProfile::curvedXYZProfile(CMSToneCurve const &x,
-                                        CMSToneCurve const &y,
-                                        CMSToneCurve const &z) {
-  #if 0
-  CMSProfile p = curvedRgbProfile(x, y, z);
-  if (!p.isValid())
-    return p;
-  
-  cmsSetProfileVersion(p.prof, 4.3);
-  cmsSetDeviceClass(p.prof, cmsSigAbstractClass);
-  cmsSetColorSpace(p.prof, cmsSigXYZData);
-  cmsSetPCS(p.prof, cmsSigXYZData);
-  if (!SetTextTags(p.prof, L"XYZ curved"))
-    return CMSProfile();
-#endif
-  CMSProfile p = xyzProfile();
-  cmsPipeline* LUT = cmsPipelineAlloc(NULL, 3, 3);
-  if (!LUT)
-    return CMSProfile();
-
-  cmsToneCurve *crv[] = { x.curve(), y.curve(), z.curve() };
-  if (!cmsPipelineInsertStage(LUT, cmsAT_BEGIN,
-                              cmsStageAllocToneCurves(NULL, 3, crv)))
-    goto Error;
-  if (!cmsWriteTag(p.prof, cmsSigAToB0Tag, LUT))
-    goto Error;
-
-  cmsPipelineFree(LUT);
-
-  return p;
-
- Error:
-  cmsPipelineFree(LUT);
-  return CMSProfile();
-}
-
-CMSProfile CMSProfile::curvedLabProfile(CMSToneCurve const &L,
-                                        CMSToneCurve const &a,
-                                        CMSToneCurve const &b) {
-  #if 0
-  CMSProfile p = curvedRgbProfile(L, a, b);
-  if (!p.isValid())
-    return p;
-  
-  cmsSetProfileVersion(p.prof, 2.1);
-  cmsSetDeviceClass(p.prof, cmsSigAbstractClass);
-  cmsSetColorSpace(p.prof, cmsSigLabData);
-  cmsSetPCS(p.prof, cmsSigLabData);
-  if (!SetTextTags(p.prof, L"Lab curved"))
-    return CMSProfile();
-  #endif
-  CMSProfile p = labProfile();
-  cmsPipeline* LUT = cmsPipelineAlloc(NULL, 3, 3);
-  if (!LUT)
-    return CMSProfile();
-
-  cmsToneCurve *crv[] = { L.curve(), a.curve(), b.curve() };
-  if (!cmsPipelineInsertStage(LUT, cmsAT_BEGIN,
-                              cmsStageAllocToneCurves(NULL, 3, crv)))
-    goto Error;
-  if (!cmsWriteTag(p.prof, cmsSigAToB0Tag, LUT))
-    goto Error;
-
-  cmsPipelineFree(LUT);
-
-  return p;
-
- Error:
-  cmsPipelineFree(LUT);
-  return CMSProfile();
-}
-
 
 CMSProfile CMSProfile::labProfile(double x_white,
                                   double y_white,

@@ -4,20 +4,15 @@
 
 #define INTERRUPTABLEREADER_H
 
-#include <QThread>
-#include <QFile>
-#include <QWaitCondition>
-#include <QMutex>
+#include <QObject>
+#include <QIODevice>
 
-class InterruptableReader: public QThread {
+class InterruptableReader: public QObject {
   Q_OBJECT;
 public:
   enum class State {
     Waiting,
     Running,
-    Success,
-    Canceled,
-    Failed,
   };    
 public:
   InterruptableReader(QObject *parent=0);
@@ -31,11 +26,6 @@ public:
      else except when provoked by the caller through request(), cancel(), or
      readAll().
   */
-  QByteArray readAll(QString fn);
-  // Only successful in Success state.
-  // Resets state to Waiting.
-  QString errorMessage(QString fn) const;
-  // Only successful in Failed state.
 public slots:
   void request(QString fn);
   // Posting a new request cancels the previous.
@@ -44,37 +34,25 @@ public slots:
   void cancel();
   // Cancels no matter what
 signals:
-  void ready(QString fn);
+  void ready(QString fn, QByteArray data);
   // Emitted when state transitions to Success.
-  void failed(QString fn);
+  void failed(QString fn, QString message);
   // Emitted when state transitions to Failed.
   void canceled(QString fn);
   // Emitted when request() or cancel() cancels a Running/Success/Failed state.
-private:
-  virtual void start();
-  virtual void stop();
-  virtual void run();
+  void readMore(); // private
+private slots:
+  void readSome();
 protected:
   virtual QIODevice &source()=0; // valid _only_ in state Running
-  virtual void stopSource() { }
-  virtual qint64 nextChunkSize() { return 65536; }
-  virtual bool openCurrent()=0;
-  virtual bool atEnd() const=0;
+  virtual void abort() { }
+  virtual bool open()=0;
 private:
-  void cancelCurrent();
-  void readSome();
   void complete();
-  void newRequest();
 protected:
-  QString requested; // always valid
-  QString current; // valid _except_ in state Waiting
+  QString requested;
   State state_;
-  QByteArray dest; // valid _only_ in state Running and Success
-  mutable QMutex mutex;
-  QWaitCondition waitcond;
-  QString errmsg; // valid _only_ in state Failed
-  bool stopsoon;
-  bool cancelsoon;
+  QByteArray dest;
   qint64 reservedsize, offset;
 };
 

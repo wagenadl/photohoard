@@ -15,33 +15,40 @@ static Image16Foo foo;
 
 
 Image16::Image16(): Image16(QImage()) {
+  qDebug() << this << d;
 }
 
 Image16::Image16(QString const &fn, char const *format):
   Image16(QImage(fn, format)) {
+  qDebug() << this << d;
 }
 
 Image16::Image16(char const *fn, char const *format):
   Image16(QString(fn), format) {
+  qDebug() << this << d;
 }
 
 Image16::Image16(Image16 const &image): d(image.d) {
+  qDebug() << this << d;
 }
 
 Image16::Image16(int width, int height, Image16::Format format):
-  d(new Image16::Data(width, height, format)) {
+  d(new Image16Data(width, height, format)) {
+  qDebug() << this << d;
 }
 
 Image16::Image16(PSize size, Image16::Format format):
   Image16(size.width(), size.height(), format) {
+  qDebug() << this << d;
 }
 
 Image16::Image16(uchar const *data, int width, int height,
                  Image16::Format format) {
   if (format==Format::sRGB8) 
-    d = new Data(QImage(data, width, height, QImage::Format_RGB32));
+    d = new Image16Data(QImage(data, width, height, QImage::Format_RGB32));
   else
-    d = new Data(QImage(data, width*3, height, QImage::Format_RGB16));
+    d = new Image16Data(QImage(data, width*3, height, QImage::Format_RGB16));
+  qDebug() << this << d;
   d->width = width;
   d->format = format;
 }
@@ -49,17 +56,19 @@ Image16::Image16(uchar const *data, int width, int height,
 Image16::Image16(uchar const *data, int width, int height, int bytesPerLine,
                  Image16::Format format) {
   if (format==Format::sRGB8) 
-    d = new Data(QImage(data, width, height, bytesPerLine,
+    d = new Image16Data(QImage(data, width, height, bytesPerLine,
                         QImage::Format_RGB32));
   else
-    d = new Data(QImage(data, width*3, height, bytesPerLine,
+    d = new Image16Data(QImage(data, width*3, height, bytesPerLine,
                         QImage::Format_RGB16));
+  qDebug() << this << d;
   d->width = width;
   d->format = format;
 }
 
 Image16 &Image16::operator=(Image16 const &image) {
   d = image.d;
+  qDebug() << this << d;
   return *this;
 }
 
@@ -70,7 +79,8 @@ QImage Image16::toQImage() const {
     return convertedTo(Format::sRGB8).toQImage();
 }
 
-Image16::Image16(QImage const &image): d(new Data(image)) {
+Image16::Image16(QImage const &image): d(new Image16Data(image)) {
+  qDebug() << this << d;
 }
 
 Image16 Image16::fromQImage(QImage const &image) {

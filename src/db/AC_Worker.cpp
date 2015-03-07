@@ -260,11 +260,18 @@ void AC_Worker::requestImage(quint64 version, PSize desired) {
   PSize actual;
   try {
     if (loaded.contains(version)) {
-      emit available(version, desired, loaded[version]);
-      actual = loaded[version].size();
+      qDebug() << "  loaded is " << loaded[version].size();
+      Image16 res = loaded[version].size().exceeds(desired)
+	? loaded[version].scaled(desired, Qt::KeepAspectRatio)
+	: loaded[version];
+      emit available(version, desired, res);
+      actual = res.size();
     } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
+      qDebug() << "  best is " << actual;
       bool od;
       Image16 img = cache->get(version, actual, &od);
+      if (img.size().exceeds(desired))
+	img = img.scaled(desired, Qt::KeepAspectRatio);
       if (img.isNull()) // can this happen?
 	actual = PSize();
       else
@@ -272,7 +279,8 @@ void AC_Worker::requestImage(quint64 version, PSize desired) {
       if (od)
 	actual = PSize();
     }
-
+    qDebug() << "  a " << actual << " d " << desired
+	     << actual.contains(desired) << actual.contains(cache->maxSize());
     if (actual.contains(desired) || actual.contains(cache->maxSize()))
       // We cannot do better than that
       return;
@@ -282,6 +290,13 @@ void AC_Worker::requestImage(quint64 version, PSize desired) {
       // We're getting it already
       requests[version] << desired;
     } else {
+      if (!mustCache.contains(version))
+	N++; /* This is not actually formally correct, because
+		it may be that version is in the dbqueue. Worse, by not
+		adding this version to the dbqueue, we risk losing count
+		later. But adding it to the dbqueue one-by-one is rather
+		inefficient.
+	     */
       mustCache << version;
       requests[version] << desired;
       readyToLoad << version;
@@ -299,6 +314,11 @@ void AC_Worker::requestImage(quint64 version, PSize desired) {
 void AC_Worker::respondToRequest(quint64 version, Image16 img) {
   if (img.isNull()) 
     img = Image16(PSize(1, 1));
+  PSize s0;
+  for (PSize s: requests[version])
+    s0 |= s;
+  if (img.size().exceeds(s0))
+    img = img.scaled(s0, Qt::KeepAspectRatio);
   for (PSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);

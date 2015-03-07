@@ -130,7 +130,6 @@ void SlideView::paintEvent(QPaintEvent *) {
     return;
   
   QPainter p(this);
-  //  style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
   QRect r = contentsRect();
   
   if (fit) {
@@ -156,39 +155,41 @@ void SlideView::paintEvent(QPaintEvent *) {
 		i1.toQImage());
   } else {
     qDebug() << "  not fit";
-    double showWidth = zoom*naturalSize.width();
-    double showHeight = zoom*naturalSize.height();
-    double imgWidth = img.width();
-    double imgHeight = img.height();
-    double availWidth = r.width();
-    double availHeight = r.height();
+    PSize showSize = naturalSize*zoom;
+    PSize availSize = r.size();
     QRectF sourceRect;
     QRectF destRect;
-    if (img.width()<naturalSize.width() && showWidth>img.width())
-      emit needLargerImage();
-    if (showWidth<=availWidth) {
+    if (!img.size().isLargeEnoughFor(showSize)
+	&& naturalSize.exceeds(img.size())) {
+      if (img.size()!=lastSize) 
+	emit needLargerImage();
+      lastSize = img.size();
+    } else {
+      lastSize = PSize();
+    }
+    if (showSize.width()<=availSize.width()) {
       sourceRect.setLeft(0);
-      sourceRect.setWidth(imgWidth);
-      destRect.setLeft((r.left()+r.right())/2 - showWidth/2);
-      destRect.setWidth(showWidth);
+      sourceRect.setWidth(img.width());
+      destRect.setLeft((r.left()+r.right())/2 - showSize.width()/2);
+      destRect.setWidth(showSize.width());
     } else {
       destRect.setLeft(r.left());
-      destRect.setWidth(availWidth);
-      sourceRect.setWidth(imgWidth * availWidth/showWidth);
-      sourceRect.setLeft(relx * (1-availWidth/showWidth) 
-			 * imgWidth * availWidth/showWidth);
+      destRect.setWidth(availSize.width());
+      sourceRect.setWidth(img.width()*availSize.width()/showSize.width());
+      sourceRect.setLeft(relx * (1-(0.+availSize.width())/showSize.width()) 
+			 * img.width() * availSize.width()/showSize.width());
     }
-    if (showHeight<=availHeight) {
+    if (showSize.height()<=availSize.height()) {
       sourceRect.setTop(r.top());
-      sourceRect.setHeight(imgHeight);
-      destRect.setTop((r.top()+r.bottom())/2 - showHeight/2);
-      destRect.setHeight(showHeight);
+      sourceRect.setHeight(img.height());
+      destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
+      destRect.setHeight(showSize.height());
     } else {
       destRect.setTop(0);
-      destRect.setHeight(availHeight);
-      sourceRect.setHeight(imgHeight * availHeight/showHeight);
-      sourceRect.setTop(rely * (1-availHeight/showHeight) 
-			* imgHeight * availHeight/showHeight);
+      destRect.setHeight(availSize.height());
+      sourceRect.setHeight(img.height() * availSize.height()/showSize.height());
+      sourceRect.setTop(rely * (1-(0.+availSize.height())/showSize.height()) 
+			* img.height() * availSize.height()/showSize.height());
     }
     p.drawImage(destRect, img.toQImage(), sourceRect);
   }

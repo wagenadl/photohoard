@@ -10,15 +10,14 @@
 class InterruptableRawReader: public InterruptableReader {
   Q_OBJECT;
 public:
-  InterruptableRawReader(QObject *parent=0): InterruptableReader(parent) { }
+  InterruptableRawReader(QObject *parent=0);
   virtual ~InterruptableRawReader() { }
 protected:
-  virtual QIODevice &source() { return src; }
-  virtual bool openCurrent();
-  virtual void stopSource();
-  virtual bool atEnd() const;
+  virtual QIODevice &source() { return *src; }
+  virtual bool open();
+  virtual void abort();
 private:
-  QProcess src;
+  QProcess *src;
 };
 
 #endif

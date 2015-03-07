@@ -9,17 +9,10 @@
 #include <QSharedDataPointer>
 #include <QDebug>
 #include "PSize.h"
+#include "Image16Base.h"
+#include "Image16Data.h"
 
-class Image16 {
-public:
-  enum class Format {
-    sRGB8,
-    XYZ16,
-    XYZp16,
-    Lab16,
-    LMS16,
-    IPT16,
-  };
+class Image16: public Image16Base {
 public:
   Image16();
   Image16(QString const &fn, char const *format=0);
@@ -79,29 +72,7 @@ private:
   void convertFrom(Image16 const &other, Format otherformat);
   void setROI(QRect);
 private:
-  class Data: public QSharedData {
-  public:
-    Data(int w=0, int h=0, Image16::Format f=Image16::Format::sRGB8):
-      width(w), height(h), format(f),
-      image(format==Image16::Format::sRGB8 ? w : 3*w, h,
-            format==Image16::Format::sRGB8 ? QImage::Format_RGB32
-            : QImage::Format_RGB16), roibyteoffset(0) {
-      bytesperline = image.bytesPerLine();
-    }
-    Data(QImage const &img):
-      width(img.width()), height(img.height()),
-      format(Image16::Format::sRGB8), image(img), roibyteoffset(0) {
-      bytesperline = image.bytesPerLine();
-    }
-  public:
-    int width;
-    int height;
-    int bytesperline;
-    Format format;
-    QImage image;
-    int roibyteoffset;
-  };
-  QSharedDataPointer<Data> d;
+  QSharedDataPointer<Image16Data> d;
 };
 
 #endif

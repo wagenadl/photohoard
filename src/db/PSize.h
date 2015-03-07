@@ -19,7 +19,7 @@ public:
     return width()>s.width() || height()>s.height(); }
   bool exceededBy(QSize const &s) const {
     return s.width()>width() || s.height()>height(); }
-  bool bigEnoughFor(QSize const &s) const {
+  bool isLargeEnoughFor(QSize const &s) const {
     /* Returns true if scaling us to fit in s would not scale us up. */
     return width()>=s.width() || height()>=s.height();
   }
@@ -27,6 +27,8 @@ public:
     // Smaller in area
     return width()*height() < s.width()*s.height();
   }
+  PSize &operator|=(QSize const &s);
+  PSize operator*(double s) const { return PSize(width()*s, height()*s); }
   PSize scaledDownToFitIn(QSize const &s) const;
   PSize scaledToFitIn(QSize const &s) const;
   PSize scaledToContain(QSize const &s) const;
@@ -40,5 +42,7 @@ public:
   int maxDim() const { return width()>height() ? width() : height(); }
   static PSize square(int w) { return PSize(w, w); }
 };
+
+Q_DECLARE_TYPEINFO(PSize, Q_MOVABLE_TYPE);
 
 #endif

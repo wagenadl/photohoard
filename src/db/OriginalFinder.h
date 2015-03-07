@@ -24,9 +24,8 @@ signals:
   void scaledOriginalAvailable(quint64 version, PSize osize, Image16 img);
   void exception(QString);
 private slots:
-  void freaderReady(QString fn);
-  void rreaderReady(QString fn);
-  void read(class InterruptableReader *);
+  void provide(QString fn, QByteArray);
+private:
   void fixOrientation(Image16 &);
 private:
   PhotoDB db;

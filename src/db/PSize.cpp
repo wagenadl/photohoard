@@ -2,16 +2,6 @@
 
 #include "PSize.h"
 #include <limits>
-#include <QMetaType>
-
-class PSize_Registrar {
-public:
-  PSize_Registrar() {
-    qRegisterMetaType<PSize>("PSize");
-  }
-};
-
-static PSize_Registrar psizeRegistrar;
 
 PSize PSize::scaledDownToFitIn(QSize const &s) const {
   if (isEmpty() || s.isEmpty())
@@ -107,4 +97,12 @@ PSize PSize::rotated90() const {
 
 void PSize::rotate90() {
   *this = PSize(height(), width());
+}
+
+PSize &PSize::operator|=(QSize const &s) {
+  if (s.width()>width())
+    setWidth(s.width());
+  if (s.height()>height())
+    setHeight(s.height());
+  return *this;
 }

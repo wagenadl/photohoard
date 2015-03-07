@@ -31,18 +31,9 @@ public: // but rather technical
 public:
   static CMSProfile srgbProfile();
   static CMSProfile linearRgbProfile();
-  static CMSProfile curvedRgbProfile(class CMSToneCurve const &r,
-                                     CMSToneCurve const &g,
-                                     CMSToneCurve const &b);
   static CMSProfile labProfile(double x_white, double y_white, double Y_white);
   static CMSProfile labProfile(StandardIlluminant il=StandardIlluminant::D50);
-  static CMSProfile curvedLabProfile(class CMSToneCurve const &L,
-                                     CMSToneCurve const &a,
-                                     CMSToneCurve const &b); // uses D65
   static CMSProfile xyzProfile();
-  static CMSProfile curvedXYZProfile(class CMSToneCurve const &x,
-                                     CMSToneCurve const &y,
-                                     CMSToneCurve const &z);
   static CMSProfile nullProfile();
   static CMSProfile displayProfile();
 private:

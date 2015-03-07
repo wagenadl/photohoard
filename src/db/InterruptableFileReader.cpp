@@ -3,22 +3,18 @@
 #include "InterruptableFileReader.h"
 #include <QDebug>
 
-bool InterruptableFileReader::openCurrent() {
-  qDebug() << "IFR::openCurrent" << current;
-  src.setFileName(current);
-  if (!src.open(QFile::ReadOnly))
+InterruptableFileReader::InterruptableFileReader(QObject *parent):
+  InterruptableReader(parent) {
+  src = new QFile(this);
+  connect(src, SIGNAL(readyRead()), SLOT(readSome()));
+}
+
+bool InterruptableFileReader::open() {
+  qDebug() << "IFR::openCurrent" << requested;
+  src->setFileName(requested);
+  if (!src->open(QFile::ReadOnly))
     return false;
-  size = src.size();
-  dest.resize(size);
+  dest.resize(src->size());
   return true;
 }
 
-qint64 InterruptableFileReader::nextChunkSize() {
-  qint64 N0 = InterruptableReader::nextChunkSize();
-  qint64 N = size - offset;
-  return N<N0 ? N : N0;
-}
-
-bool InterruptableFileReader::atEnd() const {
-  return offset>=size;
-}

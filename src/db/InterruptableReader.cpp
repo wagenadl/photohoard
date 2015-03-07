@@ -5,185 +5,87 @@
 #include <QDebug>
 
 InterruptableReader::InterruptableReader(QObject *parent):
-  QThread(parent) {
+  QObject(parent) {
   state_ = State::Waiting;
   requested = "";
-  cancelsoon = false;
-  start();
+  connect(this, SIGNAL(readMore()), SLOT(readSome()), Qt::QueuedConnection);
 }
 
 InterruptableReader::~InterruptableReader() {
-  stop();
-  if (!wait(1000)) {
-    qDebug() << "InterruptableReader: Failed to stop thread; terminating.";
-    terminate();
-    if (!wait(1000))
-      qDebug() << "InterruptableReader: Still failed to stop thread";
-  }
-}
-
-QByteArray InterruptableReader::readAll(QString fn) {
-  qDebug() << "IR::readAll" << fn;
-  QMutexLocker l(&mutex);
-  if (state_==State::Success && current==fn) {
-    QByteArray result = dest;
-    state_ = State::Waiting;
-    current = "";
-    return result;
-  } else {
-    return QByteArray();
-  }
-}
-
-QString InterruptableReader::errorMessage(QString fn) const {
-  QMutexLocker l(&mutex);
-  if (state_==State::Failed && current==fn)
-    return errmsg;
-  else
-    return QString();
 }
 
 void InterruptableReader::request(QString fn) {
-  qDebug() << "IR::request" << fn;
-  QMutexLocker l(&mutex);
+  if (state_==State::Running)
+    cancel();
+
+  state_ = State::Running;
   requested = fn;
-  if (state_ != State::Running) 
-    waitcond.wakeOne();
+  offset = 0;
+  if (!open()) {
+    requested = "";
+    state_ = State::Waiting;
+    emit failed(fn, "Could not open source");
+  }
+  qDebug() << "requested ok";
+  reservedsize = dest.size();
+  readSome();
 }
 
 void InterruptableReader::cancel() {
-  qDebug() << "IR::cancel";
-  QMutexLocker l(&mutex);
-  cancelsoon = true;
-  if (state_ != State::Running) 
-    waitcond.wakeOne();
+  abort();
+  source().close();
+  dest.clear();
+  QString fn = requested;
+  requested = "";
+  state_ = State::Waiting;
+  emit canceled(fn);
 }
 
 void InterruptableReader::cancel(QString fn) {
-  qDebug() << "IR::cancel" << fn;
-  QMutexLocker l(&mutex);
-  if (requested==fn)
-    requested="";
-  if (current==fn)
-    cancelsoon = true;
-  if (state_ != State::Running) 
-    waitcond.wakeOne();
-}
-
-void InterruptableReader::start() {
-  stopsoon = false;
-  QThread::start();
-}
-
-void InterruptableReader::stop() {
-  stopsoon = true;
-  waitcond.wakeOne();
-}
-
-//////////////////////////////////////////////////////////////////////
-// Thread code
-void InterruptableReader::cancelCurrent() {
-  cancelsoon = false;
-  if (state_==State::Running) {
-    mutex.unlock();
-    stopSource();
-    source().close();
-    mutex.lock();
-  }
-  if (state_!=State::Waiting) {
-    dest.clear();
-    state_ = State::Waiting;
-  }
+  if (fn==requested && state_==State::Running)
+    cancel();
 }
 
 void InterruptableReader::readSome() {
-  qint64 N = nextChunkSize();
+  qint64 N0 = source().bytesAvailable();
+  constexpr qint64 Nmax = 1024*1024;
+  qint64 N = N0;
+  if (N>Nmax)
+    N = Nmax;
+
   if (N+offset > reservedsize) {
     reservedsize *= 2;
     dest.resize(reservedsize);
   }
 
-  mutex.unlock();
-  qint64 n = source().read(dest.data()+offset, N);
-  mutex.lock();
-
-  if (n<0) { // error
-    bool cnc = cancelsoon;
-    cancelsoon = false;
-    if (cnc) {
-      state_ = State::Canceled;
+  if (N>0) {
+    qint64 n = source().read(dest.data()+offset, N);
+    qDebug() << "IR " << requested << " readsome" << n << N;
+    if (n<0) { // error
+      abort();
+      source().close();
+      dest.clear();
+      QString fn = requested;
+      requested = "";
+      state_ = State::Waiting;
+      emit failed(fn, "Read error");
     } else {
-      state_ = State::Failed;
-      errmsg = "Read error";
+      offset += n;
     }
-    mutex.unlock();
-    stopSource();
-    source().close();
-    dest.clear();
-    if (cnc)
-      emit canceled(current);
-    else
-      emit failed(current);
-    mutex.lock();
-  } else {
-    offset += n;
-    if (atEnd())
-      complete();
   }
+
+  if (source().atEnd())
+    complete();
+  else if (N0>N)
+    emit readMore();
 }
 
 void InterruptableReader::complete() {
-  bool cnc = cancelsoon;
-  cancelsoon = false;
-  if (cnc)
-    state_ = State::Canceled;
-  else
-    state_ = State::Success;
-
-  mutex.unlock();
   source().close();
-  if (cnc) {
-    dest.clear();
-    emit canceled(current);
-  } else {
-    dest.resize(offset);
-    emit ready(current);
-  }
-  mutex.lock();
-}
-
-
-void InterruptableReader::newRequest() {
-  cancelCurrent();
-  
-  state_ = State::Running;
-  current = requested;
+  QString fn = requested;
   requested = "";
-
-  mutex.unlock();
-  offset = 0;
-  if (!openCurrent()) {
-    mutex.lock();
-    state_ = State::Failed;
-    errmsg = "Could not open file";
-    mutex.unlock();
-    emit failed(current);
-  }
-  reservedsize = dest.size();
-  mutex.lock();
-}
-
-void InterruptableReader::run() {
-  mutex.lock();
-  while (!stopsoon) {
-    if (cancelsoon) 
-      cancelCurrent();
-    else if (requested!="")
-      newRequest();
-    else if (state_==State::Running)
-      readSome();
-    else
-      waitcond.wait(&mutex);
-  }
-  mutex.unlock();
+  QByteArray ar = dest;
+  dest.clear();
+  state_ = State::Waiting;
+  emit ready(fn, ar);
 }

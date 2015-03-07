@@ -12,19 +12,15 @@
 BasicCache::BasicCache(QString rootdir, QObject *parent):
   QObject(parent), root(rootdir), db(rootdir + "/cache.db") {
   setObjectName("BasicCache");
-  qDebug() << "BasicCache constructor 1";
   readConfig();
   attach();
-  qDebug() << "BasicCache constructed 1";
 }
 
 BasicCache::BasicCache(QDir root, Database const &db, QObject *parent):
   QObject(parent), root(root), db(db) {
   setObjectName("BasicCache");
-  qDebug() << "BasicCache constructor 2";
   readConfig();
   attach();
-  qDebug() << "BasicCache constructed 2";
 }
 
 void BasicCache::attach() {
@@ -67,7 +63,6 @@ void BasicCache::readConfig() {
 }
   
 BasicCache *BasicCache::create(QString rootdir) {
-  qDebug() << "BasicCache::create";
   QDir root(rootdir);
   
   if (root.exists()) 
@@ -93,7 +88,6 @@ BasicCache *BasicCache::create(QString rootdir) {
       }
     }
     db.commitAndUnlock();
-    qDebug() << "BasicCache created";
     return new BasicCache(root, db);
   } catch (...) {
     qDebug() << "BasicCache caught error while creating. Failure.";
@@ -159,7 +153,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
   int k = 0;
   if (buf.data().size() < memthresh) {
     k = 1;
-    for (int l=1; l<stdsizes.size()-1; l++)
+    for (int l=1; l<stdsizes.size(); l++)
       if (s.exceeds(stdsizes[l]))
         k++;
   }
@@ -179,8 +173,10 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
     else if (!oldk && k)
       QFile(constructFilename(vsn, d)).remove();
     
-    db.query("update cache set dbno=:a"
-             " where version==:b and maxdim==:c", k, vsn, d);
+    db.query("update cache set dbno=:a, width=:b, height=:c"
+             " where version==:d and maxdim==:e",
+	     k, s.width(), s.height(),
+	     vsn, d);
 
     if (k) {
       db.query(QString("insert into B%1.blobs (cacheid, bits) values(:a,:b)")
@@ -194,10 +190,11 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
     }
   } else {
     // new
-    quint64 cacheid = db.query("insert into cache"
-                               " (version, maxdim, outdated, dbno)"
-                               " values (:a, :b, :c, :d)",
-                               vsn, d, instantlyOutdated?1:0, k)
+    quint64 cacheid
+      = db.query("insert into cache"
+		 " (version, maxdim, width, height, outdated, dbno)"
+		 " values (:a, :b, :c, :d, :e, :f)",
+		 vsn, d, s.width(), s.height(), instantlyOutdated?1:0, k)
       .lastInsertId().toULongLong();
     if (k) {
       db.query(QString("insert into B%1.blobs (cacheid, bits) values (:a, :b)")
@@ -273,7 +270,7 @@ PSize BasicCache::bestSize(quint64 vsn, PSize desired) {
       // Always replace outdated with up-to-date.
       sbest = s;
       outdated = false;
-    } else if (s.bigEnoughFor(desired)) {
+    } else if (s.isLargeEnoughFor(desired)) {
       // Nice and big, but perhaps too big
       if (s<sbest || !gotbig) {
 	sbest = s;

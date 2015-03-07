@@ -237,6 +237,37 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
     throw q;
 }
 
+QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
+                          QVariant d, QVariant e) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  q.bindValue(":c", c);
+  q.bindValue(":d", d);
+  q.bindValue(":e", e);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}
+
+QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
+                          QVariant d, QVariant e, QVariant f) {
+  QSqlQuery q(*db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  q.bindValue(":c", c);
+  q.bindValue(":d", d);
+  q.bindValue(":e", e);
+  q.bindValue(":f", f);
+  if (q.exec())
+    return q;
+  else
+    throw q;
+}
+
 QString Database::fileName() const {
   return db->databaseName();
 }
