@@ -29,11 +29,11 @@ public:
                                              
 public slots:
   void findImage(quint64 id, QString path, QString ext,
-		 Exif::Orientation orient, PSize ns,
+		 Exif::Orientation orient, QSize ns,
 		 QString mods,
 		 int maxdim, bool urgent);
 signals:
-  void foundImage(quint64 id, Image16 img, PSize originalSize);
+  void foundImage(quint64 id, Image16 img, QSize originalSize);
   void exception(QString);
 private:
   class Adjuster *adjuster;

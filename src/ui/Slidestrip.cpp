@@ -7,6 +7,10 @@
 
 #define THRESHOLD 100
 
+static uint qHash(QPoint p) {
+  return qHash(p.x()) ^ qHash(p.y() ^ 23478912361);
+}
+
 Slidestrip::Slidestrip(PhotoDB const &db, QGraphicsItem *parent):
   Strip(db, parent) {
   hasLatent = false;
@@ -150,7 +154,42 @@ void Slidestrip::collapse() {
     s->hide();
 }
 
+
+quint64 Slidestrip::versionAt(QPoint cr) {
+  if (revplace.contains(cr))
+    return revplace[cr];
+  else
+    return 0;
+}
+
+QPoint Slidestrip::gridPosition(quint64 vsn) {
+  if (latentVersions.contains(vsn))
+    instantiate();
+  if (placement.contains(vsn))
+    return placement[vsn];
+  else
+    return QPoint(-1,-1);
+}
+
+quint64 Slidestrip::versionAt(quint64 vsn, QPoint dcr) {
+  if (latentVersions.contains(vsn))
+    instantiate();
+  if (!placement.contains(vsn))
+    return 0;
+  QPoint cr = placement[vsn] + dcr;
+  if (cr.x()<0) 
+    cr = QPoint(maxcplace, cr.y()-1);
+  else if (cr.x()>maxcplace)
+    cr = QPoint(0, cr.y()+1);
+  if (revplace.contains(cr))
+    return revplace[cr];
+  else
+    return 0;
+}
+
 void Slidestrip::relayout() {
+  placement.clear();
+  revplace.clear();
   if (hasLatent) {
     Strip::relayout();
     return;
@@ -163,20 +202,30 @@ void Slidestrip::relayout() {
   }
 
   Strip::relayout();
+
+  QMap<Slide *, quint64> revmap;
+  for (auto it=slideMap.begin(); it!=slideMap.end(); ++it)
+    revmap[it.value()] = it.key();
   
   switch (arr) {
   case Arrangement::Horizontal: {
     int x = labelBoundingRect().right();
+    int k = 0;
     for (auto s: slideOrder) {
       s->setPos(x, 0);
+      placement[revmap[s]] = QPoint(k, 0);
       x += tilesize;
+      k++;
     }
   } break;
   case Arrangement::Vertical: {
     int y = labelBoundingRect().bottom();
+    int k = 0;
     for (auto s: slideOrder) {
       s->setPos(0, y);
+      placement[revmap[s]] = QPoint(0, k);
       y += tilesize;
+      k++;
     }
   } break;
   case Arrangement::Grid: {
@@ -186,25 +235,37 @@ void Slidestrip::relayout() {
     bool atstart = true;
     int x = x0;
     int y = y0;
+    int k = 0;
+    int l = 0;
     for (auto s: slideOrder) {
       if (x+tilesize>rowwidth && !atstart) {
 	y += tilesize;
+        k = 0;
+        l++;
 	x = x0;
 	atstart = true;
       }
       s->setPos(x, y);
+      placement[revmap[s]] = QPoint(k, l);
       x += tilesize;
+      k++;
       atstart = false;
     }
     break;
   }
+  }
+  maxcplace = 0;
+  for (auto it=placement.begin(); it!=placement.end(); ++it) {
+    if (it.value().x() > maxcplace)
+      maxcplace = it.value().x();
+    revplace[it.value()] = it.key();
   }
   recalcLabelRect();
   emit resized();
 }
 
   
-void Slidestrip::setArrangement(Arrangement arr) {
+void Slidestrip::setArrangement(Strip::Arrangement arr) {
   Strip::setArrangement(arr);
   relayout();
 }
@@ -220,3 +281,30 @@ void Slidestrip::setRowWidth(int pix) {
   Strip::setRowWidth(pix);
   relayout();
 }
+
+quint64 Slidestrip::firstExpandedVersion() {
+  if (!expanded)
+    return 0;
+  if (isEmpty(slideOrder))
+    return 0;
+  else
+    return slideOrder.first();
+}
+
+quint64 Slidestrip::lastExpandedVersion() {
+  if (!expanded)
+    return 0;
+  if (isEmpty(slideOrder))
+    return 0;
+  else
+    return slideOrder.last();
+}
+
+Strip *Slidestrip::firstExpandedStrip() {
+  return this;
+}
+
+Strip *Slidestrip::lastExpandedStrip() {
+  return this;
+}
+

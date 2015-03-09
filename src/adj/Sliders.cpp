@@ -9,9 +9,7 @@
 #include <limits>
 
 Sliders::Sliders() {
-#define SLIDER(name, dfl) name = dfl;
-#include "sliders.def"
-#undef SLIDER
+  reset();
 }
 
 bool Sliders::set(QString k, double v) {
@@ -48,7 +46,14 @@ QStringList const &Sliders::keys() {
   return kk;
 }
 
+void Sliders::reset() {
+#define SLIDER(name, dfl) name = dfl;
+#include "sliders.def"
+#undef SLIDER
+}
+
 void Sliders::setAll(QString kvv) {
+  reset();
   QStringList pairs = kvv.split(";");
   for (QString pair: pairs) {
     QStringList kv = pair.split("=");

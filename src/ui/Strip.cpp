@@ -476,3 +476,19 @@ Strip *Strip::stripByDate(QDateTime d, TimeScale s) {
   else
     return NULL;
 }
+
+quint64 Strip::versionLeftOf(quint64 vsn) {
+  return versionAt(vsn, QPoint(-1, 0));
+}
+
+quint64 Strip::versionRightOf(quint64 vsn) {
+  return versionAt(vsn, QPoint(1, 0));
+}
+
+quint64 Strip::versionAbove(quint64 vsn) {
+  return versionAt(vsn, QPoint(0, -1));
+}
+
+quint64 Strip::versionBelow(quint64 vsn) {
+  return versionAt(vsn, QPoint(0, 1));
+}

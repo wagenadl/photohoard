@@ -5,7 +5,7 @@ expose: Exposure
 Exposure adjustment (stops)
 
 black: Black point
-0 20 / 0.1 0.5 2
+0 20 / 0.01 0.1 0.5
 Black point (absolute)
 
 blackyb: Y-B adjust

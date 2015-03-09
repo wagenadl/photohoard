@@ -8,7 +8,7 @@
 
 class ExportSettings {
 public:
-  enum class FileFormat {
+  enum class FileFormat { // Keep in order with ExportDialog ui!
     JPEG,
       PNG,
       TIFF,
@@ -20,7 +20,7 @@ public:
       LimitMaxDim,
       Scale,
       };
-  enum class NamingScheme {
+  enum class NamingScheme { // Keep in order with ExportDialog ui
     Original,
       DateTime,
       DateTimeDSC,

@@ -93,6 +93,9 @@
         <property name="text">
          <string>Full</string>
         </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -119,7 +122,7 @@
       <item row="3" column="2">
        <widget class="QWidget" name="eMaxDim" native="true">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_8">
          <property name="margin">
@@ -127,9 +130,6 @@
          </property>
          <item>
           <widget class="QSpinBox" name="maxdim">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
            <property name="suffix">
             <string> px</string>
            </property>
@@ -156,7 +156,7 @@
          <string>Scale</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -168,6 +168,9 @@
          </property>
          <item>
           <widget class="QSpinBox" name="scale">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="suffix">
             <string>%</string>
            </property>
@@ -427,8 +430,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -443,8 +446,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>300</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -452,5 +455,105 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>rFull</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exportDialog</receiver>
+   <slot>setResolutionMode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rWidth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exportDialog</receiver>
+   <slot>setResolutionMode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>263</x>
+     <y>10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rHeight</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exportDialog</receiver>
+   <slot>setResolutionMode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>146</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>79</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rMaxDim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exportDialog</receiver>
+   <slot>setResolutionMode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>290</x>
+     <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rScale</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>exportDialog</receiver>
+   <slot>setResolutionMode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>73</x>
+     <y>217</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>302</x>
+     <y>111</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>format</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>exportDialog</receiver>
+   <slot>setFormat(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>setResolutionMode()</slot>
+  <slot>setFormat(int)</slot>
+ </slots>
 </ui>

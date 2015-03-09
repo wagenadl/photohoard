@@ -24,7 +24,7 @@ void OriginalFinder::requestOriginal(quint64 version) {
   requestScaledOriginal(version, PSize(0, 0));
 }
 
-void OriginalFinder::requestScaledOriginal(quint64 vsn, PSize ds) {
+void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   try {
     QSqlQuery q = db.query("select photo, mods from versions"
 			   " where id=:a limit 1", vsn);
@@ -99,7 +99,8 @@ void OriginalFinder::provide(QString fn, QByteArray data) {
     PSize desi = desired;
     if (orient==Exif::CW || orient==Exif::CCW) 
       desi = PSize(desired.height(), desired.width());
-    img = img.scaled(desi, Qt::KeepAspectRatio);
+    //    if (img.size().exceeds(desi))
+    //      img = img.scaled(desi, Qt::KeepAspectRatio);
     fixOrientation(img);
     emit scaledOriginalAvailable(version, osize, img);
   }

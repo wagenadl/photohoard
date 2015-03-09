@@ -83,8 +83,8 @@ Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
     connect(s, SIGNAL(overfilled(QDateTime)),
             this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
   }
-  connect(s, SIGNAL(needImage(quint64, PSize)),
-          this, SIGNAL(needImage(quint64, PSize)));
+  connect(s, SIGNAL(needImage(quint64, QSize)),
+          this, SIGNAL(needImage(quint64, QSize)));
   connect(s,
           SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
           this,
@@ -259,6 +259,9 @@ void Datestrip::relayout() {
 }
 
 class Slide *Datestrip::slideByVersion(quint64 vsn) {
+  if (mustRebuild || mustRelayout || !expanded)
+    return NULL; // is this really necessary?
+  
   for (auto f: stripOrder) {
     Slide *s = f->slideByVersion(vsn);
     if (s)
@@ -301,4 +304,107 @@ Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
   }
 
   return NULL;
+}
+
+quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
+  if (mustRebuild || mustRelayout || !expanded)
+    return 0; // is this really necessary? Or should we rebuild?
+  
+  /* The following search algorithm isn't particularly fast, but since
+     I think this method will only be called in direct response to key
+     presses, that is not a problem.
+     The algorithm is simple:
+     If the version is not contained in this strip, we return zero.
+     Otherwise, we find out which of our substrips contains the version.
+     We then ask that substrip to provide the answer. If it can, great.
+     Otherwise, we ask the neighboring substrip for its last/first.
+   */
+  int k = stripNumberContaining(vsn);
+  if (k<0)
+    return 0;
+  quint64 v2 = stripOrder[k]->versionAt(vsn, dcr);
+  if (v2>0)
+    return v2;
+
+  /* Easy cases exhausted. Let's see. */
+  switch (arr) {
+  case Arrangement::Horizontal:
+    if (dcr.y())
+      return 0;
+    else if (dcr.x()<0 && k>0) 
+      return stripOrder[k-1].lastVersion();
+    else if (dcr.x()>0 && k<stripOrder.size()-1) 
+      return stripOrder[k-1].firstVersion();
+    else
+      return 0;
+  case Arrangement::Vertical:
+    if (dcr.x())
+      return 0;
+    else if (dcr.y()<0 && k>0) 
+      return stripOrder[k-1].lastVersion();
+    else if (dcr.y()>0 && k<stripOrder.size()-1) 
+      return stripOrder[k-1].firstVersion();
+    else
+      return 0;
+  case Arrangement::Grid:
+    if (dcr.x()<0 && k>0) 
+      return stripOrder[k-1].lastVersion();
+    else if (dcr.x()>0 && k<stripOrder.size()-1) 
+      return stripOrder[k-1].firstVersion();
+    // Now we need to deal with vertical displacement in the grid
+    // That's for another day
+    return 0;
+  }
+}
+
+
+quint64 Datestrip::firstExpandedVersion() {
+  for (int k=0; k<stripOrder.size(); k++) {
+    if (stripOrder[k].isExpanded()) {
+      quint64 res = stripOrder[k]->firstExpandedVersion();
+      if (res)
+        return res;
+    }
+  }
+  return 0;
+}
+ 
+quint64 Datestrip::lastExpandedVersion() {
+  for (int k=stripOrder.size()-1; k>=0; --k) {
+    if (stripOrder[k].isExpanded()) {
+      quint64 res = stripOrder[k]->lastExpandedVersion();
+      if (res)
+        return res;
+    }
+  }
+  return 0;
+}
+
+Strip *Datestrip::firstExpandedStrip() {
+  for (int k=0; k<stripOrder.size(); k++) {
+    if (stripOrder[k].isExpanded()) {
+      Strip *res = stripOrder[k]->firstExpandedStrip();
+      if (res)
+        return res;
+    }
+  }
+  return NULL;
+}
+ 
+Strip *Datestrip::lastExpandedStrip() {
+  for (int k=stripOrder.size()-1; k>=0; --k) {
+    if (stripOrder[k].isExpanded()) {
+      Strip *res = stripOrder[k]->lastExpandedVersion();
+      if (res)
+        return res;
+    }
+  }
+  return NULL;
+}
+  
+int Datestrip::stripNumberContaining(quint64 vsn) {
+  for (int k=0; k<stripOrder.size(); k++)
+    if (stripOrder[k]->slideByVersion(vsn))
+      return k;
+  return -1;
 }

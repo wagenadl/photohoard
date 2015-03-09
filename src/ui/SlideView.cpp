@@ -37,24 +37,21 @@ double SlideView::fittingZoom() const {
   return rat;
 }
 
-void SlideView::newImage(PSize nat) {
+void SlideView::newImage(QSize nat) {
   naturalSize = nat;
   lastSize = PSize();
   img = Image16(); // might invalidate more gently
 }  
 
-void SlideView::updateImage(Image16 img1) {
-  if (img.isNull() || img.width() < img1.width()) {
+void SlideView::updateImage(Image16 img1, bool force) {
+  if (force || img.isNull() || img.width() < img1.width()) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
-      qDebug() << "Applied monitor transform";
     } else {
       img = img1;
     }
   }
-  qDebug() << "  Requesting update";
   update();
-  qDebug() << "  Request posted";
 }
 
 void SlideView::changeZoomLevel(QPoint, double delta) {
@@ -90,7 +87,6 @@ void SlideView::resizeEvent(QResizeEvent *) {
 }
 
 void SlideView::wheelEvent(QWheelEvent *e) {
-  qDebug() << "SlideView::wheelEvent " << e->delta();
   changeZoomLevel(e->pos(), e->delta()/1000.0);
 }
 
@@ -125,7 +121,6 @@ void SlideView::mouseDoubleClickEvent(QMouseEvent *) {
 }
 
 void SlideView::paintEvent(QPaintEvent *) {
-  qDebug() << "SlideView::paint";
   if (img.isNull())
     return;
   
@@ -133,30 +128,26 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
-    qDebug() << "  scaling";
     Image16 i1 = img.scaled(r.size(), Qt::KeepAspectRatio);
-    qDebug() << "  scaled";
     if (img.width()<naturalSize.width()
         && i1.width()>img.width()
         && img.height()<naturalSize.height()
         && i1.height()>img.height()) {
       // I should only request it if I haven't already
       if (img.size()!=lastSize) {
-        qDebug() << "  needlargerimage";
         emit needLargerImage();
       }
       lastSize = img.size();
     } else {
       lastSize = PSize();
     }
-    qDebug() << "  drawing image";
     p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2,
                        (r.top() + r.bottom())/2 - i1.height()/2),
 		i1.toQImage());
   } else {
-    qDebug() << "  not fit";
     PSize showSize = naturalSize*zoom;
     PSize availSize = r.size();
+    double effZoom = img.size().scaleFactorToFitIn(showSize);
     QRectF sourceRect;
     QRectF destRect;
     if (!img.size().isLargeEnoughFor(showSize)
@@ -171,25 +162,25 @@ void SlideView::paintEvent(QPaintEvent *) {
       sourceRect.setLeft(0);
       sourceRect.setWidth(img.width());
       destRect.setLeft((r.left()+r.right())/2 - showSize.width()/2);
-      destRect.setWidth(showSize.width());
+      destRect.setWidth(img.width()*effZoom);
     } else {
       destRect.setLeft(r.left());
       destRect.setWidth(availSize.width());
-      sourceRect.setWidth(img.width()*availSize.width()/showSize.width());
-      sourceRect.setLeft(relx * (1-(0.+availSize.width())/showSize.width()) 
-			 * img.width() * availSize.width()/showSize.width());
+      sourceRect.setLeft(relx * (1-availSize.width()/double(showSize.width()))
+			 * img.width());
+      sourceRect.setWidth(availSize.width()/effZoom);
     }
     if (showSize.height()<=availSize.height()) {
       sourceRect.setTop(r.top());
       sourceRect.setHeight(img.height());
       destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
-      destRect.setHeight(showSize.height());
+      destRect.setHeight(img.height()*effZoom);
     } else {
       destRect.setTop(0);
       destRect.setHeight(availSize.height());
-      sourceRect.setHeight(img.height() * availSize.height()/showSize.height());
-      sourceRect.setTop(rely * (1-(0.+availSize.height())/showSize.height()) 
-			* img.height() * availSize.height()/showSize.height());
+      sourceRect.setTop(rely * (1-availSize.height()/double(showSize.height()))
+			* img.height());
+      sourceRect.setHeight(availSize.height()/effZoom);
     }
     p.drawImage(destRect, img.toQImage(), sourceRect);
   }

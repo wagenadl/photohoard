@@ -5,9 +5,10 @@
 #include "Datestrip.h"
 #include <QDebug>
 #include "Slide.h"
+#include <QKeyEvent>
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
-  QGraphicsView(parent) {
+  QGraphicsView(parent), db(db) {
   scene_ = new FilmScene(db, this);
   setScene(scene_);
   strip = new Datestrip(db, 0);
@@ -19,8 +20,8 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
-  connect(strip, SIGNAL(needImage(quint64, PSize)),
-	  this, SIGNAL(needImage(quint64, PSize)));
+  connect(strip, SIGNAL(needImage(quint64, QSize)),
+	  this, SIGNAL(needImage(quint64, QSize)));
   connect(strip,
           SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this,
@@ -87,6 +88,7 @@ void FilmView::stripResized() {
 
 void FilmView::resizeEvent(QResizeEvent *) {
   recalcSizes();
+  scrollToCurrent();
 }
 
 void FilmView::recalcSizes() {
@@ -122,4 +124,62 @@ void FilmView::scrollTo(quint64 vsn) {
     centerOn(s->sceneBoundingRect().center());
 }
 
-  
+void FilmView::scrollToCurrent() {
+  quint64 c = current();
+  if (c)
+    scrollTo(c);
+}
+
+quint64 FilmView::current() {
+  return db.simpleQuery("select * from current").toULongLong();
+}
+
+void FilmView::keyPressEvent(QKeyEvent *e) {
+  qDebug() << "FilmView::keyPress" << e->key();
+  switch (e->key()) {
+  case Qt::Key_Up: {
+    quint64 v = versionAbove(current());
+    if (v)
+      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
+    e->accept();
+  } break;
+  case Qt::Key_Down: {
+    quint64 v = versionBelow(current());
+    if (v)
+      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
+    e->accept();
+  } break;
+  case Qt::Key_Left: {
+    quint64 v = versionLeftOf(current());
+    if (v)
+      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
+    e->accept();
+  } break;
+  case Qt::Key_Right: {
+    quint64 v = versionRightOf(current());
+    if (v)
+      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
+    e->accept();
+  } break;
+  default:
+    QGraphicsView::keyPressEvent(e);
+    break;
+  }
+}
+
+quint64 FilmView::versionAbove(quint64) const {
+  return 0;
+}
+
+quint64 FilmView::versionBelow(quint64) const {
+  return 0;
+}
+
+quint64 FilmView::versionLeftOf(quint64) const {
+  return 0;
+}
+
+quint64 FilmView::versionRightOf(quint64) const {
+  return 0;
+}
+

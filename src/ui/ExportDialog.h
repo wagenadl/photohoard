@@ -16,6 +16,9 @@ public:
   void setup(ExportSettings const &);
   ExportSettings settings() const;
   DialogCode exec();
+public slots:
+  void setFormat(int);
+  void setResolutionMode();
 private:
   class Ui_exportDialog *ui;
 };

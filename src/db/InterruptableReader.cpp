@@ -3,6 +3,7 @@
 #include "InterruptableReader.h"
 #include <QMutexLocker>
 #include <QDebug>
+#include <unistd.h>
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QObject(parent) {

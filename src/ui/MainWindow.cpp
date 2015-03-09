@@ -31,7 +31,7 @@ MainWindow::MainWindow(PhotoDB const &db,
   dock->setWidget(allControls = new AllControls(this));
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
-  adjuster = new LiveAdjuster(db, allControls, this);
+  adjuster = new LiveAdjuster(db, allControls, autocache, this);
   
   setCentralWidget(lightTable = new LightTable(db, adjuster, this));
   addToolBar(fileBar = new FileBar(this));
@@ -43,10 +43,10 @@ MainWindow::MainWindow(PhotoDB const &db,
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           histogram, SLOT(setImage(Image16))); // is this ok?
 
-  connect(lightTable, SIGNAL(needImage(quint64, PSize)),
-          autocache, SLOT(request(quint64, PSize)));
-  connect(autocache, SIGNAL(available(quint64, PSize, Image16)),
-          SLOT(updateImage(quint64, PSize, Image16)));
+  connect(lightTable, SIGNAL(needImage(quint64, QSize)),
+          autocache, SLOT(request(quint64, QSize)));
+  connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
+          SLOT(updateImage(quint64, QSize, Image16)));
   connect(scanner, SIGNAL(updated(QSet<quint64>)),
           lightTable, SLOT(rescan()));
 
@@ -86,7 +86,7 @@ void MainWindow::scrollToCurrent() {
   lightTable->scrollToCurrent();
 }
 
-void MainWindow::updateImage(quint64 i, PSize, Image16 img) {
+void MainWindow::updateImage(quint64 i, QSize, Image16 img) {
   lightTable->updateImage(i, img);
   if (i==lightTable->current())
     histogram->setImage(img);

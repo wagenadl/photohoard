@@ -85,12 +85,11 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   if (stages.last().settings==settings)
     return stages.last().image;
 
-  double wfac = maxSize.width() / (stages[k].image.width()+1e-9);
-  double hfac = maxSize.height() / (stages[k].image.height()+1e-9);
-  double fac = wfac<hfac ? wfac : hfac;
+  double fac = stages[k].image.size().scaleFactorToFitIn(maxSize);
   if (fac<0.8 || (k<.95 && k+1==stages.size())) {
     // It's worth scaling
-    stages << AdjusterTile(stages[k].image.scaled(maxSize));
+    stages << AdjusterTile(stages[k].image.scaled(maxSize,
+                                                  Qt::KeepAspectRatio));
     k++;
     stages[k].stage = Stage_Reduced;
   }

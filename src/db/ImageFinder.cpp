@@ -13,13 +13,13 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
   qRegisterMetaType<Exif::Orientation>("Exif::Orientation");
   connect(&thread, SIGNAL(finished()), worker, SLOT(deleteLater()));
   connect(this, SIGNAL(forwardFindImage(quint64, QString, QString,
-                                        Exif::Orientation, PSize,
+                                        Exif::Orientation, QSize,
 					QString, int, bool)),
           worker, SLOT(findImage(quint64, QString, QString,
-				 Exif::Orientation, PSize,
+				 Exif::Orientation, QSize,
 				 QString, int, bool)));
-  connect(worker, SIGNAL(foundImage(quint64, Image16, PSize)),
-          this, SLOT(handleFoundImage(quint64, Image16, PSize)));
+  connect(worker, SIGNAL(foundImage(quint64, Image16, QSize)),
+          this, SLOT(handleFoundImage(quint64, Image16, QSize)));
   connect(worker, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   thread.start();
@@ -31,14 +31,14 @@ ImageFinder::~ImageFinder() {
 }
 
 void ImageFinder::findImage(quint64 id, QString path, QString ext,
-			    Exif::Orientation orient, PSize ns,
+			    Exif::Orientation orient, QSize ns,
 			    QString mods,
 			    int maxdim, bool urgent) {
   queuelength++;
   emit forwardFindImage(id, path, ext, orient, ns, mods, maxdim, urgent);
 }
 
-void ImageFinder::handleFoundImage(quint64 id, Image16 img, PSize fs) {
+void ImageFinder::handleFoundImage(quint64 id, Image16 img, QSize fs) {
   queuelength--;
   emit foundImage(id, img, fs);
 }

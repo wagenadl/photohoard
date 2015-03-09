@@ -34,14 +34,15 @@ public slots:
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
 signals:
-  void needImage(quint64, PSize);
+  void needImage(quint64, QSize);
   void newCurrent(quint64);
-  void newSlideSize(PSize);
+  void newSlideSize(QSize);
 private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);
 protected:
   void updateSlide(quint64 id);
+  void ensureReasonableGridSize();
 protected:
   PhotoDB db;
   QPointer<LiveAdjuster> adjuster; // we do not own

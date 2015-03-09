@@ -20,7 +20,8 @@ public:
 public slots:
   void recache(QSet<quint64> versions);
   void recache(quint64 version);
-  void request(quint64 version, PSize desired);
+  void cacheModified(quint64 version, Image16 img);
+  void request(quint64 version, QSize desired);
   /* The request will be answered through the progressed() signal. If the
      version exists in the cache, the request is answered very quickly, even
      if that means that an outdated or small copy is returned. In that case,
@@ -30,7 +31,7 @@ public slots:
 signals: // public
   void progressed(int n, int N);
   void doneCaching();
-  void available(quint64 version, PSize requested, Image16 img);
+  void available(quint64 version, QSize requested, Image16 img);
   /* Emitted in response to a specific request. Note that the image provided
      may not be authoritative: it may be (much) smaller than requested or
      it may even be outdated. As a consequence, AutoCache should not be
@@ -40,8 +41,9 @@ signals: // public
   void exception(QString);
 signals: // private
   void forwardRecache(QSet<quint64> versions);
-  void forwardRequest(quint64 version, PSize desired);
+  void forwardRequest(quint64 version, QSize desired);
   void forwardCachePreview(quint64 version, Image16 img);
+  void forwardCacheModified(quint64 version, Image16 img);
 private:
   QThread thread;
   class AC_Worker *worker;

@@ -41,6 +41,16 @@ public:
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
   virtual class Slide *slideByVersion(quint64 vsn);
   PhotoDB &database() { return db; }
+  virtual quint64 versionLeftOf(quint64 vsn); // returns 0 if not found
+  virtual quint64 versionRightOf(quint64 vsn);
+  virtual quint64 versionAbove(quint64 vsn);
+  virtual quint64 versionBelow(quint64 vsn);
+  virtual quint64 versionAt(quint64 vsn, QPoint dcr)=0;
+  // dcr must be one of (±1,0) or (0,±1).
+  virtual quint64 firstExpandedVersion()=0;
+  virtual quint64 lastExpandedVersion()=0;
+  virtual Strip *firstExpandedStrip()=0;
+  virtual Strip *lastExpandedStrip()=0;
 public slots:
   void rescan();
   void updateImage(quint64, Image16);
@@ -53,7 +63,7 @@ public slots:
   virtual void collapse();
   virtual void expandAll();
 signals:
-  void needImage(quint64, PSize);
+  void needImage(quint64, QSize);
   void resized();
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);

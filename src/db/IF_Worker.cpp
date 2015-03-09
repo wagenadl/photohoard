@@ -88,7 +88,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 }  
 
 void IF_Worker::findImage(quint64 id, QString path, QString ext,
-                          Exif::Orientation orient, PSize ns,
+                          Exif::Orientation orient, QSize ns,
 			  QString mods,
 			  int maxdim, bool urgent) {
   Q_ASSERT(maxdim>0);

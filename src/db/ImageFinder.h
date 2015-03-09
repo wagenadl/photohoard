@@ -16,17 +16,17 @@ public:
   int queueLength() const { return queuelength; }
 public slots:
   void findImage(quint64 id, QString path, QString ext,
-		 Exif::Orientation orient, PSize ns,
+		 Exif::Orientation orient, QSize ns,
 		 QString mods,
 		 int maxdim, bool urgent);
 signals:
-  void foundImage(quint64, Image16, PSize);
+  void foundImage(quint64, Image16, QSize);
   void exception(QString);
 private slots:
-  void handleFoundImage(quint64 id, Image16 img, PSize originalSize);
+  void handleFoundImage(quint64 id, Image16 img, QSize originalSize);
 signals:  // private
   void forwardFindImage(quint64 id, QString path, QString ext,
-			Exif::Orientation orient, PSize ns,
+			Exif::Orientation orient, QSize ns,
 			QString mods,
 			int maxdim, bool urgent);
 private:

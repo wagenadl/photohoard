@@ -17,8 +17,8 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   setObjectName("AC_Worker");
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
-  connect(bank, SIGNAL(foundImage(quint64, Image16, PSize)),
-	  this, SLOT(handleFoundImage(quint64, Image16, PSize)),
+  connect(bank, SIGNAL(foundImage(quint64, Image16, QSize)),
+	  this, SLOT(handleFoundImage(quint64, Image16, QSize)),
           Qt::QueuedConnection);
   connect(bank, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
@@ -139,16 +139,27 @@ void AC_Worker::activateBank() {
     sendToBank(id);
 }
 
+
+
 void AC_Worker::cachePreview(quint64 id, Image16 img) {
   if (loaded.contains(id))
     return;
   loaded[id] = img;
   outdatedLoaded << id;
-  bool done = readyToLoad.isEmpty() && beingLoaded.isEmpty();
-  if (done || loaded.size() > threshold) {
-    storeLoadedInDB();
-    qDebug() << "AC_Worker: Cache preview progress: " << n << "/" << N;
-    emit cacheProgress(n, N);
+  processLoaded();
+}
+
+void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
+  if (img.size().isLargeEnoughFor(cache->maxSize())) {
+    if (beingLoaded.contains(vsn)) 
+      invalidatedWhileLoading << vsn;
+    
+    loaded[vsn] = img.scaled(cache->maxSize(), Qt::KeepAspectRatio);
+    processLoaded();
+  } else {
+    QSet<quint64> vsns;
+    vsns << vsn;
+    recache(vsns);
   }
 }
 
@@ -167,7 +178,7 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
 	     siz.width(), siz.height(), photo);
 }
 
-void AC_Worker::handleFoundImage(quint64 id, Image16 img, PSize fullSize) {
+void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // Actually store in cache if we have enough to make it worth while
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
@@ -185,25 +196,8 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, PSize fullSize) {
       invalidatedWhileLoading.remove(id);
     else if (mustCache.contains(id))
       loaded[id] = img;
-    
-    bool done = loaded.size()>0
-      && readyToLoad.isEmpty() && beingLoaded.isEmpty();
-    if (done || loaded.size() > threshold) {
-      storeLoadedInDB();
-      qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;
-      emit cacheProgress(n, N);
-    }
-    
-    if (done) {
-      markReadyToLoad(getSomeFromDBQueue());
-      if (readyToLoad.isEmpty()) {
-	emit doneCaching();
-	n = 0;
-	N = 0;
-      }
-    } 
-  
-    activateBank();
+
+    processLoaded();
   } catch (QSqlQuery &q) {
     emit exception("AC_Worker: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
@@ -211,6 +205,27 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, PSize fullSize) {
     emit exception("AC_Worker: Unknown exception");
   }
 }
+
+void AC_Worker::processLoaded() {
+  bool done = loaded.size()>0
+    && readyToLoad.isEmpty() && beingLoaded.isEmpty();
+  if (done || loaded.size() > threshold) {
+    storeLoadedInDB();
+    qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;
+    emit cacheProgress(n, N);
+  }
+    
+  if (done) {
+    markReadyToLoad(getSomeFromDBQueue());
+    if (readyToLoad.isEmpty()) {
+      emit doneCaching();
+      n = 0;
+      N = 0;
+    }
+  } 
+  
+  activateBank();
+}   
 
 void AC_Worker::sendToBank(quint64 version) {
   QSqlQuery q(db.query("select photo, mods from versions"
@@ -255,7 +270,7 @@ void AC_Worker::storeLoadedInDB() {
   loaded.clear();
 }
 
-void AC_Worker::requestImage(quint64 version, PSize desired) {
+void AC_Worker::requestImage(quint64 version, QSize desired) {
   qDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
@@ -279,9 +294,8 @@ void AC_Worker::requestImage(quint64 version, PSize desired) {
       if (od)
 	actual = PSize();
     }
-    qDebug() << "  a " << actual << " d " << desired
-	     << actual.contains(desired) << actual.contains(cache->maxSize());
-    if (actual.contains(desired) || actual.contains(cache->maxSize()))
+    if (actual.isLargeEnoughFor(desired)
+        || actual.isLargeEnoughFor(cache->maxSize()))
       // We cannot do better than that
       return;
 

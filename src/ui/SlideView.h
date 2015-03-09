@@ -16,15 +16,15 @@ public:
   double currentZoom() const;
   double fittingZoom() const;
 public slots:
-  void newImage(PSize natSize);
-  void updateImage(Image16 img);
+  void newImage(QSize natSize);
+  void updateImage(Image16 img, bool force=false);
   void setZoom(double zm);
   void changeZoomLevel(QPoint center, double delta);
   void scaleToFit();
 signals:
   void needLargerImage();
   void doubleClicked();
-  void newSize(PSize);
+  void newSize(QSize);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

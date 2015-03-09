@@ -18,18 +18,20 @@ AutoCache::AutoCache(PhotoDB const &db, QString rootdir, QObject *parent):
   connect(&thread, SIGNAL(finished()), worker, SLOT(deleteLater()));
   connect(this, SIGNAL(forwardRecache(QSet<quint64>)),
           worker, SLOT(recache(QSet<quint64>)));
-  connect(this, SIGNAL(forwardRequest(quint64, PSize)),
-	  worker, SLOT(requestImage(quint64, PSize)));
+  connect(this, SIGNAL(forwardRequest(quint64, QSize)),
+	  worker, SLOT(requestImage(quint64, QSize)));
   connect(worker, SIGNAL(cacheProgress(int,int)),
 	  this, SIGNAL(progressed(int,int)));
   connect(worker, SIGNAL(doneCaching()),
 	  this, SIGNAL(doneCaching()));
-  connect(worker, SIGNAL(available(quint64, PSize, Image16)),
-	  this, SIGNAL(available(quint64, PSize, Image16)));
+  connect(worker, SIGNAL(available(quint64, QSize, Image16)),
+	  this, SIGNAL(available(quint64, QSize, Image16)));
   connect(worker, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   connect(this, SIGNAL(forwardCachePreview(quint64, Image16)),
           worker, SLOT(cachePreview(quint64, Image16)));
+  connect(this, SIGNAL(forwardCacheModified(quint64, Image16)),
+          worker, SLOT(cacheModified(quint64, Image16)));
 
   thread.start();
   worker->boot();
@@ -54,6 +56,10 @@ void AutoCache::recache(quint64 id) {
   emit forwardRecache(ids);
 }
 
-void AutoCache::request(quint64 version, PSize desired) {
+void AutoCache::cacheModified(quint64 id, Image16 img) {
+  emit forwardCacheModified(id, img);
+}
+
+void AutoCache::request(quint64 version, QSize desired) {
   emit forwardRequest(version, desired);
 }

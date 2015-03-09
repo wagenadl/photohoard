@@ -18,10 +18,10 @@ public:
   virtual ~OriginalFinder();
 public slots:
   void requestOriginal(quint64 version);
-  void requestScaledOriginal(quint64 version, PSize desired);
+  void requestScaledOriginal(quint64 version, QSize desired);
 signals:
   void originalAvailable(quint64 version, Image16 img);
-  void scaledOriginalAvailable(quint64 version, PSize osize, Image16 img);
+  void scaledOriginalAvailable(quint64 version, QSize osize, Image16 img);
   void exception(QString);
 private slots:
   void provide(QString fn, QByteArray);

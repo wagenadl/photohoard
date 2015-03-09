@@ -39,8 +39,8 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   setLayout(lay);
   showmax = false;
 
-  connect(film, SIGNAL(needImage(quint64, PSize)),
-	  this, SIGNAL(needImage(quint64, PSize)));
+  connect(film, SIGNAL(needImage(quint64, QSize)),
+	  this, SIGNAL(needImage(quint64, QSize)));
   connect(film, SIGNAL(pressed(quint64,
                                Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this, SLOT(slidePress(quint64,
@@ -51,8 +51,8 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
-  connect(slide, SIGNAL(newSize(PSize)),
-          this, SIGNAL(newSlideSize(PSize)));
+  connect(slide, SIGNAL(newSize(QSize)),
+          this, SIGNAL(newSlideSize(QSize)));
 
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           SLOT(updateAdjusted(Image16, quint64)));
@@ -66,6 +66,19 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
 
 LightTable::~LightTable() {
 }
+
+void LightTable::ensureReasonableGridSize() {
+  int s0 = sizes()[0];
+  int s1 = 2*tilesize + 4*Strip::labelHeight(tilesize)
+    + film->verticalScrollBar()->width() + 4;
+  if (s0<s1) {
+    qDebug() << "ensureReasonable";
+    lastgridsize = s1;
+    setSizes(QList<int>() << lastgridsize
+             << ((orientation()==Qt::Vertical)?height():width())-lastgridsize);
+  }
+}
+
 
 void LightTable::setLayout(LayoutBar::Action act) {
   lastlay = lay;
@@ -83,6 +96,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
         || lay==LayoutBar::Action::VLine
         || lay==LayoutBar::Action::FullPhoto)
       setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
+    ensureReasonableGridSize();
     film->show();
     film->setArrangement(Strip::Arrangement::Grid);
     film->setTileSize(tilesize);
@@ -95,6 +109,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
         || lay==LayoutBar::Action::VLine
         || lay==LayoutBar::Action::FullPhoto)
       setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+    ensureReasonableGridSize();
     film->show();
     film->setArrangement(Strip::Arrangement::Grid);
     film->setTileSize(tilesize);
@@ -115,7 +130,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
     break;
   case LayoutBar::Action::VLine:
     if (lay==LayoutBar::Action::HGrid
-        || lay==LayoutBar::Action::HGrid)
+        || lay==LayoutBar::Action::VGrid)
       lastgridsize = sizes()[0];
     setSizes(QList<int>() << tilesize + film->verticalScrollBar()->width()
              << width());
@@ -127,7 +142,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
     break;
   case LayoutBar::Action::FullPhoto:
     if (lay==LayoutBar::Action::HGrid
-        || lay==LayoutBar::Action::HGrid)
+        || lay==LayoutBar::Action::VGrid)
       lastgridsize = sizes()[0];
     film->hide();
     slide->show();
@@ -138,24 +153,30 @@ void LightTable::setLayout(LayoutBar::Action act) {
       setLayout(LayoutBar::Action::VLine);
     else
       setLayout(LayoutBar::Action::HLine);
-    break;
+    return;
   case LayoutBar::Action::HalfGrid:
     if (orientation()==Qt::Vertical)
       setLayout(LayoutBar::Action::VGrid);
     else
       setLayout(LayoutBar::Action::HGrid);
-    break;
+    return;
   case LayoutBar::Action::ToggleFullPhoto:
     if (lay==LayoutBar::Action::FullPhoto)
       setLayout(lastlay);
     else
       setLayout(LayoutBar::Action::FullPhoto);
-    break;
+    return;
   case LayoutBar::Action::ToggleFullScreen:
     break;
   case LayoutBar::Action::N:
     break;
   }
+  if (lastlay==LayoutBar::Action::FullGrid && lay!=lastlay) {
+    emit needImage(id, displaySize());
+    requestLargerImage();
+  }
+  if (lay!=LayoutBar::Action::FullPhoto)
+    scrollToCurrent();
 }
 
 void LightTable::slidePress(quint64 i, Qt::MouseButton b,
@@ -214,7 +235,6 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   }
 
   db.query("update current set version=:a", i);
-  updateSlide(id);
   updateSlide(i);
 
   QSqlQuery q = db.query("select photos.width, photos.height"
@@ -224,13 +244,14 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
                          " limit 1", i);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
-  slide->newImage(PSize(q.value(0).toInt(), q.value(1).toInt()));
+  slide->newImage(QSize(q.value(0).toInt(), q.value(1).toInt()));
 
   id = i;
   emit newCurrent(id);
-  if (slide->isVisible())
+  if (lay!=LayoutBar::Action::FullGrid) {
     emit needImage(id, displaySize());
-  requestLargerImage();
+    requestLargerImage();
+  }
 }
 
 void LightTable::updateSlide(quint64 i) {
@@ -257,7 +278,7 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
   film->updateImage(i, img);
 
   if (i==id)
-    slide->updateImage(img);
+    slide->updateImage(img, true);
 }
 
 void LightTable::updateImage(quint64 i, Image16 img) {
@@ -352,7 +373,5 @@ void LightTable::bgPress(Qt::MouseButton b, Qt::KeyboardModifiers m) {
 }
 
 void LightTable::scrollToCurrent() {
-  quint64 c = db.simpleQuery("select * from current").toULongLong();
-  if (c)
-    film->scrollTo(c);
+  film->scrollToCurrent();
 }
