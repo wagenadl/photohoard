@@ -4,9 +4,9 @@
 #include "Adjuster.h"
 #include <QMutexLocker>
 
-InterruptableAdjuster::InterruptableAdjuster(Adjuster *adjuster,
-                                             QObject *parent):
-  QThread(parent), adjuster(adjuster) {
+InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
+  QThread(parent) {
+  adjuster = new Adjuster(this);
   start();
 }
 

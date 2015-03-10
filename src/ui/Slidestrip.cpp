@@ -285,19 +285,21 @@ void Slidestrip::setRowWidth(int pix) {
 quint64 Slidestrip::firstExpandedVersion() {
   if (!expanded)
     return 0;
-  if (isEmpty(slideOrder))
+  if (slideOrder.isEmpty())
     return 0;
-  else
-    return slideOrder.first();
+  Slide *s = slideOrder.first();
+  Q_ASSERT(s);
+  return s->version();
 }
 
 quint64 Slidestrip::lastExpandedVersion() {
   if (!expanded)
     return 0;
-  if (isEmpty(slideOrder))
+  if (slideOrder.isEmpty())
     return 0;
-  else
-    return slideOrder.last();
+  Slide *s = slideOrder.last();
+  Q_ASSERT(s);
+  return s->version();
 }
 
 Strip *Slidestrip::firstExpandedStrip() {

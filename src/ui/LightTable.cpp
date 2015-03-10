@@ -234,7 +234,9 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
     }
   }
 
+  qDebug() << "current was " << db.simpleQuery("select version from current").toULongLong() << " becomes " << i << " (id=" << id << ")";
   db.query("update current set version=:a", i);
+  updateSlide(id);
   updateSlide(i);
 
   QSqlQuery q = db.query("select photos.width, photos.height"

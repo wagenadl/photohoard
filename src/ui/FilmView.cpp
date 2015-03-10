@@ -138,25 +138,29 @@ void FilmView::keyPressEvent(QKeyEvent *e) {
   qDebug() << "FilmView::keyPress" << e->key();
   switch (e->key()) {
   case Qt::Key_Up: {
-    quint64 v = versionAbove(current());
+    quint64 v = strip->versionAbove(current());
+    qDebug() << "up -> " << v;
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Down: {
-    quint64 v = versionBelow(current());
+    quint64 v = strip->versionBelow(current());
+    qDebug() << "down -> " << v;
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Left: {
-    quint64 v = versionLeftOf(current());
+    quint64 v = strip->versionLeftOf(current());
+    qDebug() << "left -> " << v;
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Right: {
-    quint64 v = versionRightOf(current());
+    quint64 v = strip->versionRightOf(current());
+    qDebug() << "right -> " << v << "(from " <<current() << ")";
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
@@ -167,19 +171,6 @@ void FilmView::keyPressEvent(QKeyEvent *e) {
   }
 }
 
-quint64 FilmView::versionAbove(quint64) const {
-  return 0;
+void FilmView::enterEvent(QEvent *) {
+  setFocus();
 }
-
-quint64 FilmView::versionBelow(quint64) const {
-  return 0;
-}
-
-quint64 FilmView::versionLeftOf(quint64) const {
-  return 0;
-}
-
-quint64 FilmView::versionRightOf(quint64) const {
-  return 0;
-}
-

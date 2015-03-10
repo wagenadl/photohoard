@@ -15,10 +15,6 @@ public:
   virtual ~FilmView();
   class FilmScene *scene() { return scene_; }
   class Datestrip *root() { return strip; }
-  quint64 versionAbove(quint64) const;
-  quint64 versionBelow(quint64) const;
-  quint64 versionLeftOf(quint64) const;
-  quint64 versionRightOf(quint64) const;
 signals:
   void needImage(quint64, QSize);
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
@@ -34,6 +30,7 @@ public slots:
 protected:
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void keyPressEvent(QKeyEvent *) override;
+  virtual void enterEvent(QEvent *) override;
 protected slots:
   void stripResized();
 protected:

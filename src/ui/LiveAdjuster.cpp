@@ -14,8 +14,7 @@ LiveAdjuster::LiveAdjuster(PhotoDB const &db,
                            QObject *parent):
   QObject(parent), db(db), controls(controls), cache(cache) {
   ofinder = new OriginalFinder(db, this);
-  adj = new Adjuster(this);
-  adjuster = new InterruptableAdjuster(adj, this);
+  adjuster = new InterruptableAdjuster(this);
   connect(adjuster, SIGNAL(ready(Image16)),
           SLOT(provideAdjusted(Image16)));
   connect(controls, SIGNAL(valueChanged(QString, double)),

@@ -13,7 +13,7 @@
 class InterruptableAdjuster: public QThread {
   Q_OBJECT;
 public:
-  InterruptableAdjuster(class Adjuster *adjuster, QObject *parent=0);
+  InterruptableAdjuster(QObject *parent=0);
   virtual ~InterruptableAdjuster();
   void requestFull(Sliders const &settings);
   void requestReduced(Sliders const &settings, PSize maxSize);
@@ -35,7 +35,7 @@ private:
   void handleNewRequest();
   void handleNewImage();
 private:
-  Adjuster *adjuster;
+  class Adjuster *adjuster;
   QMutex mutex;
   QWaitCondition waitcond;
   bool cancel, newreq, clear_;

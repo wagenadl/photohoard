@@ -110,6 +110,7 @@ void Datestrip::rebuildContents() {
     mustRebuild = true;
     return;
   }
+  mustRebuild = false;
 
   rebuilding++;
 
@@ -201,6 +202,7 @@ void Datestrip::relayout() {
     mustRelayout = true;
     return;
   }
+  mustRelayout = false;
 
   Strip::relayout();
 
@@ -261,7 +263,6 @@ void Datestrip::relayout() {
 class Slide *Datestrip::slideByVersion(quint64 vsn) {
   if (mustRebuild || mustRelayout || !expanded)
     return NULL; // is this really necessary?
-  
   for (auto f: stripOrder) {
     Slide *s = f->slideByVersion(vsn);
     if (s)
@@ -307,6 +308,7 @@ Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
 }
 
 quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
+  qDebug() << "Datestrip " << this << "version at" << vsn << dcr << mustRebuild << mustRelayout << expanded;
   if (mustRebuild || mustRelayout || !expanded)
     return 0; // is this really necessary? Or should we rebuild?
   
@@ -329,38 +331,72 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
   /* Easy cases exhausted. Let's see. */
   switch (arr) {
   case Arrangement::Horizontal:
-    if (dcr.y())
+    if (dcr.y()) {
       return 0;
-    else if (dcr.x()<0 && k>0) 
-      return stripOrder[k-1].lastVersion();
-    else if (dcr.x()>0 && k<stripOrder.size()-1) 
-      return stripOrder[k-1].firstVersion();
-    else
+    } else if (dcr.x()<0) {
+      while (k>0) {
+        quint64 r = stripOrder[--k]->lastExpandedVersion();
+        if (r)
+          return r;
+      }
       return 0;
+    } else if (dcr.x()>0) {
+      while (k<stripOrder.size()-1) {
+        quint64 r = stripOrder[++k]->firstExpandedVersion();
+        if (r)
+          return r;
+      }
+      return 0;
+    } else {
+      return 0;
+    }
   case Arrangement::Vertical:
-    if (dcr.x())
+    if (dcr.x()) {
       return 0;
-    else if (dcr.y()<0 && k>0) 
-      return stripOrder[k-1].lastVersion();
-    else if (dcr.y()>0 && k<stripOrder.size()-1) 
-      return stripOrder[k-1].firstVersion();
-    else
+    } else if (dcr.y()<0) {
+      while (k>0) {
+        quint64 r = stripOrder[--k]->lastExpandedVersion();
+        if (r)
+          return r;
+      }
       return 0;
+    } else if (dcr.y()>0) {
+      while (k<stripOrder.size()-1) {
+        quint64 r = stripOrder[++k]->firstExpandedVersion();
+        if (r)
+          return r;
+      }
+      return 0;
+    } else {
+      return 0;
+    }
   case Arrangement::Grid:
-    if (dcr.x()<0 && k>0) 
-      return stripOrder[k-1].lastVersion();
-    else if (dcr.x()>0 && k<stripOrder.size()-1) 
-      return stripOrder[k-1].firstVersion();
-    // Now we need to deal with vertical displacement in the grid
-    // That's for another day
-    return 0;
+    if (dcr.x()<0) {
+      while (k>0) {
+        quint64 r = stripOrder[--k]->lastExpandedVersion();
+        if (r)
+          return r;
+      }
+      return 0;
+    } else if (dcr.x()>0) {
+      while (k<stripOrder.size()-1)  {
+        quint64 r = stripOrder[++k]->firstExpandedVersion();
+        if (r)
+          return r;
+      }
+      return 0;
+    } else {
+      // Now we need to deal with vertical displacement in the grid
+      // That's for another day
+      return 0;
+    }
   }
+  return 0; // not executed?
 }
-
 
 quint64 Datestrip::firstExpandedVersion() {
   for (int k=0; k<stripOrder.size(); k++) {
-    if (stripOrder[k].isExpanded()) {
+    if (stripOrder[k]->isExpanded()) {
       quint64 res = stripOrder[k]->firstExpandedVersion();
       if (res)
         return res;
@@ -371,7 +407,7 @@ quint64 Datestrip::firstExpandedVersion() {
  
 quint64 Datestrip::lastExpandedVersion() {
   for (int k=stripOrder.size()-1; k>=0; --k) {
-    if (stripOrder[k].isExpanded()) {
+    if (stripOrder[k]->isExpanded()) {
       quint64 res = stripOrder[k]->lastExpandedVersion();
       if (res)
         return res;
@@ -382,7 +418,7 @@ quint64 Datestrip::lastExpandedVersion() {
 
 Strip *Datestrip::firstExpandedStrip() {
   for (int k=0; k<stripOrder.size(); k++) {
-    if (stripOrder[k].isExpanded()) {
+    if (stripOrder[k]->isExpanded()) {
       Strip *res = stripOrder[k]->firstExpandedStrip();
       if (res)
         return res;
@@ -393,8 +429,8 @@ Strip *Datestrip::firstExpandedStrip() {
  
 Strip *Datestrip::lastExpandedStrip() {
   for (int k=stripOrder.size()-1; k>=0; --k) {
-    if (stripOrder[k].isExpanded()) {
-      Strip *res = stripOrder[k]->lastExpandedVersion();
+    if (stripOrder[k]->isExpanded()) {
+      Strip *res = stripOrder[k]->lastExpandedStrip();
       if (res)
         return res;
     }
