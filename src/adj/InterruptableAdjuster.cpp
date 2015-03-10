@@ -96,6 +96,7 @@ void InterruptableAdjuster::handleNewRequest() {
   newreq = false;
   mutex.unlock();
   Image16 img;
+  qDebug() << "IA: handlenewrequest" << r << s;
   if (r.isEmpty()) {
     if (s.isEmpty()) 
       img = adjuster->retrieveFull(sli);

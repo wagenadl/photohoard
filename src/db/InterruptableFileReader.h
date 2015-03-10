@@ -6,18 +6,19 @@
 
 #include "InterruptableReader.h"
 
-#include <QFile>
-
 class InterruptableFileReader: public InterruptableReader {
   Q_OBJECT;
 public:
   InterruptableFileReader(QObject *parent=0);
-  virtual ~InterruptableFileReader() { }
+  virtual ~InterruptableFileReader();
 protected:
-  virtual QIODevice &source() { return *src; }
-  virtual bool open();
+  virtual QIODevice &tSource();
+  virtual bool uOpen();
+  virtual void lPrepSource(QString fn, QSize, QSize);
+  virtual int uEstimateSize();
+  virtual void lUnprepSource();
 private:
-  QFile *src;
+  class QFile *src;
 };
 
 #endif

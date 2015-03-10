@@ -24,7 +24,7 @@ signals:
   void scaledOriginalAvailable(quint64 version, QSize osize, Image16 img);
   void exception(QString);
 private slots:
-  void provide(QString fn, QByteArray);
+  void provide(QString fn);
 private:
   void fixOrientation(Image16 &);
 private:

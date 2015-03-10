@@ -5,19 +5,22 @@
 #define INTERRUPTABLERAWREADER_H
 
 #include "InterruptableReader.h"
-#include <QProcess>
 
 class InterruptableRawReader: public InterruptableReader {
   Q_OBJECT;
 public:
   InterruptableRawReader(QObject *parent=0);
-  virtual ~InterruptableRawReader() { }
+  virtual ~InterruptableRawReader();
 protected:
-  virtual QIODevice &source() { return *src; }
-  virtual bool open();
+  virtual QIODevice &tSource();
+  virtual bool uOpen();
+  virtual void lPrepSource(QString fn, QSize rq, QSize ori);
+  virtual void lUnprepSource();
   virtual void abort();
 private:
-  QProcess *src;
+  class QProcess *src;
+  QString fn;
+  QSize rqs, oris;
 };
 
 #endif

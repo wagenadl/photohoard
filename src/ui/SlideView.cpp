@@ -38,12 +38,14 @@ double SlideView::fittingZoom() const {
 }
 
 void SlideView::newImage(QSize nat) {
+  qDebug() << "SlideView:: newImage" << nat;
   naturalSize = nat;
   lastSize = PSize();
   img = Image16(); // might invalidate more gently
 }  
 
 void SlideView::updateImage(Image16 img1, bool force) {
+  qDebug() << "SlideView::updateImage" << img.size() << img1.size() << force;
   if (force || img.isNull() || img.width() < img1.width()) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
@@ -62,6 +64,8 @@ void SlideView::changeZoomLevel(QPoint, double delta) {
     fit = false;
   }
   zoom *= pow(2, delta);
+  qDebug() << "SlideView::changeZoom" << zoom << naturalSize;
+  emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
   update();
 }
 
@@ -72,16 +76,20 @@ void SlideView::setZoom(double z) {
   }
   fit = false;
   zoom = z;
+  qDebug() << "SlideView::setZoom" << zoom << naturalSize;
+  emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
   update();
 }
   
 void SlideView::scaleToFit() {
   fit = true;
+  emit newSize(size());
   update();
 }
 
 void SlideView::resizeEvent(QResizeEvent *) {
-  emit newSize(size());
+  emit newSize(fit ? size() : naturalSize.isEmpty() ? size()
+	       : naturalSize*zoom);
   if (fit)
     update();
 }

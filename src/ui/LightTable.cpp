@@ -54,6 +54,9 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   connect(slide, SIGNAL(newSize(QSize)),
           this, SIGNAL(newSlideSize(QSize)));
 
+  connect(slide, SIGNAL(newSize(QSize)),
+          this, SLOT(requestLargerImage()));
+
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           SLOT(updateAdjusted(Image16, quint64)));
   
@@ -270,6 +273,7 @@ PSize LightTable::displaySize() const {
 }
 
 void LightTable::requestLargerImage() {
+  qDebug() << "LitghtTable::requestLargerImage" << id << slide->desiredSize();
   if (slide->isVisible()) 
     adjuster->requestAdjusted(id, slide->desiredSize());
 }
@@ -277,6 +281,8 @@ void LightTable::requestLargerImage() {
 void LightTable::updateAdjusted(Image16 img, quint64 i) {
   qDebug() << "LightTable::updateAdjusted " << i << img.size() << id
            << int(img.format());
+  if (img.isNull())
+    return;
   film->updateImage(i, img);
 
   if (i==id)

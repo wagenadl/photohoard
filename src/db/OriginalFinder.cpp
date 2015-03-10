@@ -11,10 +11,10 @@ OriginalFinder::OriginalFinder(PhotoDB const &db,
   QObject(parent), db(db) {
   filereader = new InterruptableFileReader(this);
   rawreader = new InterruptableRawReader(this);
-  connect(filereader, SIGNAL(ready(QString, QByteArray)),
-          SLOT(provide(QString, QByteArray)));
-  connect(rawreader, SIGNAL(ready(QString, QByteArray)),
-          SLOT(provide(QString, QByteArray)));
+  connect(filereader, SIGNAL(ready(QString)),
+          SLOT(provide(QString)));
+  connect(rawreader, SIGNAL(ready(QString)),
+          SLOT(provide(QString)));
 }
 
 OriginalFinder::~OriginalFinder() {
@@ -57,7 +57,8 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     desired = ds;
     version = vsn;
     filepath = path;
-    reader->request(path);
+    qDebug() << "OF Request" << path << ds << osize;
+    reader->request(path, ds, osize);
   } catch (QSqlQuery &q) {
     emit exception("OriginalFinder: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
@@ -82,11 +83,19 @@ void OriginalFinder::fixOrientation(Image16 &img) {
   }
 }  
 
-void OriginalFinder::provide(QString fn, QByteArray data) {
+void OriginalFinder::provide(QString fn) {
   if (fn!=filepath)
     return;
+  InterruptableReader::Result res = filereader->result(fn);
+  QString e0 = res.error;
+  if (!res.ok)
+    res = rawreader->result(fn);
+  if (!res.ok) {
+    qDebug() << "  OF: got no result" << e0 << res.error;
+    return;
+  }
 
-  Image16 img = QImage::fromData(data);
+  Image16 img = QImage::fromData(res.data);
   if (img.isNull()) {
     qDebug() << "  got null image";
     return;

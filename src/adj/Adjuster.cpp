@@ -82,9 +82,6 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     return Image16();
   
   // Now we have a stage that has no reduced roi and that has a suitable scale
-  if (stages.last().settings==settings)
-    return stages.last().image;
-
   double fac = stages[k].image.size().scaleFactorToFitIn(maxSize);
   if (fac<0.8 || (k<.95 && k+1==stages.size())) {
     // It's worth scaling
@@ -93,6 +90,9 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     k++;
     stages[k].stage = Stage_Reduced;
   }
+
+  if (stages.last().settings==settings)
+    return stages.last().image;
 
   if (!applySinglePixelSettings(settings))
     return Image16();

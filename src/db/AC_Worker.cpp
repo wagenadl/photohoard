@@ -150,9 +150,12 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 }
 
 void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
+  qDebug() << "AC_Worker: cacheModified " << vsn << img.size();
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
     if (beingLoaded.contains(vsn)) 
       invalidatedWhileLoading << vsn;
+    else
+      N++;
     
     loaded[vsn] = img.scaled(cache->maxSize(), Qt::KeepAspectRatio);
     processLoaded();
