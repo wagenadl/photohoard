@@ -7,29 +7,50 @@
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QObject(parent) {
-  state_ = State::Waiting;
-  requested = "";
-  connect(this, SIGNAL(readMore()), SLOT(readSome()), Qt::QueuedConnection);
+  running = false;
+  canceling = false;
+  stopsoon = false;
+  result.ok = false;
+  start();
 }
 
 InterruptableReader::~InterruptableReader() {
+  stop();
+  if (!wait(1000)) {
+    qDebug() << "InterruptableReader deleted; did not stop; terminating.";
+    terminate();
+    if (!wait(1000)) 
+      qDebug() << "InterruptableReader still did not stop; disaster imminent.";
+  }
+}
+
+void InterruptableReader::start() {
+  QThread::start();
+}
+
+void InterruptableReader::stop() {
+  stopsoon = true;
+  cond.wakeOne();
 }
 
 void InterruptableReader::request(QString fn) {
-  if (state_==State::Running)
-    cancel();
-
-  state_ = State::Running;
-  requested = fn;
-  offset = 0;
-  if (!open()) {
-    requested = "";
-    state_ = State::Waiting;
-    emit failed(fn, "Could not open source");
+  QStringList canc;
+  QMutexLocker l(&mutex);
+  if (fn==current) {
+    canc << current;
+    if (running)
+      canceling = true;
   }
-  qDebug() << "requested ok";
-  reservedsize = dest.size();
-  readSome();
+  if (fn==newreq) {
+    canc << newreq;
+    newreq = "";
+  }
+
+  newreq = fn;
+  wakeOne();
+  mutex.unlock();
+  for (auto s: canc)
+    emit canceled(s);
 }
 
 void InterruptableReader::cancel() {
