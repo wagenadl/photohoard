@@ -4,28 +4,16 @@
 
 #define INTERRUPTABLEREADER_H
 
-#include <QObject>
+#include <QThread>
 #include <QIODevice>
 
-class InterruptableReader: public QObject {
+class InterruptableReader: public QThread {
   Q_OBJECT;
-public:
-  enum class State {
-    Waiting,
-    Running,
-  };    
 public:
   InterruptableReader(QObject *parent=0);
   // Starts thread.
   virtual ~InterruptableReader();
   // Stops thread canceling outstanding requests.
-  State state() const { return state_; }
-  /* Note that state() returns the current state; because of multithreading,
-     this is not a guarantee for future results of readAll().
-     However, our child thread will not change state Success to anything
-     else except when provoked by the caller through request(), cancel(), or
-     readAll().
-  */
 public slots:
   void request(QString fn);
   // Posting a new request cancels the previous.
@@ -40,9 +28,6 @@ signals:
   // Emitted when state transitions to Failed.
   void canceled(QString fn);
   // Emitted when request() or cancel() cancels a Running/Success/Failed state.
-  void readMore(); // private
-private slots:
-  void readSome();
 protected:
   virtual QIODevice &source()=0; // valid _only_ in state Running
   virtual void abort() { }
@@ -50,8 +35,9 @@ protected:
 private:
   void complete();
 protected:
-  QString requested;
-  State state_;
+  QString newreq;
+  QString current;
+  bool running, cancelsoon;
   QByteArray dest;
   qint64 reservedsize, offset;
 };
