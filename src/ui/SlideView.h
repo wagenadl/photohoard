@@ -36,6 +36,7 @@ protected:
 private:
   //  QPointF mapWidgetToImage(QPointF) const;
   //  QPointF mapImageToWidget(QPointF) const;
+  void updateRelXY(QPoint);
 private:
   PSize naturalSize;
   Image16 img;
@@ -44,6 +45,9 @@ private:
   double relx; // 0 for extreme left/top visible, 1 for extreme right/bot
   double rely; // ... not defined when fit
   PSize lastSize;
+  QPoint presspoint;
+  double pressrelx, pressrely;
+  bool dragging;
 };
 
 #endif

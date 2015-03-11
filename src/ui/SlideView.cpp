@@ -116,17 +116,46 @@ void SlideView::keyPressEvent(QKeyEvent *e) {
   }
 }
 
-void SlideView::mousePressEvent(QMouseEvent *) {
-  // start drag
+void SlideView::mousePressEvent(QMouseEvent *e) {
+  if (e->button()==Qt::LeftButton && !fit) {
+    presspoint = e->pos();
+    pressrelx = relx;
+    pressrely = rely;
+    dragging = true;
+    e->accept();
+  } else {
+    dragging = false;
+  }
 }
 
-void SlideView::mouseMoveEvent(QMouseEvent *) {
-  // move image around
+void SlideView::mouseMoveEvent(QMouseEvent *e) {
+  if (dragging) 
+    updateRelXY(e->pos());
 }
 
 void SlideView::mouseDoubleClickEvent(QMouseEvent *) {
   emit doubleClicked();
 }
+
+void SlideView::updateRelXY(QPoint p) {
+  QPoint dp = p - presspoint;
+  QRect r = contentsRect();
+  PSize availSize = r.size();
+  relx = pressrelx - dp.x()*2./availSize.width();
+  rely = pressrely - dp.y()*2./availSize.height();
+  if (relx<0)
+    relx = 0;
+  else if (relx>1)
+    relx = 1;
+  if (rely<0)
+    rely = 0;
+  else if (rely>1)
+    rely = 1;
+  pressrelx = relx;
+  pressrely = rely;
+  presspoint = p;
+  update();
+}    
 
 void SlideView::paintEvent(QPaintEvent *) {
   if (img.isNull())
