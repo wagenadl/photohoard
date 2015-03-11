@@ -32,14 +32,21 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   bool newvsn = version!=v;
   mustshowupdate = true;
   if (newvsn) {
+    originalSize = QSize();
     QString mods = db.simpleQuery("select mods from versions"
                                   " where id=:a limit 1", v).toString();
     sliders.setAll(mods);
     controls->setQuietly(sliders);
   }
   qDebug() << "requestAdjusted" << v << s << newvsn
-           << adjuster->maxAvailableSize();
-  if (newvsn || PSize(s).exceeds(adjuster->maxAvailableSize())) {
+           << "maxav" << adjuster->maxAvailableSize()
+           << "osize" << originalSize;
+  bool needBigger = PSize(s).exceeds(adjuster->maxAvailableSize());
+  bool canBigger = originalSize.exceeds(adjuster->maxAvailableSize())
+    || originalSize.isEmpty();
+  qDebug() << " -> " << needBigger << canBigger;
+  
+  if (newvsn || (needBigger && canBigger)) {
     if (newvsn)
       adjuster->clear();
     else
@@ -87,6 +94,7 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
   qDebug() << "LiveAdjuster::provideOriginal" << v << img.size();
   if (v!=version)
     return;
+  originalSize = img.size();
   adjuster->cancelRequest();
   adjuster->setOriginal(img);
 
@@ -100,6 +108,7 @@ void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
   qDebug() << "LiveAdjuster::provideScaledOriginal" << v << img.size() << osize << version;
   if (v!=version)
     return;
+  originalSize = osize;
   adjuster->setOriginal(img, osize);
 
   if (targetsize.isEmpty())

@@ -105,12 +105,12 @@ void OriginalFinder::provide(QString fn) {
     fixOrientation(img);
     emit originalAvailable(version, img);
   } else {
-    PSize desi = desired;
+    PSize os = osize;
     if (orient==Exif::CW || orient==Exif::CCW) 
-      desi = PSize(desired.height(), desired.width());
+      os = PSize(os.height(), os.width());
     //    if (img.size().exceeds(desi))
     //      img = img.scaled(desi, Qt::KeepAspectRatio);
     fixOrientation(img);
-    emit scaledOriginalAvailable(version, osize, img);
+    emit scaledOriginalAvailable(version, os, img);
   }
 }

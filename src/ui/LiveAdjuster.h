@@ -37,6 +37,7 @@ private:
   class OriginalFinder *ofinder; // we own
   bool mustshowupdate;
   bool mustoffermod;
+  PSize originalSize;
 };
 
 #endif

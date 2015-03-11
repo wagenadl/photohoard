@@ -195,6 +195,7 @@ void SlideView::paintEvent(QPaintEvent *) {
     } else {
       lastSize = PSize();
     }
+    qDebug() << r << showSize << img.size() << effZoom;
     if (showSize.width()<=availSize.width()) {
       sourceRect.setLeft(0);
       sourceRect.setWidth(img.width());

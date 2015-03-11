@@ -10,6 +10,7 @@
 #include "Selection.h"
 #include "Slide.h"
 #include "FilmScene.h"
+#include "Exif.h"
 
 LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db1), adjuster(adj) {
@@ -242,14 +243,18 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   updateSlide(id);
   updateSlide(i);
 
-  QSqlQuery q = db.query("select photos.width, photos.height"
+  QSqlQuery q = db.query("select photos.width, photos.height, photos.orient"
                          " from photos inner join versions"
                          " on photos.id=versions.photo"
                          " where versions.id==:a"
                          " limit 1", i);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
-  slide->newImage(QSize(q.value(0).toInt(), q.value(1).toInt()));
+  int w = q.value(0).toInt();
+  int h =  q.value(1).toInt();
+  Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
+  QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
+  slide->newImage(ns);
 
   id = i;
   emit newCurrent(id);

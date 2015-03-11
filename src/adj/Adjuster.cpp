@@ -80,11 +80,16 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     return Image16();
   if (stages[k].image.isNull())
     return Image16();
+
+  while (stages.size()>k+1) // drop no-good stages
+    stages.removeLast();
   
   // Now we have a stage that has no reduced roi and that has a suitable scale
   double fac = stages[k].image.size().scaleFactorToFitIn(maxSize);
-  if (fac<0.8 || (k<.95 && k+1==stages.size())) {
+  qDebug() << "Adjuster img: " << stages[k].image.size() << " rq:" << maxSize << fac;
+  if (fac<0.8) {
     // It's worth scaling
+    // Should we drop excessive scale stacks? Probably.
     stages << AdjusterTile(stages[k].image.scaled(maxSize,
                                                   Qt::KeepAspectRatio));
     k++;
