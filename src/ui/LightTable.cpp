@@ -257,7 +257,9 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
     emit needImage(id, displaySize());
     requestLargerImage();
   }
-}
+
+  film->scrollIfNeeded();
+}    
 
 void LightTable::updateSlide(quint64 i) {
   Slide *s = film->root()->slideByVersion(i);

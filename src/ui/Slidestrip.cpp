@@ -183,8 +183,15 @@ quint64 Slidestrip::versionAt(quint64 vsn, QPoint dcr) {
     cr = QPoint(0, cr.y()+1);
   if (revplace.contains(cr))
     return revplace[cr];
-  else
-    return 0;
+  if (arr==Arrangement::Grid && dcr.y()>0) {
+    // Going down, we may be going past the final version
+    while (cr.x()>0) {
+      cr.setX(cr.x()-1);
+      if (revplace.contains(cr))
+        return revplace[cr];
+    }
+  }
+  return 0;
 }
 
 void Slidestrip::relayout() {

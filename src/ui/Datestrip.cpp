@@ -4,6 +4,7 @@
 #include "Slidestrip.h"
 #include <QSet>
 #include <QDebug>
+#include "Slide.h"
 
 #define MAXDIRECT 50
 
@@ -386,8 +387,58 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
       }
       return 0;
     } else {
-      // Now we need to deal with vertical displacement in the grid
-      // That's for another day
+      // Now we need to deal with vertical displacement in the grid.
+      /* Let's first find out if there is any version at all above/below
+         our "home" version.
+      */
+      int ktgt = k;
+      quint64 v2 = 0;
+      if (dcr.y()<0) {
+        while (ktgt>0) {
+          v2 = stripOrder[--ktgt]->lastExpandedVersion();
+          if (v2)
+            break;
+        }
+      } else if (dcr.y()>0) {
+        while (ktgt<stripOrder.size()-1) {
+          v2 = stripOrder[++ktgt]->firstExpandedVersion();
+          if (v2)
+            break;
+        }
+      }
+      qDebug() << "v2: " << v2;
+      if (!v2)
+        return 0;
+      
+      /* We know that the "home" version is in stripOrder[k]. Let's find
+         out what its coordinates are.
+      */
+      Slide *homes = stripOrder[k]->slideByVersion(vsn);
+      Q_ASSERT(homes);
+      Slidestrip *homeparent = dynamic_cast<Slidestrip*>(homes->parentItem());
+      // Yes, that's pretty ugly. I should probably improve my infrastructure.
+      Q_ASSERT(homeparent);
+      int gridx = homeparent->gridPosition(vsn).x();
+      qDebug() << "gridx: " << gridx;
+
+      /* Now let's find out the coordinates of our preliminary target */
+      Slide *tgts = stripOrder[ktgt]->slideByVersion(v2);
+      Q_ASSERT(tgts);
+      Slidestrip *tgtparent = dynamic_cast<Slidestrip*>(tgts->parentItem());
+      // No prettier the second time around.
+      Q_ASSERT(tgtparent);
+      int gridy = tgtparent->gridPosition(v2).y();
+      qDebug() << "gridy: " << gridy;
+      
+      /* Ideally, I'd like to go to (gridx, gridy). But that may not exist. */
+      while (gridx>=0) {
+        quint64 vtgt = tgtparent->versionAt(QPoint(gridx, gridy));
+        if (vtgt) {
+          qDebug() << "vtgt" << vtgt;
+          return vtgt;
+        }
+        gridx--;
+      }      
       return 0;
     }
   }

@@ -130,6 +130,20 @@ void FilmView::scrollToCurrent() {
     scrollTo(c);
 }
 
+void FilmView::scrollIfNeeded() {
+  quint64 c = current();
+  if (!c)
+    return;
+  Slide *cs = root()->slideByVersion(c);
+  if (!cs)
+    return;
+  QRect portRect = viewport()->rect();
+  QRectF sceneRect = mapToScene(portRect).boundingRect();
+  QRectF itemRect = cs->mapRectFromScene(sceneRect);
+  if (!itemRect.contains(cs->boundingRect()))
+    scrollTo(c);
+}
+
 quint64 FilmView::current() {
   return db.simpleQuery("select * from current").toULongLong();
 }

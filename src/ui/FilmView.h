@@ -23,6 +23,7 @@ signals:
 public slots:
   void scrollTo(quint64);
   void scrollToCurrent();
+  void scrollIfNeeded();
   void setTileSize(int pix);
   void setArrangement(Strip::Arrangement);
   void updateImage(quint64, Image16);
