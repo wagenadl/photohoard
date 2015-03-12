@@ -177,25 +177,27 @@ void Image16::convertTo(Format fmt) {
   }
 }
 
-Image16 Image16::scaled(PSize s, Qt::AspectRatioMode arm) const {
-  if (isNull())
+Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
+  if (isNull() || size()==s)
     return *this;
-  return fromQImage(toQImage().scaled(s, arm));
+  return fromQImage(toQImage().scaled(s));
   // This should be smarter
 }
 
-Image16 Image16::scaledToWidth(int w) const {
-  if (isNull())
-    return *this;
-  PSize s = size().scaledToFitIn(QSize(w, 65535));
-  return scaled(s);
+Image16 Image16::scaledToFitIn(PSize s, Image16::Interpolation i) const {
+  return scaled(size().scaledToFitIn(s), i);
 }
 
-Image16 Image16::scaledToHeight(int h) const {
-  if (isNull())
-    return *this;
-  PSize s = size().scaledToFitIn(QSize(65535, h));
-  return scaled(s);
+Image16 Image16::scaledDownToFitIn(PSize s, Image16::Interpolation i) const {
+  return size().exceeds(s) ? scaledToFitIn(s, i) : *this;
+}
+
+Image16 Image16::scaledToWidth(int w, Image16::Interpolation i) const {
+  return scaledToFitIn(PSize(w, 65536), i);
+}
+
+Image16 Image16::scaledToHeight(int h, Image16::Interpolation i) const {
+  return scaledToFitIn(PSize(65536, h), i);
 }
 
 void Image16::rotate90CW() {

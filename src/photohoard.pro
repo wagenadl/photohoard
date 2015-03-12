@@ -30,6 +30,7 @@ FORMS += ui/ExportDialog.ui
 
 LIBS += -lexiv2
 LIBS += -llcms2
+LIBS += -lopencv_imgproc -lopencv_core
 LIBS += -lX11
 
 SOURCES += cms/CMSProfile.cpp

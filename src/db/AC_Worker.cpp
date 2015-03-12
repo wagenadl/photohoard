@@ -157,7 +157,7 @@ void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
     else
       N++;
     
-    loaded[vsn] = img.scaled(cache->maxSize());
+    loaded[vsn] = img.scaledToFitIn(cache->maxSize());
     processLoaded();
   } else {
     QSet<quint64> vsns;
@@ -279,9 +279,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
   try {
     if (loaded.contains(version)) {
       qDebug() << "  loaded is " << loaded[version].size();
-      Image16 res = loaded[version].size().exceeds(desired)
-	? loaded[version].scaled(desired)
-	: loaded[version];
+      Image16 res = loaded[version].scaledDownToFitIn(desired);
       emit available(version, desired, res);
       actual = res.size();
     } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {

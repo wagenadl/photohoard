@@ -65,10 +65,6 @@ public:
   */      
   QList<PSize> standardSizes() const { return stdsizes; }
   PSize maxSize() const; // max of all standard sizes
-  Image16 sufficientSize(Image16 const &);
-  /*:F sufficientSize
-   *:D Reduces an image to the maximum size needed for the cache.
-   */
 private:
   BasicCache(QDir root, Database const &db, QObject *parent=0 );
   void addToCache(quint64 vsn, Image16 const &img,

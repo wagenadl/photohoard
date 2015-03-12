@@ -165,7 +165,7 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
-    Image16 i1 = img.scaled(r.size());
+    Image16 i1 = img.scaledToFitIn(r.size());
     if (img.width()<naturalSize.width()
         && i1.width()>img.width()
         && img.height()<naturalSize.height()

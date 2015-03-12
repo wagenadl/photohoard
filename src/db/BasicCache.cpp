@@ -97,14 +97,6 @@ BasicCache *BasicCache::create(QString rootdir) {
   }
 }
 
-Image16 BasicCache::sufficientSize(Image16 const &img) {
-  PSize s0 = maxSize();
-  if (img.size().exceeds(s0))
-    return img.scaled(s0);
-  else
-    return img;
-}
-
 void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   PSize s0 = maxSize();
   bool done = false;

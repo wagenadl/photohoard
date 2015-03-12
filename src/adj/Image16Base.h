@@ -12,7 +12,19 @@ public:
     XYZp16,
     Lab16,
     LMS16,
-    IPT16,
+    IPT16
+  };
+  enum class Interpolation {
+    NearestNeighbor,
+    BoxcarAverage,
+    Linear,
+    Cubic,
+    Lanczos
+  };
+  enum class Crop { // For rotate and perspective transforms
+    Same, // i.e., same area as source image
+    MaxDefinedArea, // i.e., maximum area that has no undefined pixels
+    MinInclusiveArea // i.e., minimum area that excludes no defined pixels
   };
 };
 
