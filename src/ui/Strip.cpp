@@ -193,9 +193,8 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
       requestImage(headerid);
       return;
     } else {
-      headerpm = QPixmap::fromImage(headerimg.toQImage()
-                                    .scaled(PSize(ims, ims),
-                                            Qt::KeepAspectRatio));
+      headerpm = QPixmap::fromImage(headerimg.scaled(PSize(ims, ims))
+                                    .toQImage());
       headerimg = Image16();
     }
   }

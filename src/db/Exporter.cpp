@@ -151,25 +151,24 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
     break;
   case ExportSettings::ResolutionMode::LimitWidth:
     if (img.width() > settings.maxdim)
-      img = img.scaledToWidth(settings.maxdim, Qt::SmoothTransformation);
+      img = img.scaledToWidth(settings.maxdim);
     break;
   case ExportSettings::ResolutionMode::LimitHeight:
     if (img.height() > settings.maxdim)
-      img = img.scaledToHeight(settings.maxdim, Qt::SmoothTransformation);
+      img = img.scaledToHeight(settings.maxdim);
     break;
   case ExportSettings::ResolutionMode::LimitMaxDim:
     if (wid>hei) {
       if (img.width() > settings.maxdim)
-        img = img.scaledToWidth(settings.maxdim, Qt::SmoothTransformation);
+        img = img.scaledToWidth(settings.maxdim);
     } else {
     if (img.height() > settings.maxdim)
-      img = img.scaledToHeight(settings.maxdim, Qt::SmoothTransformation);
+      img = img.scaledToHeight(settings.maxdim);
     }      
     break;
   case ExportSettings::ResolutionMode::Scale:
     if (img.width() > settings.scalePercent*wid/100)
-      img = img.scaledToWidth(settings.scalePercent*wid/100,
-                              Qt::SmoothTransformation);
+      img = img.scaledToWidth(settings.scalePercent*wid/100);
     break;
   }
 

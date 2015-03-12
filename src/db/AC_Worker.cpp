@@ -157,7 +157,7 @@ void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
     else
       N++;
     
-    loaded[vsn] = img.scaled(cache->maxSize(), Qt::KeepAspectRatio);
+    loaded[vsn] = img.scaled(cache->maxSize());
     processLoaded();
   } else {
     QSet<quint64> vsns;
@@ -280,7 +280,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     if (loaded.contains(version)) {
       qDebug() << "  loaded is " << loaded[version].size();
       Image16 res = loaded[version].size().exceeds(desired)
-	? loaded[version].scaled(desired, Qt::KeepAspectRatio)
+	? loaded[version].scaled(desired)
 	: loaded[version];
       emit available(version, desired, res);
       actual = res.size();
@@ -289,7 +289,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       bool od;
       Image16 img = cache->get(version, actual, &od);
       if (img.size().exceeds(desired))
-	img = img.scaled(desired, Qt::KeepAspectRatio);
+	img = img.scaled(desired);
       if (img.isNull()) // can this happen?
 	actual = PSize();
       else
@@ -335,7 +335,7 @@ void AC_Worker::respondToRequest(quint64 version, Image16 img) {
   for (PSize s: requests[version])
     s0 |= s;
   if (img.size().exceeds(s0))
-    img = img.scaled(s0, Qt::KeepAspectRatio);
+    img = img.scaled(s0);
   for (PSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);

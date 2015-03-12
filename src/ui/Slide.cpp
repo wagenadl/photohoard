@@ -105,8 +105,7 @@ void Slide::paint(QPainter *painter,
 	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
     if (!img.isNull())
-      pm = QPixmap::fromImage(img.toQImage().scaled(PSize(ims, ims),
-                                                    Qt::KeepAspectRatio));
+      pm = QPixmap::fromImage(img.scaled(PSize(ims, ims)).toQImage());
     img = Image16(); // no need to keep it ad inf
   }
   painter->drawPixmap(tilesize/2 - pm.width()/2,

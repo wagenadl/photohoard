@@ -100,7 +100,7 @@ BasicCache *BasicCache::create(QString rootdir) {
 Image16 BasicCache::sufficientSize(Image16 const &img) {
   PSize s0 = maxSize();
   if (img.size().exceeds(s0))
-    return img.scaled(s0, Qt::KeepAspectRatio);
+    return img.scaled(s0);
   else
     return img;
 }
@@ -116,7 +116,7 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   if (!done) {
     for (auto s: stdsizes) {
       if (img.size().exceeds(s)) {
-        img = img.scaled(s, Qt::KeepAspectRatio);
+        img = img.scaled(s);
         addToCache(vsn, img, instantlyOutdated);
         if (instantlyOutdated)
           break;

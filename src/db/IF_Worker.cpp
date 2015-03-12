@@ -58,7 +58,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
   
   // This should be reconsidered based on the adjuster
   if (PSize(img.size()).exceeds(PSize(maxdim, maxdim)))
-    img = img.scaled(PSize(maxdim, maxdim), Qt::KeepAspectRatio);
+    img = img.scaled(PSize(maxdim, maxdim));
     
   switch (orient) {
   case Exif::Upright:

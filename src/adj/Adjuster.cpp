@@ -90,8 +90,7 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   if (fac<0.8) {
     // It's worth scaling
     // Should we drop excessive scale stacks? Probably.
-    stages << AdjusterTile(stages[k].image.scaled(maxSize,
-                                                  Qt::KeepAspectRatio));
+    stages << AdjusterTile(stages[k].image.scaled(maxSize));
     k++;
     stages[k].stage = Stage_Reduced;
   }

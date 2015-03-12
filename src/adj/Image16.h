@@ -33,11 +33,9 @@ public:
   void convertTo(Format format);
   void convertFrom(Image16 const &other);
 public:
-  Image16 scaled(PSize s, Qt::AspectRatioMode arm=Qt::IgnoreAspectRatio) const;
-  Image16 scaledToWidth(int w,
-                        Qt::TransformationMode tm=Qt::FastTransformation) const;
-  Image16 scaledToHeight(int h,
-                        Qt::TransformationMode tm=Qt::FastTransformation) const;
+  Image16 scaled(PSize s, Qt::AspectRatioMode arm=Qt::KeepAspectRatio) const;
+  Image16 scaledToWidth(int w) const;
+  Image16 scaledToHeight(int h) const;
   void rotate90CW();
   void rotate90CCW();
   void rotate180();

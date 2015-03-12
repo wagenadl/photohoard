@@ -184,18 +184,18 @@ Image16 Image16::scaled(PSize s, Qt::AspectRatioMode arm) const {
   // This should be smarter
 }
 
-Image16 Image16::scaledToWidth(int w, Qt::TransformationMode tm) const {
+Image16 Image16::scaledToWidth(int w) const {
   if (isNull())
     return *this;
-  return fromQImage(toQImage().scaledToWidth(w, tm));
-  // This should be smarter
+  PSize s = size().scaledToFitIn(QSize(w, 65535));
+  return scaled(s);
 }
 
-Image16 Image16::scaledToHeight(int h, Qt::TransformationMode tm) const {
+Image16 Image16::scaledToHeight(int h) const {
   if (isNull())
     return *this;
-  return fromQImage(toQImage().scaledToHeight(h, tm));
-  // This should be smarter
+  PSize s = size().scaledToFitIn(QSize(65535, h));
+  return scaled(s);
 }
 
 void Image16::rotate90CW() {
