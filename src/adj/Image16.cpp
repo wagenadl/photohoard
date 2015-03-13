@@ -3,6 +3,7 @@
 #include "Image16.h"
 #include <QDebug>
 #include "ColorSpaces.h"
+#include <opencv2/imgproc/imgproc.hpp>
 
 class Image16Foo {
 public:
@@ -180,9 +181,83 @@ void Image16::convertTo(Format fmt) {
 Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
   if (isNull() || size()==s)
     return *this;
-  return fromQImage(toQImage().scaled(s));
-  // This should be smarter
+  else if (s.isEmpty())
+    return Image16();
+
+  if (i!=Interpolation::NearestNeighbor) {
+    Format f = format();
+    if (f==Format::Lab16 || f==Format::IPT16)
+      return scaleSigned(s, i);
+  }
+
+  // So now we _know_ that we have unsigned data, or that it doesn't matter
+  int cvfmt = format()==Format::sRGB8 ? CV_8UC4 : CV_16UC3;
+  int maxdecimation
+    = i==Interpolation::Linear ? 2
+    : i==Interpolation::Area ? 2
+    : i==Interpolation::Cubic ? 3
+    : i==Interpolation::Lanczos ? 6
+    : 1000000;
+
+  if (width()>maxdecimation*s.width() && height()>maxdecimation*s.height()) 
+    return scaled(PSize(width()/2, height()/2), Interpolation::Linear)
+      .scaled(s, i);
+  
+  cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());
+  Image16 res(s, format());
+  cv::Mat out(s.height(), s.width(), cvfmt, res.bytes(), res.bytesPerLine());
+  int cvmeth
+    = i==Interpolation::NearestNeighbor ? cv::INTER_NEAREST
+    : i==Interpolation::Linear ? cv::INTER_LINEAR
+    : i==Interpolation::Area ? cv::INTER_AREA
+    : i==Interpolation::Cubic ? cv::INTER_CUBIC
+    : i==Interpolation::Lanczos ? cv::INTER_LANCZOS4
+    : cv::INTER_LINEAR; // default
+  cv::resize(in, out, out.size(), 0, 0, cvmeth);
+  return res;
 }
+
+Image16 Image16::scaleSigned(PSize s, Image16::Interpolation i) const {
+  /* Certain of our formats have signed data in the second and third channels.
+     That doesn't work when scaling. So we convert to unsigned by shifting
+     nominal zero to 0x8000.
+   */
+  Format f0 = format();
+
+  Image16 img = *this;
+
+  quint16 *ptr = img.words();
+  int W = img.width();
+  int H = img.height();
+  int DL = img.wordsPerLine() - 3*W;
+  for (int y=0; y<H; y++) {
+    for (int x=0; x<W; x++) {
+      ptr++;
+      *ptr++ ^= 32768;
+      *ptr++ ^= 32768;
+    }
+    ptr += DL;
+  }
+  img.d->format = Format::XYZp16; // just pretending
+
+  img = img.scaled(s, i);
+
+  ptr = img.words();
+  DL = img.wordsPerLine() - 3*W;
+  for (int y=0; y<H; y++) {
+    for (int x=0; x<W; x++) {
+      ptr++;
+      *ptr++ ^= 32768;
+      *ptr++ ^= 32768;
+    }
+    ptr += DL;
+  }
+  img.d->format = f0;
+
+  return img;
+}
+  
+  
 
 Image16 Image16::scaledToFitIn(PSize s, Image16::Interpolation i) const {
   return scaled(size().scaledToFitIn(s), i);

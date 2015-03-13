@@ -108,7 +108,7 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   if (!done) {
     for (auto s: stdsizes) {
       if (img.size().exceeds(s)) {
-        img = img.scaled(s);
+        img = img.scaledToFitIn(s);
         addToCache(vsn, img, instantlyOutdated);
         if (instantlyOutdated)
           break;

@@ -285,9 +285,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
       qDebug() << "  best is " << actual;
       bool od;
-      Image16 img = cache->get(version, actual, &od);
-      if (img.size().exceeds(desired))
-	img = img.scaled(desired);
+      Image16 img = cache->get(version, actual, &od).scaledDownToFitIn(desired);
       if (img.isNull()) // can this happen?
 	actual = PSize();
       else

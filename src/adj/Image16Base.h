@@ -18,6 +18,7 @@ public:
     NearestNeighbor,
     BoxcarAverage,
     Linear,
+    Area,
     Cubic,
     Lanczos
   };

@@ -72,6 +72,7 @@ public:
 private:
   void convertFrom(Image16 const &other, Format otherformat);
   void setROI(QRect);
+  Image16 scaleSigned(PSize s, Interpolation i) const;
 private:
   QSharedDataPointer<Image16Data> d;
 };
