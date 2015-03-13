@@ -78,6 +78,8 @@ CMSTransform &CMSTransform::operator=(CMSTransform const &o) {
 }
 
 void CMSTransform::apply(void *dest, void const *source, int npixels) const {
+  if (npixels==0)
+    return;
   Q_ASSERT(xform);
   cmsDoTransform(xform, (uchar const *)source, (uchar *)dest, npixels);
 }
@@ -87,9 +89,8 @@ Image16 CMSTransform::apply(Image16 const &src) const {
     return Image16();
   Image16 dst = src.convertedTo(Image16::Format::sRGB8);
   uchar *d = dst.bytes();
-  uchar const *s = src.bytes();
-  int n = src.bytesPerLine() * src.height() / 4;
-  cmsDoTransform(xform, s, d, n);
+  int n = dst.bytesPerLine() * dst.height() / 4;
+  cmsDoTransform(xform, d, d, n);
   return dst; 
 }
 

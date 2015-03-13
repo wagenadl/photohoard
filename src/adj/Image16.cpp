@@ -198,9 +198,11 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
     : i==Interpolation::Lanczos ? 6
     : 1000000;
 
-  if (width()>maxdecimation*s.width() && height()>maxdecimation*s.height()) 
-    return scaled(PSize(width()/2, height()/2), Interpolation::Linear)
-      .scaled(s, i);
+  if (width()>maxdecimation*s.width() && height()>maxdecimation*s.height()) {
+    Image16 img = scaled(PSize((width()+1)/2, (height()+1)/2),
+                         Interpolation::Linear);
+    return img.scaled(s, i);
+  }
   
   int cvfmt = cvFormat(format());
   cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());

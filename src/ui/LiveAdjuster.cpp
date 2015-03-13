@@ -28,7 +28,26 @@ LiveAdjuster::LiveAdjuster(PhotoDB const &db,
   mustshowupdate = false;
 }
 
+void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
+  qDebug() << "LA: markVersionAndSize" << v << s;
+  bool newvsn = version!=v;
+  mustshowupdate = true;
+  if (newvsn) {
+    originalSize = QSize();
+    QString mods = db.simpleQuery("select mods from versions"
+                                  " where id=:a limit 1", v).toString();
+    sliders.setAll(mods);
+    controls->setQuietly(sliders);
+  }
+  targetsize = s;
+  version = v;
+
+  if (newvsn)
+    adjuster->clear();
+}
+
 void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
+  qDebug() << "LA: requestAdjusted" << v << s;
   bool newvsn = version!=v;
   mustshowupdate = true;
   if (newvsn) {
@@ -58,14 +77,16 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
 }
 
 void LiveAdjuster::setSlider(QString k, double v) {
-  qDebug() << "LiveAdjuster::setSlider" << k << v;
+  qDebug() << "LiveAdjuster::setSlider" << k << v << "(" << sliders.get(k) << ")";
   if (v==sliders.get(k))
     return;
+  
   mustshowupdate = true;
   mustoffermod = true;
   sliders.set(k, v);
+
   if (adjuster->isEmpty()) {
-    //
+    ofinder->requestScaledOriginal(version, targetsize);
   } else {
     if (targetsize.isEmpty())
       adjuster->requestFull(sliders);
@@ -73,8 +94,8 @@ void LiveAdjuster::setSlider(QString k, double v) {
       adjuster->requestReduced(sliders, targetsize);
   }
   QString mods = sliders.getAll();
-  db.simpleQuery("update versions set mods=:a where id==:b limit 1",
-                 mods, version);
+  db.query("update versions set mods=:a where id==:b limit 1",
+           mods, version);
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img) {

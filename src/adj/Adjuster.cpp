@@ -4,6 +4,7 @@
 #include <math.h>
 #include "AdjusterXYZ.h"
 #include "AdjusterIPT.h"
+#include "AdjusterGeometry.h"
 
 Adjuster::Adjuster(QObject *parent): QObject(parent) {
   caching = true;
@@ -54,7 +55,12 @@ Image16 Adjuster::retrieveFull(Sliders const &settings) {
   if (stages.last().settings == settings)
     return stages.last().image;
 
-  if (!applySinglePixelSettings(settings))
+  /* Order of stages here must match enum Stage */
+  if (!applyFirstXYZ(settings))
+    return Image16();
+  if (!applyGeometry(settings))
+      return Image16();
+  if (!applyIPT(settings))
     return Image16();
 
   return stages.last().image;  
@@ -99,7 +105,11 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   if (stages.last().settings==settings)
     return stages.last().image;
 
-  if (!applySinglePixelSettings(settings))
+  if (!applyFirstXYZ(settings))
+    return Image16();
+  if (!applyGeometry(settings))
+      return Image16();
+  if (!applyIPT(settings))
     return Image16();
 
   return stages.last().image;  
@@ -174,6 +184,26 @@ int Adjuster::findParentStage(Stage s) const {
   return stages.size()-1;
 }
 
+bool Adjuster::applyGeometry(Sliders const &final) {
+  /* Here we apply rotate, and eventually perspective and crop. */
+  /* For now, I am ignoring the "caching" and "keeporiginal" flags.
+   */
+  qDebug() << "applyGeometry";
+  int iparent = findParentStage(Stage_Geometry);
+  if (iparent<0)
+    return false;
+
+  AdjusterGeometry adj;
+  if (ensureAlreadyGood(adj, iparent, final))
+    return true;
+  qDebug() << "Not already good";
+  if (isCanceled())
+    return false;
+  stages << adj.apply(stages[iparent], final);
+
+  return true;
+}
+
 bool Adjuster::applyFirstXYZ(Sliders const &final) {
   /* Here we apply expose, blackXX, and soon whiteXX. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
@@ -194,7 +224,6 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
   return true;
 }
 
-
 bool Adjuster::applyIPT(Sliders const &final) {
   qDebug() << "applyIPT";
   int iparent = findParentStage(Stage_IPT);
@@ -207,16 +236,6 @@ bool Adjuster::applyIPT(Sliders const &final) {
     return false;
   stages << adj.apply(stages[iparent], final);
   return true;
-}
- 
-
-bool Adjuster::applySinglePixelSettings(Sliders const &settings) {
-  /* Applies all those settings that operate on individual pixels.
-     These are relatively easy, becase they work regardless of scale or ROI.
-     At this point, we must already know that the topmost stage is
-     compatible with our goals.
-   */
-  return applyFirstXYZ(settings) && applyIPT(settings);
 }
 
 void Adjuster::cancel() {

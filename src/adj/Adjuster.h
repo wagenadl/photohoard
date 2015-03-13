@@ -94,7 +94,8 @@ private:
   bool isCanceled();
   /* Test-and-reset the cancellation flag. */
   void resetCanceled();
-  bool applySinglePixelSettings(Sliders const &settings);
+  bool applyFirstXYZ(Sliders const &settings);
+  bool applyIPT(Sliders const &settings);
   /* Apply those settings that work on a per-pixel basis from the given
      settings. This assumes that topmost stage exists and is a suitable
      basis for the requested settings. Intermediate stages may be stored
@@ -102,9 +103,6 @@ private:
      The original image is never removed if preserveOriginal is set.
      Returns true if it could be done.
    */
-  bool applyFirstXYZ(Sliders const &settings);
-  bool applyIPT(Sliders const &settings);
-  // part of applySignelPixelSettings
   bool applyGeometry(Sliders const &settings);
   bool ensureAlreadyGood(class AdjusterStage const &adj, int iparent,
 			 Sliders const &final);

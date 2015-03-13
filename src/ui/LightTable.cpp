@@ -283,6 +283,8 @@ void LightTable::requestLargerImage() {
   qDebug() << "LitghtTable::requestLargerImage" << id << slide->desiredSize();
   if (slide->isVisible()) 
     adjuster->requestAdjusted(id, slide->desiredSize());
+  else
+    adjuster->markVersionAndSize(id, slide->desiredSize());
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i) {
@@ -297,7 +299,6 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
 }
 
 void LightTable::updateImage(quint64 i, Image16 img) {
-  qDebug() << "LightTable::updateImage " << i << img.size();
   film->updateImage(i, img);
 
   if (i!=id)

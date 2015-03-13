@@ -18,6 +18,9 @@ public:
                QObject *parent=0);
 public slots:
   void requestAdjusted(quint64 version, QSize size);
+  void markVersionAndSize(quint64 version, QSize size);
+  /* The latter doesn't immediately request an image, but prepares for
+     later setSlider calls that will need an image. */
 signals:
   void imageChanged(Image16 img, quint64 version);
 private slots:

@@ -117,12 +117,17 @@ void AC_Worker::activateBank() {
   }
   QSet<quint64> tobesent;
   while (K>0 && !readyToLoad.isEmpty()) {
-    if (rtlOrder.isEmpty()) 
+    if (rtlOrder.isEmpty()) {
       qDebug() << "rtlOrder is empty but readyToLoad is not"
 	       << readyToLoad.size() << *readyToLoad.begin();
+      readyToLoad.clear();
+      break;
+    }
     quint64 id = rtlOrder.takeFirst();
-    if (!readyToLoad.contains(id))
+    if (!readyToLoad.contains(id)) {
+      qDebug() << "id" << id << "in rtlOrder but not in readyToLoad";
       continue;
+    }
     if (invalidatedWhileLoading.contains(id)) {
       notyetready << id;
     } else {
@@ -150,7 +155,6 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 }
 
 void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
-  qDebug() << "AC_Worker: cacheModified " << vsn << img.size();
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
     if (beingLoaded.contains(vsn)) 
       invalidatedWhileLoading << vsn;
@@ -274,16 +278,13 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  qDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
     if (loaded.contains(version)) {
-      qDebug() << "  loaded is " << loaded[version].size();
       Image16 res = loaded[version].scaledDownToFitIn(desired);
       emit available(version, desired, res);
       actual = res.size();
     } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
-      qDebug() << "  best is " << actual;
       bool od;
       Image16 img = cache->get(version, actual, &od).scaledDownToFitIn(desired);
       if (img.isNull()) // can this happen?

@@ -21,11 +21,13 @@ InterruptableAdjuster::~InterruptableAdjuster() {
 }
 
 void InterruptableAdjuster::requestFull(Sliders const &settings) {
+  qDebug() << "IA: requestFull";
   requestReducedROI(settings, QRect(), PSize());
 }
 
 void InterruptableAdjuster::requestReduced(Sliders const &settings,
                                            PSize maxSize) {
+  qDebug() << "IA: requestReduced";
   requestReducedROI(settings, QRect(), maxSize);
 }
   
