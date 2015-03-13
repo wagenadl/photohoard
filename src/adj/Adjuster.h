@@ -28,7 +28,7 @@ public:
      of the reduced image from the actual and original sizes, taking the
      average of the X and Y scale factors.
   */
-  PSize maxAvailableSize() const;
+  PSize maxAvailableSize(Sliders const &settings) const;
   double maxAvailableScale() const;
   /* Returns the maximum available size or scale of the image. */
   Image16 retrieveFull(Sliders const &settings);
@@ -43,9 +43,12 @@ public:
      Note that a _larger_ image may also be returned if that is quicker.
   */
   PSize finalSize(Sliders const &settings) const;
-  /* Determine the size of the final image. This may differ from the size
+  /* Determine the full size of the final image. This may differ from the size
      of the original image due to cropping or other geometric transforms.
   */
+  PSize neededOriginalSize(Sliders const &settings, PSize desired) const;
+  /* Given a desired output size, calculate how large the original image
+     must be to get that after cropping. */
   Image16 retrieveROI(Sliders const &settings, QRect roi);
   /* Retrieves a tile from the image with settings applied. The ROI
      specifies which pixels of the final image to return. This fails
@@ -60,13 +63,6 @@ public:
      to fill maxSize. (A further reduced version is returned in that
      case.)
   */
-  double estimateScale(Sliders const &settings, PSize imageSize);
-  /* Estimates the scale of a retrieved image given its size. */
-  double estimateScaleForROI(Sliders const &settings,
-                             QRect roi, PSize imageSize);
-  /* As estimateScale, but for a final image that represents a ROI of the
-     original image. ROI should be as given to retrieveReducedROI when
-     obtaining the respective image. */
   void enableCaching(bool ec=true);
   void disableCaching();
   bool isCaching() const { return caching; }

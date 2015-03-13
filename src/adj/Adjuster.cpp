@@ -41,8 +41,22 @@ double Adjuster::maxAvailableScale() const {
     return stages[0].image.width() / stages[0].osize.width();
 }
 
-PSize Adjuster::maxAvailableSize() const {
-  return stages.isEmpty() ? PSize(0,0) : stages[0].image.size();
+PSize Adjuster::maxAvailableSize(Sliders const &settings) const {
+  if (stages.isEmpty())
+    return PSize();
+  PSize fullsize = finalSize(settings);
+  return fullsize * maxAvailableScale();
+}
+
+PSize Adjuster::neededOriginalSize(Sliders const &settings,
+                                   PSize desired) const {
+  if (stages.isEmpty())
+    return PSize();
+  PSize orig = stages[0].osize;
+  PSize final = finalSize(settings);
+  double fac = final.scaleFactorToFitIn(desired);
+  return orig*fac;
+  // Do I need to round better?
 }
 
 Image16 Adjuster::retrieveFull(Sliders const &settings) {
@@ -118,7 +132,7 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
 PSize Adjuster::finalSize(Sliders const &settings) const {
   // Is this good enough? Should rotate be allowed to expand the image?
   if (stages.isEmpty())
-    return PSize(0, 0);
+    return PSize();
   PSize s0 = stages[0].osize;
   return s0 - PSize(settings.cropl + settings.cropr,
                     settings.cropt + settings.cropb);
@@ -133,17 +147,6 @@ Image16 Adjuster::retrieveReducedROI(Sliders const &,
                                      QRect, PSize) {
   // NYI
   return Image16();
-}
-
-double Adjuster::estimateScale(Sliders const &, PSize) {
-  // NYI
-  return 1; 
-}
-
-double Adjuster::estimateScaleForROI(Sliders const &,
-                                     QRect, PSize) {
-  // NYI
-  return 1;
 }
 
 void Adjuster::enableCaching(bool ec) {
