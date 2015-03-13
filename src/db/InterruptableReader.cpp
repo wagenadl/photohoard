@@ -109,7 +109,6 @@ void InterruptableReader::run() {
 }
 
 void InterruptableReader::lNewReq() {
-  qDebug() << "IR " << " lNewReq" << newreq;
   if (running) {
     abort();
     running = false;
@@ -150,7 +149,6 @@ void InterruptableReader::lNewReq() {
 }
 
 void InterruptableReader::lCancel() {
-  qDebug() << "IR " << " lCancel" << current;
   if (running) 
     abort();
 
@@ -197,7 +195,6 @@ void InterruptableReader::lReadSome() {
 }
 
 void InterruptableReader::lComplete() {
-  qDebug() << "IR " << " lComplete" << current << offset << estsize;
   mutex.unlock();
   tSource().close();
   mutex.lock();

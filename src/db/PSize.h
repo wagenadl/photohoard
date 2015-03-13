@@ -21,14 +21,14 @@ public:
     return s.width()>width() || s.height()>height(); }
   bool isLargeEnoughFor(QSize const &s) const {
     /* Returns true if scaling us to fit in s would not scale us up. */
-    return width()>=s.width() || height()>=s.height();
-  }
+    return width()>=s.width() || height()>=s.height();  }
+  bool snuglyFitsIn(QSize const &s) const {
+    return containedIn(s) && isLargeEnoughFor(s); }
   bool operator<(QSize const &s) const {
     // Smaller in area
-    return width()*height() < s.width()*s.height();
-  }
+    return width()*height() < s.width()*s.height(); }
   PSize &operator|=(QSize const &s);
-  PSize operator*(double s) const { return PSize(width()*s, height()*s); }
+  PSize operator*(double s) const { return PSize(width()*s+.5, height()*s+.5); }
   PSize scaledDownToFitIn(QSize const &s) const;
   PSize scaledToFitIn(QSize const &s) const;
   PSize scaledToContain(QSize const &s) const;

@@ -24,16 +24,37 @@ void OriginalFinder::requestOriginal(quint64 version) {
   requestScaledOriginal(version, PSize(0, 0));
 }
 
-void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
+PSize OriginalFinder::originalSize(quint64 vsn) {
   try {
-    QSqlQuery q = db.query("select photo, mods from versions"
-			   " where id=:a limit 1", vsn);
+    quint64 photo = db.simpleQuery("select photo from versions"
+				   " where id=:a limit 1", vsn).toULongLong();
+    QSqlQuery q = db.query("select width, height, orient "
+               " from photos where id=:a limit 1", photo);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
-    quint64 photo = q.value(0).toULongLong();
-    QString mods = q.value(1).toString();
-    q = db.query("select folder, filename, filetype, width, height, orient "
-               " from photos where id=:a limit 1", photo);
+    int wid = q.value(0).toInt();
+    int hei = q.value(1).toInt();
+    switch (Exif::Orientation(q.value(2).toInt())) {
+    case Exif::Upright: case Exif::UpsideDown:
+      return PSize(wid, hei);
+    case Exif::CCW: case Exif::CW:
+      return PSize(hei, wid);
+    }
+  } catch (...) {
+    qDebug() << "OriginalFinder::originalSize: exception";
+    return PSize();
+  }
+  return PSize(); // not executed
+}		     
+
+void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
+  qDebug() << "requestScaledOriginal " << vsn << ds;
+  try {
+    quint64 photo = db.simpleQuery("select photo from versions"
+				   " where id=:a limit 1", vsn).toULongLong();
+    QSqlQuery q
+      = db.query("select folder, filename, filetype, width, height, orient "
+		 " from photos where id=:a limit 1", photo);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
     quint64 folder = q.value(0).toULongLong();
@@ -57,7 +78,6 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     desired = ds;
     version = vsn;
     filepath = path;
-    qDebug() << "OF Request" << path << ds << osize;
     reader->request(path, ds, osize);
   } catch (QSqlQuery &q) {
     emit exception("OriginalFinder: SqlError: " + q.lastError().text()

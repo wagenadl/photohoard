@@ -39,19 +39,16 @@ bool InterruptableRawReader::uOpen() {
 
   QString cmd = "dcraw";
   QStringList args;
-  qDebug() << "uopen" << rqs << oris;
   if (!rqs.isNull() && !oris.isNull()
       && rqs.width()*2<=oris.width() && rqs.height()*2<=oris.height())
     args << "-h";
   args << "-c" << "-w" << fn;
   // eventually we should return 16-bits linear XYZ!
-  qDebug() << cmd << args;
   src->start(cmd, args, QProcess::ReadOnly);
   return src->waitForStarted() && src->waitForFinished();
 }
 
 void InterruptableRawReader::abort() {
-  qDebug() << "IRR: abort";
   if (src)
     src->terminate();
 }

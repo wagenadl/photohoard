@@ -12,6 +12,7 @@
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
   fit = true;
+  zoom = 1;
 }
   
 SlideView::~SlideView() {
@@ -34,18 +35,20 @@ double SlideView::fittingZoom() const {
   double hrat = width() / double(naturalSize.width());
   double vrat = height() / double(naturalSize.height());
   double rat = hrat<vrat ? hrat : vrat;
+  if (rat>1)
+    rat = 1;
   return rat;
 }
 
 void SlideView::newImage(QSize nat) {
-  qDebug() << "SlideView:: newImage" << nat;
   naturalSize = nat;
   lastSize = PSize();
   img = Image16(); // might invalidate more gently
+  fit = true;
+  zoom = 1;
 }  
 
 void SlideView::updateImage(Image16 img1, bool force) {
-  qDebug() << "SlideView::updateImage" << img.size() << img1.size() << force;
   if (force || img.isNull() || img.width() < img1.width()) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
@@ -57,32 +60,27 @@ void SlideView::updateImage(Image16 img1, bool force) {
 }
 
 void SlideView::changeZoomLevel(QPoint, double delta) {
-  if (fit) {
-    relx = .5;
-    rely = .5;
-    zoom = currentZoom();
-    fit = false;
-  }
-  zoom *= pow(2, delta);
-  qDebug() << "SlideView::changeZoom" << zoom << naturalSize;
-  emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
-  update();
+  setZoom(currentZoom() * pow(2.0, delta));
 }
 
 void SlideView::setZoom(double z) {
-  if (fit) {
-    relx = .5;
-    rely = .5;
-  }
-  fit = false;
-  zoom = z;
-  qDebug() << "SlideView::setZoom" << zoom << naturalSize;
-  emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
-  update();
+  if (z<fittingZoom()) {
+    if (!fit)
+      scaleToFit();
+  } else {
+    if (fit) {
+      fit = false;
+      relx = rely = 0.5;
+    }
+    zoom = z;
+    emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
+    update();
+  }xxx
 }
   
 void SlideView::scaleToFit() {
   fit = true;
+  relx = rely = 0.5;
   emit newSize(size());
   update();
 }
@@ -99,7 +97,6 @@ void SlideView::wheelEvent(QWheelEvent *e) {
 }
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
-  qDebug() << "SlideView::keyEvent " << e->key();
   switch (e->key()) {
   case Qt::Key_0:
     scaleToFit();
@@ -165,6 +162,9 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
+    qDebug() << "SlideView::paintEvent av=" << img.size()
+	     << "space=" << r.size()
+	     << "nat=" << naturalSize;
     Image16 i1 = img.scaledToFitIn(r.size());
     if (img.width()<naturalSize.width()
         && i1.width()>img.width()
@@ -195,7 +195,6 @@ void SlideView::paintEvent(QPaintEvent *) {
     } else {
       lastSize = PSize();
     }
-    qDebug() << r << showSize << img.size() << effZoom;
     if (showSize.width()<=availSize.width()) {
       sourceRect.setLeft(0);
       sourceRect.setWidth(img.width());

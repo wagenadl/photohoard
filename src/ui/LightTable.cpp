@@ -76,7 +76,6 @@ void LightTable::ensureReasonableGridSize() {
   int s1 = 2*tilesize + 4*Strip::labelHeight(tilesize)
     + film->verticalScrollBar()->width() + 4;
   if (s0<s1) {
-    qDebug() << "ensureReasonable";
     lastgridsize = s1;
     setSizes(QList<int>() << lastgridsize
              << ((orientation()==Qt::Vertical)?height():width())-lastgridsize);
@@ -238,7 +237,6 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
     }
   }
 
-  qDebug() << "current was " << db.simpleQuery("select version from current").toULongLong() << " becomes " << i << " (id=" << id << ")";
   db.query("update current set version=:a", i);
   updateSlide(id);
   updateSlide(i);
@@ -280,7 +278,6 @@ PSize LightTable::displaySize() const {
 }
 
 void LightTable::requestLargerImage() {
-  qDebug() << "LitghtTable::requestLargerImage" << id << slide->desiredSize();
   if (slide->isVisible()) 
     adjuster->requestAdjusted(id, slide->desiredSize());
   else
@@ -288,8 +285,6 @@ void LightTable::requestLargerImage() {
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i) {
-  qDebug() << "LightTable::updateAdjusted " << i << img.size() << id
-           << int(img.format());
   if (img.isNull())
     return;
   film->updateImage(i, img);
@@ -377,7 +372,6 @@ void LightTable::clearSelection() {
 }  
 
 void LightTable::bgPress(Qt::MouseButton b, Qt::KeyboardModifiers m) {
-  qDebug() << "bgpress " << b << m;
   switch (b) {
   case Qt::LeftButton:
     if (m==Qt::NoModifier)

@@ -35,6 +35,7 @@ int AC_Worker::queueLength() {
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
+  qDebug() << "recache " << versions.size();
   try {
     addToDBQueue(versions);
     markReadyToLoad(versions);
@@ -89,16 +90,12 @@ void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
 void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   if (versions.isEmpty())
     return;
-  //  qDebug() << "addToDBQueue" << versions.size();
   Transaction t(cache->database());
-  //  qDebug() << "  transaction started";
   for (auto v: versions) {
-    //    qDebug() << "  working on " << v;
     cache->markOutdated(v);
     cache->database().query("insert into queue values(:a)", v);
   }
   t.commit();
-  //  qDebug() << "  transaction committed";
 }
 
 void AC_Worker::activateBank() {
@@ -147,6 +144,7 @@ void AC_Worker::activateBank() {
 
 
 void AC_Worker::cachePreview(quint64 id, Image16 img) {
+  qDebug() << "cachePreview" << id;
   if (loaded.contains(id))
     return;
   loaded[id] = img;
@@ -155,6 +153,7 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 }
 
 void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
+  qDebug() << "cacheModified" << vsn << img.size() << cache->maxSize();
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
     if (beingLoaded.contains(vsn)) 
       invalidatedWhileLoading << vsn;
@@ -190,7 +189,7 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
-  //  qDebug() << "HandleFoundImage" << id << img.size();
+  qDebug() << "AC_Worker::HandleFoundImage" << id << fullSize << img.size();
   try {
     if (!fullSize.isEmpty())
       ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
@@ -218,7 +217,7 @@ void AC_Worker::processLoaded() {
     && readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold) {
     storeLoadedInDB();
-    qDebug() << "AC_Worker: Cache progress: " << n << "/" << N;
+    qDebug() << "AC_Worker: Cache progress: " << n << "/" << N << "(" << done <<")";
     emit cacheProgress(n, N);
   }
     
@@ -260,6 +259,7 @@ void AC_Worker::sendToBank(quint64 version) {
 }
 
 void AC_Worker::storeLoadedInDB() {
+  qDebug() << "storeLoadedInDB";
   Transaction t(cache->database());
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
@@ -269,10 +269,10 @@ void AC_Worker::storeLoadedInDB() {
     cache->add(version, img, outd);
     if (outd)
       noutdated++;
-
     cache->database().query("delete from queue where version==:a", version);
   }
   t.commit();
+  qDebug() << "  storeLoadedinDB done";
   n += loaded.size() - noutdated;
   loaded.clear();
 }
@@ -304,6 +304,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       // We're getting it already
       requests[version] << desired;
     } else {
+      qDebug() << "AC_Worker: request: will load " << version << desired;
       if (!mustCache.contains(version))
 	N++; /* This is not actually formally correct, because
 		it may be that version is in the dbqueue. Worse, by not

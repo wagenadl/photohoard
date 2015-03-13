@@ -119,7 +119,6 @@ void FilmView::setTileSize(int pix) {
 
 void FilmView::scrollTo(quint64 vsn) {
   Slide *s = root()->slideByVersion(vsn);
-  qDebug() << "scrollTo" << vsn << s;
   if (s)
     centerOn(s->sceneBoundingRect().center());
 }
@@ -149,32 +148,27 @@ quint64 FilmView::current() {
 }
 
 void FilmView::keyPressEvent(QKeyEvent *e) {
-  qDebug() << "FilmView::keyPress" << e->key();
   switch (e->key()) {
   case Qt::Key_Up: {
     quint64 v = strip->versionAbove(current());
-    qDebug() << "up -> " << v;
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Down: {
     quint64 v = strip->versionBelow(current());
-    qDebug() << "down -> " << v;
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Left: {
     quint64 v = strip->versionLeftOf(current());
-    qDebug() << "left -> " << v;
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Right: {
     quint64 v = strip->versionRightOf(current());
-    qDebug() << "right -> " << v << "(from " <<current() << ")";
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();

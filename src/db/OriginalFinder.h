@@ -16,6 +16,7 @@ class OriginalFinder: public QObject {
 public:
   OriginalFinder(PhotoDB const &db, QObject *parent=0);
   virtual ~OriginalFinder();
+  PSize originalSize(quint64 version);
 public slots:
   void requestOriginal(quint64 version);
   void requestScaledOriginal(quint64 version, QSize desired);

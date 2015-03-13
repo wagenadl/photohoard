@@ -29,11 +29,11 @@ LiveAdjuster::LiveAdjuster(PhotoDB const &db,
 }
 
 void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
-  qDebug() << "LA: markVersionAndSize" << v << s;
   bool newvsn = version!=v;
   mustshowupdate = true;
   if (newvsn) {
-    originalSize = QSize();
+    originalSize = ofinder->originalSize(v);
+    qDebug() << "newvsn size is " << originalSize;
     QString mods = db.simpleQuery("select mods from versions"
                                   " where id=:a limit 1", v).toString();
     sliders.setAll(mods);
@@ -47,37 +47,35 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
 }
 
 void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
-  qDebug() << "LA: requestAdjusted" << v << s;
   bool newvsn = version!=v;
+  if (newvsn)
+    markVersionAndSize(v, s);
   mustshowupdate = true;
-  if (newvsn) {
-    originalSize = QSize();
-    QString mods = db.simpleQuery("select mods from versions"
-                                  " where id=:a limit 1", v).toString();
-    sliders.setAll(mods);
-    controls->setQuietly(sliders);
-  }
-  qDebug() << "requestAdjusted" << v << s << newvsn
-           << "maxav" << adjuster->maxAvailableSize()
-           << "osize" << originalSize;
-  bool needBigger = PSize(s).exceeds(adjuster->maxAvailableSize());
-  bool canBigger = originalSize.exceeds(adjuster->maxAvailableSize())
-    || originalSize.isEmpty();
-  qDebug() << " -> " << needBigger << canBigger;
+
+  PSize maxav = adjuster->maxAvailableSize(sliders);
+  bool needBigger = PSize(s).exceeds(maxav);
+  bool canBigger = originalSize.isEmpty()
+    || Adjuster::mapCropSize(originalSize, sliders, originalSize)
+    .exceeds(maxav);
+  qDebug() << "requestAdjusted" << "o=" << originalSize << " av=" << maxav
+	   << "desired=" << s << " => "
+	   << needBigger << canBigger
+	   << Adjuster::mapCropSize(originalSize, sliders, originalSize);
   
   if (newvsn || (needBigger && canBigger)) {
     if (newvsn)
       adjuster->clear();
     else
       adjuster->cancelRequest();
-    ofinder->requestScaledOriginal(version = v, targetsize = s);
-  } else {  
-    adjuster->requestReduced(sliders, targetsize = s);
+    PSize needed = Adjuster::neededScaledOriginalSize(originalSize, sliders,
+						      targetsize);
+    ofinder->requestScaledOriginal(version, needed);
+  } else {
+    adjuster->requestReduced(sliders, s);
   }
 }
 
 void LiveAdjuster::setSlider(QString k, double v) {
-  qDebug() << "LiveAdjuster::setSlider" << k << v << "(" << sliders.get(k) << ")";
   if (v==sliders.get(k))
     return;
   
@@ -99,7 +97,6 @@ void LiveAdjuster::setSlider(QString k, double v) {
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img) {
-  qDebug() << "LiveAdjuster::provideAdjusted" << img.size();
   if (mustoffermod) {
     mustoffermod = false;
     cache->cacheModified(version, img);
@@ -126,7 +123,7 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
 }
 
 void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
-  qDebug() << "LiveAdjuster::provideScaledOriginal" << v << img.size() << osize << version;
+  qDebug() << "LiveAdjuster: provideScaledOriginal" << v << osize << img.size();
   if (v!=version)
     return;
   originalSize = osize;

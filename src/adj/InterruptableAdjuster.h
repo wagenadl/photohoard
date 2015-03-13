@@ -21,7 +21,7 @@ public:
   void requestReducedROI(Sliders const &settings, QRect roi, PSize maxSize);
   void cancelRequest();
   void clear();
-  PSize maxAvailableSize();
+  PSize maxAvailableSize(Sliders const &);
   bool isEmpty();
   void setOriginal(Image16 img, PSize osize=PSize());
 signals:

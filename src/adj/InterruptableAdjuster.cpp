@@ -21,13 +21,11 @@ InterruptableAdjuster::~InterruptableAdjuster() {
 }
 
 void InterruptableAdjuster::requestFull(Sliders const &settings) {
-  qDebug() << "IA: requestFull";
   requestReducedROI(settings, QRect(), PSize());
 }
 
 void InterruptableAdjuster::requestReduced(Sliders const &settings,
                                            PSize maxSize) {
-  qDebug() << "IA: requestReduced";
   requestReducedROI(settings, QRect(), maxSize);
 }
   
@@ -76,9 +74,7 @@ void InterruptableAdjuster::stop() {
 }
 
 PSize InterruptableAdjuster::maxAvailableSize(Sliders const &s) {
-  return Adjuster::maxAvai
-  QMutexLocker l(&mutex);
-  return maxAvail;
+  return Adjuster::mapCropSize(oSize, s, scaledOSize);
 }
 
 bool InterruptableAdjuster::isEmpty() {
@@ -89,7 +85,7 @@ bool InterruptableAdjuster::isEmpty() {
 void InterruptableAdjuster::setOriginal(Image16 img, PSize siz) {
   QMutexLocker l(&mutex);
   newOriginal = img;
-  maxOSize = img.size();
+  scaledOSize = img.size();
   oSize = siz;
 }    
 
@@ -100,7 +96,6 @@ void InterruptableAdjuster::handleNewRequest() {
   newreq = false;
   mutex.unlock();
   Image16 img;
-  qDebug() << "IA: handlenewrequest" << r << s;
   if (r.isEmpty()) {
     if (s.isEmpty()) 
       img = adjuster->retrieveFull(sli);
@@ -112,7 +107,6 @@ void InterruptableAdjuster::handleNewRequest() {
     else
       img = adjuster->retrieveReducedROI(sli, r, s);
   }
-  qDebug() << "IA: gotImage" << img.size() << cancel << newreq << clear_;
   mutex.lock();
   if (cancel || newreq || clear_) {
     cancel = false;
@@ -146,13 +140,10 @@ void InterruptableAdjuster::run() {
     } else if (cancel) {
       cancel = false;
     } else if (!newOriginal.isNull()) {
-      qDebug() << "IA: newOriginal";
       handleNewImage();
     } else if (newreq) {
-      qDebug() << "IA: newRequest";
       handleNewRequest();
     } else {
-      qDebug() << "IA: Waiting";
       waitcond.wait(&mutex);
     }
   }

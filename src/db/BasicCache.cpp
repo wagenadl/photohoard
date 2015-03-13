@@ -14,6 +14,7 @@ BasicCache::BasicCache(QString rootdir, QObject *parent):
   setObjectName("BasicCache");
   readConfig();
   attach();
+  qDebug() << "BasicCache opened " << (rootdir + "/cache.db");
 }
 
 BasicCache::BasicCache(QDir root, Database const &db, QObject *parent):
@@ -32,7 +33,7 @@ void BasicCache::attach() {
     db.query(q1.arg(k).arg(k));
     db.query(q2.arg(k));
   }
-  db.query("pragma synchronous = 0");
+  //  db.query("pragma synchronous = 0");
 }
 
 BasicCache::~BasicCache() {
@@ -100,6 +101,7 @@ BasicCache *BasicCache::create(QString rootdir) {
 void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   PSize s0 = maxSize();
   bool done = false;
+  qDebug() << "BasicCache::add " << vsn << img.size() << instantlyOutdated << s0;
   if (img.size().containedIn(s0)) {
     // cache image directly: it is no larger than our largest desired size
     addToCache(vsn, img, instantlyOutdated);
@@ -131,6 +133,7 @@ void BasicCache::dropOutdatedFromCache(quint64 vsn) {
     else
       db.query(QString("delete from B%1.blobs where cacheid=:a").arg(k), id);
   }
+  qDebug() << "dropoutdatedfromcache" << vsn;
   db.query("delete from cache where version==:a and outdated>0", vsn);
 }
 
@@ -151,6 +154,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
   }
 
   int d = s.maxDim();
+  qDebug() << "addToCache" << vsn << img.size() << instantlyOutdated << k;
 
   QSqlQuery q = db.query("select id, dbno from cache"
 			 " where version==:a and maxdim==:b",
@@ -159,15 +163,17 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
     // preexist
     quint64 cacheid = q.value(0).toULongLong();
     int oldk = q.value(1).toInt();
+    qDebug() << "  old cacheid and k " << cacheid << oldk;
     if (oldk && k!=oldk) 
       db.query(QString("delete from B%1.blobs where cacheid==:a").arg(oldk),
                cacheid);
     else if (!oldk && k)
       QFile(constructFilename(vsn, d)).remove();
     
-    db.query("update cache set dbno=:a, width=:b, height=:c"
-             " where version==:d and maxdim==:e",
+    db.query("update cache set dbno=:a, width=:b, height=:c, outdated=:d"
+             " where version==:e and maxdim==:f",
 	     k, s.width(), s.height(),
+	     instantlyOutdated ? 1 : 0,
 	     vsn, d);
 
     if (k) {
@@ -188,6 +194,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
 		 " values (:a, :b, :c, :d, :e, :f)",
 		 vsn, d, s.width(), s.height(), instantlyOutdated?1:0, k)
       .lastInsertId().toULongLong();
+    qDebug() << "new cacheid" << cacheid;
     if (k) {
       db.query(QString("insert into B%1.blobs (cacheid, bits) values (:a, :b)")
                .arg(k), cacheid, buf.data());
@@ -202,6 +209,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
 }
 
 void BasicCache::remove(quint64 vsn) {
+  qDebug() << "Cache::remove" << vsn;
   QSqlQuery q(db.query("select id, maxdim, dbno from cache"
 		       " where version==:a", vsn));
   while (q.next()) {
@@ -322,6 +330,7 @@ QString BasicCache::constructFilename(quint64 vsn, int d) {
 }
 
 void BasicCache::markOutdated(quint64 vsn) {
+  qDebug() << "markOutdated" << vsn;
   db.query("update cache set outdated=1 where version==:a", vsn);
 }
 

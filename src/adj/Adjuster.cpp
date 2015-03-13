@@ -39,17 +39,16 @@ Image16 Adjuster::retrieveFull(Sliders const &settings) {
     return Image16();
   if (stages[0].stage != Stage_Original)
     return Image16();
-  qDebug() << "retrieveFull";
   if (stages.last().settings == settings)
     return stages.last().image;
 
   /* Order of stages here must match enum Stage */
   if (!applyFirstXYZ(settings))
     return Image16();
-  if (!applyGeometry(settings))
-      return Image16();
   if (!applyIPT(settings))
     return Image16();
+  if (!applyGeometry(settings))
+      return Image16();
 
   return stages.last().image;  
 }
@@ -59,12 +58,13 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   resetCanceled();
   if (stages.isEmpty())
     return Image16();
+  PSize needed = neededScaledOriginalSize(settings, maxSize);
   int k = 0;
   while (k+1<stages.size()) {
     if (stages[k+1].stage>Stage_Reduced)
       break;
-    if (stages[k+1].image.width()<maxSize.width()
-        && stages[k+1].image.height()<maxSize.height())
+    if (stages[k+1].image.width()<needed.width()
+        && stages[k+1].image.height()<needed.height())
       break;
     if (!stages[k+1].roi.isEmpty())
       break;
@@ -79,13 +79,12 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     stages.removeLast();
   
   // Now we have a stage that has no reduced roi and that has a suitable scale
-  double fac = stages[k].image.size().scaleFactorToFitIn(maxSize);
-  qDebug() << "Adjuster img: " << stages[k].image.size()
-           << " rq:" << maxSize << fac;
+  double fac = stages[k].image.size().scaleFactorToFitIn(needed);
   if (fac<0.8) {
     // It's worth scaling
     // Should we drop excessive scale stacks? Probably.
-    stages << AdjusterTile(stages[k].image.scaledToFitIn(maxSize));
+    stages << AdjusterTile(stages[k].image.scaledToFitIn(needed),
+			   stages[k].osize);
     k++;
     stages[k].stage = Stage_Reduced;
   }
@@ -95,10 +94,10 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
 
   if (!applyFirstXYZ(settings))
     return Image16();
-  if (!applyGeometry(settings))
-      return Image16();
   if (!applyIPT(settings))
     return Image16();
+  if (!applyGeometry(settings))
+      return Image16();
 
   return stages.last().image;  
 }
@@ -156,7 +155,6 @@ bool Adjuster::applyGeometry(Sliders const &final) {
   /* Here we apply rotate, and eventually perspective and crop. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
-  qDebug() << "applyGeometry";
   int iparent = findParentStage(Stage_Geometry);
   if (iparent<0)
     return false;
@@ -164,7 +162,6 @@ bool Adjuster::applyGeometry(Sliders const &final) {
   AdjusterGeometry adj;
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
-  qDebug() << "Not already good";
   if (isCanceled())
     return false;
   stages << adj.apply(stages[iparent], final);
@@ -176,7 +173,6 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
   /* Here we apply expose, blackXX, and soon whiteXX. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
-  qDebug() << "applyXYZ";
   int iparent = findParentStage(Stage_XYZ);
   if (iparent<0)
     return false;
@@ -184,7 +180,6 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
   AdjusterXYZ adj; // we could store this somewhere to enable reuse of LUTs
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
-  qDebug() << "Not already good";
   if (isCanceled())
     return false;
   stages << adj.apply(stages[iparent], final);
@@ -193,7 +188,6 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
 }
 
 bool Adjuster::applyIPT(Sliders const &final) {
-  qDebug() << "applyIPT";
   int iparent = findParentStage(Stage_IPT);
   if (iparent<0)
     return false;
@@ -246,17 +240,30 @@ QRect Adjuster::mapCropRect(PSize osize, Sliders const &settings,
   QRect orect = QRect(QPoint(settings.cropl, settings.cropt),
                       QSize(osize.width()-settings.cropl-settings.cropr,
                             osize.height()-settings.cropt-settings.cropb));
-  return QRect(QPoint(orect.left()*xs, orect.top()*ys),
-               QSize(orect.width()*xs, orect.height()*ys));
+  return QRect(QPoint(orect.left()*xs+.5, orect.top()*ys+.5),
+               QSize(orect.width()*xs+.5, orect.height()*ys+.5));
 }
 
 PSize Adjuster::neededScaledOriginalSize(Sliders const &settings,
                                          PSize desired) const {
   if (stages.isEmpty())
     return PSize();
-  PSize orig = stages[0].osize;
-  PSize final = finalSize(settings);
+  return neededScaledOriginalSize(stages[0].osize, settings, desired);
+}
+
+PSize Adjuster::neededScaledOriginalSize(PSize osize, Sliders const &settings,
+					 PSize desired) { /* static */
+  /* We are looking for a size S such that mapCropSize(osize, settings, s)
+     fits snugly in DESIRED. Further, S must be a proportional scaling of
+     OSIZE.
+  */
+  PSize final = mapCropSize(osize, settings, osize);
   double fac = final.scaleFactorToFitIn(desired);
-  return orig*fac;
-  // Do I need to round better?
+  if (fac>1)
+    fac = 1; // we won't scale up
+  qDebug() << "neededScaledOriginalSize" << osize << settings.cropl << settings.cropr << settings.cropt << settings.cropb << desired << " -> " << fac << osize*fac;
+  return osize*fac;
+  /* I may be stupid, but I cannot conclusively prove that my rounding is
+     correct. Therefore, I wrote a little octave script (studyosize.m) that
+     confirms that using round-to-nearest always works. */
 }
