@@ -32,32 +32,6 @@ void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
   stages << AdjusterTile(image, originalSize);
 }
 
-double Adjuster::maxAvailableScale() const {
-  if (stages.isEmpty())
-    return 0;
-  else if (stages[0].osize.width()==0)
-    return 0;
-  else
-    return stages[0].image.width() / stages[0].osize.width();
-}
-
-PSize Adjuster::maxAvailableSize(Sliders const &settings) const {
-  if (stages.isEmpty())
-    return PSize();
-  PSize fullsize = finalSize(settings);
-  return fullsize * maxAvailableScale();
-}
-
-PSize Adjuster::neededOriginalSize(Sliders const &settings,
-                                   PSize desired) const {
-  if (stages.isEmpty())
-    return PSize();
-  PSize orig = stages[0].osize;
-  PSize final = finalSize(settings);
-  double fac = final.scaleFactorToFitIn(desired);
-  return orig*fac;
-  // Do I need to round better?
-}
 
 Image16 Adjuster::retrieveFull(Sliders const &settings) {
   resetCanceled();
@@ -127,15 +101,6 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     return Image16();
 
   return stages.last().image;  
-}
-
-PSize Adjuster::finalSize(Sliders const &settings) const {
-  // Is this good enough? Should rotate be allowed to expand the image?
-  if (stages.isEmpty())
-    return PSize();
-  PSize s0 = stages[0].osize;
-  return s0 - PSize(settings.cropl + settings.cropr,
-                    settings.cropt + settings.cropb);
 }
 
 Image16 Adjuster::retrieveROI(Sliders const &, QRect) {
@@ -256,4 +221,42 @@ bool Adjuster::isCanceled() {
 
 void Adjuster::resetCanceled() {
   canceled = false;
+}
+
+PSize Adjuster::maxAvailableSize(Sliders const &settings) const {
+  if (stages.isEmpty())
+    return PSize();
+  else if (stages[0].osize.isEmpty())
+    return PSize();
+  return mapCropSize(stages[0].osize, settings, stages[0].image.size());
+}
+
+PSize Adjuster::mapCropSize(PSize osize, Sliders const &settings,
+                            PSize scaledOSize) { /* static */
+  return mapCropRect(osize, settings, scaledOSize).size();
+}
+
+QRect Adjuster::mapCropRect(PSize osize, Sliders const &settings,
+                            PSize scaledOSize) { /* static */
+  if (osize.isEmpty())
+    return QRect();
+  // Is this good enough? Should rotate be allowed to expand the image?
+  double xs = scaledOSize.width() / double(osize.width());
+  double ys = scaledOSize.height() / double(osize.height());
+  QRect orect = QRect(QPoint(settings.cropl, settings.cropt),
+                      QSize(osize.width()-settings.cropl-settings.cropr,
+                            osize.height()-settings.cropt-settings.cropb));
+  return QRect(QPoint(orect.left()*xs, orect.top()*ys),
+               QSize(orect.width()*xs, orect.height()*ys));
+}
+
+PSize Adjuster::neededScaledOriginalSize(Sliders const &settings,
+                                         PSize desired) const {
+  if (stages.isEmpty())
+    return PSize();
+  PSize orig = stages[0].osize;
+  PSize final = finalSize(settings);
+  double fac = final.scaleFactorToFitIn(desired);
+  return orig*fac;
+  // Do I need to round better?
 }

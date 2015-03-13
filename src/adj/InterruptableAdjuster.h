@@ -44,7 +44,7 @@ private:
   PSize rqSize;
   bool stopsoon;
   bool empty;
-  PSize maxAvail;
+  PSize scaledOSize;
   Image16 newOriginal;
   PSize oSize;
 };

@@ -75,7 +75,8 @@ void InterruptableAdjuster::stop() {
   stopsoon = true;
 }
 
-PSize InterruptableAdjuster::maxAvailableSize() {
+PSize InterruptableAdjuster::maxAvailableSize(Sliders const &s) {
+  return Adjuster::maxAvai
   QMutexLocker l(&mutex);
   return maxAvail;
 }
@@ -88,6 +89,7 @@ bool InterruptableAdjuster::isEmpty() {
 void InterruptableAdjuster::setOriginal(Image16 img, PSize siz) {
   QMutexLocker l(&mutex);
   newOriginal = img;
+  maxOSize = img.size();
   oSize = siz;
 }    
 
@@ -136,7 +138,7 @@ void InterruptableAdjuster::handleNewImage() {
 void InterruptableAdjuster::run() {
   mutex.lock();
   while (!stopsoon) {
-    maxAvail = adjuster->maxAvailableSize();
+    //    maxAvail = adjuster->maxAvailableSize();
     empty = adjuster->isEmpty();
     if (clear_) {
       adjuster->clear();

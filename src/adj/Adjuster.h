@@ -28,9 +28,6 @@ public:
      of the reduced image from the actual and original sizes, taking the
      average of the X and Y scale factors.
   */
-  PSize maxAvailableSize(Sliders const &settings) const;
-  double maxAvailableScale() const;
-  /* Returns the maximum available size or scale of the image. */
   Image16 retrieveFull(Sliders const &settings);
   /* Retrieves a version of the image with settings applied. This fails
      (returning a null image) if we do not have the full resolution.
@@ -42,11 +39,16 @@ public:
      the requested size. (A further reduced version is returned in that case.)
      Note that a _larger_ image may also be returned if that is quicker.
   */
-  PSize finalSize(Sliders const &settings) const;
-  /* Determine the full size of the final image. This may differ from the size
-     of the original image due to cropping or other geometric transforms.
-  */
-  PSize neededOriginalSize(Sliders const &settings, PSize desired) const;
+  PSize maxAvailableSize(Sliders const &settings) const;
+  static PSize mapCropSize(PSize osize, Sliders const &settings,
+                           PSize scaledOSize);
+  static QRect mapCropRect(PSize osize, Sliders const &settings,
+                           PSize scaledOSize);
+  /* Maps a crop rectangle specified in original image image coordinates
+     to scaled image coordinates. */
+  PSize neededScaledOriginalSize(Sliders const &settings, PSize desired) const;
+  static PSize neededScaledOriginalSize(PSize osize, Sliders const &settings,
+                                        PSize desired);
   /* Given a desired output size, calculate how large the original image
      must be to get that after cropping. */
   Image16 retrieveROI(Sliders const &settings, QRect roi);
