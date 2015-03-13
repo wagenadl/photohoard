@@ -105,6 +105,7 @@ private:
   bool applyFirstXYZ(Sliders const &settings);
   bool applyIPT(Sliders const &settings);
   // part of applySignelPixelSettings
+  bool applyGeometry(Sliders const &settings);
   bool ensureAlreadyGood(class AdjusterStage const &adj, int iparent,
 			 Sliders const &final);
   int findParentStage(Stage s) const;

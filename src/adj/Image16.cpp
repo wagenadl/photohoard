@@ -191,7 +191,6 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
   }
 
   // So now we _know_ that we have unsigned data, or that it doesn't matter
-  int cvfmt = format()==Format::sRGB8 ? CV_8UC4 : CV_16UC3;
   int maxdecimation
     = i==Interpolation::Linear ? 2
     : i==Interpolation::Area ? 2
@@ -203,62 +202,15 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
     return scaled(PSize(width()/2, height()/2), Interpolation::Linear)
       .scaled(s, i);
   
+  int cvfmt = cvFormat(format());
   cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());
   Image16 res(s, format());
   cv::Mat out(s.height(), s.width(), cvfmt, res.bytes(), res.bytesPerLine());
-  int cvmeth
-    = i==Interpolation::NearestNeighbor ? cv::INTER_NEAREST
-    : i==Interpolation::Linear ? cv::INTER_LINEAR
-    : i==Interpolation::Area ? cv::INTER_AREA
-    : i==Interpolation::Cubic ? cv::INTER_CUBIC
-    : i==Interpolation::Lanczos ? cv::INTER_LANCZOS4
-    : cv::INTER_LINEAR; // default
-  cv::resize(in, out, out.size(), 0, 0, cvmeth);
+  cv::resize(in, out, out.size(), 0, 0, cvInterpolation(i));
   return res;
 }
 
-Image16 Image16::scaleSigned(PSize s, Image16::Interpolation i) const {
-  /* Certain of our formats have signed data in the second and third channels.
-     That doesn't work when scaling. So we convert to unsigned by shifting
-     nominal zero to 0x8000.
-   */
-  Format f0 = format();
-
-  Image16 img = *this;
-
-  quint16 *ptr = img.words();
-  int W = img.width();
-  int H = img.height();
-  int DL = img.wordsPerLine() - 3*W;
-  for (int y=0; y<H; y++) {
-    for (int x=0; x<W; x++) {
-      ptr++;
-      *ptr++ ^= 32768;
-      *ptr++ ^= 32768;
-    }
-    ptr += DL;
-  }
-  img.d->format = Format::XYZp16; // just pretending
-
-  img = img.scaled(s, i);
-
-  ptr = img.words();
-  DL = img.wordsPerLine() - 3*W;
-  for (int y=0; y<H; y++) {
-    for (int x=0; x<W; x++) {
-      ptr++;
-      *ptr++ ^= 32768;
-      *ptr++ ^= 32768;
-    }
-    ptr += DL;
-  }
-  img.d->format = f0;
-
-  return img;
-}
   
-  
-
 Image16 Image16::scaledToFitIn(PSize s, Image16::Interpolation i) const {
   return scaled(size().scaledToFitIn(s), i);
 }
@@ -371,4 +323,101 @@ void Image16::applyROI() {
   d->image = d->image.copy(roileft, roitop, qwidth, qheight);
   d->roibyteoffset = 0;
   d->bytesperline = d->image.bytesPerLine();  
+}
+
+Image16 Image16::scaleSigned(PSize s, Image16::Interpolation i) const {
+  /* Certain of our formats have signed data in the second and third channels.
+     That doesn't work when scaling. So we convert to unsigned by shifting
+     nominal zero to 0x8000.
+   */
+  Image16 img = *this;
+  img.flipSignedness();
+  img.d->format = Format::XYZp16; // just pretending
+  img = img.scaled(s, i);
+  img.flipSignedness();
+  img.d->format = format();
+  return img;
+}
+
+Image16 Image16::rotateSigned(double angle, Image16::CropMode c,
+                              Image16::Interpolation i) const {
+  Image16 img = *this;
+  img.flipSignedness();
+  img.d->format = Format::XYZp16; // just pretending
+  img = img.rotated(angle, c, i);
+  img.flipSignedness();
+  img.d->format = format();
+  return img;
+}
+
+Image16 Image16::perspectiveSigned(QPolygon corners, Image16::CropMode c,
+                                   Image16::Interpolation i) const {
+  Image16 img = *this;
+  img.flipSignedness();
+  img.d->format = Format::XYZp16; // just pretending
+  img = img.perspectived(corners, c, i);
+  img.flipSignedness();
+  img.d->format = format();
+  return img;
+}
+
+void Image16::flipSignedness() {
+  quint16 *ptr = words();
+  int W = width();
+  int H = height();
+  int DL = wordsPerLine() - 3*W;
+  for (int y=0; y<H; y++) {
+    for (int x=0; x<W; x++) {
+      ptr++;
+      *ptr++ ^= 32768;
+      *ptr++ ^= 32768;
+    }
+    ptr += DL;
+  }
+}
+
+int Image16::cvFormat(Image16::Format f) {
+  return f==Format::sRGB8 ? CV_8UC4 : CV_16UC3;
+}
+
+int Image16::cvInterpolation(Image16::Interpolation i) {
+  return i==Interpolation::NearestNeighbor ? cv::INTER_NEAREST
+    : i==Interpolation::Linear ? cv::INTER_LINEAR
+    : i==Interpolation::Area ? cv::INTER_AREA
+    : i==Interpolation::Cubic ? cv::INTER_CUBIC
+    : i==Interpolation::Lanczos ? cv::INTER_LANCZOS4
+    : cv::INTER_LINEAR; // default
+}
+
+Image16 Image16::rotated(double angle, Image16::CropMode c,
+                         Image16::Interpolation i) const {
+  if (isNull() || angle==0)
+    return *this;
+
+  if (i!=Interpolation::NearestNeighbor) {
+    Format f = format();
+    if (f==Format::Lab16 || f==Format::IPT16)
+      return rotateSigned(angle, c, i);
+  }
+
+  // So now we _know_ that we have unsigned data, or that it doesn't matter
+  int cvfmt = cvFormat(format());
+  cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());
+
+  // For now, we pretend that crop mode is Same...
+  cv::Mat rot = cv::getRotationMatrix2D(cv::Point2f(width()/2.0, height()/2.0),
+                                        -180*angle/M_PI, 1);
+  Image16 res(size(), format());
+  cv::Mat out(height(), width(), cvfmt, res.bytes(), res.bytesPerLine());
+  cv::warpAffine(in, out, rot, out.size(),
+                 cvInterpolation(i) | cv::WARP_INVERSE_MAP,
+                 cv::BORDER_CONSTANT, cv::Scalar());
+  // I should specify the value of that scalar.
+  return res;
+}
+
+Image16 Image16::perspectived(QPolygon, Image16::CropMode,
+                              Image16::Interpolation) const {
+  // NYI
+  return *this;
 }

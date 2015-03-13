@@ -39,10 +39,17 @@ public:
                             Interpolation i=Interpolation::Linear) const;
   Image16 scaledToWidth(int w, Interpolation i=Interpolation::Linear) const;
   Image16 scaledToHeight(int h, Interpolation i=Interpolation::Linear) const;
+  Image16 cropped(QRect) const;
+  Image16 rotated(double angle, CropMode c=CropMode::Same,
+                  Interpolation i=Interpolation::Linear) const;
+  /* Rotates by the given angle, specified in counterclockwise radians. */
+  Image16 perspectived(QPolygon corners, CropMode c=CropMode::Same,
+                  Interpolation i=Interpolation::Linear) const;
+  /* Produces a version where the polygon (which must have *precisely*
+     four vertices) is transformed to a rectangle. */
   void rotate90CW();
   void rotate90CCW();
   void rotate180();
-  Image16 cropped(QRect) const;
   void crop(QRect);
   void applyROI();
   /* Cropping doesn't change the underlying QImage. Rather, it sets up an ROI.
@@ -73,6 +80,14 @@ private:
   void convertFrom(Image16 const &other, Format otherformat);
   void setROI(QRect);
   Image16 scaleSigned(PSize s, Interpolation i) const;
+  Image16 rotateSigned(double angle, CropMode c=CropMode::Same,
+                       Interpolation i=Interpolation::Linear) const;
+  /* Rotates by the given angle, specified in counterclockwise radians. */
+  Image16 perspectiveSigned(QPolygon corners, CropMode c=CropMode::Same,
+                            Interpolation i=Interpolation::Linear) const;
+  void flipSignedness();
+  static int cvFormat(Format f);
+  static int cvInterpolation(Interpolation i);
 private:
   QSharedDataPointer<Image16Data> d;
 };

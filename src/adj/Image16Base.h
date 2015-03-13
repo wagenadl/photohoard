@@ -22,7 +22,7 @@ public:
     Cubic,
     Lanczos
   };
-  enum class Crop { // For rotate and perspective transforms
+  enum class CropMode { // For rotate and perspective transforms
     Same, // i.e., same area as source image
     MaxDefinedArea, // i.e., maximum area that has no undefined pixels
     MinInclusiveArea // i.e., minimum area that excludes no defined pixels
