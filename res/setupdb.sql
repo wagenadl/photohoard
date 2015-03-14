@@ -73,6 +73,7 @@ create table photos (
        filetype integer,
        width integer,
        height integer,
+       -- Width and height as in the file, i.e., not corrected for orientation
        camera integer,
        lens integer,
        exposetime real,

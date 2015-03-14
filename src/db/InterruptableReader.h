@@ -30,6 +30,7 @@ public:
 public slots:
   void request(QString fn, QSize desired=QSize(), QSize original=QSize());
   // Posts a new request canceling any current or pending requests.
+  // Note that the reader doesn't know about exif orientation.
   void cancel(QString fn);
   // Has no effect if FN is not the current or pending request.
   void cancel(); // Cancels everything

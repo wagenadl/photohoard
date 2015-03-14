@@ -21,6 +21,7 @@ Image16::Image16(): Image16(QImage()) {
 
 Image16::Image16(QString const &fn, char const *format):
   Image16(QImage(fn, format)) {
+  qDebug() << "Image16 from file " << fn << size();
   //  qDebug() << this << d;
 }
 
@@ -229,7 +230,7 @@ Image16 Image16::scaledToHeight(int h, Image16::Interpolation i) const {
   return scaledToFitIn(PSize(65536, h), i);
 }
 
-void Image16::rotate90CW() {
+void Image16::rotate90CCW() {
   Image16 dst(PSize(height(), width()), format());
   int bpp = bytesPerPixel();
   int X = dst.width();
@@ -239,7 +240,7 @@ void Image16::rotate90CW() {
   uchar const *s = bytes();
   uchar *d = dst.bytes();
   for (int y=0; y<Y; y++) {
-    uchar const *s1 = s + bpp*(Y-1-y);
+    uchar const *s1 = s + bpp*y;
     uchar *d1 = d + DL*y;
     for (int x=0; x<X; x++) {
       uchar const *s2 = s1 + SL*(X-1-x);
@@ -250,7 +251,7 @@ void Image16::rotate90CW() {
   *this = dst;
 }
 
-void Image16::rotate90CCW() {
+void Image16::rotate90CW() {
   Image16 dst(PSize(height(), width()), format());
   int bpp = bytesPerPixel();
   int X = dst.width();

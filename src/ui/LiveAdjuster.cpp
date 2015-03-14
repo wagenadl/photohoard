@@ -33,7 +33,7 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   mustshowupdate = true;
   if (newvsn) {
     originalSize = ofinder->originalSize(v);
-    qDebug() << "newvsn size is " << originalSize;
+    qDebug() << "LiveAdjuster newvsn size is " << originalSize ;
     QString mods = db.simpleQuery("select mods from versions"
                                   " where id=:a limit 1", v).toString();
     sliders.setAll(mods);
@@ -57,7 +57,7 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   bool canBigger = originalSize.isEmpty()
     || Adjuster::mapCropSize(originalSize, sliders, originalSize)
     .exceeds(maxav);
-  qDebug() << "requestAdjusted" << "o=" << originalSize << " av=" << maxav
+  qDebug() << "LiveAdjuster::requestAdjusted" << "o=" << originalSize << " av=" << maxav
 	   << "desired=" << s << " => "
 	   << needBigger << canBigger
 	   << Adjuster::mapCropSize(originalSize, sliders, originalSize);

@@ -25,11 +25,14 @@ bool Adjuster::isEmpty() const {
 void Adjuster::setOriginal(Image16 const &image) {
   clear();
   stages << AdjusterTile(image);
+  qDebug() << "Adjuster " << (void*)this <<  "setOriginal" << image.size();
 }
 
 void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
   clear();
   stages << AdjusterTile(image, originalSize);
+  qDebug() << "Adjuster " << (void*)this <<  "setReduced" << image.size()
+           << originalSize;
 }
 
 
@@ -58,6 +61,8 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   resetCanceled();
   if (stages.isEmpty())
     return Image16();
+  qDebug() << "Adjuster " << (void*)this
+           << "retrieveReduced maxsize=" << maxSize;
   PSize needed = neededScaledOriginalSize(settings, maxSize);
   int k = 0;
   while (k+1<stages.size()) {
@@ -77,7 +82,9 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
 
   while (stages.size()>k+1) // drop no-good stages
     stages.removeLast();
-  
+
+  qDebug() << "Adjuster::retrieveReduced got down to "
+           << stages[k].image.size() << " have" << stages[0].image.size();
   // Now we have a stage that has no reduced roi and that has a suitable scale
   double fac = stages[k].image.size().scaleFactorToFitIn(needed);
   if (fac<0.8) {
@@ -88,6 +95,8 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     k++;
     stages[k].stage = Stage_Reduced;
   }
+  qDebug() << "Adjuster::retrieveReduced worked down to "
+           << stages[k].image.size() << " osize=" << stages[k].osize;
 
   if (stages.last().settings==settings)
     return stages.last().image;
@@ -98,6 +107,9 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
     return Image16();
   if (!applyGeometry(settings))
       return Image16();
+
+  qDebug() << "Adjuster::retrieveReduced after cropping down to "
+           << stages.last().image.size() << " osize=" << stages[k].osize;
 
   return stages.last().image;  
 }

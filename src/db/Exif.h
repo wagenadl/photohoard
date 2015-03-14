@@ -36,6 +36,8 @@ public:
   QDateTime dateTime() const;
   QList<PSize> previewSizes() const;
   Image16 previewImage(PSize const &) const;
+  static bool isRotated(Orientation);
+  static PSize fixOrientation(PSize, Orientation);
 private:
   Exiv2::Exifdatum const &exifDatum(QString const &) const;
   static class NikonLenses const &nikonLenses();

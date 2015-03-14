@@ -74,7 +74,10 @@ void InterruptableAdjuster::stop() {
 }
 
 PSize InterruptableAdjuster::maxAvailableSize(Sliders const &s) {
-  return Adjuster::mapCropSize(oSize, s, scaledOSize);
+  if (clear_)
+    return PSize();
+  else
+    return Adjuster::mapCropSize(oSize, s, scaledOSize);
 }
 
 bool InterruptableAdjuster::isEmpty() {
@@ -132,11 +135,11 @@ void InterruptableAdjuster::handleNewImage() {
 void InterruptableAdjuster::run() {
   mutex.lock();
   while (!stopsoon) {
-    //    maxAvail = adjuster->maxAvailableSize();
     empty = adjuster->isEmpty();
     if (clear_) {
       adjuster->clear();
       clear_ = false;
+      cancel = false;
     } else if (cancel) {
       cancel = false;
     } else if (!newOriginal.isNull()) {

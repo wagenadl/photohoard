@@ -209,3 +209,10 @@ Image16 Exif::previewImage(PSize const &s0) const {
   return Image16();
 }
 
+bool Exif::isRotated(Exif::Orientation o) {
+  return o==Orientation::CW || o==Orientation::CCW;
+}
+
+PSize Exif::fixOrientation(PSize s, Exif::Orientation o) {
+  return isRotated(o) ? PSize(s.height(), s.width()) : s;
+}

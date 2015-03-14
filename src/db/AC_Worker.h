@@ -18,6 +18,7 @@ public slots:
   void boot(); // get initial list of cachable items from db
   void recache(QSet<quint64> versions);
   void requestImage(quint64 version, QSize desired);
+  void requestIfEasy(quint64 version, QSize desired);
   void cachePreview(quint64 vsn, Image16 img);
   void cacheModified(quint64 vsn, Image16 img);
 private slots:

@@ -58,10 +58,9 @@ MainWindow::MainWindow(PhotoDB const &db,
 	  lightTable, SLOT(setColorLabel(ColorLabelBar::Action)));
   connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
 	  lightTable, SLOT(filterAction(FilterBar::Action)));
-  //  autocache->request(lightTable->current(), QSize(1024, 1024)); // hack
+  autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
 }
 
-  
 MainWindow::~MainWindow() {
 }
 

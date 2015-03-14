@@ -173,15 +173,18 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   quint64 photo = db.simpleQuery("select photo from versions where id=:a", vsn)
     .toULongLong();
 
-  QSqlQuery q = db.query("select width, height from photos where id=:a", photo);
+  QSqlQuery q = db.query("select width, height, orient "
+                         "from photos where id=:a", photo);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   int wid = q.value(0).toInt();
   int hei = q.value(1).toInt();
+  Exif::Orientation orient = Exif::Orientation(q.value(2).toInt());
+  PSize fs = Exif::fixOrientation(siz, orient);
 
-  if (wid!=siz.width() || hei!=siz.height())
+  if (wid!=fs.width() || hei!=fs.height())
     db.query("update photos set width=:a, height=:b where id=:c",
-	     siz.width(), siz.height(), photo);
+	     fs.width(), fs.height(), photo);
 }
 
 void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
@@ -250,10 +253,11 @@ void AC_Worker::sendToBank(quint64 version) {
   int wid = q.value(3).toInt();
   int hei = q.value(4).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
+  PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
   QString path = db.folder(folder) + "/" + fn;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(version,
-		  path, db.ftype(ftype), orient, PSize(wid, hei),
+		  path, db.ftype(ftype), orient, osize,
 		  mods,
                   maxdim, requests.contains(version));
 }
@@ -277,7 +281,31 @@ void AC_Worker::storeLoadedInDB() {
   loaded.clear();
 }
 
+void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
+  qDebug() << "AC_Worker::requestIfEasy" << version << desired;
+  try {
+    if (loaded.contains(version)) {
+      Image16 res = loaded[version].scaledDownToFitIn(desired);
+      emit available(version, desired, res);
+      return;
+    }
+    PSize best=cache->bestSize(version, desired);
+    if (best.isEmpty())
+      return;
+    bool od;
+    Image16 img = cache->get(version, best, &od).scaledDownToFitIn(desired);
+    if (!img.isNull() && !od) // can this happen?
+      emit available(version, desired, img);
+  } catch (QSqlQuery &q) {
+    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+		   + " from " + q.lastQuery());
+  } catch (...) {
+    emit exception("AC_Worker: Unknown exception");
+  }
+}
+
 void AC_Worker::requestImage(quint64 version, QSize desired) {
+  qDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
     if (loaded.contains(version)) {

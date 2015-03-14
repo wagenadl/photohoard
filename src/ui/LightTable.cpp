@@ -278,10 +278,12 @@ PSize LightTable::displaySize() const {
 }
 
 void LightTable::requestLargerImage() {
-  if (slide->isVisible()) 
+  if (slide->isVisible()) {
+    // also request from cache if helpful and readily available!
     adjuster->requestAdjusted(id, slide->desiredSize());
-  else
+  } else {
     adjuster->markVersionAndSize(id, slide->desiredSize());
+  }
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i) {

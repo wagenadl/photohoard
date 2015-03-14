@@ -20,6 +20,8 @@ AutoCache::AutoCache(PhotoDB const &db, QString rootdir, QObject *parent):
           worker, SLOT(recache(QSet<quint64>)));
   connect(this, SIGNAL(forwardRequest(quint64, QSize)),
 	  worker, SLOT(requestImage(quint64, QSize)));
+  connect(this, SIGNAL(forwardIfEasy(quint64, QSize)),
+	  worker, SLOT(requestIfEasy(quint64, QSize)));
   connect(worker, SIGNAL(cacheProgress(int,int)),
 	  this, SIGNAL(progressed(int,int)));
   connect(worker, SIGNAL(doneCaching()),
@@ -62,4 +64,8 @@ void AutoCache::cacheModified(quint64 id, Image16 img) {
 
 void AutoCache::request(quint64 version, QSize desired) {
   emit forwardRequest(version, desired);
+}
+
+void AutoCache::requestIfEasy(quint64 version, QSize desired) {
+  emit forwardIfEasy(version, desired);
 }

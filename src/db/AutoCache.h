@@ -27,6 +27,7 @@ public slots:
      if that means that an outdated or small copy is returned. In that case,
      available() will be emitted again when a better answer is ready.
    */
+  void requestIfEasy(quint64 version, QSize desired);
   void cachePreview(quint64 version, Image16 img);
 signals: // public
   void progressed(int n, int N);
@@ -42,6 +43,7 @@ signals: // public
 signals: // private
   void forwardRecache(QSet<quint64> versions);
   void forwardRequest(quint64 version, QSize desired);
+  void forwardIfEasy(quint64 version, QSize desired);
   void forwardCachePreview(quint64 version, Image16 img);
   void forwardCacheModified(quint64 version, Image16 img);
 private:

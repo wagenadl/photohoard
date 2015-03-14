@@ -75,7 +75,7 @@ void SlideView::setZoom(double z) {
     zoom = z;
     emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
     update();
-  }xxx
+  }
 }
   
 void SlideView::scaleToFit() {

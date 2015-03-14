@@ -32,14 +32,8 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
                " from photos where id=:a limit 1", photo);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
-    int wid = q.value(0).toInt();
-    int hei = q.value(1).toInt();
-    switch (Exif::Orientation(q.value(2).toInt())) {
-    case Exif::Upright: case Exif::UpsideDown:
-      return PSize(wid, hei);
-    case Exif::CCW: case Exif::CW:
-      return PSize(hei, wid);
-    }
+    PSize s(q.value(0).toInt(), q.value(1).toInt());
+    return Exif::fixOrientation(s, Exif::Orientation(q.value(2).toInt()));
   } catch (...) {
     qDebug() << "OriginalFinder::originalSize: exception";
     return PSize();
@@ -62,8 +56,8 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     int ftype = q.value(2).toInt();
     int wid = q.value(3).toInt();
     int hei = q.value(4).toInt();
-    osize = PSize(wid, hei);
     orient = Exif::Orientation(q.value(5).toInt());
+    osize = Exif::fixOrientation(PSize(wid, hei), orient);
     QString path = db.folder(folder) + "/" + fn;
     QString ext = db.ftype(ftype);
     InterruptableReader *reader = 0;
@@ -78,7 +72,9 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     desired = ds;
     version = vsn;
     filepath = path;
-    reader->request(path, ds, osize);
+    reader->request(path, Exif::fixOrientation(desired, orient),
+                    Exif::fixOrientation(osize, orient)); // the reader doesn't
+    // know about orientation, so we need to request in file shape
   } catch (QSqlQuery &q) {
     emit exception("OriginalFinder: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
@@ -125,10 +121,7 @@ void OriginalFinder::provide(QString fn) {
     fixOrientation(img);
     emit originalAvailable(version, img);
   } else {
-    PSize os = osize;
-    if (orient==Exif::CW || orient==Exif::CCW) 
-      os = PSize(os.height(), os.width());
     fixOrientation(img);
-    emit scaledOriginalAvailable(version, os, img);
+    emit scaledOriginalAvailable(version, osize, img);
   }
 }
