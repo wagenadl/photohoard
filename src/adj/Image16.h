@@ -11,6 +11,7 @@
 #include "PSize.h"
 #include "Image16Base.h"
 #include "Image16Data.h"
+#include <QPolygonF>
 
 class Image16: public Image16Base {
 public:
@@ -43,8 +44,8 @@ public:
   Image16 rotated(double angle, CropMode c=CropMode::Same,
                   Interpolation i=Interpolation::Linear) const;
   /* Rotates by the given angle, specified in counterclockwise radians. */
-  Image16 perspectived(QPolygon corners, CropMode c=CropMode::Same,
-                  Interpolation i=Interpolation::Linear) const;
+  Image16 perspectived(QPolygonF corners, CropMode c=CropMode::Same,
+                       Interpolation i=Interpolation::Linear) const;
   /* Produces a version where the polygon (which must have *precisely*
      four vertices) is transformed to a rectangle. */
   void rotate90CW();
@@ -83,7 +84,7 @@ private:
   Image16 rotateSigned(double angle, CropMode c=CropMode::Same,
                        Interpolation i=Interpolation::Linear) const;
   /* Rotates by the given angle, specified in counterclockwise radians. */
-  Image16 perspectiveSigned(QPolygon corners, CropMode c=CropMode::Same,
+  Image16 perspectiveSigned(QPolygonF corners, CropMode c=CropMode::Same,
                             Interpolation i=Interpolation::Linear) const;
   void flipSignedness();
   static int cvFormat(Format f);

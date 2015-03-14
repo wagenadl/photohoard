@@ -353,7 +353,7 @@ Image16 Image16::rotateSigned(double angle, Image16::CropMode c,
   return img;
 }
 
-Image16 Image16::perspectiveSigned(QPolygon corners, Image16::CropMode c,
+Image16 Image16::perspectiveSigned(QPolygonF corners, Image16::CropMode c,
                                    Image16::Interpolation i) const {
   Image16 img = *this;
   img.flipSignedness();
@@ -419,8 +419,38 @@ Image16 Image16::rotated(double angle, Image16::CropMode c,
   return res;
 }
 
-Image16 Image16::perspectived(QPolygon, Image16::CropMode,
-                              Image16::Interpolation) const {
-  // NYI
-  return *this;
+Image16 Image16::perspectived(QPolygonF poly, Image16::CropMode,
+                              Image16::Interpolation i) const {
+  if (poly.size()!=4) {
+    qDebug() << "Image16::perspectived: need 4-gon";
+    return Image16();
+  }
+
+  if (i!=Interpolation::NearestNeighbor) {
+    if (i!=Interpolation::Linear)
+      qDebug() << "Note: Image16::perspectived only supports "
+        "up to linear interpolation";
+    i = Interpolation::Linear;
+  }
+  
+  int cvfmt = cvFormat(format());
+  cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());
+
+  cv::Point2f src[4];
+  cv::Point2f dst[4];
+  for (int k=0; k<4; k++)
+    dst[k] = cv::Point2f(poly[k].x(), poly[k].y());
+  src[0] = cv::Point2f(0, 0);
+  src[1] = cv::Point2f(width(), 0);
+  src[2] = cv::Point2f(0, height());
+  src[3] = cv::Point2f(width(), height());
+ 
+  cv::Mat per = cv::getPerspectiveTransform(src, dst);
+  Image16 res(size(), format());
+  cv::Mat out(height(), width(), cvfmt, res.bytes(), res.bytesPerLine());
+  cv::warpPerspective(in, out, per, out.size(),
+                      cvInterpolation(i) | cv::WARP_INVERSE_MAP,
+                      cv::BORDER_CONSTANT, cv::Scalar());
+  // I should specify the value of that scalar.
+  return res;
 }

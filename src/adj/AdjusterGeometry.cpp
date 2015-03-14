@@ -17,17 +17,40 @@ AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
   tile.stage = Stage_Geometry;
   tile.image.convertTo(Image16::Format::LMS16);
 
-  double angle = final.rotate;
+  // ROTATE
+  if (final.rotate)
+    tile.image = tile.image.rotated(-M_PI*final.rotate/180);
 
-  tile.image = tile.image.rotated(-M_PI*angle/180);
 
-  QRect crop1 = Adjuster::mapCropRect(parent.osize, final,
-				      parent.image.size());
-  qDebug() << "AdjusterGeometry:"
-	   << parent.osize << parent.image.size() << crop1;
-  tile.image.crop(crop1);
-  if (tile.image.isNull())
-    tile.image = Image16(QSize(1,1));
+  // PERSPECTIVE
+  if (final.perspv || final.persph || final.shearv || final.shearv) {
+    QPolygonF pp;
+    double w = tile.image.width();
+    double h = tile.image.height();
+    pp << QPointF(w*(-final.perspv+final.shearh)/100.0,
+                  h*(-final.persph+final.shearv)/100.0);
+    pp << QPointF(w*(100+final.perspv+final.shearh)/100.0,
+                  h*(-final.persph+final.shearv)/100.0);
+    pp << QPointF(w*(final.perspv-final.shearh)/100.0,
+                  h*(100+final.persph-final.shearv)/100.0);
+    pp << QPointF(w*(100-final.perspv-final.shearh)/100.0,
+                  h*(100+final.persph-final.shearv)/100.0);
+    tile.image = tile.image.perspectived(pp);
+  }
+  
+  // CROP
+  if (final.cropl || final.cropr || final.cropt || final.cropb) {
+    tile.image.crop(Adjuster::mapCropRect(parent.osize, final,
+                                          parent.image.size()));
+    if (tile.image.isNull()) {
+      tile.image = Image16(QSize(1,1));
+      uchar *d = tile.image.bytes();
+      d[0] = 128;
+      d[1] = 128;
+      d[2] = 128;
+      d[3] = 255;
+    }
+  }
 
   tile.settings.rotate = final.rotate;
   tile.settings.cropl = final.cropl;

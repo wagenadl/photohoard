@@ -103,5 +103,9 @@ umaskr: Radius
 Unsharp mask radius (pixels)
 
 nlcontrast: Local contrast
--5 5 / 0.01 0.1 0.5
-Increase or decrease local contrast
+0 5 / 0.01 0.1 0.5
+Increase local contrast
+
+nlcontrastn: Scale
+2 16 / 1 2 4
+Number of regions in long dimension of image for local contrast

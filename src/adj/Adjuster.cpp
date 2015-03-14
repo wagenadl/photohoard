@@ -5,6 +5,7 @@
 #include "AdjusterXYZ.h"
 #include "AdjusterIPT.h"
 #include "AdjusterGeometry.h"
+#include "AdjusterEqualize.h"
 
 Adjuster::Adjuster(QObject *parent): QObject(parent) {
   caching = true;
@@ -38,80 +39,76 @@ void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
 
 Image16 Adjuster::retrieveFull(Sliders const &settings) {
   resetCanceled();
+
   if (stages.isEmpty())
     return Image16();
   if (stages[0].stage != Stage_Original)
     return Image16();
+  
   if (stages.last().settings == settings)
     return stages.last().image;
 
-  /* Order of stages here must match enum Stage */
-  if (!applyFirstXYZ(settings))
+  if (!applySettings(settings))
     return Image16();
-  if (!applyIPT(settings))
-    return Image16();
-  if (!applyGeometry(settings))
-      return Image16();
 
-  return stages.last().image;  
+  return stages.last().image;
+}
+
+bool Adjuster::applySettings(Sliders const &settings) {
+  /* Order of stages here must match enum Stage */
+  return applyFirstXYZ(settings)
+    && applyEqualize(settings)
+    && applyIPT(settings)
+    && applyGeometry(settings);
 }
 
 Image16 Adjuster::retrieveReduced(Sliders const &settings,
                                   PSize maxSize) {
   resetCanceled();
-  if (stages.isEmpty())
+
+  if (stages.isEmpty() || !stages[0].roi.isEmpty() || stages[0].image.isNull())
     return Image16();
-  qDebug() << "Adjuster " << (void*)this
-           << "retrieveReduced maxsize=" << maxSize;
+
+  applyNeedBasedScaling(settings, maxSize);
+
+  if (stages.last().settings == settings)
+    return stages.last().image;
+
+  if (!applySettings(settings))
+    return Image16();
+
+  return stages.last().image;
+}
+
+void Adjuster::applyNeedBasedScaling(Sliders const &settings,
+                                     PSize maxSize) {
   PSize needed = neededScaledOriginalSize(settings, maxSize);
   int k = 0;
   while (k+1<stages.size()) {
     if (stages[k+1].stage>Stage_Reduced)
       break;
-    if (stages[k+1].image.width()<needed.width()
-        && stages[k+1].image.height()<needed.height())
+    if (!stages[k+1].image.size().isLargeEnoughFor(needed)
+        || !stages[k+1].roi.isEmpty()) {
+      dropFrom(k+1);
       break;
-    if (!stages[k+1].roi.isEmpty())
-      break;
+    }
     k++;
   }
-  if (!stages[k].roi.isEmpty())
-    return Image16();
-  if (stages[k].image.isNull())
-    return Image16();
 
-  while (stages.size()>k+1) // drop no-good stages
-    stages.removeLast();
-
-  qDebug() << "Adjuster::retrieveReduced got down to "
-           << stages[k].image.size() << " have" << stages[0].image.size();
-  // Now we have a stage that has no reduced roi and that has a suitable scale
   double fac = stages[k].image.size().scaleFactorToFitIn(needed);
   if (fac<0.8) {
     // It's worth scaling
-    // Should we drop excessive scale stacks? Probably.
+    // Should we reduce excessive scale stacks? Probably. Later.
+    dropFrom(k+1);
     stages << AdjusterTile(stages[k].image.scaledToFitIn(needed),
 			   stages[k].osize);
-    k++;
-    stages[k].stage = Stage_Reduced;
+    stages.last().stage = Stage_Reduced;
   }
-  qDebug() << "Adjuster::retrieveReduced worked down to "
-           << stages[k].image.size() << " osize=" << stages[k].osize;
+}
 
-  if (stages.last().settings==settings)
-    return stages.last().image;
-
-  if (!applyFirstXYZ(settings))
-    return Image16();
-  if (!applyIPT(settings))
-    return Image16();
-  if (!applyGeometry(settings))
-      return Image16();
-
-  qDebug() << "Adjuster::retrieveReduced after cropping down to "
-           << stages.last().image.size() << " osize=" << stages[k].osize;
-
-  return stages.last().image;  
+void Adjuster::dropFrom(int k) {
+  while (stages.size()>k)
+    stages.removeLast();
 }
 
 Image16 Adjuster::retrieveROI(Sliders const &, QRect) {
@@ -164,7 +161,7 @@ int Adjuster::findParentStage(Stage s) const {
 }
 
 bool Adjuster::applyGeometry(Sliders const &final) {
-  /* Here we apply rotate, and eventually perspective and crop. */
+  /* Here we apply rotate, perspective, and crop. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
   int iparent = findParentStage(Stage_Geometry);
@@ -178,6 +175,31 @@ bool Adjuster::applyGeometry(Sliders const &final) {
     return false;
   stages << adj.apply(stages[iparent], final);
 
+  return true;
+}
+
+bool Adjuster::applyEqualize(Sliders const &final) {
+  /* Here we apply clarity. */
+  /* For now, I am ignoring the "caching" and "keeporiginal" flags.
+   */
+  int iparent = findParentStage(Stage_Equalize);
+  if (iparent<0)
+    return false;
+
+  AdjusterEqualize adj;
+  if (ensureAlreadyGood(adj, iparent, final))
+    return true;
+  if (isCanceled())
+    return false;
+  stages << adj.apply(stages[iparent], final);
+
+  return true;
+}
+
+bool Adjuster::applyUMask(Sliders const &final) {
+  /* Here we apply unsharp mask. */
+  /* For now, I am ignoring the "caching" and "keeporiginal" flags.
+   */
   return true;
 }
 

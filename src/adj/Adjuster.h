@@ -92,6 +92,8 @@ private:
   bool isCanceled();
   /* Test-and-reset the cancellation flag. */
   void resetCanceled();
+  bool applyUMask(Sliders const &settings);
+  bool applyEqualize(Sliders const &settings);
   bool applyFirstXYZ(Sliders const &settings);
   bool applyIPT(Sliders const &settings);
   /* Apply those settings that work on a per-pixel basis from the given
@@ -105,6 +107,9 @@ private:
   bool ensureAlreadyGood(class AdjusterStage const &adj, int iparent,
 			 Sliders const &final);
   int findParentStage(Stage s) const;
+  void dropFrom(int k);
+  bool applySettings(Sliders const &settings);
+  void applyNeedBasedScaling(Sliders const &settings, PSize desired);
 private:
   QList<AdjusterTile> stages;
   /* The first stage is always the original image; subsequent stages may

@@ -22,7 +22,7 @@ void HistoWidget::paintEvent(QPaintEvent *) {
   int N = histo.numberOfBins();
   for (int k=0; k<3; k++) {
     QVector<double> const &hst = histo.channel(k);
-    for (int n=0; n<N; n++)
+    for (int n=1; n<N-1; n++)
       if (hst[n]>maxv)
         maxv = hst[n];
   }

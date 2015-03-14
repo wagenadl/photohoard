@@ -8,7 +8,9 @@ enum Stage {
   Stage_Original,
   Stage_Reduced, // either by ROI or scale
   Stage_XYZ,
+  Stage_Equalize,
   Stage_IPT,
+  Stage_UMask,
   Stage_Geometry,
 };
 /* Order of stages here must match Adjuster::retrieveXXX */
