@@ -11,7 +11,7 @@ SLIDER(shadows, 0)
 SLIDER(midtones, 0)
 SLIDER(highlights, 0)
 SLIDER(nlcontrast, 0)
-SLIDER(nlcontrastn, 8)
+SLIDER(nlcontrastscale, 0)
 
 SLIDER(saturation, 0)
 SLIDER(vibrance, 0)

@@ -2,14 +2,17 @@
 
 #include "AdjusterEqualize.h"
 #include "Adjuster.h"
-#include "Clarity.h"
 
 QStringList AdjusterEqualize::fields() const {
   static QStringList flds
-    = QString("nlcontrast nlcontrastn").
-    split(" ");
+    = QString("nlcontrast nlcontrastscale")
+    .split(" ");
   return flds;
 }
+
+#if ENABLE_CLARITY
+
+#include "Clarity.h"
 
 static void applyClarity(Image16 &target, double clarity, int n) {
 
@@ -96,6 +99,94 @@ static void applyClarity(Image16 &target, double clarity, int n) {
   }  
 }
 
+#endif
+
+static float getScale(int maxdim, float scale) {
+  float f = pow(1.0/maxdim, 1-scale);
+  return f;
+}
+
+static void applyLocalContrast(Image16 &target, double contrast, double scale) {
+  const int width = target.width();
+  const int height = target.height();
+  const int L = width*height;
+  QVector<float> img(L);
+  float *image = img.data();
+  // Copy defined part of image
+  for (int y=0; y<height; y++) {
+    quint16 const *src = target.words() + y*target.wordsPerLine();
+    float *dst = image + y*width;
+    for (int x=0; x<width; x++) {
+      *dst++ = *src;
+      src += 3;
+    }
+  }
+
+  // Filter down several times in each direction
+  const float f0 = getScale(target.size().maxDim(), scale);
+  const float contr = contrast/3.0;
+  const int N = 3;
+
+  // horizontal
+  float z = image[width-1];
+  float *ptr = image + width-1;
+  for (int x=1; x<width; x++) { // first prep z
+    ptr--;
+    z += f0*(*ptr-z);
+  }
+  for (int y=0; y<height; y++) {
+    ptr = image + y*width;
+    for (int n=0; n<N; n++) {
+      for (int x=1; x<width; x++) {
+        ptr++;
+        z += f0*(*ptr-z);
+        *ptr = z;
+      }
+      for (int x=1; x<width; x++) {
+        ptr--;
+        z += f0*(*ptr-z);
+        *ptr = z;
+      }
+    }
+  }
+
+  // vertical round
+  z = image[(height-1)*width];
+  ptr = image + (height-1)*width;
+  for (int y=1; y<height; y++) { // first prep z
+    ptr-=width;
+    z += f0*(*ptr-z);
+  }
+  for (int x=0; x<width; x++) {
+    ptr = image + x;
+    for (int n=0; n<N; n++) {
+      for (int y=1; y<height; y++) {
+        ptr += width;
+        z += f0*(*ptr-z);
+        *ptr = z;
+      }
+      for (int y=1; y<height; y++) {
+        ptr -= width;
+        z += f0*(*ptr-z);
+        *ptr = z;
+      }
+    }
+  }
+
+  for (int y=0; y<height; y++) {
+    quint16 *dst =  target.words() + y*target.wordsPerLine();
+    float const *src = image + y*width;
+    for (int x=0; x<width; x++) {
+      float z = *dst;
+      z += contr*(z-*src);
+      *dst = (z>65535) ? 65535 : (z<0) ? 0 : z + 0.5;
+      src ++;
+      dst += 3;
+    }
+  }
+}
+
+
 AdjusterTile AdjusterEqualize::apply(AdjusterTile const &parent,
 				Sliders const &final) {
   AdjusterTile tile = parent;
@@ -103,11 +194,11 @@ AdjusterTile AdjusterEqualize::apply(AdjusterTile const &parent,
 
   if (final.nlcontrast) {
     tile.image.convertTo(Image16::Format::IPT16);
-    applyClarity(tile.image, final.nlcontrast, final.nlcontrastn);
+    applyLocalContrast(tile.image, final.nlcontrast, final.nlcontrastscale);
   }
 
   tile.settings.nlcontrast = final.nlcontrast;
-  tile.settings.nlcontrastn = final.nlcontrastn;
-
+  tile.settings.nlcontrastscale = final.nlcontrastscale;
+  
   return tile;
 }

@@ -50,6 +50,8 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   bool newvsn = version!=v;
   if (newvsn)
     markVersionAndSize(v, s);
+  else
+    targetsize = s;
   mustshowupdate = true;
 
   PSize maxav = adjuster->maxAvailableSize(sliders);

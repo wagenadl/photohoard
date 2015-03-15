@@ -95,17 +95,17 @@ Horizontal shear (percent)
 detail:: Detail
 
 umask: Unsharp mask
-0 5 / 0.01 0.1 1
+0 5 / 0.01 0.05 0.25
 Unsharp mask strength
 
 umaskr: Radius
-0 5 / 0.02 0.1 0.5
+0 5 / 0.1 0.2 0.5
 Unsharp mask radius (pixels)
 
 nlcontrast: Local contrast
-0 5 / 0.01 0.1 0.5
-Increase local contrast
+0 5 / 0.01 0.05 0.25
+Strength of local contrast enhancement
 
-nlcontrastn: Scale
-2 16 / 1 2 4
-Number of regions in long dimension of image for local contrast
+nlcontrastscale: Scale
+0 1 / 0.01 0.1 0.25
+Degree of localness for local contrast enhancement

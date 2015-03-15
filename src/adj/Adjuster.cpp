@@ -6,6 +6,7 @@
 #include "AdjusterIPT.h"
 #include "AdjusterGeometry.h"
 #include "AdjusterEqualize.h"
+#include "AdjusterUMask.h"
 
 Adjuster::Adjuster(QObject *parent): QObject(parent) {
   caching = true;
@@ -59,6 +60,7 @@ bool Adjuster::applySettings(Sliders const &settings) {
   return applyFirstXYZ(settings)
     && applyEqualize(settings)
     && applyIPT(settings)
+    && applyUMask(settings)
     && applyGeometry(settings);
 }
 
@@ -200,6 +202,17 @@ bool Adjuster::applyUMask(Sliders const &final) {
   /* Here we apply unsharp mask. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
+  int iparent = findParentStage(Stage_UMask);
+  if (iparent<0)
+    return false;
+
+  AdjusterUMask adj;
+  if (ensureAlreadyGood(adj, iparent, final))
+    return true;
+  if (isCanceled())
+    return false;
+  stages << adj.apply(stages[iparent], final);
+
   return true;
 }
 
