@@ -15,6 +15,7 @@
 #include "HistoWidget.h"
 #include <QDockWidget>
 #include "LiveAdjuster.h"
+#include "MetaViewer.h"
 
 #include "PDebug.h"
 
@@ -25,12 +26,19 @@ MainWindow::MainWindow(PhotoDB const &db,
 
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setWidget(histogram = new HistoWidget(this));
+  dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
   dock = new QDockWidget("Adjustments", this);
   dock->setWidget(allControls = new AllControls(this));
+  dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
+  dock = new QDockWidget("Metadata",this);
+  dock->setWidget(metaViewer = new MetaViewer(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+  
   adjuster = new LiveAdjuster(db, allControls, autocache, this);
   
   setCentralWidget(lightTable = new LightTable(db, adjuster, this));
@@ -59,6 +67,11 @@ MainWindow::MainWindow(PhotoDB const &db,
   connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
 	  lightTable, SLOT(filterAction(FilterBar::Action)));
   autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
+
+  connect(lightTable, SIGNAL(newCurrent(quint64)),
+          metaViewer, SLOT(setVersion(quint64)));
+
+  metaViewer->setVersion(lightTable->current());
 }
 
 MainWindow::~MainWindow() {

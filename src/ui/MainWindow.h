@@ -34,6 +34,7 @@ private:
   class AllControls *allControls;
   class HistoWidget *histogram;
   class LiveAdjuster *adjuster;
+  class MetaViewer *metaViewer;
 };
 
 #endif

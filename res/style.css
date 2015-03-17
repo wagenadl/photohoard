@@ -4,3 +4,8 @@ SlideView {
   border-color: #808080;
   border-width: 4px;
 }
+
+QTextEdit {
+  background-color: #222222;
+  color: #ffffff;
+}

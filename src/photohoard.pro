@@ -147,3 +147,5 @@ SOURCES += db/InterruptableReader.cpp
 SOURCES += db/InterruptableRawReader.cpp db/InterruptableFileReader.cpp
 HEADERS += db/PSize.h
 SOURCES += db/PSize.cpp
+HEADERS += ui/MetaViewer.h
+SOURCES += ui/MetaViewer.cpp

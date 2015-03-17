@@ -14,7 +14,7 @@
 class PhotoDB: public Database {
 public:
   enum class ColorLabel { None=0, Red, Yellow, Green, Blue, Purple };
-  enum class AcceptReject {None=0, Accept=1, Reject=-1 }
+  enum class AcceptReject {None=0, Accept=1, Reject=-1 };
 public:
   struct VersionRecord {
     quint64 id;
@@ -29,7 +29,7 @@ public:
     quint64 folderid;
     QString filename;
     int filetype;
-    PSize photosize; // not taking orientation into account!
+    PSize filesize; // not taking orientation into account!
     int cameraid;
     int lensid;
     double exposetime_s;
@@ -52,9 +52,9 @@ public:
   QString ftype(int filetypeid) const;
   QString folder(quint64 folderid); // returns full pathname
   quint64 root(quint64 folderid); // returns id of root folder
-  PhotoRecord &&photoRecord(quint64 photoid);
-  PhotoSize &&photoSize(quint64 photoid);
-  VersionRecord &&versionRecord(quint64 versionid);
+  PhotoRecord photoRecord(quint64 photoid);
+  PhotoSize photoSize(quint64 photoid);
+  VersionRecord versionRecord(quint64 versionid);
   QString camera(int cameraid);
   QString lens(int lensid);
   int findTag(QString tag); // 0 for not found
