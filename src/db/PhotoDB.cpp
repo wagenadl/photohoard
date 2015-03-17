@@ -61,11 +61,161 @@ PhotoDB PhotoDB::create(QString fn) {
 }
 
 quint64 PhotoDB::photoFromVersion(quint64 v) {
-  return simpleQuery("select photo from versions where id==:a limit 1", v)
+  return simpleQuery("select photo from versions where id==:a", v)
     .toULongLong();
 }
 
 QDateTime PhotoDB::captureDate(quint64 p) {
   return simpleQuery("select capturedate from photos where id==:a", p)
     .toDateTime();
+}
+
+PhotoDB::PhotoSize &&PhotoDB::photoSize(quint64 p) {
+  QSqlQuery q = query("select width, height, orient from photos where id==:a",
+		      p);
+  if (!q.next())
+    throw NoResult();
+  PhotoSize ps;
+  ps.filesize = PSize(q.value(0).toInt(), q.value(1).toInt());
+  ps.orient = Exif::Orientation(q.value(2).toInt());
+  return ps;
+}
+
+QString PhotoDB::camera(int id) {
+  if (!cameras->contains(id)) 
+    (*cameras)[id] = simpleQuery("select camera from cameras where id==:a", id)
+      .toString();
+  return (*cameras)[id];
+}
+
+QString PhotoDB::lens(int id) {
+  if (!lenses->contains(id)) 
+    (*lenses)[id] = simpleQuery("select lens from lenses where id==:a", id)
+      .toString();
+  return (*lenses)[id];
+}
+
+QString PhotoDB::tag(int id) {
+  return simpleQuery("select tag from tags where id==:a", id).toString();
+}
+
+int PhotoDB::findTag(QString tag) {
+  QSqlQuery q("select id from tags where tag==:a", tag);
+  if (q.next())
+    return q.value(0).toInt();
+  else
+    return 0;
+}
+
+QSet<int> PhotoDB::childTags(int tagid) {
+  QSet<int> children;
+  QSqlQuery q("select id from tags where parent==:a", tagid);
+  while (q.next())
+    children << q.value(0).toInt();
+  children.remove(0); // avoid loop
+  return children;
+}
+
+QSet<int> PhotoDB::descendentTags(int tagid) {
+  QSet<int> children = childTags(tagid);
+  QSet<int> res = children;
+  for (int child: children)
+    res.unite(descendantTags(child));
+  return res;
+}
+
+QSet<int> PhotoDB::appliedTags(quint64 versionid) {
+  QSet<int> res;
+  QSqlQuery q("select tag from appliedtags where version==:a", versionid);
+  while (q.next())
+    res << q.value(0).toInt();
+  return res;
+}
+
+void PhotoDB::addTag(quint64 versionid, quint64 tagid) {
+  QSqlQuery q("insert into appliedtags(version, tag) values(:a,:b)",
+	      versionid, tagid);
+}
+
+vodi PhotoDB::removeTag(quint64 versionid, quint64 tagid) {
+  QSqlQuery q("delete from appliedtags where version==:a and tag==:b",
+	      versionid, tagid);
+}
+
+int PhotoDB::defineTag(QString tag, int parent) {
+  QSqlQuery q("insert into tags(tag,parent) values(:a,:b)",
+	      tag, parent);
+  int tagid = q.lastInsertId().toInt();
+  return tagid;
+}
+
+
+PhotoDB::VersionRecord &&PhotoDB::versionRecord(quint64 id) {
+  VersionRecord vr;
+  QSqlQuery q("select photo, mods, starrating, colorlabel, acceptreject "
+	      "from versions where id==:a", id);
+  if (!q.next())
+    throw NoResult();
+  vr.id = id;
+  vr.photo = q.value(0).toULongLong();
+  vr.mods = q.value(1).toString();
+  vr.starrating = q.value(2).toInt();
+  vr.colorlabel = ColorLabel(q.value(3).toInt());
+  vr.acceptreject = AcceptReject(q.value(4).toInt());
+  return vr;
+}
+
+PhotoDB::PhotoRecord &&PhotoDB::photoRecord(quint64 id) {
+  PhotoRecord pr;
+  QSqlQuery q("select folder, filename, filetype, width, height, "
+	      "camera, lens, exposetime, fnumber, focallength, "
+	      "distance, iso, orient, capturedate "
+	      "from photos where id==:a", id);
+  if (!q.next())
+    throw NoResult();
+  pr.id = id;
+  pr.folder = q.value(0).int();
+  pr.filename = q.value(1).toString();
+  pr.filetype = q.value(2).toInt();
+  pr.photosize = PSize(q.value(3).toInt(), q.value(4).toInt());
+  pr.camera = q.value(5).toInt();
+  pr.lens = q.value(6).toInt();
+  pr.exposetime_s = q.value(7).toDouble();
+  pr.fnumber = q.value(8).toDouble();
+  pr.focallength_mm = q.value(9).toDouble();
+  pr.distance_m = q.value(10).toDouble();
+  pr.iso = q.value(11).toDouble();
+  pr.orient = Exif::Orientation(q.value(12).toInt);
+  pr.capturedate = q.value(13).toDateTime();
+  return pr;
+}
+
+
+
+void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
+  QSqlQuery q("update versions set colorlabel=:a where id==:b",
+	      int(label), versionid);
+}
+
+void PhotoDB::setStarRating(quint64 versionid, int stars) {
+  QSqlQuery q("update versions set starrating=:a where id==:b",
+	      stars, versionid);
+}
+  
+void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
+  QSqlQuery q("update versions set acceptreject=:a where id==:b",
+	      int(label), versionid);
+}
+
+quint64 PhotoDB::root(quint64 folderid) {
+  while (true) {
+    bool ok;
+    quint64 parentid
+      = simpleQuery("select parentfolder from folders where id==:a",
+		    folderid).toULongLong(&ok);
+    if (ok && parentid)
+      folderid = parentid;
+    else
+      return folderid;
+  }
 }

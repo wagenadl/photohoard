@@ -27,17 +27,6 @@ create table folders (
                on delete cascade
                on update cascade );
 
-create table foldertree (
--- for ease of referencing grandchild folders
-       descendant integer,
-       ancestor integer,
-       foreign key(descendant) references folders(id)
-               on delete cascade
-               on update cascade,
-       foreign key(ancestor) references folders(id)
-               on delete cascade
-               on update cascade );
-
 create table tags (
        id integer primary key,
        tag text,
@@ -45,17 +34,6 @@ create table tags (
        foreign key(parent) references tags(id)
                on delete cascade
                on update cascade);
-
-create table tagtree (
--- for ease of referencing grandchild tags
-       descendant integer,
-       ancestor integer,
-       foreign key(descendant) references tags(id)
-               on delete cascade
-               on update cascade,
-       foreign key(ancestor) references tags(id)
-               on delete cascade
-               on update cascade );
 
 create table cameras (
        id integer primary key,
@@ -114,7 +92,8 @@ create table appliedtags (
                on update cascade,
        foreign key(version) references versions(id)
                on delete cascade
-               on update cascade); 
+               on update cascade,
+       unique(tag, version) on conflict ignore );
 
 create table folderstoscan (
        folder integer unique on conflict ignore,
@@ -158,5 +137,7 @@ insert into info values("PhotoDB", "1.0");
 create index if not exists photodateidx on photos(capturedate);
 create index if not exists parentfolderidx on folders(parentfolder);
 create index if not exists versionidx on versions(photo);
+create index if not exists tagidx on tags(tag);
+create index if not exists tagtreeidx on tags(parent);
 
 insert into current values(null);

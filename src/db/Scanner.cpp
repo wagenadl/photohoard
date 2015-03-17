@@ -109,6 +109,7 @@ quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
     throw q;
   quint64 id = q.lastInsertId().toULongLong();
 
+#if 0
   if (parentid) {
     q.prepare("insert into foldertree(descendant,ancestor) "
 	      " values (:d,:a)");
@@ -118,13 +119,14 @@ quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
       throw q;
     
     q.prepare("insert into foldertree(descendant,ancestor) "
-	      " select ancestor, :d "
+	      " select :d, ancestor "
 	      " from foldertree where descendant==:a");
     q.bindValue(":d", id);
     q.bindValue(":a", parentid);
     if (!q.exec()) 
       throw q;
   }
+#endif
   return id;
 }
 
