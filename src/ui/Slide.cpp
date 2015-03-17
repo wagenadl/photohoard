@@ -104,8 +104,10 @@ void Slide::paint(QPainter *painter,
       pDebug() << "Time" << id << dt
 	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
-    if (!img.isNull())
+    if (!img.isNull()) {
+      qDebug() << "Slide " << id << "image was sized" << img.size();
       pm = QPixmap::fromImage(img.scaledToFitIn(PSize(ims, ims)).toQImage());
+    }
     img = Image16(); // no need to keep it ad inf
   }
   painter->drawPixmap(tilesize/2 - pm.width()/2,

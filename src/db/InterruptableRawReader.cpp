@@ -42,8 +42,9 @@ bool InterruptableRawReader::uOpen() {
   if (!rqs.isNull() && !oris.isNull()
       && rqs.width()*2<=oris.width() && rqs.height()*2<=oris.height())
     args << "-h";
-  args << "-c" << "-t" << "0" << "-w" << fn;
-  // eventually we should return 16-bits linear XYZ!
+  args << QString("-c -t 0 -w -4 -o 5").split(" ");
+  args << fn;
+
   src->start(cmd, args, QProcess::ReadOnly);
   return src->waitForStarted() && src->waitForFinished();
 }

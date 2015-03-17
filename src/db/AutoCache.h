@@ -45,12 +45,13 @@ signals: // private
   void forwardRequest(quint64 version, QSize desired);
   void forwardIfEasy(quint64 version, QSize desired);
   void forwardCachePreview(quint64 version, Image16 img);
-  void forwardCacheModified(quint64 version, Image16 img);
+  void forwardCacheModified(quint64 version);
 private:
   QThread thread;
   class AC_Worker *worker;
   PhotoDB db;
   class BasicCache *cache;
+  class AC_ImageHolder *holder;
 };
 
 #endif

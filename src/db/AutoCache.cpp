@@ -5,12 +5,14 @@
 #include "BasicCache.h"
 #include <QMetaType>
 #include "PDebug.h"
+#include "AC_ImageHolder.h"
 
 AutoCache::AutoCache(PhotoDB const &db, QString rootdir, QObject *parent):
   QObject(parent), db(db) {
   setObjectName("AutoCache");
   cache = new BasicCache(rootdir, this);
-  worker = new AC_Worker(db, cache);
+  holder = new AC_ImageHolder(this);
+  worker = new AC_Worker(db, cache, holder);
   worker->moveToThread(&thread);
   
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");
@@ -32,8 +34,8 @@ AutoCache::AutoCache(PhotoDB const &db, QString rootdir, QObject *parent):
 	  this, SIGNAL(exception(QString)));
   connect(this, SIGNAL(forwardCachePreview(quint64, Image16)),
           worker, SLOT(cachePreview(quint64, Image16)));
-  connect(this, SIGNAL(forwardCacheModified(quint64, Image16)),
-          worker, SLOT(cacheModified(quint64, Image16)));
+  connect(this, SIGNAL(forwardCacheModified(quint64)),
+          worker, SLOT(cacheModified(quint64)));
 
   thread.start();
   worker->boot();
@@ -59,7 +61,8 @@ void AutoCache::recache(quint64 id) {
 }
 
 void AutoCache::cacheModified(quint64 id, Image16 img) {
-  emit forwardCacheModified(id, img);
+  holder->setImage(id, img);
+  emit forwardCacheModified(id);
 }
 
 void AutoCache::request(quint64 version, QSize desired) {

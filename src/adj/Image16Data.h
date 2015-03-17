@@ -17,10 +17,17 @@ public:
 	  : QImage::Format_RGB16), roibyteoffset(0) {
     bytesperline = image.bytesPerLine();
   }
-  Image16Data(QImage const &img):
+  Image16Data(QImage const &img,
+              Image16Base::Format f=Image16Base::Format::sRGB8):
     width(img.width()), height(img.height()),
-    format(Image16Base::Format::sRGB8), image(img), roibyteoffset(0) {
+    format(f),
+    image(f==Image16Base::Format::sRGB8
+          ? img.convertToFormat(QImage::Format_RGB32)
+          : img),
+    roibyteoffset(0) {
     bytesperline = image.bytesPerLine();
+    if (f!=Image16Base::Format::sRGB8)
+      width = img.width()/3;
   }
 public:
   int width;

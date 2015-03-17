@@ -149,3 +149,7 @@ HEADERS += db/PSize.h
 SOURCES += db/PSize.cpp
 HEADERS += ui/MetaViewer.h
 SOURCES += ui/MetaViewer.cpp
+HEADERS += db/AC_ImageHolder.h
+SOURCES += db/AC_ImageHolder.cpp
+HEADERS += adj/PPM16.h
+SOURCES += adj/PPM16.cpp

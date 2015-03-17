@@ -44,7 +44,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     }
     // If the image is large enough, we might be able to do a quicker
     // load of a downscaled version
-    args << "-c" << "-t" << "0";
+    args << QString("-c -t 0 -w -4 -o 5").split(" ");
     args << path;
     dcraw.start("dcraw", args);
     if (!dcraw.waitForStarted())

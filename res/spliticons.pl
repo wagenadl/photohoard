@@ -2,7 +2,7 @@
 
 use strict;
 
-my @icons = qw/colorNone colorRed colorYellow colorGreen colorBlue colorPurple layoutFull layoutGrid layoutHGrid layoutVGrid layoutHLine layoutVLine scaleA2 scaleA3 scaleA4 scaleA5 scaleA7 scaleB2 scaleB3 scaleB4 scaleB5 scaleB6 scaleB7 scaleB8 scaleB9 scaleB10 scaleB11 scaleB12 scaleB13 cameraImport folderAdd folderAdd2 export searchSquares searchLines  cameraImport-1 folderAdd-1 folderAdd2-1 export-1 searchSquares-1 searchLines-1 searchLines2-1/;
+my @icons = qw/colorNone colorRed colorYellow colorGreen colorBlue colorPurple layoutFull layoutGrid layoutHGrid layoutVGrid layoutHLine layoutVLine scaleA2 scaleA3 scaleA4 scaleA5  scaleB2 scaleB3 scaleB4 scaleB5 scaleB6 scaleB7 scaleB8 scaleB9 scaleB10 scaleB11 scaleB12 scaleB13 cameraImport folderAdd folderAdd2 export searchSquares searchLines  cameraImport-1 folderAdd-1 folderAdd2-1 export-1 searchSquares-1 searchLines-1 searchLines2-1/;
 
 if (@ARGV) {
   @icons = @ARGV;

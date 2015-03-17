@@ -57,45 +57,51 @@ constexpr double t2s = -0.676887;
 */
 
 template <> inline void convert<XYZ, LMS>(XYZ const &src, LMS &dst) {
-  constexpr int32_t x2li = int32_t(x2l*32768 + 0.5);
-  constexpr int32_t x2mi = int32_t(x2m*32768 + 0.5);
-  constexpr int32_t x2si = int32_t(x2s*32768 + 0.5);
-  constexpr int32_t y2li = int32_t(y2l*32768 + 0.5);
-  constexpr int32_t y2mi = int32_t(y2m*32768 + 0.5);
-  constexpr int32_t y2si = int32_t(y2s*32768 + 0.5);
-  constexpr int32_t z2li = int32_t(z2l*32768 + 0.5);
-  constexpr int32_t z2mi = int32_t(z2m*32768 + 0.5);
-  constexpr int32_t z2si = int32_t(z2s*32768 + 0.5);
+  constexpr int32_t scale = 16384;
+  constexpr int32_t scalebits = 14;
+  constexpr int32_t halfscale = 8191;
+  constexpr int32_t x2li = int32_t(x2l*scale + 0.5);
+  constexpr int32_t x2mi = int32_t(x2m*scale + 0.5);
+  constexpr int32_t x2si = int32_t(x2s*scale + 0.5);
+  constexpr int32_t y2li = int32_t(y2l*scale + 0.5);
+  constexpr int32_t y2mi = int32_t(y2m*scale + 0.5);
+  constexpr int32_t y2si = int32_t(y2s*scale + 0.5);
+  constexpr int32_t z2li = int32_t(z2l*scale + 0.5);
+  constexpr int32_t z2mi = int32_t(z2m*scale + 0.5);
+  constexpr int32_t z2si = int32_t(z2s*scale + 0.5);
   int32_t x = src.X;
   int32_t y = src.Y;
   int32_t z = src.Z;
-  int32_t l = x2li*x + y2li*y + z2li*z + 16383;
-  int32_t m = x2mi*x + y2mi*y + z2mi*z + 16383;
-  int32_t s = x2si*x + y2si*y + z2si*z + 16383;
-  dst.L = (l<=0) ? 0 : (l>>15);
-  dst.M = (m<=0) ? 0 : (m>>15);
-  dst.S = (s<=0) ? 0 : (s>>15);
+  int32_t l = x2li*x + y2li*y + z2li*z + halfscale;
+  int32_t m = x2mi*x + y2mi*y + z2mi*z + halfscale;
+  int32_t s = x2si*x + y2si*y + z2si*z + halfscale;
+  dst.L = (l<=0) ? 0 : (l>>scalebits);
+  dst.M = (m<=0) ? 0 : (m>>scalebits);
+  dst.S = (s<=0) ? 0 : (s>>scalebits);
 }
 
 template <> inline void convert<LMS, XYZ>(LMS const &src, XYZ &dst) {
-  constexpr int32_t l2xi = int32_t(l2x*32768 + 0.5);
-  constexpr int32_t l2yi = int32_t(l2y*32768 + 0.5);
-  constexpr int32_t l2zi = int32_t(l2z*32768 + 0.5);
-  constexpr int32_t m2xi = int32_t(m2x*32768 + 0.5);
-  constexpr int32_t m2yi = int32_t(m2y*32768 + 0.5);
-  constexpr int32_t m2zi = int32_t(m2z*32768 + 0.5);
-  constexpr int32_t s2xi = int32_t(s2x*32768 + 0.5);
-  constexpr int32_t s2yi = int32_t(s2y*32768 + 0.5);
-  constexpr int32_t s2zi = int32_t(s2z*32768 + 0.5);
+  constexpr int32_t scale = 16384;
+  constexpr int32_t scalebits = 14;
+  constexpr int32_t halfscale = 8191;
+  constexpr int32_t l2xi = int32_t(l2x*scale + 0.5);
+  constexpr int32_t l2yi = int32_t(l2y*scale + 0.5);
+  constexpr int32_t l2zi = int32_t(l2z*scale + 0.5);
+  constexpr int32_t m2xi = int32_t(m2x*scale + 0.5);
+  constexpr int32_t m2yi = int32_t(m2y*scale + 0.5);
+  constexpr int32_t m2zi = int32_t(m2z*scale + 0.5);
+  constexpr int32_t s2xi = int32_t(s2x*scale + 0.5);
+  constexpr int32_t s2yi = int32_t(s2y*scale + 0.5);
+  constexpr int32_t s2zi = int32_t(s2z*scale + 0.5);
   int32_t l = src.L;
   int32_t m = src.M;
   int32_t s = src.S;
-  int32_t x = l2xi*l + m2xi*m + s2xi*s + 16383;
-  int32_t y = l2yi*l + m2yi*m + s2yi*s + 16383;
-  int32_t z = l2zi*l + m2zi*m + s2zi*s + 16383;
-  dst.X = (x<=0) ? 0 : (x>>15);
-  dst.Y = (y<=0) ? 0 : (y>>15);
-  dst.Z = (z<=0) ? 0 : (z>>15);
+  int32_t x = l2xi*l + m2xi*m + s2xi*s + halfscale;
+  int32_t y = l2yi*l + m2yi*m + s2yi*s + halfscale;
+  int32_t z = l2zi*l + m2zi*m + s2zi*s + halfscale;
+  dst.X = (x<=0) ? 0 : (x>>scalebits);
+  dst.Y = (y<=0) ? 0 : (y>>scalebits);
+  dst.Z = (z<=0) ? 0 : (z>>scalebits);
 }
 
 template <> inline void convert<LMS, IPT>(LMS const &src, IPT &dst) {
