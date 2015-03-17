@@ -2,7 +2,7 @@
 
 #include "Exporter.h"
 #include <QMutexLocker>
-#include <QDebug>
+#include "PDebug.h"
 #include "IF_Worker.h"
 #include "NoResult.h"
 #include <QRegExp>
@@ -16,17 +16,17 @@ Exporter::Exporter(PhotoDB const &db, QObject *parent):
 
 Exporter::~Exporter() {
   if (isRunning()) {
-    qDebug() << "Warning: Exporter destroyed while running";
+    pDebug() << "Warning: Exporter destroyed while running";
     stopsoon = true;
     cond.wakeOne();
     if (wait(1000)) {
-      qDebug() << "Exporter stopped. All is well.";
+      pDebug() << "Exporter stopped. All is well.";
     } else {
       terminate();
       if (wait(1000)) {
-        qDebug() << "Exporter terminated.";
+        pDebug() << "Exporter terminated.";
       } else {
-        qDebug() << "Could not terminate exporter";
+        pDebug() << "Could not terminate exporter";
       }
     }
   }
@@ -73,7 +73,7 @@ void Exporter::stop() {
     return;
   cond.wakeOne();
   if (!wait(10000))
-    qDebug() << "Warning: Exporter: failed to stop";
+    pDebug() << "Warning: Exporter: failed to stop";
 }
 
 void Exporter::run() {

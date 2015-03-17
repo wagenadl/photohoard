@@ -1,7 +1,7 @@
 // NikonLenses.cpp
 
 #include "NikonLenses.h"
-#include <QDebug>
+#include "PDebug.h"
 
 
 NikonLenses::NikonLenses() {

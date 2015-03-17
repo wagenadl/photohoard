@@ -2,7 +2,7 @@
 
 #include "BasicThread.h"
 
-#include <QDebug>
+#include "PDebug.h"
 
 BasicThread::BasicThread(QObject *parent): QThread(parent) {
 }
@@ -12,15 +12,15 @@ BasicThread::~BasicThread() {
 }
 
 bool BasicThread::stopAndWait(int timeout_ms) {
-  qDebug() << "stopandwait";
+  pDebug() << "stopandwait";
   if (!isRunning())
     return true;
-  qDebug() << "  running";
+  pDebug() << "  running";
   stop();
-  qDebug() << "  sent stop request";
+  pDebug() << "  sent stop request";
   if (wait(timeout_ms))
     return true;
-  qDebug() << "Failed to stop thread " << objectName();
+  pDebug() << "Failed to stop thread " << objectName();
     return false;
 }
 
@@ -32,13 +32,13 @@ void BasicThread::start() {
 }
 
 void BasicThread::stop() {
-  qDebug() << "BT::stop";
+  pDebug() << "BT::stop";
   if (isRunning()) {
-    qDebug() << "  running";
+    pDebug() << "  running";
     QMutexLocker l(&mutex);
-    qDebug() << "  got mutex";
+    pDebug() << "  got mutex";
     stopsoon = true;
     waiter.wakeOne();
-    qDebug() << "  sent wakeup";
+    pDebug() << "  sent wakeup";
   }
 }

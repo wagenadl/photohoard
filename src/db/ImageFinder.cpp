@@ -3,7 +3,7 @@
 #include "ImageFinder.h"
 #include "IF_Worker.h"
 #include <QMetaType>
-#include <QDebug>
+#include "PDebug.h"
 
 ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
   setObjectName("ImageFinder");
@@ -39,7 +39,7 @@ void ImageFinder::findImage(quint64 id, QString path, QString ext,
 }
 
 void ImageFinder::handleFoundImage(quint64 id, Image16 img, QSize fs) {
-  qDebug() << "ImageFinder::handleFoundImage" << id << fs << img.size();
+  pDebug() << "ImageFinder::handleFoundImage" << id << fs << img.size();
   queuelength--;
   emit foundImage(id, img, fs);
 }

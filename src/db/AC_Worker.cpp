@@ -4,7 +4,7 @@
 #include "IF_Bank.h"
 #include "BasicCache.h"
 #include <QVariant>
-#include <QDebug>
+#include "PDebug.h"
 #include "NoResult.h"
 
 inline uint qHash(PSize const &s) {
@@ -35,7 +35,7 @@ int AC_Worker::queueLength() {
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
-  qDebug() << "recache " << versions.size();
+  pDebug() << "recache " << versions.size();
   try {
     addToDBQueue(versions);
     markReadyToLoad(versions);
@@ -115,14 +115,14 @@ void AC_Worker::activateBank() {
   QSet<quint64> tobesent;
   while (K>0 && !readyToLoad.isEmpty()) {
     if (rtlOrder.isEmpty()) {
-      qDebug() << "rtlOrder is empty but readyToLoad is not"
+      pDebug() << "rtlOrder is empty but readyToLoad is not"
 	       << readyToLoad.size() << *readyToLoad.begin();
       readyToLoad.clear();
       break;
     }
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id)) {
-      qDebug() << "id" << id << "in rtlOrder but not in readyToLoad";
+      pDebug() << "id" << id << "in rtlOrder but not in readyToLoad";
       continue;
     }
     if (invalidatedWhileLoading.contains(id)) {
@@ -144,7 +144,7 @@ void AC_Worker::activateBank() {
 
 
 void AC_Worker::cachePreview(quint64 id, Image16 img) {
-  qDebug() << "cachePreview" << id;
+  pDebug() << "cachePreview" << id;
   if (loaded.contains(id))
     return;
   loaded[id] = img;
@@ -153,7 +153,7 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 }
 
 void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
-  qDebug() << "cacheModified" << vsn << img.size() << cache->maxSize();
+  pDebug() << "cacheModified" << vsn << img.size() << cache->maxSize();
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
     if (beingLoaded.contains(vsn)) 
       invalidatedWhileLoading << vsn;
@@ -192,7 +192,7 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
-  qDebug() << "AC_Worker::HandleFoundImage" << id << fullSize << img.size();
+  pDebug() << "AC_Worker::HandleFoundImage" << id << fullSize << img.size();
   try {
     if (!fullSize.isEmpty())
       ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
@@ -220,7 +220,7 @@ void AC_Worker::processLoaded() {
     && readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold) {
     storeLoadedInDB();
-    qDebug() << "AC_Worker: Cache progress: " << n << "/" << N << "(" << done <<")";
+    pDebug() << "AC_Worker: Cache progress: " << n << "/" << N << "(" << done <<")";
     emit cacheProgress(n, N);
   }
     
@@ -263,7 +263,7 @@ void AC_Worker::sendToBank(quint64 version) {
 }
 
 void AC_Worker::storeLoadedInDB() {
-  qDebug() << "storeLoadedInDB";
+  pDebug() << "storeLoadedInDB";
   Transaction t(cache->database());
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
@@ -276,13 +276,13 @@ void AC_Worker::storeLoadedInDB() {
     cache->database().query("delete from queue where version==:a", version);
   }
   t.commit();
-  qDebug() << "  storeLoadedinDB done";
+  pDebug() << "  storeLoadedinDB done";
   n += loaded.size() - noutdated;
   loaded.clear();
 }
 
 void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
-  qDebug() << "AC_Worker::requestIfEasy" << version << desired;
+  pDebug() << "AC_Worker::requestIfEasy" << version << desired;
   try {
     if (loaded.contains(version)) {
       Image16 res = loaded[version].scaledDownToFitIn(desired);
@@ -305,7 +305,7 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  qDebug() << "AC_Worker::requestImage" << version << desired;
+  pDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
     if (loaded.contains(version)) {
@@ -332,7 +332,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       // We're getting it already
       requests[version] << desired;
     } else {
-      qDebug() << "AC_Worker: request: will load " << version << desired;
+      pDebug() << "AC_Worker: request: will load " << version << desired;
       if (!mustCache.contains(version))
 	N++; /* This is not actually formally correct, because
 		it may be that version is in the dbqueue. Worse, by not

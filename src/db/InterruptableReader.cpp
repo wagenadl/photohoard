@@ -2,7 +2,7 @@
 
 #include "InterruptableReader.h"
 #include <QMutexLocker>
-#include <QDebug>
+#include "PDebug.h"
 #include <unistd.h>
 
 InterruptableReader::InterruptableReader(QObject *parent):
@@ -16,10 +16,10 @@ InterruptableReader::InterruptableReader(QObject *parent):
 InterruptableReader::~InterruptableReader() {
   stop();
   if (!wait(1000)) {
-    qDebug() << "InterruptableReader deleted; did not stop; terminating.";
+    pDebug() << "InterruptableReader deleted; did not stop; terminating.";
     terminate();
     if (!wait(1000)) 
-      qDebug() << "InterruptableReader still did not stop; disaster imminent.";
+      pDebug() << "InterruptableReader still did not stop; disaster imminent.";
   }
 }
 
@@ -172,7 +172,7 @@ void InterruptableReader::lReadSome() {
     mutex.lock();
 
     if (n<0) {
-      qDebug() << "IR: Read error";
+      pDebug() << "IR: Read error";
       // Error
       res = Result("Read error");
       lUnprepSource();
@@ -182,7 +182,7 @@ void InterruptableReader::lReadSome() {
       emit failed(c);
       mutex.lock();
     } else if (n==0) {
-      qDebug() << "IR: Read nothing";
+      pDebug() << "IR: Read nothing";
       if (tSource().atEnd())
 	lComplete();
     } else {

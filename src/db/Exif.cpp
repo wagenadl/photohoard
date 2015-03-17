@@ -7,10 +7,10 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QImageReader>
-#include <QDebug>
+#include "PDebug.h"
 
 void exifLogHandler(int level, char const *message) {
-  qDebug() << "Exif msg (" << level << "): " << message;
+  pDebug() << "Exif msg (" << level << "): " << message;
 }
 
 void Exif::initialize() {

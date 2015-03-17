@@ -7,7 +7,6 @@
 #include <QImage>
 #include <QMetaType>
 #include <QSharedDataPointer>
-#include <QDebug>
 #include "PSize.h"
 #include "Image16Base.h"
 #include "Image16Data.h"

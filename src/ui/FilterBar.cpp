@@ -3,7 +3,7 @@
 #include "FilterBar.h"
 
 #include <QMetaType>
-#include <QDebug>
+#include "PDebug.h"
 
 FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
   qRegisterMetaType<FilterBar::Action>("FilterBar::Action");
@@ -48,7 +48,7 @@ FilterBar::~FilterBar() {
 
 
 void FilterBar::trigger(QAction *a) {
-  qDebug() << "FilterBar::trigger" << a << revmap.contains(a);
+  pDebug() << "FilterBar::trigger" << a << revmap.contains(a);
   if (revmap.contains(a))
     emit triggered(revmap[a]);
 }

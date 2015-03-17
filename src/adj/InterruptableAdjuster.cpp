@@ -3,6 +3,7 @@
 #include "InterruptableAdjuster.h"
 #include "Adjuster.h"
 #include <QMutexLocker>
+#include "PDebug.h"
 
 InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
   QThread(parent) {
@@ -13,10 +14,10 @@ InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
 InterruptableAdjuster::~InterruptableAdjuster() {
   stop();
   if (!wait(1000)) {
-    qDebug() << "InterruptableAdjuster: Failed to stop thread; terminating.";
+    pDebug() << "InterruptableAdjuster: Failed to stop thread; terminating.";
     terminate();
     if (!wait(1000))
-      qDebug() << "InterruptableAdjuster: Still failed to stop thread";
+      pDebug() << "InterruptableAdjuster: Still failed to stop thread";
   }
 }
 

@@ -1,7 +1,7 @@
 // Image16.cpp
 
 #include "Image16.h"
-#include <QDebug>
+#include "PDebug.h"
 #include "ColorSpaces.h"
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -16,32 +16,32 @@ static Image16Foo foo;
 
 
 Image16::Image16(): Image16(QImage()) {
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
 }
 
 Image16::Image16(QString const &fn, char const *format):
   Image16(QImage(fn, format)) {
-  qDebug() << "Image16 from file " << fn << size();
-  //  qDebug() << this << d;
+  pDebug() << "Image16 from file " << fn << size();
+  //  pDebug() << this << d;
 }
 
 Image16::Image16(char const *fn, char const *format):
   Image16(QString(fn), format) {
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
 }
 
 Image16::Image16(Image16 const &image): d(image.d) {
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
 }
 
 Image16::Image16(int width, int height, Image16::Format format):
   d(new Image16Data(width, height, format)) {
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
 }
 
 Image16::Image16(PSize size, Image16::Format format):
   Image16(size.width(), size.height(), format) {
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
 }
 
 Image16::Image16(uchar const *data, int width, int height,
@@ -50,7 +50,7 @@ Image16::Image16(uchar const *data, int width, int height,
     d = new Image16Data(QImage(data, width, height, QImage::Format_RGB32));
   else
     d = new Image16Data(QImage(data, width*3, height, QImage::Format_RGB16));
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
   d->width = width;
   d->format = format;
 }
@@ -63,14 +63,14 @@ Image16::Image16(uchar const *data, int width, int height, int bytesPerLine,
   else
     d = new Image16Data(QImage(data, width*3, height, bytesPerLine,
                         QImage::Format_RGB16));
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
   d->width = width;
   d->format = format;
 }
 
 Image16 &Image16::operator=(Image16 const &image) {
   d = image.d;
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
   return *this;
 }
 
@@ -82,7 +82,7 @@ QImage Image16::toQImage() const {
 }
 
 Image16::Image16(QImage const &image): d(new Image16Data(image)) {
-  //  qDebug() << this << d;
+  //  pDebug() << this << d;
 }
 
 Image16 Image16::fromQImage(QImage const &image) {
@@ -422,13 +422,13 @@ Image16 Image16::rotated(double angle, Image16::CropMode c,
 Image16 Image16::perspectived(QPolygonF poly, Image16::CropMode,
                               Image16::Interpolation i) const {
   if (poly.size()!=4) {
-    qDebug() << "Image16::perspectived: need 4-gon";
+    pDebug() << "Image16::perspectived: need 4-gon";
     return Image16();
   }
 
   if (i!=Interpolation::NearestNeighbor) {
     if (i!=Interpolation::Linear)
-      qDebug() << "Note: Image16::perspectived only supports "
+      pDebug() << "Note: Image16::perspectived only supports "
         "up to linear interpolation";
     i = Interpolation::Linear;
   }

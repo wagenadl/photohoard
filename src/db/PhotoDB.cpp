@@ -2,7 +2,7 @@
 
 #include "PhotoDB.h"
 #include <system_error>
-#include <QDebug>
+#include "PDebug.h"
 #include "SqlFile.h"
 #include <QFile>
 #include "NoResult.h"
@@ -14,7 +14,7 @@ PhotoDB::PhotoDB(QString fn): Database(fn),
   if (!q.next())
     throw NoResult();
 
-  qDebug() << "Opened PhotoDB " << fn
+  pDebug() << "Opened PhotoDB " << fn
 	   << ": " << q.value(0).toString() << q.value(1).toString();
 
   query("pragma synchronous = 0");
@@ -41,7 +41,7 @@ QString PhotoDB::folder(quint64 id) {
 PhotoDB PhotoDB::create(QString fn) {
   QFile f(fn);
   if (f.exists()) {
-    qDebug() << "Could not create new PhotoDB: File exists: " << fn;
+    pDebug() << "Could not create new PhotoDB: File exists: " << fn;
     throw std::system_error(std::make_error_code(std::errc::file_exists));
   }
   Database db(fn);
@@ -50,8 +50,8 @@ PhotoDB PhotoDB::create(QString fn) {
   db.beginAndLock();
   for (auto c: sql) {
     if (!q.exec(c)) {
-      qDebug() << "PhotoDB: Could not setup: " << q.lastError().text();
-      qDebug() << "  at " << c;
+      pDebug() << "PhotoDB: Could not setup: " << q.lastError().text();
+      pDebug() << "  at " << c;
       db.rollbackAndUnlock();
       throw q;
     }

@@ -7,6 +7,7 @@
 #include <QMainWindow>
 #include "FileBar.h"
 #include "Image16.h"
+#include "LayoutBar.h"
 
 class MainWindow: public QMainWindow {
   Q_OBJECT;
@@ -20,6 +21,7 @@ public slots:
   void fileAction(FileBar::Action);
   void scrollToCurrent();
   void updateImage(quint64, QSize, Image16);
+  void setLayout(LayoutBar::Action);
 private:
   class Exporter *exporter;
 private:

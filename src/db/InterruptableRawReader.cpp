@@ -1,7 +1,7 @@
 // InterruptableRawReader.cpp
 
 #include "InterruptableRawReader.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QProcess>
 
 InterruptableRawReader::InterruptableRawReader(QObject *parent):

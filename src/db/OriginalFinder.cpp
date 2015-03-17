@@ -5,6 +5,7 @@
 #include "InterruptableRawReader.h"
 #include "NoResult.h"
 #include "Exif.h"
+#include "PDebug.h"
 
 OriginalFinder::OriginalFinder(PhotoDB const &db, 
                                QObject *parent):
@@ -35,14 +36,14 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
     PSize s(q.value(0).toInt(), q.value(1).toInt());
     return Exif::fixOrientation(s, Exif::Orientation(q.value(2).toInt()));
   } catch (...) {
-    qDebug() << "OriginalFinder::originalSize: exception";
+    pDebug() << "OriginalFinder::originalSize: exception";
     return PSize();
   }
   return PSize(); // not executed
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
-  qDebug() << "requestScaledOriginal " << vsn << ds;
+  pDebug() << "requestScaledOriginal " << vsn << ds;
   try {
     quint64 photo = db.simpleQuery("select photo from versions"
 				   " where id=:a limit 1", vsn).toULongLong();
@@ -107,13 +108,13 @@ void OriginalFinder::provide(QString fn) {
   if (!res.ok)
     res = rawreader->result(fn);
   if (!res.ok) {
-    qDebug() << "  OF: got no result" << e0 << res.error;
+    pDebug() << "  OF: got no result" << e0 << res.error;
     return;
   }
 
   Image16 img = QImage::fromData(res.data);
   if (img.isNull()) {
-    qDebug() << "  got null image";
+    pDebug() << "  got null image";
     return;
   }
 

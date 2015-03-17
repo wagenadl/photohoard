@@ -4,7 +4,7 @@
 #include "Slide.h"
 #include <QPainter>
 #include <QSet>
-#include <QDebug>
+#include "PDebug.h"
 #include <QGraphicsSceneMouseEvent>
 #include "FilmScene.h"
 
@@ -32,14 +32,14 @@ void Strip::setHeaderID(quint64 id) {
     if (fs)
       fs->dropHeaderFor(headerid, this);
     else
-      qDebug() << "Strip not in a scene - disaster imminent";
+      pDebug() << "Strip not in a scene - disaster imminent";
   }
   if (id) {
     FilmScene *fs = dynamic_cast<FilmScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
     else
-      qDebug() << "Strip not in a scene - won't show image";
+      pDebug() << "Strip not in a scene - won't show image";
     headerid = id;
   }
 }

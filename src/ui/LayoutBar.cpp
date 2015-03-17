@@ -2,7 +2,7 @@
 
 #include "LayoutBar.h"
 #include <QMetaType>
-#include <QDebug>
+#include "PDebug.h"
 #include <QSignalMapper>
 
 LayoutBar::LayoutBar(QWidget *parent): ActionBar(parent) {
@@ -57,7 +57,7 @@ LayoutBar::~LayoutBar() {
 }
 
 void LayoutBar::trigger(QAction *a) {
-  qDebug() << "LayoutBar::trigger" << a << revmap.contains(a);
+  pDebug() << "LayoutBar::trigger" << a << revmap.contains(a);
   if (revmap.contains(a))
     emit triggered(revmap[a]);
 }

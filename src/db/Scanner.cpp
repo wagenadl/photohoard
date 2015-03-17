@@ -1,7 +1,7 @@
 // Scanner.cpp
 
 #include "Scanner.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QDir>
 #include <QFileInfoList>
 #include <system_error>
@@ -15,7 +15,7 @@ Scanner::Scanner(PhotoDB const &db):
   QSqlQuery q(*db);
   q.prepare("select extension, filetype from extensions");
   if (!q.exec()) {
-    qDebug() << "Could not select extensions";
+    pDebug() << "Could not select extensions";
     throw q.lastError();
   }
   while (q.next()) 
@@ -33,7 +33,7 @@ void Scanner::addTree(QString path) {
   q.prepare("select id from folders where pathname==:p");
   q.bindValue(":p", path);
   if (!q.exec()) {
-    qDebug() << "Could not select folder";
+    pDebug() << "Could not select folder";
     throw q.lastError();
   }
   quint64 id;
@@ -48,7 +48,7 @@ void Scanner::addTree(QString path) {
     q.prepare("select id from folders where pathname==:p");
     q.bindValue(":p", parentPath);
     if (!q.exec()) {
-      qDebug() << "Could not select folder 2";
+      pDebug() << "Could not select folder 2";
       throw q.lastError();
     }
     quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
@@ -58,7 +58,7 @@ void Scanner::addTree(QString path) {
   q.prepare("insert into folderstoscan values(:i)");
   q.bindValue(":i", id);
   if (!q.exec()) {
-    qDebug() << "Could not insert into folderstoscan";
+    pDebug() << "Could not insert into folderstoscan";
     throw q.lastError();
   }
   t.commit();
@@ -158,7 +158,7 @@ void Scanner::run() {
       if (!(ids=findPhotosToScan()).isEmpty()) {
 	l.unlock();
 	scanPhotos(ids);
-	qDebug() << "Scan progress: " << n << " / " << N;
+	pDebug() << "Scan progress: " << n << " / " << N;
 	emit progressed(n, N);
         sleepok = false;
 	l.relock();
@@ -171,35 +171,35 @@ void Scanner::run() {
         l.relock();
       }
       if (sleepok && !stopsoon) {
-        qDebug() << "Scanner: Going to sleep";
+        pDebug() << "Scanner: Going to sleep";
 	waiter.wait(&mutex);
-        qDebug() << "Scanner: Woke up";
+        pDebug() << "Scanner: Woke up";
       }
     }
   } catch (QSqlQuery &q) {
-    qDebug() << "Scanner: SqlError: " << q.lastError().text();
-    qDebug() << "  from " << q.lastQuery();
+    pDebug() << "Scanner: SqlError: " << q.lastError().text();
+    pDebug() << "  from " << q.lastQuery();
     QMap<QString,QVariant> vv = q.boundValues();
     for (auto it=vv.begin(); it!=vv.end(); ++it) 
-      qDebug() << "    " << it.key() << ": " << it.value();
-    qDebug() << "  Thread terminating";
+      pDebug() << "    " << it.key() << ": " << it.value();
+    pDebug() << "  Thread terminating";
     emit exception("Scanner: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
   } catch (std::system_error &e) {
-    qDebug() << "Scanner: System error: "
+    pDebug() << "Scanner: System error: "
 	     << e.code().value() << e.code().message().c_str();
-    qDebug() << "  Thread terminating";
+    pDebug() << "  Thread terminating";
     emit exception("Scanner: System error");
   } catch (NoResult) {
-    qDebug() << "Scanner: Expected object not found in table.";
-    qDebug() << "  Thread terminating";
+    pDebug() << "Scanner: Expected object not found in table.";
+    pDebug() << "  Thread terminating";
     emit exception("Scanner: No result");
   } catch (...) {
-    qDebug() << "Scanner: Unknown exception";
-    qDebug() << "  Thread terminating";
+    pDebug() << "Scanner: Unknown exception";
+    pDebug() << "  Thread terminating";
     emit exception("Scanner: Unknown exception");
   }
-  qDebug() << "Scanner end of run";
+  pDebug() << "Scanner end of run";
 }
 
 QSet<quint64> Scanner::findPhotosToScan() {
@@ -405,7 +405,7 @@ void Scanner::scanPhoto(quint64 id) {
   // Find exif info
   Exif exif(pathname);
   if (!exif.ok()) {
-    qDebug() << "PhotoScanner::doscan: Could not get exif. Oh well.";
+    pDebug() << "PhotoScanner::doscan: Could not get exif. Oh well.";
     return;
   }
 
@@ -491,7 +491,7 @@ void Scanner::scanPhoto(quint64 id) {
 
       if (npix>0) {
         Image16 img = exif.previewImage(maxs);
-        //        qDebug() << "got preview for " << id << " in " << dt << " ms: " << img.size() << " ( " << exif.width() << " x " << exif.height() << ")";
+        //        pDebug() << "got preview for " << id << " in " << dt << " ms: " << img.size() << " ( " << exif.width() << " x " << exif.height() << ")";
         emit cacheablePreview(vsn, img);
       }
     }

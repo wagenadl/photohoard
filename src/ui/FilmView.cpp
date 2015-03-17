@@ -3,7 +3,7 @@
 #include "FilmView.h"
 #include "FilmScene.h"
 #include "Datestrip.h"
-#include <QDebug>
+#include "PDebug.h"
 #include "Slide.h"
 #include <QKeyEvent>
 

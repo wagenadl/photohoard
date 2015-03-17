@@ -8,6 +8,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QMap>
+#include <QVariant>
 
 class Database {
 public:

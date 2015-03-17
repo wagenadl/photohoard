@@ -5,7 +5,7 @@
 #include "GentleJog.h"
 #include <QFile>
 #include <QTextStream>
-#include <QDebug>
+#include "PDebug.h"
 #include <QBoxLayout>
 #include <QSignalMapper>
 #include "Sliders.h"
@@ -17,7 +17,7 @@ AllControls::AllControls(QWidget *parent): QFrame(parent) {
   
   QFile src("/home/wagenaar/progs/photohoard/trunk/res/sliders.txt");
   if (!src.open(QFile::ReadOnly)) {
-    qDebug() << "Cannot open control defs";
+    pDebug() << "Cannot open control defs";
     return;
   }
 
@@ -71,14 +71,14 @@ AllControls::AllControls(QWidget *parent): QFrame(parent) {
         else
           currentjog->setDecimals(-floor(log10(currentjog->microStep())));
       } else {
-        qDebug() << "Syntax error:" << line;
+        pDebug() << "Syntax error:" << line;
       }
     } else if (line.contains(" ")) {
       Q_ASSERT(currentjog);
       // set balloon
       currentjog->setToolTip(line);
     } else {
-      qDebug() << "Syntax error:" << line;
+      pDebug() << "Syntax error:" << line;
     }       
   }
   setLayout(vl);
@@ -136,6 +136,6 @@ bool AllControls::set(QString name, double value) {
 
 void AllControls::valueChange(QString name) {
   double value = get(name);
-  qDebug() << "ALLCONTROLS: " << name << value;
+  pDebug() << "ALLCONTROLS: " << name << value;
   emit valueChanged(name, value);
 }

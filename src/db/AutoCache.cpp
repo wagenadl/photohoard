@@ -4,7 +4,7 @@
 #include "AC_Worker.h"
 #include "BasicCache.h"
 #include <QMetaType>
-#include <QDebug>
+#include "PDebug.h"
 
 AutoCache::AutoCache(PhotoDB const &db, QString rootdir, QObject *parent):
   QObject(parent), db(db) {

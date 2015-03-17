@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QWheelEvent>
 #include "PSize.h"
-#include <QDebug>
+#include "PDebug.h"
 #include "CMS.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
@@ -162,7 +162,7 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
-    qDebug() << "SlideView::paintEvent av=" << img.size()
+    pDebug() << "SlideView::paintEvent av=" << img.size()
 	     << "space=" << r.size()
 	     << "nat=" << naturalSize;
     Image16 i1 = img.scaledToFitIn(r.size());

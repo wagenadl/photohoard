@@ -3,7 +3,7 @@
 #include "FileBar.h"
 
 #include <QMetaType>
-#include <QDebug>
+#include "PDebug.h"
 
 FileBar::FileBar(QWidget *parent): ActionBar(parent) {
   qRegisterMetaType<FileBar::Action>("FileBar::Action");
@@ -44,7 +44,7 @@ FileBar::~FileBar() {
 
 
 void FileBar::trigger(QAction *a) {
-  qDebug() << "FileBar::trigger" << a << revmap.contains(a);
+  pDebug() << "FileBar::trigger" << a << revmap.contains(a);
   if (revmap.contains(a))
     emit triggered(revmap[a]);
 }

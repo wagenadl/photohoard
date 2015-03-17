@@ -16,7 +16,7 @@
 #include <QDockWidget>
 #include "LiveAdjuster.h"
 
-#include <QDebug>
+#include "PDebug.h"
 
 MainWindow::MainWindow(PhotoDB const &db,
                        Scanner *scanner, AutoCache *autocache,
@@ -51,7 +51,7 @@ MainWindow::MainWindow(PhotoDB const &db,
           lightTable, SLOT(rescan()));
 
   connect(layoutBar, SIGNAL(triggered(LayoutBar::Action)),
-          lightTable, SLOT(setLayout(LayoutBar::Action)));
+          this, SLOT(setLayout(LayoutBar::Action)));
   connect(fileBar, SIGNAL(triggered(FileBar::Action)),
 	  SLOT(fileAction(FileBar::Action)));
   connect(colorLabelBar, SIGNAL(triggered(ColorLabelBar::Action)),
@@ -73,7 +73,7 @@ void MainWindow::fileAction(FileBar::Action a) {
       fileAction(FileBar::Action::ExportSelected);
     break;
   case FileBar::Action::ExportSelected:
-    qDebug() << "Export selected";
+    pDebug() << "Export selected";
     exporter->setup(exportDialog ? exportDialog->settings() : ExportSettings());
     exporter->addSelection();
     break;
@@ -92,3 +92,14 @@ void MainWindow::updateImage(quint64 i, QSize, Image16 img) {
     histogram->setImage(img);
 }
 
+void MainWindow::setLayout(LayoutBar::Action a) {
+  if (a==LayoutBar::Action::FullGrid) {
+    histogram->hide();
+    allControls->hide();
+  } else {
+    histogram->show();
+    allControls->show();
+  }
+
+  lightTable->setLayout(a);
+}

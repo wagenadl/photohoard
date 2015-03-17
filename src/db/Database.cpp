@@ -1,7 +1,7 @@
 // Database.cpp
 
 #include "Database.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QSqlError>
 #include <system_error>
 #include <QSqlQuery>
@@ -31,7 +31,7 @@ Database::Database(QString filename, QString id) {
     db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", id));
     db->setDatabaseName(filename);
     if (!db->open()) {
-      qDebug() << "Could not open database " << filename;
+      pDebug() << "Could not open database " << filename;
       throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
     }
     databases()[id] = db;
@@ -86,7 +86,7 @@ QMap<QSqlDatabase *, QMutex *> &Database::mutexes() {
 }
 
 void Database::beginAndLock() {
-  //  qDebug() << "beginAndLock" << (void*)db;
+  //  pDebug() << "beginAndLock" << (void*)db;
   mutexes()[db]->lock();
   QSqlQuery q(*db);
   if (!q.exec("begin transaction")) {
@@ -96,13 +96,13 @@ void Database::beginAndLock() {
 }
 
 bool Database::tryBeginAndLock() {
-  //  qDebug() << "tryBeginAndLock" << (void*)db;
+  //  pDebug() << "tryBeginAndLock" << (void*)db;
   if (!mutexes()[db]->tryLock())
     return false;
   QSqlQuery q(*db);
   if (!q.exec("begin transaction")) {
     mutexes()[db]->unlock();
-    qDebug() << "Database: Could not begin transaction: "
+    pDebug() << "Database: Could not begin transaction: "
 	     << q.lastError().text();
     return false;
   }
@@ -110,7 +110,7 @@ bool Database::tryBeginAndLock() {
 }
 
 void Database::commitAndUnlock() {
-  //  qDebug() << "commitAndUnlock" << (void*)db;
+  //  pDebug() << "commitAndUnlock" << (void*)db;
   QSqlQuery q(*db);
   bool ok = q.exec("commit transaction");
   mutexes()[db]->unlock();
@@ -119,7 +119,7 @@ void Database::commitAndUnlock() {
 }
 
 void Database::rollbackAndUnlock() {
-  //  qDebug() << "rollbackAndUnlock" << (void*)db;
+  //  pDebug() << "rollbackAndUnlock" << (void*)db;
   QSqlQuery q(*db);
   bool ok = q.exec("rollback transaction");
   mutexes()[db]->unlock();

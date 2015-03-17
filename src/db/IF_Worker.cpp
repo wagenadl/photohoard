@@ -4,7 +4,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include "NiceProcess.h"
-#include <QDebug>
+#include "PDebug.h"
 #include "Adjuster.h"
 #include "PSize.h"
 
@@ -25,7 +25,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 
   PSize needed = Adjuster::neededScaledOriginalSize(naturalSize, s,
                                                     PSize(maxdim,maxdim));
-  qDebug() << "IF_Worker:findImageNow" << path << naturalSize << "rq" << maxdim
+  pDebug() << "IF_Worker:findImageNow" << path << naturalSize << "rq" << maxdim
            << " need" << needed;
   bool halfsize = false;
   Image16 img;
@@ -36,7 +36,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     if (!urgent)
       dcraw.renice(10);
     QStringList args;
-    qDebug() << "half? " << PSize(naturalSize/2) << needed
+    pDebug() << "half? " << PSize(naturalSize/2) << needed
              << PSize(naturalSize/2).isLargeEnoughFor(needed);
     if (maxdim>0 && PSize(naturalSize/2).isLargeEnoughFor(needed)) {
       args << "-h";
@@ -66,12 +66,12 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
   if (fullSizeReturn)
     *fullSizeReturn = fullsize;
 
-  qDebug() << "IF_Worker " << path << " got orig at " << img.size()
+  pDebug() << "IF_Worker " << path << " got orig at " << img.size()
            << "(" << fullsize << ")";
   
   img = img.scaledDownToFitIn(Exif::fixOrientation(needed, orient));
 
-  qDebug() << "IF_Worker scaled down to " << img.size(); 
+  pDebug() << "IF_Worker scaled down to " << img.size(); 
     
   switch (orient) {
   case Exif::Upright:
@@ -87,7 +87,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     break;
   }
 
-  qDebug() << "IF_Worker oriented to " << img.size() << " needed" << needed; 
+  pDebug() << "IF_Worker oriented to " << img.size() << " needed" << needed; 
 
   if (mods != "") {
     if (img.size()==fullsize)
@@ -111,7 +111,7 @@ void IF_Worker::findImage(quint64 id, QString path, QString ext,
     Image16 img = findImageNow(path, ext, orient, ns, mods,
 			       maxdim, urgent,
 			       &fullSize);
-    qDebug() << "IF_Worker::findImage " << id << path << ns << maxdim
+    pDebug() << "IF_Worker::findImage " << id << path << ns << maxdim
              << " got " << img.size() << "(" << fullSize << ")";
     emit foundImage(id, img, fullSize);
   } catch (QSqlQuery const &q) {

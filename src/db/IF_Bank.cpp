@@ -2,7 +2,7 @@
 
 #include "IF_Bank.h"
 #include "ImageFinder.h"
-#include <QDebug>
+#include "PDebug.h"
 
 IF_Bank::IF_Bank(int nthreads, QObject *parent): QObject(parent) {
   setObjectName("IF_Bank");

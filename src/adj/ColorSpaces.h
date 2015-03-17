@@ -5,7 +5,7 @@
 #define COLORSPACES_H
 
 #include <stdint.h>
-#include <QDebug>
+#include "PDebug.h"
 #include <stdlib.h>
 
 namespace ColorSpaces {
@@ -53,7 +53,7 @@ namespace ColorSpaces {
   }
 
   template <> inline void convert(XYZ const &, XYZ &) {
-    qDebug() << "Missing converter";
+    pDebug() << "Missing converter";
     exit(1);
   }
 

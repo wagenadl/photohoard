@@ -4,7 +4,7 @@
 
 #include "Sliders.h"
 #include "math.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QStringList>
 #include <limits>
 
@@ -62,7 +62,7 @@ void Sliders::setAll(QString kvv) {
       QString v = kv[1].simplified();
       set(k, v.toDouble()); // could be more sophisticated
     } else if (!pair.isEmpty()) {
-      qDebug() << "Bad kv pair " << pair;
+      pDebug() << "Bad kv pair " << pair;
     }
   }
 }

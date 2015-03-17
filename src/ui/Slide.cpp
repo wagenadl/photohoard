@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 #include <QStyleOptionGraphicsItem>
-#include <QDebug>
+#include "PDebug.h"
 #include "FilmScene.h"
 #include "CMS.h"
 
@@ -16,7 +16,7 @@ Slide::Slide(quint64 id, Slidestrip *parent):
   if (fs)
     fs->markSlideFor(id, this);
   else
-    qDebug() << "Slide not in a scene - won't show image";
+    pDebug() << "Slide not in a scene - won't show image";
   dbgstarted = false;
 }
 
@@ -25,7 +25,7 @@ Slide::~Slide() {
   if (fs)
     fs->dropSlideFor(id);
   else
-    qDebug() << "Slide not in a scene - disaster imminent";
+    pDebug() << "Slide not in a scene - disaster imminent";
 }
 
 void Slide::updateImage(Image16 const &img1) {
@@ -101,7 +101,7 @@ void Slide::paint(QPainter *painter,
       int dt = dbgtime.elapsed();
       dbgstarted = false;
       QTime t = QTime::currentTime();
-      qDebug() << "Time" << id << dt
+      pDebug() << "Time" << id << dt
 	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
     if (!img.isNull())

@@ -3,7 +3,7 @@
 #include "Slidestrip.h"
 #include <QSet>
 #include "Slide.h"
-#include <QDebug>
+#include "PDebug.h"
 
 #define THRESHOLD 100
 

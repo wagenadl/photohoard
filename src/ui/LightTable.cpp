@@ -5,7 +5,7 @@
 #include "FilmView.h"
 #include "SlideView.h"
 #include "Datestrip.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QScrollBar>
 #include "Selection.h"
 #include "Slide.h"

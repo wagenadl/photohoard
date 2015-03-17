@@ -3,7 +3,7 @@
 #include "Datestrip.h"
 #include "Slidestrip.h"
 #include <QSet>
-#include <QDebug>
+#include "PDebug.h"
 #include "Slide.h"
 
 #define MAXDIRECT 50
@@ -309,7 +309,7 @@ Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
 }
 
 quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
-  qDebug() << "Datestrip " << this << "version at" << vsn << dcr << mustRebuild << mustRelayout << expanded;
+  pDebug() << "Datestrip " << this << "version at" << vsn << dcr << mustRebuild << mustRelayout << expanded;
   if (mustRebuild || mustRelayout || !expanded)
     return 0; // is this really necessary? Or should we rebuild?
   
@@ -406,7 +406,7 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
             break;
         }
       }
-      qDebug() << "v2: " << v2;
+      pDebug() << "v2: " << v2;
       if (!v2)
         return 0;
       
@@ -419,7 +419,7 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
       // Yes, that's pretty ugly. I should probably improve my infrastructure.
       Q_ASSERT(homeparent);
       int gridx = homeparent->gridPosition(vsn).x();
-      qDebug() << "gridx: " << gridx;
+      pDebug() << "gridx: " << gridx;
 
       /* Now let's find out the coordinates of our preliminary target */
       Slide *tgts = stripOrder[ktgt]->slideByVersion(v2);
@@ -428,13 +428,13 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
       // No prettier the second time around.
       Q_ASSERT(tgtparent);
       int gridy = tgtparent->gridPosition(v2).y();
-      qDebug() << "gridy: " << gridy;
+      pDebug() << "gridy: " << gridy;
       
       /* Ideally, I'd like to go to (gridx, gridy). But that may not exist. */
       while (gridx>=0) {
         quint64 vtgt = tgtparent->versionAt(QPoint(gridx, gridy));
         if (vtgt) {
-          qDebug() << "vtgt" << vtgt;
+          pDebug() << "vtgt" << vtgt;
           return vtgt;
         }
         gridx--;

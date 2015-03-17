@@ -1,7 +1,7 @@
 // InterruptableFileReader.cpp
 
 #include "InterruptableFileReader.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QFile>
 
 InterruptableFileReader::InterruptableFileReader(QObject *parent):

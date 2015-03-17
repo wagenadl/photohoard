@@ -116,6 +116,8 @@ HEADERS += ui/Slidestrip.h
 HEADERS += ui/SlideView.h
 HEADERS += ui/Strip.h
 
+HEADERS += db/PDebug.h
+SOURCES += db/PDebug.cpp
 SOURCES += adj/Sliders.cpp
 HEADERS += adj/Sliders.h
 HEADERS += adj/ColorSpaces.h   adj/CS_IPT.h   adj/CS_Lab.h   adj/CS_sRGB.h

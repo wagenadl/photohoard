@@ -1,7 +1,7 @@
 // Application.cpp
 
 #include "Application.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QFile>
@@ -19,13 +19,13 @@ bool Application::notify(QObject *receiver, QEvent *e) {
   try {
     b = QApplication::notify(receiver, e);
   } catch (QSqlQuery &q) {
-    qDebug() << "Uncaught exception: SqlError: " << q.lastError().text()
+    pDebug() << "Uncaught exception: SqlError: " << q.lastError().text()
 	     << " from " << q.lastQuery();
     quit();
   } catch (NoResult &n) {
-    qDebug() << "Uncaught exception: NoResult" << n.msg << n.n;
+    pDebug() << "Uncaught exception: NoResult" << n.msg << n.n;
   } catch (...) {
-    qDebug() << "Uncaught exception: unknown";
+    pDebug() << "Uncaught exception: unknown";
     quit();
   }
   return b;

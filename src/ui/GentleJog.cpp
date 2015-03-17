@@ -2,7 +2,7 @@
 
 #include "GentleJog.h"
 #include <QStylePainter>
-#include <QDebug>
+#include "PDebug.h"
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QTimer>

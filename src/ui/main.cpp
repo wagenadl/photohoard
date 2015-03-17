@@ -2,7 +2,7 @@
 
 #include "BasicCache.h"
 #include <QTime>
-#include <QDebug>
+#include "PDebug.h"
 #include "Application.h"
 #include <QLabel>
 #include "NikonLenses.h"
@@ -26,7 +26,7 @@ namespace CMS {
 int main(int argc, char **argv) {
   /*
   if (sqlite3_config(SQLITE_CONFIG_SERIALIZED) != SQLITE_OK) {
-    qDebug() << "Could not configure serialized database access";
+    pDebug() << "Could not configure serialized database access";
     return 1;
   }
   */
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
       Q_ASSERT(!args.isEmpty());
       icc = args.takeFirst();
     } else {
-      qDebug() << "Unknown command line argument: " << args[0];
+      pDebug() << "Unknown command line argument: " << args[0];
       return 1;
     }
   }
@@ -75,11 +75,11 @@ int main(int argc, char **argv) {
   
   try {
     if (!QFile(dbfn).exists()) {
-      qDebug() << "Creating database at " << dbfn;
+      pDebug() << "Creating database at " << dbfn;
       PhotoDB::create(dbfn);
     }
     if (!QDir(cachefn).exists()) {
-      qDebug() << "Creating cache at " << cachefn;
+      pDebug() << "Creating cache at " << cachefn;
       delete BasicCache::create(cachefn);
     }
 
@@ -114,26 +114,26 @@ int main(int argc, char **argv) {
     mw->scrollToCurrent();
     
     int res = app.exec();
-    qDebug() << "App returned " << res;
-    qDebug() << "Stopping scanner";
+    pDebug() << "App returned " << res;
+    pDebug() << "Stopping scanner";
     scan->stopAndWait(1000);
-    qDebug() << "Deleting scanner";
+    pDebug() << "Deleting scanner";
     delete scan;
-    qDebug() << "Done";
-    qDebug() << "Deleting autocache";
+    pDebug() << "Done";
+    pDebug() << "Deleting autocache";
     delete ac;
-    qDebug() << "Done";
-    qDebug() << "Deleting exporter";
+    pDebug() << "Done";
+    pDebug() << "Deleting exporter";
     expo->stop();
     delete expo;
-    qDebug() << "Done";
+    pDebug() << "Done";
 
     return res;
     
   } catch (QSqlQuery const &q) {
-    qDebug() << "Main caught " << q.lastError();
-    qDebug() << "  " << q.lastQuery();
+    pDebug() << "Main caught " << q.lastError();
+    pDebug() << "  " << q.lastQuery();
   } catch (...) {
-    qDebug() << "Main caught unknown";
+    pDebug() << "Main caught unknown";
   }
 }
