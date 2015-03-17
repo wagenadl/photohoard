@@ -13,6 +13,7 @@ class AC_Worker: public QObject {
   Q_OBJECT;
 public:
   AC_Worker(PhotoDB const &db, class BasicCache *cache,
+	    class AC_ImageHolder *holder,
             QObject *parent=0);
 public slots:
   void boot(); // get initial list of cachable items from db
@@ -20,7 +21,7 @@ public slots:
   void requestImage(quint64 version, QSize desired);
   void requestIfEasy(quint64 version, QSize desired);
   void cachePreview(quint64 vsn, Image16 img);
-  void cacheModified(quint64 vsn, Image16 img);
+  void cacheModified(quint64 vsn);
 private slots:
   void handleFoundImage(quint64 version, Image16 img, QSize fullSize);
 signals:
@@ -54,6 +55,7 @@ private:
   QMap<quint64, Image16> loaded;
   QSet<quint64> outdatedLoaded;
   QMap<quint64, QSet<PSize> > requests;
+  class AC_ImageHolder *holder;
 };
 
 #endif

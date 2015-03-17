@@ -29,6 +29,8 @@ public:
   Image16 &operator=(Image16 const &image);
   QImage toQImage() const;
   static Image16 fromQImage(QImage const &image);
+  static Image16 loadFromFile(QString const &);
+  static Image16 loadFromMemory(QByteArray const &);
 public:
   Image16 convertedTo(Format format) const;
   void convertTo(Format format);

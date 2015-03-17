@@ -19,7 +19,9 @@ public:
   }
   Image16Data(QImage const &img):
     width(img.width()), height(img.height()),
-    format(Image16Base::Format::sRGB8), image(img), roibyteoffset(0) {
+    format(Image16Base::Format::sRGB8),
+    image(img.convertToFormat(QImage::Format_RGB32)),
+    roibyteoffset(0) {
     bytesperline = image.bytesPerLine();
   }
 public:

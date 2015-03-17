@@ -6,14 +6,16 @@
 #include <QVariant>
 #include <QDebug>
 #include "NoResult.h"
+#include "AC_ImageHolder.h"
 
 inline uint qHash(PSize const &s) {
   return qHash(QPair<int,int>(s.width(), s.height()));
 }
 
 AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
+		     AC_ImageHolder *holder,
                      QObject *parent):
-  QObject(parent), db(db), cache(cache) {
+  QObject(parent), db(db), cache(cache), holder(holder) {
   setObjectName("AC_Worker");
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
@@ -152,8 +154,11 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
   processLoaded();
 }
 
-void AC_Worker::cacheModified(quint64 vsn, Image16 img) {
+void AC_Worker::cacheModified(quint64 vsn) {
+  Image16 img = holder->getImage(vsn);
   qDebug() << "cacheModified" << vsn << img.size() << cache->maxSize();
+  if (img.isNull())
+    return;
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
     if (beingLoaded.contains(vsn)) 
       invalidatedWhileLoading << vsn;
@@ -255,6 +260,7 @@ void AC_Worker::sendToBank(quint64 version) {
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
   QString path = db.folder(folder) + "/" + fn;
+  qDebug() << "AC_Worker sendtobank" << version << wid << hei << int(orient) << osize << path;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(version,
 		  path, db.ftype(ftype), orient, osize,
@@ -361,7 +367,7 @@ void AC_Worker::respondToRequest(quint64 version, Image16 img) {
   for (PSize s: requests[version])
     s0 |= s;
   if (img.size().exceeds(s0))
-    img = img.scaled(s0);
+    img = img.scaledToFitIn(s0);
   for (PSize s: requests[version])
     emit available(version, s, img);
   requests.remove(version);

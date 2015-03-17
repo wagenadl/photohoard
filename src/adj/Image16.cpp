@@ -4,6 +4,8 @@
 #include <QDebug>
 #include "ColorSpaces.h"
 #include <opencv2/imgproc/imgproc.hpp>
+#include <QFile>
+#include "PPM16.h"
 
 class Image16Foo {
 public:
@@ -150,6 +152,7 @@ void Image16::convertFrom(Image16 const &other, Image16::Format sfmt) {
                           other.bytesPerLine());
       break;
     case Format::IPT16:
+      qDebug() << "Converting from IPT16";
       convertFromTemplate(this, (ColorSpaces::IPT const *)other.bytes(),
                           other.bytesPerLine());
       break;
@@ -452,5 +455,25 @@ Image16 Image16::perspectived(QPolygonF poly, Image16::CropMode,
                       cvInterpolation(i) | cv::WARP_INVERSE_MAP,
                       cv::BORDER_CONSTANT, cv::Scalar());
   // I should specify the value of that scalar.
+  return res;
+}
+
+Image16 Image16::loadFromFile(QString const &fn) {
+  QFile f(fn);
+  if (!f.open(QFile::ReadOnly))
+    return Image16();
+  QByteArray ar = f.readAll();
+  return loadFromMemory(ar);
+}
+
+Image16 Image16::loadFromMemory(QByteArray const &ar) {
+  PPM16 ppm(ar);
+  if (!ppm.ok())
+    return Image16(QImage::fromData(ar));
+
+  Image16 res;
+  res.d = new Image16Data(ppm.data());
+  res.d->width = ppm.width();
+  res.d->format = Format::XYZ16;
   return res;
 }
