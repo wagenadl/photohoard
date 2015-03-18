@@ -17,6 +17,7 @@
 #include "LiveAdjuster.h"
 #include "MetaViewer.h"
 #include "StatusBar.h"
+#include "AppliedTagList.h"
 
 #include "PDebug.h"
 
@@ -37,6 +38,11 @@ MainWindow::MainWindow(PhotoDB const &db,
 
   dock = new QDockWidget("Metadata",this);
   dock->setWidget(metaViewer = new MetaViewer(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+
+  dock = new QDockWidget("Tags",this);
+  dock->setWidget(tagList = new AppliedTagList(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
@@ -79,6 +85,12 @@ MainWindow::MainWindow(PhotoDB const &db,
   connect(lightTable, SIGNAL(newZoom(double)),
           statusBar, SLOT(setZoom(double)));
 
+  connect(lightTable, SIGNAL(newCurrent(quint64)),
+	  tagList, SLOT(setCurrent(quint64)));
+  connect(lightTable, SIGNAL(newSelection()),
+	  tagList, SLOT(newSelection()));
+  
+  tagList->setCurrent(lightTable->current());
   metaViewer->setVersion(lightTable->current());
 }
 
