@@ -57,17 +57,9 @@ public:
   VersionRecord versionRecord(quint64 versionid);
   QString camera(int cameraid);
   QString lens(int lensid);
-  int findTag(QString tag); // 0 for not found
-  QString tag(int tagid);
-  QSet<int> descendantTags(int tagid);
-  QSet<int> childTags(int tagid);
-  QSet<int> appliedTags(quint64 versionid);
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
   void setAcceptReject(quint64 versionid, AcceptReject label);
-  void addTag(quint64 versionid, int tagid);
-  void removeTag(quint64 versionid, int tagid);
-  int defineTag(QString tag, int parent);
 private:
   QSharedPointer< QMap<quint64, QString> > folders;
   QSharedPointer< QMap<int, QString> > ftypes;

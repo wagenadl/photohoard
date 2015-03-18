@@ -38,6 +38,7 @@ signals:
   void newCurrent(quint64);
   void newSlideSize(QSize);
   void newZoom(double);
+  void newSelection();
 private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);

@@ -14,6 +14,8 @@ class Selection: public QObject {
   Q_OBJECT;
 public:
   Selection(PhotoDB const &photodb, QObject *parent=0);
+  int count();
+  QSet<quint64> current();
 public slots:
   void add(quint64 vsn);
   void addDateRange(QDateTime d1, QDateTime inclusiveend);
@@ -23,8 +25,6 @@ public slots:
   void remove(quint64 vsn);
   void clear();
   bool contains(quint64 vsn);
-  int count();
-  QSet<quint64> current();
 private:
   PhotoDB db;
 };

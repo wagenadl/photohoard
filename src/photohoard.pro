@@ -155,3 +155,5 @@ HEADERS += adj/PPM16.h
 SOURCES += adj/PPM16.cpp
 HEADERS += ui/StatusBar.h
 SOURCES += ui/StatusBar.cpp
+HEADERS += db/Tags.h
+SOURCES += db/Tags.cpp

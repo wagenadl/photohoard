@@ -97,61 +97,6 @@ QString PhotoDB::lens(int id) {
   return (*lenses)[id];
 }
 
-QString PhotoDB::tag(int id) {
-  return simpleQuery("select tag from tags where id==:a", id).toString();
-}
-
-int PhotoDB::findTag(QString tag) {
-  QSqlQuery q = query("select id from tags where tag==:a", tag);
-  if (q.next())
-    return q.value(0).toInt();
-  else
-    return 0;
-}
-
-QSet<int> PhotoDB::childTags(int tagid) {
-  QSet<int> children;
-  QSqlQuery q = query("select id from tags where parent==:a", tagid);
-  while (q.next())
-    children << q.value(0).toInt();
-  children.remove(0); // avoid loop
-  return children;
-}
-
-QSet<int> PhotoDB::descendantTags(int tagid) {
-  QSet<int> children = childTags(tagid);
-  QSet<int> res = children;
-  for (int child: children)
-    res.unite(descendantTags(child));
-  return res;
-}
-
-QSet<int> PhotoDB::appliedTags(quint64 versionid) {
-  QSet<int> res;
-  QSqlQuery q = query("select tag from appliedtags where version==:a",
-                      versionid);
-  while (q.next())
-    res << q.value(0).toInt();
-  return res;
-}
-
-void PhotoDB::addTag(quint64 versionid, int tagid) {
-  query("insert into appliedtags(version, tag) values(:a,:b)",
-        versionid, tagid);
-}
-
-void PhotoDB::removeTag(quint64 versionid, int tagid) {
-  query("delete from appliedtags where version==:a and tag==:b",
-        versionid, tagid);
-}
-
-int PhotoDB::defineTag(QString tag, int parent) {
-  QSqlQuery q = query("insert into tags(tag,parent) values(:a,:b)",
-                      tag, parent);
-  int tagid = q.lastInsertId().toInt();
-  return tagid;
-}
-
 
 PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) {
   VersionRecord vr;

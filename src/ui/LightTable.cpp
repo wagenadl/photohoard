@@ -205,6 +205,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
       selection->remove(i);
     else
       selection->add(i);
+    emit newSelection();
   } else if (m & Qt::ShiftModifier) {
     // Shift: Select a range from current id to new i
     // Currently, this always adds, but that needs not be the case
@@ -214,6 +215,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
       selection->addDateRange(b, a);
     else
       selection->addDateRange(a, b);
+    emit newSelection();
     film->scene()->update();
   } else {
     // Ignore other modifiers for the moment
@@ -235,6 +237,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
         selection->clear();
       }
       selection->add(i);
+      emit newSelection();
       if (!localupdate)
         film->scene()->update();
     }
@@ -265,6 +268,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   }
 
   film->scrollIfNeeded();
+
 }    
 
 void LightTable::updateSlide(quint64 i) {
