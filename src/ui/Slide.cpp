@@ -105,7 +105,7 @@ void Slide::paint(QPainter *painter,
 	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
     if (!img.isNull()) {
-      qDebug() << "Slide " << id << "image was sized" << img.size();
+      // pDebug() << "Slide " << id << "image was sized" << img.size();
       pm = QPixmap::fromImage(img.scaledToFitIn(PSize(ims, ims)).toQImage());
     }
     img = Image16(); // no need to keep it ad inf

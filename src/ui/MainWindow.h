@@ -35,6 +35,8 @@ private:
   class HistoWidget *histogram;
   class LiveAdjuster *adjuster;
   class MetaViewer *metaViewer;
+  class StatusBar *statusBar;
 };
+
 
 #endif

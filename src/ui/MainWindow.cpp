@@ -16,6 +16,7 @@
 #include <QDockWidget>
 #include "LiveAdjuster.h"
 #include "MetaViewer.h"
+#include "StatusBar.h"
 
 #include "PDebug.h"
 
@@ -36,6 +37,11 @@ MainWindow::MainWindow(PhotoDB const &db,
 
   dock = new QDockWidget("Metadata",this);
   dock->setWidget(metaViewer = new MetaViewer(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+
+  dock = new QDockWidget("Status",this);
+  dock->setWidget(statusBar = new StatusBar(this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
@@ -70,6 +76,8 @@ MainWindow::MainWindow(PhotoDB const &db,
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
           metaViewer, SLOT(setVersion(quint64)));
+  connect(lightTable, SIGNAL(newZoom(double)),
+          statusBar, SLOT(setZoom(double)));
 
   metaViewer->setVersion(lightTable->current());
 }
@@ -106,13 +114,13 @@ void MainWindow::updateImage(quint64 i, QSize, Image16 img) {
 }
 
 void MainWindow::setLayout(LayoutBar::Action a) {
-  if (a==LayoutBar::Action::FullGrid) {
-    histogram->hide();
-    allControls->hide();
-  } else {
-    histogram->show();
-    allControls->show();
-  }
+//  if (a==LayoutBar::Action::FullGrid) {
+//    histogram->hide();
+//    allControls->hide();
+//  } else {
+//    histogram->show();
+//    allControls->show();
+//  }
 
   lightTable->setLayout(a);
 }

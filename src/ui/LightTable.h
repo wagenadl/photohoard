@@ -37,6 +37,7 @@ signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);
   void newSlideSize(QSize);
+  void newZoom(double);
 private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);

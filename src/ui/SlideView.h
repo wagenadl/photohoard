@@ -25,6 +25,7 @@ signals:
   void needLargerImage();
   void doubleClicked();
   void newSize(QSize);
+  void newZoom(double);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

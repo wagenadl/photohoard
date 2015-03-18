@@ -58,6 +58,9 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   connect(slide, SIGNAL(newSize(QSize)),
           this, SLOT(requestLargerImage()));
 
+  connect(slide, SIGNAL(newZoom(double)),
+          this, SIGNAL(newZoom(double)));
+
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           SLOT(updateAdjusted(Image16, quint64)));
   
