@@ -10,8 +10,9 @@
 #include <QSignalMapper>
 #include "Sliders.h"
 #include <limits>
+#include <QScrollBar>
 
-AllControls::AllControls(QWidget *parent): QFrame(parent) {
+AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(valueChange(QString)));
   
@@ -20,6 +21,8 @@ AllControls::AllControls(QWidget *parent): QFrame(parent) {
     pDebug() << "Cannot open control defs";
     return;
   }
+  QWidget *w = new QWidget(this);
+  setWidget(w);
 
   QVBoxLayout *vl = new QVBoxLayout;
 
@@ -81,12 +84,14 @@ AllControls::AllControls(QWidget *parent): QFrame(parent) {
       pDebug() << "Syntax error:" << line;
     }       
   }
-  setLayout(vl);
+  w->setLayout(vl);
+  w->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
   for (auto cg: groups)
     cg->expand();
 
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 AllControls::~AllControls() {
@@ -138,4 +143,14 @@ void AllControls::valueChange(QString name) {
   double value = get(name);
   pDebug() << "ALLCONTROLS: " << name << value;
   emit valueChanged(name, value);
+}
+
+void AllControls::resizeEvent(QResizeEvent *) {
+  int h = widget()->sizeHint().height();
+  int w = width() - verticalScrollBar()->width();
+  widget()->resize(w, h);
+}
+
+QSize AllControls::sizeHint() const {
+  return widget()->sizeHint();
 }
