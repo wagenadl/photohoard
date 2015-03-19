@@ -7,6 +7,7 @@
 
 AppliedTagWidget::AppliedTagWidget(int id, QString name, QWidget *parent):
   QFrame(parent), id(id), name(name) {
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   mouseover = false;
   inall = incur = false;
   resize(sizeHint());

@@ -157,5 +157,5 @@ HEADERS += ui/StatusBar.h
 SOURCES += ui/StatusBar.cpp
 HEADERS += db/Tags.h
 SOURCES += db/Tags.cpp
-HEADERS += ui/AppliedTagList.h   ui/AppliedTagWidget.h
-SOURCES += ui/AppliedTagList.cpp ui/AppliedTagWidget.cpp
+HEADERS += ui/AppliedTagList.h   ui/AppliedTagWidget.h   ui/AppliedTagEditor.h
+SOURCES += ui/AppliedTagList.cpp ui/AppliedTagWidget.cpp ui/AppliedTagEditor.cpp

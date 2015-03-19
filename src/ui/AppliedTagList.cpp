@@ -2,12 +2,13 @@
 
 #include "AppliedTagList.h"
 #include "AppliedTagWidget.h"
+#include "AppliedTagEditor.h"
 
 AppliedTagList::AppliedTagList(PhotoDB const &db, QWidget *parent):
   QFrame(parent),
   db(db), tags(db), selection(db) {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-  editor = 0; // NYI
+  editor = new AppliedTagEditor(db, this);
   cur = 0;
 }
 
@@ -66,6 +67,7 @@ void AppliedTagList::rebuild() {
     widgets[t]->setInclusion(tagsInCur.contains(t),
 			     tagsInAll.contains(t));
   }
+  editor->reset();
   relayout();
 }
 
@@ -100,7 +102,10 @@ void AppliedTagList::relayout() {
     if (h>lh)
       lh = h;
   }
-  // move that famous editor too
+
+  y += lh;
+  x = 0;
+  editor->move(x, y);
 }
 
 int AppliedTagList::heightForWidth(int w) const {
@@ -118,6 +123,10 @@ int AppliedTagList::heightForWidth(int w) const {
     if (h>lh)
       lh = h;
   }
-  // measure that famous editor too
+
+  y += lh;
+  x = 0;
+  lh = editor->height();
+  
   return y + lh;
 }
