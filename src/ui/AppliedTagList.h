@@ -27,6 +27,7 @@ private:
 private slots:
   void removeTag(int);
   void applyTag(int);
+  void editorAction();
 private:
   QMap<int, class AppliedTagWidget *> widgets;
   class AppliedTagEditor *editor;

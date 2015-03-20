@@ -30,6 +30,7 @@ private:
   void deleteSelection();
   int selectionStart();
   int selectionEnd();
+  void drawText(class QPainter &);
 private:
   Tags tags;
   QString txt;

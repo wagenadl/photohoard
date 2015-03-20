@@ -40,20 +40,20 @@ void AppliedTagWidget::leaveEvent(QEvent *) {
 
 int AppliedTagWidget::buttonSize() const {
   QRect r = contentsRect();
-  return r.height() - 6;
+  return r.height() - 4;
 }
 
 QRect AppliedTagWidget::removeButtonPlace() const {
   QRect r = contentsRect();
   int s = buttonSize();
-  return QRect(QPoint(r.right() - s - 3, r.top() + (r.height()-s)/2),
+  return QRect(QPoint(r.right() - s, r.top() + (r.height()-s)/2),
 	       QSize(s, s));
 }
 
 QRect AppliedTagWidget::addButtonPlace() const {
   QRect r = contentsRect();
   int s = buttonSize();
-  return QRect(QPoint(r.right() - 2*s - 3*2, r.top() + (r.height()-s)/2),
+  return QRect(QPoint(r.right() - 2*s - 2, r.top() + (r.height()-s)/2),
 	       QSize(s, s));
 }
 
@@ -61,16 +61,13 @@ QRect AppliedTagWidget::addButtonPlace() const {
 
 void AppliedTagWidget::paintEvent(QPaintEvent *) {
   QPainter p(this);
-  p.setBrush(QColor("#222222"));
-  p.setPen(QPen(Qt::NoPen));
-  p.drawRect(contentsRect());
   
   if (inall)
-    p.setPen(QColor("#ffffff"));
+    p.setPen(QColor("#000000"));
   else if (incur)
-    p.setPen(QColor("#ffff88"));
+    p.setPen(QColor("#883300"));
   else
-    p.setPen(QColor("#88ffff"));
+    p.setPen(QColor("#4466ee"));
   p.drawText(contentsRect(), Qt::AlignLeft | Qt::AlignVCenter,
 	     name);
   
@@ -78,16 +75,19 @@ void AppliedTagWidget::paintEvent(QPaintEvent *) {
     // draw + and - buttons
     if (!inall) {
       QRect r = addButtonPlace();
-      p.setBrush(QBrush("#44ff44"));
-      p.setPen(QPen("#000000"));
+      p.setBrush(QBrush("#66ff66"));
+      p.setPen(QPen("#ffffff"));
       p.drawEllipse(r);
+      p.setPen(QPen("#000000"));
       p.drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, "+");
     }
     
-    QRect r = addButtonPlace();
-    p.setBrush(QBrush("#ff4444"));
-    p.setPen(QPen("#000000"));
+    QRect r = removeButtonPlace();
+    QColor rmc = QColor("#ff6666");
+    p.setPen(QPen("#ffffff"));
+    p.setBrush(rmc);
     p.drawEllipse(r);
+    p.setPen(QPen("#000000"));
     p.drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, QString::fromUtf8("−"));
   }
 }

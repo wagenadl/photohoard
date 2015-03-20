@@ -15,6 +15,7 @@ public:
   int smartFind(QString tagl); // finds things like lab::leech
   // or pla:cinc, allowing unique abbreviations.
   // returns 0 if not found, -1 if not unique
+  QSet<int> smartFindAll(QString tagl); 
   QString name(int tagid);
   QString fullName(int tagid);
   QString smartName(int tagid);
@@ -23,12 +24,14 @@ public:
   QSet<int> children(int tagid);
   int parent(int tagid);
   int define(QString tag, int parent);
+  int define(QString tagl); // returns 0 if not definable
   bool undefine(int); // returns true if OK, fails if applied or parent.
   void apply(quint64 versionid, int tagid);
   void remove(quint64 versionid, int tagid);
   QSet<int> applied(quint64 versionid);
+  bool couldBeNew(QString tag);
 private:
-  int ancestorfind(QString anc, QString dec);
+  QSet<int> ancestorfind(QString anc, QString dec);
   QSet<int> chainfind(QStringList bits);
   QSet<int> findAllOrAbbreviated(QString tag);
 private:

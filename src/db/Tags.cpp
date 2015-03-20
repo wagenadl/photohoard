@@ -74,6 +74,8 @@ void Tags::remove(quint64 versionid, int tagid) {
 }
 
 int Tags::define(QString tag, int parent) {
+  while (tag.endsWith(".") || tag.endsWith(" "))
+    tag = tag.left(tag.size()-1);
   QSqlQuery q = db.query("insert into tags(tag,parent) values(:a,:b)",
 			 tag, parent);
   int tagid = q.lastInsertId().toInt();
@@ -136,53 +138,48 @@ QString Tags::smartName(int tagid) {
 }
 
 int Tags::smartFind(QString tagl) {
+  QSet<int> ids = smartFindAll(tagl);
+  if (ids.isEmpty())
+    return 0;
+  else if (ids.size()==1)
+    return *ids.begin();
+  else
+    return -1;
+}
+
+QSet<int> Tags::smartFindAll(QString tagl) {
   if (tagl.contains("::")) {
     QStringList bits = tagl.split("::");
     if (bits.size()==2)
       return ancestorfind(bits[0], bits[1]);
     else
-      return 0;
+      return QSet<int>();
   } else {
     QStringList bits = tagl.split(":");
-    QSet<int> res = chainfind(bits);
-    if (res.size()==1)
-      return *res.begin();
-    else if (res.isEmpty())
-      return 0;
-    else
-      return -1;
+    return chainfind(bits);
   }
 }
 
-int Tags::ancestorfind(QString anc, QString dec) {
-  QSet<int> posdec = findAll(dec);
+QSet<int> Tags::ancestorfind(QString anc, QString dec) {
+  QSet<int> posdec = findAllOrAbbreviated(dec);
   if (posdec.isEmpty())
-    posdec = findAbbreviated(dec);
-  if (posdec.isEmpty())
-    return 0;
+    return QSet<int>();
   
-  QSet<int> posanc = findAll(anc);
+  QSet<int> posanc = findAllOrAbbreviated(anc);
   if (posanc.isEmpty())
-    posanc = findAbbreviated(anc);
-  if (posanc.isEmpty())
-    return 0;
+    return QSet<int>();
 
-  int res = 0;
-  for (int a: posanc) {
-    QSet<int> alldec = descendants(a).intersect(posdec);
-    if (alldec.size()==1) {
-      if (res==0)
-	res = *alldec.begin();
-      else
-	return -1;
-    } else if (alldec.size()>1) {
-      return -1; // not unique
-    }
-  }
+  QSet<int> res;
+  for (int a: posanc) 
+    res |= descendants(a).intersect(posdec);
+
   return res;
 }
 
 QSet<int> Tags::findAllOrAbbreviated(QString tag) {
+  if (tag.endsWith(".") || tag.endsWith(" ")) 
+    return findAll(tag.left(tag.size()-1));
+  
   QSet<int> res = findAll(tag);
   if (res.isEmpty())
     res = findAbbreviated(tag);
@@ -206,3 +203,37 @@ QSet<int> Tags::chainfind(QStringList bits) {
   return res;
 }
 
+bool Tags::couldBeNew(QString tag) {
+  if (tag.contains("::"))
+    return false;
+  QStringList bits = tag.split(":");
+  QString leaf = bits.takeLast();
+  if (bits.isEmpty()) 
+    return true;
+
+  QString parent = bits.join(":");
+  int n = smartFindAll(parent).size();
+  if (n==1)
+    return true;
+  else if (n==0)
+    return couldBeNew(parent);
+  else
+    return 0;
+}
+
+int Tags::define(QString tag) {
+  if (!couldBeNew(tag))
+    return 0;
+  QStringList bits = tag.split(":");
+  QString leaf = bits.takeLast();
+  if (bits.isEmpty())
+    return define(leaf, 0);
+  int parent = smartFind(bits.join(":"));
+  if (parent==0)
+    parent = define(bits.join(":"));
+  if (parent>0)
+    return define(leaf, parent);
+  else
+    return 0;
+}
+ 

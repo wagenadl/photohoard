@@ -9,3 +9,21 @@ QTextEdit {
   background-color: #222222;
   color: #ffffff;
 }
+
+AppliedTagList {
+  background-color: #ededed;
+}
+
+AppliedTagEditor {
+  background-color: #ededed;
+  border-style: solid;
+  border-left-color: #cccccc;
+  border-top-color: #cccccc;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  border-width: 1;
+}
+
+AppliedTagWidget {
+}
+

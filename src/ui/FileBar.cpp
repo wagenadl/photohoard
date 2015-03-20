@@ -29,7 +29,7 @@ FileBar::FileBar(QWidget *parent): ActionBar(parent) {
   actions[Action::AddFolder]->setShortcut(QString("Ctrl+R"));
   actions[Action::ImportCamera]->setShortcut(QString("Ctrl+I"));
   actions[Action::OpenExportDialog]->setShortcut(QString("Ctrl+E"));
-  actions[Action::ExportSelected]->setShortcut(QString("E"));
+  //  actions[Action::ExportSelected]->setShortcut(QString("E"));
 
   addAction(actions[Action::ImportCamera]);
   addAction(actions[Action::AddFolder]);

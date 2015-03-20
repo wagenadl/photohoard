@@ -34,7 +34,6 @@ FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
   actions[Action::ClearSelection]
     ->setShortcuts(QList<QKeySequence>()
                    << QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A)
-                   << QKeySequence(Qt::Key_Escape)
                    );
   addAction(actions[Action::Smaller]);
   addAction(actions[Action::Larger]);

@@ -16,6 +16,7 @@ AppliedTagEditor::AppliedTagEditor(PhotoDB const &db, QWidget *parent):
   resize(sizeHint());
   cursorpos = 0;
   selend = -1;
+  setAutoFillBackground(true);
 }
 
 QString AppliedTagEditor::text() const {
@@ -45,6 +46,11 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
   QString t = e->text();
   bool take = true;
   switch (e->key()) {
+  case Qt::Key_Escape:
+    clearFocus();
+    reset();
+    pDebug() << "ATE: Escape";
+    break;
   case Qt::Key_Return: case Qt::Key_Enter:
     pDebug() << "ATE: Return" << text();
     emit returnPressed();
@@ -149,7 +155,8 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
     take = false;
     break;
   }
-  
+
+  qDebug() << "ATE: " << take << t;
   if (!take && !t.isEmpty()) {
     deleteSelection();
     txt = txt.left(cursorpos) + t + txt.mid(cursorpos);
@@ -158,10 +165,12 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
     take = true;
   }
   
-  if (take)
+  if (take) {
     e->accept();
-  else
+    resize(sizeHint()); // hmmm.
+  } else {
     e->ignore();
+  }
 }
 
 int AppliedTagEditor::selectionStart() {
@@ -184,7 +193,9 @@ void AppliedTagEditor::deleteSelection() {
 
 QSize AppliedTagEditor::sizeHint() const {
   QFontMetrics fm(font());
-  QSize s0 = fm.boundingRect("Hello:World|").size();
+  QRect r0 = fm.boundingRect("New tag... ");
+  QRect r1 = fm.boundingRect(txt + "  ");
+  QSize s0 = (r0|r1).size();
   QMargins mm = contentsMargins();
   return s0 + QSize(mm.left()+mm.right(), mm.top()+mm.bottom());
 }
@@ -201,9 +212,6 @@ QSize AppliedTagEditor::minimumSizeHint() const {
 void AppliedTagEditor::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   QPainter p(this);
-  p.setBrush(QColor("#222222"));
-  p.setPen(QPen(Qt::NoPen));
-  p.drawRect(r);
   if (selend>=0) {
     QFontMetrics fm(p.font());
     int l = fm.width(txt.left(selectionStart()));
@@ -214,25 +222,42 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
     p.drawRect(sel);
   }
   p.setBrush(QBrush(Qt::NoBrush));
-  p.setPen(QColor("#ffffff"));
-  // Color should reflect whether txt is a plausible/unique/nonexistant
-  // tag.
-  p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter, txt);
+  drawText(p);
   if (hasFocus()) {
     QFontMetrics fm(p.font());
     int l = fm.width(txt.left(cursorpos));
     QRect rl(r.topLeft() + QPoint(l-1, 0),
 	     r.bottomLeft() + QPoint(l+1, 0));
-    p.setPen(QColor("#ffff88")) ;
+    p.setPen(QColor("#440000")) ;
     p.drawText(rl, Qt::AlignHCenter | Qt::AlignVCenter, "|");
   } else {
     if (txt.isEmpty()) {
-      p.setPen(QColor("#bbbbbb"));
+      p.setPen(QColor("#444444"));
+      QFont f = p.font();
+      f.setItalic(true);
+      p.setFont(f);
       p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter,
 		 QString::fromUtf8("New tag…"));
     }
   }
 }
+
+void AppliedTagEditor::drawText(QPainter &p) {
+  if (txt.isEmpty())
+    return;
+  QSet<int> ids = tags.smartFindAll(txt);
+  if (ids.isEmpty()) {
+    if (tags.couldBeNew(txt))
+      p.setPen(QColor("#660000"));
+    else
+      p.setPen(QColor("#ff0000"));
+  } else if (ids.size()==1) {
+    p.setPen(QColor("#008800"));
+  } else {
+    p.setPen(QColor("#000000"));
+  }
+  p.drawText(contentsRect(), Qt::AlignLeft | Qt::AlignVCenter, txt);
+}  
 
 void AppliedTagEditor::focusInEvent(QFocusEvent *) {
   update();

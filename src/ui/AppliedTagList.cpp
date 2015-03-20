@@ -3,20 +3,27 @@
 #include "AppliedTagList.h"
 #include "AppliedTagWidget.h"
 #include "AppliedTagEditor.h"
+#include "PDebug.h"
 
 AppliedTagList::AppliedTagList(PhotoDB const &db, QWidget *parent):
   QFrame(parent),
   db(db), tags(db), selection(db) {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
   editor = new AppliedTagEditor(db, this);
+  connect(editor, SIGNAL(returnPressed()),
+	  SLOT(editorAction()));
   cur = 0;
+  setAutoFillBackground(true);
+  setContentsMargins(2,2,2,2);
 }
 
 AppliedTagList::~AppliedTagList() {
 }
 
 QSize AppliedTagList::sizeHint() const {
-  return childrenRect().size();    
+  QMargins m = contentsMargins();
+  return childrenRect().size() + QSize(m.left() + m.right(),
+				       m.top() + m.bottom());    
 }
 
 QSize AppliedTagList::minimumSizeHint() const {
@@ -49,7 +56,7 @@ void AppliedTagList::rebuild() {
 
   // Remove tags we no longer have
   for (auto t: widgets.keys()) {
-    if (!tagsInAll.contains(t)) {
+    if (!tagsInAny.contains(t)) {
       widgets[t]->deleteLater();
       widgets.remove(t);
     }
@@ -57,12 +64,12 @@ void AppliedTagList::rebuild() {
 
   for (auto t: tagsInAny) {
     if (!widgets.contains(t)) {
-      widgets[t] = new AppliedTagWidget(t, tags.smartName(t),
-					this);
+      widgets[t] = new AppliedTagWidget(t, tags.smartName(t), this);
       connect(widgets[t], SIGNAL(removeClicked(int)),
 	      SLOT(removeTag(int)));
       connect(widgets[t], SIGNAL(addClicked(int)),
 	      SLOT(applyTag(int)));
+      widgets[t]->show();
     }
     widgets[t]->setInclusion(tagsInCur.contains(t),
 			     tagsInAll.contains(t));
@@ -72,6 +79,7 @@ void AppliedTagList::rebuild() {
 }
 
 void AppliedTagList::removeTag(int id) {
+  pDebug() << "ATL:remove" << id;
   QSet<quint64> sel = selection.current();
   for (int vsn: sel)
     tags.remove(vsn, id);
@@ -86,47 +94,69 @@ void AppliedTagList::applyTag(int id) {
 }
   
 void AppliedTagList::relayout() {
-  int w = width();
-  int x = 0;
-  int y = 0;
+  QRect r = contentsRect();
+  int w = r.width();
+  int x = r.left();
+  int y = r.top();
   int lh = 0;
   for (auto ptr: widgets) {
+    ptr->resize(ptr->sizeHint());
     int w1 = ptr->width();
-    if (x+w1>w && x!=0) {
-      y += lh;
-      x = 0;
+    if (x+w1>w && x>r.left()) {
+      y += lh + 1;
+      x = r.left();
       lh = 0;
     }
     ptr->move(x, y);
     int h = ptr->height();
     if (h>lh)
       lh = h;
+    x += w1 + 8;
   }
+  qDebug() << "";
 
-  y += lh;
-  x = 0;
+  y += lh + 1;
+  x = r.left();
   editor->move(x, y);
 }
 
 int AppliedTagList::heightForWidth(int w) const {
+  QMargins m = contentsMargins();
+  w -= m.left() + m.right();
   int x = 0;
-  int y = 0;
+  int y = m.top() + m.bottom();
   int lh = 0;
   for (auto ptr: widgets) {
     int w1 = ptr->width();
-    if (x+w1>w && x!=0) {
-      y += lh;
+    if (x+w1>w && x>0) {
+      y += lh + 1;
       x = 0;
       lh = 0;
     }
     int h = ptr->height();
     if (h>lh)
       lh = h;
+    x += w1 + 8;
   }
 
-  y += lh;
+  y += lh + 1;
   x = 0;
   lh = editor->height();
   
   return y + lh;
+}
+
+void AppliedTagList::editorAction() {
+  QString tag = editor->text();
+  QSet<int> ids = tags.smartFindAll(tag);
+  int id = ids.isEmpty() ? tags.define(tag) 
+    : ids.size()==1 ? *ids.begin()
+    : 0;
+  if (id==0)
+    return; // sorry, cannot do
+
+  QSet<quint64> sel = selection.current();
+  for (auto vsn: sel)
+    tags.apply(vsn, id);
+  rebuild();
 }
