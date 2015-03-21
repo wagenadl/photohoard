@@ -7,7 +7,7 @@
 void exifreport(QString fn) {
   Exif exif(fn);
   pDebug() << "  " << exif.width() << "x" << exif.height();
-  pDebug() << "  " << exif.camera();
+  pDebug() << "  " << exif.make() << exif.model();
   pDebug() << "  " << exif.lens();
   pDebug() << "  " << exif.dateTime();
   pDebug() << "  orient " << exif.orientation();

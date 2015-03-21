@@ -37,6 +37,7 @@ create table tags (
 
 create table cameras (
        id integer primary key,
+       make text,
        camera text );
 
 create table lenses (

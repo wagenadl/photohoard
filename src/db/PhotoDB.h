@@ -55,7 +55,9 @@ public:
   PhotoRecord photoRecord(quint64 photoid);
   PhotoSize photoSize(quint64 photoid);
   VersionRecord versionRecord(quint64 versionid);
-  QString camera(int cameraid);
+  QString make(int cameraid);
+  QString camera(int cameraid); // i.e., make and model
+  QString model(int cameraid);
   QString lens(int lensid);
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
@@ -63,8 +65,7 @@ public:
 private:
   QSharedPointer< QMap<quint64, QString> > folders;
   QSharedPointer< QMap<int, QString> > ftypes;
-  QSharedPointer< QMap<int, QString> > cameras;
-  QSharedPointer< QMap<int, QString> > lenses;
+  QSharedPointer< QMap<int, QString> > makes, models, lenses;
 };
 
 #endif

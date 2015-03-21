@@ -75,17 +75,38 @@ Exif::Orientation Exif::orientation() const {
   default: return Upright; // this should not happen
   }
 }
-    
-QString Exif::camera() const {
+
+static QString dropWords(QString s, QString pool) {
+  QStringList ss = s.split(" ");
+  QSet<QString> pp = QSet<QString>::fromList(pool.split(" "));
+  QStringList out;
+  for (auto s: ss)
+    if (!pp.contains(s))
+      out << s;
+  return out.join(" ");
+}
+
+static QString titleCase(QString s) {
+  QStringList ss = s.split(" ");
+  QStringList out;
+  for (auto s: ss) 
+    if (s.size()>=4 && QRegExp("[A-Z]*").exactMatch(s))
+      out << s.left(1) + s.mid(1).toLower();
+    else
+      out << s;
+  return out.join(" ");
+}
+
+QString Exif::model() const {
   QString c = exifDatum("Exif.Image.Model").toString().c_str();
-  c.replace("NIKON", "Nikon");
-  c.replace("KODAK", "Kodak");
-  c.replace("ZOOM", "Zoom");
-  c.replace("DIGITAL", "Digital");
-  c.replace("CAMERA", "Camera");
-  c.replace("REBEL", "Rebel");
-  c.replace("COOLPIX", "Coolpix");
-  return c.trimmed();
+  return dropWords(titleCase(c.trimmed()), make());
+}
+
+QString Exif::make() const {
+  QString c = exifDatum("Exif.Image.Make").toString().c_str();
+  return dropWords(titleCase(c.trimmed()),
+                   "Co., Ltd. Eastman Company Corporation Computer "
+                   "CO.,LTD Imaging CORP.");
 }
 
 QString Exif::lens() const {

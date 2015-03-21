@@ -26,7 +26,8 @@ public:
   int width() const; // after orientation corrected
   int height() const;
   Orientation orientation() const;
-  QString camera() const;
+  QString model() const;
+  QString make() const;
   QString lens() const;
   double focalLength_mm() const;
   double focusDistance_m() const;

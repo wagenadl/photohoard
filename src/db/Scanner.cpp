@@ -412,20 +412,17 @@ void Scanner::scanPhoto(quint64 id) {
   }
 
   // Find camera, possibly creating new record
-  QString cam = exif.camera();
+  QString model = exif.model();
+  QString make = exif.make();
   quint64 camid = 0;
-  if (!cam.isNull()) {
-    q.prepare("select id from cameras where camera==:c");
-    q.bindValue(":c", cam);
-    if (!q.exec())
-       throw q;
+  if (!model.isNull()) {
+    q = db.query("select id from cameras where camera==:a and make==:b",
+                 model, make);
     if (q.next()) {
       camid = q.value(0).toULongLong();
     } else {
-      q.prepare("insert into cameras(camera) values(:c)");
-      q.bindValue(":c", cam);
-      if (!q.exec())
-	throw q;
+      q = db.query("insert into cameras(camera, make) values(:a,:b)",
+                   model, make);
       camid = q.lastInsertId().toULongLong();
     }
   }
@@ -457,7 +454,7 @@ void Scanner::scanPhoto(quint64 id) {
             " lastscan=:ls where id==:id");
   q.bindValue(":w", exif.width());
   q.bindValue(":h", exif.height());
-  q.bindValue(":c", cam.isEmpty() ? QVariant() : QVariant(camid));
+  q.bindValue(":c", model.isEmpty() ? QVariant() : QVariant(camid));
   q.bindValue(":l", lens.isEmpty() ? QVariant() : QVariant(lensid));
   q.bindValue(":or", int(exif.orientation()));
   q.bindValue(":e", exif.exposureTime_s());

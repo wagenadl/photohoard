@@ -10,7 +10,8 @@
 PhotoDB::PhotoDB(QString fn): Database(fn),
                               folders(new QMap<quint64, QString>),
                               ftypes(new QMap<int, QString>),
-                              cameras(new QMap<int, QString>),
+                              models(new QMap<int, QString>),
+                              makes(new QMap<int, QString>),
                               lenses(new QMap<int, QString>) {
   QSqlQuery q = query("select id, version from info limit 1");
   if (!q.next())
@@ -84,10 +85,24 @@ PhotoDB::PhotoSize PhotoDB::photoSize(quint64 p) {
 }
 
 QString PhotoDB::camera(int id) {
-  if (!cameras->contains(id)) 
-    (*cameras)[id] = simpleQuery("select camera from cameras where id==:a", id)
+  QString m = make(id);
+  QString c = model(id);
+  return m.isNull() ? c : m + " " + c;
+
+}
+
+QString PhotoDB::model(int id) {
+  if (!models->contains(id)) 
+    (*models)[id] = simpleQuery("select camera from cameras where id==:a", id)
       .toString();
-  return (*cameras)[id];
+  return (*models)[id];
+}
+
+QString PhotoDB::make(int id) {
+  if (!makes->contains(id)) 
+    (*makes)[id] = simpleQuery("select make from cameras where id==:a", id)
+      .toString();
+  return (*makes)[id];
 }
 
 QString PhotoDB::lens(int id) {
