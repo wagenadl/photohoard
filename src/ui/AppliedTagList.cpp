@@ -118,6 +118,7 @@ void AppliedTagList::relayout() {
   y += lh + 1;
   x = r.left();
   editor->move(x, y);
+  updateGeometry();
 }
 
 int AppliedTagList::heightForWidth(int w) const {

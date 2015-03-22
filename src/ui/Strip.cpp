@@ -178,14 +178,19 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
 }
 
 void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
-  if (headerid==0) 
-    setHeaderID(db.simpleQuery("select versions.id"
-                               " from versions inner join photos"
-                               " on versions.photo=photos.id"
-                               " where photos.capturedate>=:a"
-                               " and photos.capturedate<:b"
-                               " limit 1", d0, endFor(d0, scl))
-                .toULongLong());
+  if (headerid==0) {
+    QSqlQuery q = db.query("select versions.id"
+                           " from versions inner join photos"
+                           " on versions.photo=photos.id"
+                           " where photos.capturedate>=:a"
+                           " and photos.capturedate<:b"
+                           " limit 1", d0, endFor(d0, scl));
+    if (q.next())
+      setHeaderID(q.value(0).toULongLong());
+    else
+      qDebug() << "Could not find header image for " << d0
+               << endFor(d0, scl) << int(scl);
+  }
 
   int ims = tilesize - 20;
   if (!(headerpm.width()==ims || headerpm.height()==ims)) {

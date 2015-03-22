@@ -44,10 +44,12 @@ void AC_Worker::recache(QSet<quint64> versions) {
     countQueue();
     activateBank();
   } catch (QSqlQuery &q) {
-    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+    emit exception("AC_Worker (recache): SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
+  } catch (NoResult) {
+    emit exception("AC_Worker (recache): No result");
   } catch (...) {
-    emit exception("AC_Worker: Unknown exception");
+    emit exception("AC_Worker (recache): Unknown exception");
   }
 }
 
@@ -56,10 +58,12 @@ void AC_Worker::boot() {
     markReadyToLoad(getSomeFromDBQueue());
     activateBank();
   } catch (QSqlQuery &q) {
-    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+    emit exception("AC_Worker (boot): SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
+  } catch (NoResult) {
+    emit exception("AC_Worker (boot): No result");
   } catch (...) {
-    emit exception("AC_Worker: Unknown exception");
+    emit exception("AC_Worker (boot): Unknown exception");
   }
 }
 
@@ -213,10 +217,12 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
 
     processLoaded();
   } catch (QSqlQuery &q) {
-    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+    emit exception("AC_Worker (handleFoundImage): SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
+  } catch (NoResult) {
+    emit exception("AC_Worker (handleFoundImage): No result");
   } catch (...) {
-    emit exception("AC_Worker: Unknown exception");
+    emit exception("AC_Worker (handleFoundImage): Unknown exception");
   }
 }
 
@@ -303,14 +309,18 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
     if (!img.isNull() && !od) // can this happen?
       emit available(version, desired, img);
   } catch (QSqlQuery &q) {
-    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+    emit exception("AC_Worker (requestIfEasy): SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
+  } catch (NoResult) {
+    emit exception("AC_Worker (requestIfEasy): No result");
   } catch (...) {
-    emit exception("AC_Worker: Unknown exception");
+    emit exception("AC_Worker (requestIfEasy): Unknown exception");
   }
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
+  if (version==0)
+    return;
   //  pDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
@@ -353,10 +363,12 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       activateBank();
     }
   } catch (QSqlQuery &q) {
-    emit exception("AC_Worker: SqlError: " + q.lastError().text()
+    emit exception("AC_Worker (requestImage): SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
+  } catch (NoResult) {
+    emit exception("AC_Worker (requestImage): No result " + QString::number(version));
   } catch (...) {
-    emit exception("AC_Worker: Unknown exception");
+    emit exception("AC_Worker (requestImage): Unknown exception");
   }
 }
 

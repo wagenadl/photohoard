@@ -29,6 +29,9 @@ public slots:
   void setMicroStep(double);
   void setSteps(double single, double page=-1, double micro=-1);
   void setLabel(QString);
+signals:
+  void goPrevious();
+  void goNext();
 public:
   double defaultValue() const { return dflt_; }
   double minimum() const { return min_; }

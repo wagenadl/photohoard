@@ -241,23 +241,32 @@ void GentleJog::paintEvent(QPaintEvent *) {
 }
   
 void GentleJog::mousePressEvent(QMouseEvent *e) {
-  if (e->button() == Qt::LeftButton)
-    startJog(e->x(), e->modifiers());  
+  if (e->button() == Qt::LeftButton) {
+    startJog(e->x(), e->modifiers());
+    e->accept();
+  }
 }
 
 void GentleJog::mouseReleaseEvent(QMouseEvent *e) {
-  if (e->button() == Qt::LeftButton)
+  if (e->button() == Qt::LeftButton) {
     endJog(e->x());
+    e->accept();
+  }
 }
 
 void GentleJog::mouseMoveEvent(QMouseEvent *e) {
-  if (jogging)
+  if (jogging) {
     continueJog(e->x());
+    e->accept();
+  }
 }
 
-void GentleJog::mouseDoubleClickEvent(QMouseEvent */* e */) {
+void GentleJog::mouseDoubleClickEvent(QMouseEvent *e) {
   //  if (valueRect().contains(e->pos())) 
+  if (e->button() == Qt::LeftButton) {
     setValue(dflt_);
+    e->accept();
+  }
 }
 
 double GentleJog::stepFor(Qt::KeyboardModifiers m) {
@@ -267,16 +276,21 @@ double GentleJog::stepFor(Qt::KeyboardModifiers m) {
 }
 
 void GentleJog::wheelEvent(QWheelEvent *e) {
-  setValueVisually(val + e->delta()*stepFor(e->modifiers())/120);
-  timer->start(300);
+  if (e->modifiers() & Qt::ControlModifier) {
+    e->ignore();
+  } else {
+    setValueVisually(val + e->delta()*stepFor(e->modifiers())/120);
+    timer->start(300);
+    e->accept();
+  }
 }
 
 void GentleJog::keyPressEvent(QKeyEvent *e) {
   switch (e->key()) {
-  case Qt::Key_Left: case Qt::Key_Down:
+  case Qt::Key_Left: 
     setValueVisually(val - stepFor(e->modifiers()));
     break;
-  case Qt::Key_Right: case Qt::Key_Up:
+  case Qt::Key_Right:
     setValueVisually(val + stepFor(e->modifiers()));
     break;
   case Qt::Key_PageDown:
@@ -284,6 +298,12 @@ void GentleJog::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_PageUp:
     setValueVisually(val + pagestep);
+    break;
+  case Qt::Key_Up:
+    emit goPrevious();
+    break;
+  case Qt::Key_Down:
+    emit goNext();
     break;
   default:
     break;
@@ -354,6 +374,7 @@ double GentleJog::xToDelta(int x) {
 }
 
 void GentleJog::startJog(int x, Qt::KeyboardModifiers m) {
+  setFocus();
   timer->stop();
   if (x>=jogminx && x<=jogmaxx) {
     jogging = true;
@@ -380,6 +401,7 @@ void GentleJog::endJog(int x) {
     return;
   setValue(jogv0 + xToDelta(x-jogdx0));
   timer->start(100);
+  jogging = false;
 }
 
 void GentleJog::setValueVisually(double v) {

@@ -35,8 +35,6 @@ double SlideView::fittingZoom() const {
   double hrat = width() / double(naturalSize.width());
   double vrat = height() / double(naturalSize.height());
   double rat = hrat<vrat ? hrat : vrat;
-  if (rat>1)
-    rat = 1;
   return rat;
 }
 
@@ -64,19 +62,31 @@ void SlideView::changeZoomLevel(QPoint, double delta) {
 }
 
 void SlideView::setZoom(double z) {
-  if (z<fittingZoom()) {
-    if (!fit)
-      scaleToFit();
+  double z0 = fittingZoom();
+  if (z0<1) {
+    // fitting zoom is a reduction, we will zoom-to-fit if trying to
+    // zoom out farther than that
+    if (z<z0) {
+      if (!fit)
+        scaleToFit();
+      return;
+    } // otherwise, zoom as requested
   } else {
-    if (fit) {
-      fit = false;
-      relx = rely = 0.5;
-    }
-    zoom = z;
-    emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
-    update();
-    emit newZoom(zoom);
+    // fitting zoom is not a reduction, we will zoom 1:1 if trying to
+    // zoom out farther than that
+    if (z<1)
+      z = 1;
+    // otherwise, zoom as requested
   }
+
+  if (fit) {
+    fit = false;
+    relx = rely = 0.5;
+  }
+  zoom = z;
+  emit newSize(naturalSize.isEmpty() ? size() : naturalSize*zoom);
+  update();
+  emit newZoom(zoom);
 }
   
 void SlideView::scaleToFit() {

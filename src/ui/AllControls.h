@@ -25,6 +25,9 @@ public slots:
   bool set(QString name, double value); // true if OK; does signal
   bool setQuietly(QString name, double value); // true if OK; does not signal
   void setQuietly(class Sliders const &vv); // does not signal
+protected slots:
+  void goNext(QString);
+  void goPrevious(QString);
 protected:
   virtual void resizeEvent(QResizeEvent *) override;
 private slots:
@@ -32,6 +35,8 @@ private slots:
 private:
   QMap<QString, ControlGroup *> groups;
   QMap<QString, GentleJog *> jogs;
+  QMap<QString, QString> next;
+  QMap<QString, QString> previous;
 };
 
 #endif

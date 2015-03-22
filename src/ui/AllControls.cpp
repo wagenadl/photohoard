@@ -15,6 +15,10 @@
 AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(valueChange(QString)));
+  QSignalMapper *nextmapper = new QSignalMapper(this);
+  connect(nextmapper, SIGNAL(mapped(QString)), SLOT(goNext(QString)));
+  QSignalMapper *prevmapper = new QSignalMapper(this);
+  connect(prevmapper, SIGNAL(mapped(QString)), SLOT(goPrevious(QString)));
   
   QFile src("/home/wagenaar/progs/photohoard/trunk/res/sliders.txt");
   if (!src.open(QFile::ReadOnly)) {
@@ -28,7 +32,8 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
 
   ControlGroup *currentgroup = 0;
   GentleJog *currentjog = 0;
-
+  QString first = "";
+  QString last = "";
   QTextStream ts(&src);
   while (!ts.atEnd()) {
     QString line = ts.readLine().simplified();
@@ -54,7 +59,18 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
       currentjog->setValue(v);
       connect(currentjog, SIGNAL(valueChanged(double)),
               mapper, SLOT(map()));
+      connect(currentjog, SIGNAL(goPrevious()),
+              prevmapper, SLOT(map()));
+      connect(currentjog, SIGNAL(goNext()),
+              nextmapper, SLOT(map()));
       mapper->setMapping(currentjog, name);
+      prevmapper->setMapping(currentjog, name);
+      nextmapper->setMapping(currentjog, name);
+      previous[name] = last;
+      next[last] = name;
+      if (first.isEmpty())
+        first = name;
+      last = name;
       currentgroup->addWidget(currentjog);
       jogs[name] = currentjog;
     } else if (line.contains("/")) {
@@ -84,6 +100,9 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
       pDebug() << "Syntax error:" << line;
     }       
   }
+  next[last] = first;
+  previous[first] = last;
+  
   w->setLayout(vl);
   w->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
@@ -145,12 +164,39 @@ void AllControls::valueChange(QString name) {
   emit valueChanged(name, value);
 }
 
-void AllControls::resizeEvent(QResizeEvent *) {
+void AllControls::resizeEvent(QResizeEvent *e) {
+  QScrollArea::resizeEvent(e);
   int h = widget()->sizeHint().height();
-  int w = width() - verticalScrollBar()->width();
+  int w = viewport()->width(); // - verticalScrollBar()->width();
   widget()->resize(w, h);
 }
 
 QSize AllControls::sizeHint() const {
   return widget()->sizeHint();
+}
+
+void AllControls::goNext(QString src) {
+  QString dst = next[src];
+  while (!dst.isEmpty() && dst!=src) {
+    if (jogs.contains(dst) && jogs[dst]->isVisible()) {
+      jogs[dst]->setFocus();
+      ensureWidgetVisible(jogs[dst]);
+      return;
+    } else {
+      dst = next[dst];
+    }
+  }
+}
+
+void AllControls::goPrevious(QString src) {
+  QString dst = previous[src];
+  while (!dst.isEmpty() && dst!=src) {
+    if (jogs.contains(dst) && jogs[dst]->isVisible()) {
+      jogs[dst]->setFocus();
+      ensureWidgetVisible(jogs[dst]);
+      return;
+    } else {
+      dst = previous[dst];
+    }
+  }
 }

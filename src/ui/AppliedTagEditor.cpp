@@ -33,6 +33,7 @@ void AppliedTagEditor::setText(QString s) {
   if (cursorpos>s.size())
     cursorpos = s.size();
   selend = -1;
+  updateGeometry();
   update();
 }
 
@@ -96,6 +97,7 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
     else if (cursorpos>0) {
       txt = txt.left(cursorpos-1) + txt.mid(cursorpos);
       cursorpos--;
+      updateGeometry();
       update();
     }
     break;
@@ -104,6 +106,7 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
       deleteSelection();
     else if (cursorpos<txt.size()) {
       txt = txt.left(cursorpos);
+      updateGeometry();
       update();
     }
     break;
@@ -132,6 +135,7 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
       deleteSelection();
       txt = txt.left(cursorpos) + QApplication::clipboard()->text()
 	+ txt.mid(cursorpos);
+      updateGeometry();
       update();
     } else {
       take = false;
@@ -161,6 +165,7 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
     deleteSelection();
     txt = txt.left(cursorpos) + t + txt.mid(cursorpos);
     cursorpos += t.size();
+    updateGeometry();
     update();
     take = true;
   }
@@ -188,6 +193,7 @@ void AppliedTagEditor::deleteSelection() {
   if (cursorpos>selend)
     cursorpos=selend;
   selend = -1;
+  updateGeometry();
   update();
 }
 
