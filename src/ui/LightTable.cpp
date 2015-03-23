@@ -11,6 +11,7 @@
 #include "Slide.h"
 #include "FilmScene.h"
 #include "Exif.h"
+#include "FilterDialog.h"
 
 LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db1), adjuster(adj) {
@@ -30,6 +31,8 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
 
   slide = new SlideView();
   addWidget(slide);
+
+  filterDialog = new FilterDialog();
 
   tilesize = 80;
   lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;
@@ -72,6 +75,7 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
 }
 
 LightTable::~LightTable() {
+  delete filterDialog;
 }
 
 void LightTable::ensureReasonableGridSize() {
@@ -354,7 +358,9 @@ void LightTable::filterAction(FilterBar::Action a) {
     break;
   case FilterBar::Action::ClearSelection:
     clearSelection();
-    break;    
+    break;
+  case FilterBar::Action::OpenFilterDialog:
+    filterDialog->show();
   default:
     break;
   }

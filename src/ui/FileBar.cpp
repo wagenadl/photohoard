@@ -24,12 +24,14 @@ FileBar::FileBar(QWidget *parent): ActionBar(parent) {
   actions[Action::AddFolder]->setText("(Re-)scan folder (Control-R)");
   actions[Action::ImportCamera]
     ->setText("Import from camera or card (Control-I)");
-  actions[Action::OpenExportDialog]->setText("Export JPEG(s) (Control-E)");
+  actions[Action::OpenExportDialog]->setText("Export image(s) (Control-Shift-E)");
 
   actions[Action::AddFolder]->setShortcut(QString("Ctrl+R"));
   actions[Action::ImportCamera]->setShortcut(QString("Ctrl+I"));
-  actions[Action::OpenExportDialog]->setShortcut(QString("Ctrl+E"));
-  //  actions[Action::ExportSelected]->setShortcut(QString("E"));
+  actions[Action::OpenExportDialog]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E));
+  actions[Action::ExportSelected]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
 
   addAction(actions[Action::ImportCamera]);
   addAction(actions[Action::AddFolder]);

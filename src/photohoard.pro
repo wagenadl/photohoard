@@ -26,7 +26,7 @@ INCLUDEPATH += . ./db ./ui ./cms ./adj
 
 RESOURCES += PhotoHoard.qrc
 
-FORMS += ui/ExportDialog.ui 
+FORMS += ui/ExportDialog.ui  ui/FilterDialog.ui
 
 LIBS += -lexiv2
 LIBS += -llcms2
@@ -159,3 +159,5 @@ HEADERS += db/Tags.h
 SOURCES += db/Tags.cpp
 HEADERS += ui/AppliedTagList.h   ui/AppliedTagWidget.h   ui/AppliedTagEditor.h
 SOURCES += ui/AppliedTagList.cpp ui/AppliedTagWidget.cpp ui/AppliedTagEditor.cpp
+HEADERS += ui/FilterDialog.h
+SOURCES += ui/FilterDialog.cpp

@@ -32,9 +32,7 @@ FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
   actions[Action::Larger]
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus));
   actions[Action::ClearSelection]
-    ->setShortcuts(QList<QKeySequence>()
-                   << QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A)
-                   );
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A));
   addAction(actions[Action::Smaller]);
   addAction(actions[Action::Larger]);
   addAction(actions[Action::OpenFilterDialog]);

@@ -56,6 +56,7 @@ protected:
   quint64 id;
   int tilesize;
   int lastgridsize;
+  class FilterDialog *filterDialog;
 };
 
 #endif
