@@ -76,10 +76,10 @@ create table versions (
 -- Table of derived versions of photographs
        id integer primary key,
        photo integer,
-       mods text,
-       starrating integer,
-       colorlabel integer,
-       acceptreject integer,
+       mods text default '',
+       starrating integer default 0,
+       colorlabel integer default 0,
+       acceptreject integer default 0,
        foreign key(photo) references photos(id)
                on delete cascade
                on update cascade);

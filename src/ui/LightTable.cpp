@@ -32,7 +32,7 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   slide = new SlideView();
   addWidget(slide);
 
-  filterDialog = new FilterDialog();
+  filterDialog = new FilterDialog(db);
 
   tilesize = 80;
   lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;

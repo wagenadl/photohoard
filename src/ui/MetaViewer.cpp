@@ -8,6 +8,34 @@ MetaViewer::MetaViewer(PhotoDB const &db, QWidget *parent):
   setReadOnly(true);
   vrec.id = 0;
   prec.id = 0;
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
+}
+
+static QString ratio(int w, int h) {
+  constexpr double marg = 2e-3;
+  double r = double(w)/double(h);
+  if (fabs(r-1)<marg)
+    return "1:1";
+  else if (fabs(r-4/3.)<marg)
+    return "4:3";
+  else if (fabs(r-3/2.)<marg)
+    return "3:2";
+else if (fabs(r-16/9.)<marg)
+    return "16:9";
+  else if (fabs(r-3/4.)<marg)
+    return "3:4";
+  else if (fabs(r-2/3.)<marg)
+    return "2:3";
+  else
+    return "";
+}
+
+static QString mpix(int w, int h) {
+  double mp = w*h/1e6;
+  if (mp<3)
+    return QString::number(mp, 'f', 1);
+  else
+    return QString::number(int(round(mp)));
 }
 
 void MetaViewer::setVersion(quint64 version) {
@@ -44,9 +72,13 @@ void MetaViewer::setVersion(quint64 version) {
   }
   html += QString("%1<br>").arg(camlens);
   PSize photosize = Exif::fixOrientation(prec.filesize, prec.orient);
-  html += QString("%1 x %2 (%3 MPix)").arg(photosize.width())
+  QString rat = ratio(photosize.width(), photosize.height());
+  if (!rat.isEmpty())
+    rat = ", " + rat;
+  html += QString("%1 x %2 (%3 MPix%4)").arg(photosize.width())
     .arg(photosize.height())
-    .arg(round(photosize.width()*photosize.height()/1e6));
+    .arg(mpix(photosize.width(), photosize.height()))
+    .arg(rat);
   setHtml(html);
 }
 

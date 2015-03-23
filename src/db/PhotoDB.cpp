@@ -10,8 +10,8 @@
 PhotoDB::PhotoDB(QString fn): Database(fn),
                               folders(new QMap<quint64, QString>),
                               ftypes(new QMap<int, QString>),
-                              models(new QMap<int, QString>),
                               makes(new QMap<int, QString>),
+                              models(new QMap<int, QString>),
                               lenses(new QMap<int, QString>) {
   QSqlQuery q = query("select id, version from info limit 1");
   if (!q.next())

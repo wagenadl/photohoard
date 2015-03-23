@@ -172,7 +172,11 @@ void AllControls::resizeEvent(QResizeEvent *e) {
 }
 
 QSize AllControls::sizeHint() const {
-  return widget()->sizeHint();
+  QWidget *vp = viewport();
+  if (vp)
+    return widget()->sizeHint() + size() - viewport()->contentsRect().size();
+  else
+    return widget()->sizeHint(); // hmm.
 }
 
 void AllControls::goNext(QString src) {

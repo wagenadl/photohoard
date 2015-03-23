@@ -34,8 +34,13 @@ NikonLenses const &Exif::nikonLenses() {
 Exif::Exif(QString filename):
   image(Exiv2::ImageFactory::open(filename.toUtf8().data())),
   nullDatum(Exiv2::ExifKey("Exif.Photo.ExifVersion")) {
-  if (image.get())
-    image->readMetadata();
+  if (image.get()) {
+    try {
+      image->readMetadata();
+    } catch (...) {
+      image = Exiv2::Image::AutoPtr();
+    }
+  }
 }
 
 bool Exif::ok() const {

@@ -159,5 +159,5 @@ HEADERS += db/Tags.h
 SOURCES += db/Tags.cpp
 HEADERS += ui/AppliedTagList.h   ui/AppliedTagWidget.h   ui/AppliedTagEditor.h
 SOURCES += ui/AppliedTagList.cpp ui/AppliedTagWidget.cpp ui/AppliedTagEditor.cpp
-HEADERS += ui/FilterDialog.h
-SOURCES += ui/FilterDialog.cpp
+HEADERS += ui/FilterDialog.h   db/Filter.h
+SOURCES += ui/FilterDialog.cpp db/Filter.cpp
