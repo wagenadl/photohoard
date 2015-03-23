@@ -33,6 +33,7 @@ public slots:
   void clearSelection();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
+  void applyFilterFromDialog();
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);

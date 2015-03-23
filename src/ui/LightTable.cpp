@@ -49,23 +49,25 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
                                Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this, SLOT(slidePress(quint64,
                                 Qt::MouseButton, Qt::KeyboardModifiers)));
-  connect(slide, SIGNAL(needLargerImage()),
-	  this, SLOT(requestLargerImage()));
+
   connect(film->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
+  connect(slide, SIGNAL(needLargerImage()),
+	  this, SLOT(requestLargerImage()));
   connect(slide, SIGNAL(newSize(QSize)),
           this, SIGNAL(newSlideSize(QSize)));
-
   connect(slide, SIGNAL(newSize(QSize)),
           this, SLOT(requestLargerImage()));
-
   connect(slide, SIGNAL(newZoom(double)),
           this, SIGNAL(newZoom(double)));
 
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           SLOT(updateAdjusted(Image16, quint64)));
+
+  connect(filterDialog, SIGNAL(apply()),
+	  SLOT(applyFilterFromDialog()));
   
   quint64 c = db.simpleQuery("select * from current").toULongLong();
   if (c)
@@ -400,3 +402,6 @@ void LightTable::bgPress(Qt::MouseButton b, Qt::KeyboardModifiers m) {
 void LightTable::scrollToCurrent() {
   film->scrollToCurrent();
 }
+
+void LightTable::actOnFilterDialog(int act) {
+  

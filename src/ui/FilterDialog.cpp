@@ -11,7 +11,46 @@ FilterDialog::FilterDialog(PhotoDB const &db, QWidget *parent):
   QDialog(parent), db(db) {
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
-  recount();
+  prepCombos();
+  populate(Filter());
+}
+
+void FilterDialog::prepCombos() {
+  /* Get collections, cameras, etc. from db. */
+  prepCollections();
+  prepCameras();
+}
+
+void FilterDialog::prepCameras() {
+  prepMakes();
+  prepModels();
+  prepLenses();
+}
+
+void FilterDialog::prepMakes() {
+  QSqlQuery q = db.query("select make from cameras");
+  QSet<QString> makes;
+
+  ui->cMake->reset();
+  ui->cMake->addItem("Any make");
+}
+
+void FilterDialog::prepCollections() {
+  Tags tags(db);
+
+  ui->collectionBox->clear();
+  ui->addItem("Any");
+
+  int coltag = tags.find("Collections");
+  if (coltag>0) {
+    QSet<QString> cols;
+    QSqlQuery q = db.query("select tag from tags "
+			   "where parent==:a", coltag);
+    while (q.next())
+      cols << q.value(0).toString();
+    for (QString c: cols)
+      ui->addItem(c);
+  }
 }
 
 Filter FilterDialog::extract() const {
@@ -71,7 +110,7 @@ Filter FilterDialog::extract() const {
 }
 
 void FilterDialog::populate(Filter const &) {
-  // NYI
+
   recount();
 }
 
@@ -109,4 +148,19 @@ void FilterDialog::recolorTags() {
 void FilterDialog::showEvent(QShowEvent *e) {
   //
   QDialog::showEvent(e);
+}
+
+void FilterDialog::buttonClicked(QAbstractButton *b) {
+  QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(b);
+  switch (role) {
+  case QDialogButtonBox::AcceptRole:
+  case QDialogButtonBox::ApplyRole:
+    emit apply();
+    break;
+  case QDialogButtonBox::ResetRole:
+    populate(Filter());
+    break;
+  default:
+    break;
+  }
 }
