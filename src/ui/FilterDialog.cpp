@@ -6,6 +6,7 @@
 #include "Filter.h"
 #include "PhotoDB.h"
 #include "NoResult.h"
+#include "Tags.h"
 
 FilterDialog::FilterDialog(PhotoDB const &db, QWidget *parent):
   QDialog(parent), db(db) {
@@ -28,28 +29,132 @@ void FilterDialog::prepCameras() {
 }
 
 void FilterDialog::prepMakes() {
-  QSqlQuery q = db.query("select make from cameras");
-  QSet<QString> makes;
-
-  ui->cMake->reset();
+  ui->cMake->clear();
   ui->cMake->addItem("Any make");
+
+  QSqlQuery q = db.query("select distinct make from cameras");
+  QStringList makes;
+  while (q.next()) 
+    makes << q.value(0).toString();
+  qSort(makes);
+  makes.removeOne("");
+
+  if (!makes.isEmpty())
+    ui->cMake->insertSeparator(1);
+
+  for (QString m: makes)
+    ui->cMake->addItem(m);
+  
+}
+
+void FilterDialog::prepModels(QString make) {
+  QString current = ui->cCamera->currentText();
+  ui->cCamera->clear();
+  ui->cCamera->addItem("Any model");
+
+  QSqlQuery q = make.isEmpty() ? db.query("select distinct camera from cameras")
+    : db.query("select distinct camera from cameras where make=:a", make);
+  QStringList models;
+  while (q.next())
+    models << q.value(0).toString();
+  qSort(models);
+  models.removeOne("");
+
+  if (!make.isEmpty() || models.size()<20) {
+    if (!models.isEmpty())
+      ui->cCamera->insertSeparator(1);
+  
+    for (QString m: models)
+      ui->cCamera->addItem(m);
+    if (models.size()==1) {
+      ui->cCamera->setCurrentIndex(2);
+      ui->cCamera->setEnabled(false);
+    } else {
+      int idx = ui->cCamera->findText(current);
+      if (idx>=0)
+        ui->cCamera->setCurrentIndex(idx);
+      ui->cCamera->setEnabled(true);    
+    }
+    ui->cCamera->setMaxVisibleItems(models.size()+2);
+  } else {
+    ui->cCamera->setItemText(0, "Select make first");
+    ui->cCamera->setEnabled(false);
+  }
+}
+
+void FilterDialog::prepLenses(QString make, QString model) {
+  QString current = ui->cLens->currentText();
+  ui->cLens->clear();
+  ui->cLens->addItem("Any lens");
+
+  QSqlQuery q;
+  if (make.isEmpty() && model.isEmpty()) {
+    q = db.query("select lens from lenses");
+  } else {
+    QString qq = "select distinct lenses.lens from lenses "
+      "inner join photos on lenses.id==photos.lens "
+      "inner join cameras on photos.camera==cameras.id where ";
+    if (model.isEmpty()) {
+      qq += "cameras.make==:a";
+      q = db.query(qq, make);
+    } else if (make.isEmpty()) {
+      qq += "cameras.camera==:a";
+      q = db.query(qq, model);
+    } else {
+      qq += "cameras.make==:a and cameras.camera==:b";
+      q = db.query(qq, make, model);
+    }
+  }
+
+  QStringList lenses;
+  while (q.next())
+    lenses << q.value(0).toString();
+  qSort(lenses);
+  lenses.removeOne("");
+
+  if (!model.isEmpty() || lenses.size()<20) {
+    if (!lenses.isEmpty())
+      ui->cLens->insertSeparator(1);
+  
+    for (QString m: lenses)
+      ui->cLens->addItem(m);
+  
+    if (lenses.size()==0) {
+      ui->cLens->setItemText(0, "Fixed lens");
+      ui->cLens->setEnabled(false);
+    } else if (lenses.size()==1) {
+      ui->cLens->setCurrentIndex(2);
+      ui->cLens->setEnabled(false);
+    } else {
+      int idx = ui->cLens->findText(current);
+      if (idx>=0)
+        ui->cLens->setCurrentIndex(idx);
+      ui->cLens->setEnabled(true);
+    }
+    ui->cLens->setMaxVisibleItems(lenses.size()+2);
+  } else {
+    ui->cLens->setItemText(0, "Select make or model first");
+    ui->cLens->setEnabled(false);
+  }
 }
 
 void FilterDialog::prepCollections() {
   Tags tags(db);
 
   ui->collectionBox->clear();
-  ui->addItem("Any");
+  ui->collectionBox->addItem("Any");
 
-  int coltag = tags.find("Collections");
+  int coltag = tags.findOne("Collections");
   if (coltag>0) {
     QSet<QString> cols;
     QSqlQuery q = db.query("select tag from tags "
 			   "where parent==:a", coltag);
     while (q.next())
       cols << q.value(0).toString();
+    if (!cols.isEmpty())
+      ui->cMake->insertSeparator(1);
     for (QString c: cols)
-      ui->addItem(c);
+      ui->collectionBox->addItem(c);
   }
 }
 
@@ -59,19 +164,19 @@ Filter FilterDialog::extract() const {
   if (!ui->collection->isChecked())
     f.unsetCollection();
 
-  QSet<int> cc;
+  QSet<PhotoDB::ColorLabel> cc;
   if (ui->cNone->isChecked())
-    cc << int(PhotoDB::ColorLabel::None);
+    cc << PhotoDB::ColorLabel::None;
   if (ui->cRed->isChecked())
-    cc << int(PhotoDB::ColorLabel::Red);
+    cc << PhotoDB::ColorLabel::Red;
   if (ui->cYellow->isChecked())
-    cc << int(PhotoDB::ColorLabel::Yellow);
+    cc << PhotoDB::ColorLabel::Yellow;
   if (ui->cGreen->isChecked())
-    cc << int(PhotoDB::ColorLabel::Green);
+    cc << PhotoDB::ColorLabel::Green;
   if (ui->cBlue->isChecked())
-    cc << int(PhotoDB::ColorLabel::Blue);
+    cc << PhotoDB::ColorLabel::Blue;
   if (ui->cPurple->isChecked())
-    cc << int(PhotoDB::ColorLabel::Purple);
+    cc << PhotoDB::ColorLabel::Purple;
   f.setColorLabels(cc);
   if (!ui->colorLabel->isChecked()) 
     f.unsetColorLabels();
@@ -86,8 +191,8 @@ Filter FilterDialog::extract() const {
   if (!ui->status->isChecked())
     f.unsetStatus();
 
-  f.setCamera(ui->cMaker->currentIndex()>0
-	       ? ui->cMaker->currentText() : QString(""),
+  f.setCamera(ui->cMake->currentIndex()>0
+	       ? ui->cMake->currentText() : QString(""),
 	       ui->cCamera->currentIndex()>0
 	       ? ui->cCamera->currentText() : QString(""),
 	       ui->cLens->currentIndex()>0
@@ -109,15 +214,59 @@ Filter FilterDialog::extract() const {
   return f;
 }
 
-void FilterDialog::populate(Filter const &) {
+void FilterDialog::populate(Filter const &f) {
+  // Collections
+  ui->collection->setChecked(f.hasCollection());
+  int idx = ui->collectionBox->findText(f.collection());
+  ui->collectionBox->setCurrentIndex(idx>0 ? idx : 0);
+
+  // Color labels
+  ui->colorLabel->setChecked(f.hasColorLabels());
+  ui->cNone->setChecked(f.includesColorLabel(PhotoDB::ColorLabel::None));
+  ui->cRed->setChecked(f.includesColorLabel(PhotoDB::ColorLabel::Red));
+  ui->cYellow->setChecked(f.includesColorLabel(PhotoDB::ColorLabel::Yellow));
+  ui->cGreen->setChecked(f.includesColorLabel(PhotoDB::ColorLabel::Green));
+  ui->cBlue->setChecked(f.includesColorLabel(PhotoDB::ColorLabel::Blue));
+  ui->cPurple->setChecked(f.includesColorLabel(PhotoDB::ColorLabel::Purple));
+
+  // Star rating
+  ui->starRating->setChecked(f.hasStarRating());
+  ui->rMinSlider->setValue(f.minStarRating());
+  ui->rMaxSlider->setValue(f.maxStarRating());
+
+  // Status
+  ui->status->setChecked(f.hasStatus());
+  ui->sAccepted->setChecked(f.statusAccepted());
+  ui->sRejected->setChecked(f.statusRejected());
+  ui->sUnset->setChecked(f.statusUnset());
+
+  // Camera
+  ui->camera->setChecked(f.hasCamera());
+  idx = ui->cMake->findText(f.cameraMake());
+  ui->cMake->setCurrentIndex(idx>1 ? idx : 0);
+  idx = ui->cCamera->findText(f.cameraModel());
+  ui->cCamera->setCurrentIndex(idx>1 ? idx : 0);
+  idx = ui->cLens->findText(f.cameraLens());
+  ui->cLens->setCurrentIndex(idx>1 ? idx : 0);
+
+  // Date range
+  ui->dateRange->setChecked(f.hasDateRange());
+  ui->dStart->setDate(f.startDate());
+  ui->dEnd->setDate(f.endDate());
+
+  // File location
+  ui->fileLocation->setChecked(f.hasFileLocation());
+  ui->location->setText(f.fileLocation());
+  
+  // Tags
+  ui->tags->setChecked(f.hasTags());
+  ui->tagEditor->setText(f.tags().join(", "));
 
   recount();
 }
 
 void FilterDialog::recount() {
   Filter f = extract();
-  pDebug() << f.joinClause();
-  pDebug() << f.whereClause(db);
   try {
     ui->count->setText(QString::number(f.count(db)));
   } catch (QSqlQuery const &q) {
@@ -131,12 +280,18 @@ void FilterDialog::recount() {
 }
 
 void FilterDialog::setMaker() {
-  pDebug() << "FD::setMaker";
-  recount();
+  QString make = ui->cMake->currentIndex()==0 ? ""
+    : ui->cMake->currentText();
+  prepModels(make);
+  // this will _cause_ setCamera to be called and hence force a recount.
 }
 
 void FilterDialog::setCamera() {
-  pDebug() << "FD::setCamera";
+  QString make = ui->cMake->currentIndex()==0 ? ""
+    : ui->cMake->currentText();
+  QString model = ui->cCamera->currentIndex()==0 ? ""
+    : ui->cCamera->currentText();
+  prepLenses(make, model);
   recount();
 }
 
@@ -146,11 +301,11 @@ void FilterDialog::recolorTags() {
 }
 
 void FilterDialog::showEvent(QShowEvent *e) {
-  //
+  f0 = extract();
   QDialog::showEvent(e);
 }
 
-void FilterDialog::buttonClicked(QAbstractButton *b) {
+void FilterDialog::buttonClick(QAbstractButton *b) {
   QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(b);
   switch (role) {
   case QDialogButtonBox::AcceptRole:
@@ -160,6 +315,8 @@ void FilterDialog::buttonClicked(QAbstractButton *b) {
   case QDialogButtonBox::ResetRole:
     populate(Filter());
     break;
+  case QDialogButtonBox::RejectRole:
+    populate(f0);
   default:
     break;
   }

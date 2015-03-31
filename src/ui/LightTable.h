@@ -33,7 +33,6 @@ public slots:
   void clearSelection();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
-  void applyFilterFromDialog();
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);
@@ -43,6 +42,7 @@ signals:
 private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);
+  void applyFilterFromDialog();
 protected:
   void updateSlide(quint64 id);
   void ensureReasonableGridSize();
@@ -52,12 +52,12 @@ protected:
   class Selection *selection;
   class FilmView *film;
   class SlideView *slide;
+  class FilterDialog *filterDialog;
   bool showmax;
   LayoutBar::Action lastlay, lay;
   quint64 id;
   int tilesize;
   int lastgridsize;
-  class FilterDialog *filterDialog;
 };
 
 #endif

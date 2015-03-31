@@ -13,6 +13,13 @@ void Histogram::setImage(Image16 const &img) {
     hst[k].clear();
 }
 
+void Histogram::clear() {
+  image = Image16();
+  for (int k=0; k<3; k++)
+    hst[k].clear();
+}
+  
+
 void Histogram::setNumberOfBins(int n) {
   nextbins = n;
 }

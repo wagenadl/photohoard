@@ -160,7 +160,8 @@ QString GentleJog::valueText() const {
 
 void GentleJog::renderLabel(QStylePainter *p) {
   QPen pen(p->pen());
-  pen.setColor(palette().color(jogshown ? QPalette::Disabled
+  pen.setColor(palette().color((jogshown || !isEnabled())
+                               ? QPalette::Disabled
                                : QPalette::Normal,
                                QPalette::WindowText));
   p->setPen(pen);

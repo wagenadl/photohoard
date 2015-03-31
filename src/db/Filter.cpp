@@ -33,7 +33,7 @@ void Filter::unsetCollection() {
   hascollection = false;
 }
 
-void Filter::setColorLabels(QSet<int> cc) {
+void Filter::setColorLabels(QSet<PhotoDB::ColorLabel> cc) {
   hascolorlabels = true;
   colorlabels = cc;
 }
@@ -42,7 +42,7 @@ void Filter::unsetColorLabels() {
   hascolorlabels = false;
 }
 
-bool Filter::includesColorLabel(int c) const {
+bool Filter::includesColorLabel(PhotoDB::ColorLabel c) const {
   return colorlabels.contains(c);
 }
 
@@ -114,8 +114,8 @@ int Filter::count(class PhotoDB &db) const {
 
 QString Filter::joinClause() const {
   QStringList joins;
-  if (hasdaterange || hasfilelocation)
-    joins << "inner join photos on versions.photo==photos.id";
+  //  if (hasdaterange || hasfilelocation || hascamera)
+  joins << "inner join photos on versions.photo==photos.id";
   return joins.join(" ");
 }
 
@@ -166,10 +166,10 @@ QString Filter::colorLabelClause() const {
   if (colorlabels.size()==0)
     return "0>1";
   if (colorlabels.size()==1) 
-    return "colorlabel==" + QString::number(*colorlabels.begin());
+    return "colorlabel==" + QString::number(int(*colorlabels.begin()));
   QStringList cc;
-  for (int c: colorlabels)
-    cc << QString::number(c);
+  for (PhotoDB::ColorLabel c: colorlabels)
+    cc << QString::number(int(c));
   return "colorlabel in (" + cc.join(", ") + ")";
 }
 
@@ -233,7 +233,7 @@ QString Filter::cameraClause(PhotoDB &db) const {
   if (!cameralens.isEmpty()) {
     QSqlQuery q = db.query("select id from lenses where lens==:a", cameralens);
     if (q.next())
-      bits << "lens==" + QString(q.value(0).toInt());
+      bits << "lens==" + QString::number(q.value(0).toInt());
     else
       return "0>1";
   }
@@ -287,3 +287,10 @@ QString Filter::tagsClause(PhotoDB &db) const {
   return bits.join(" and ");
 }
 
+bool Filter::isTrivial() const {
+  if (!(hascollection || hascolorlabels || hasstarrating || hasstatus
+        || hascamera || hasdaterange || hasfilelocation))
+    return true;
+  //  return count()==Filter().count();
+  return false;
+}

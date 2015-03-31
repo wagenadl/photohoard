@@ -12,8 +12,8 @@ QMAKE_CXXFLAGS_RELEASE += -O3 -ffast-math -march=native
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
-OBJECTS_DIR=../release
-CONFIG(debug, debug|release) { OBJECTS_DIR=../debug }
+OBJECTS_DIR=../build/release
+CONFIG(debug, debug|release) { OBJECTS_DIR=../build/debug }
 MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}

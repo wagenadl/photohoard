@@ -165,7 +165,12 @@ void SlideView::updateRelXY(QPoint p) {
   pressrely = rely;
   presspoint = p;
   update();
-}    
+}
+
+void SlideView::clear() {
+  img = Image16();
+  update();
+}
 
 void SlideView::paintEvent(QPaintEvent *) {
   if (img.isNull())

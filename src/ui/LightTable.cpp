@@ -16,7 +16,12 @@
 LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db1), adjuster(adj) {
   setObjectName("LightTable");
-
+  id = 0;
+  tilesize = 80;
+  lastgridsize = 3*tilesize + 4;
+  lay=lastlay=LayoutBar::Action::VGrid;
+  showmax = false;
+  
   bool oldcrash = db.simpleQuery("select count(*) from starting").toInt()>0;
   if (oldcrash) {
     db.query("update current set version=null");
@@ -34,14 +39,11 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
 
   filterDialog = new FilterDialog(db);
 
-  tilesize = 80;
   lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;
   setStretchFactor(0, 0);
   setStretchFactor(1, 100);
   setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
-  lay=lastlay=LayoutBar::Action::VGrid;
   setLayout(lay);
-  showmax = false;
 
   connect(film, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
@@ -72,6 +74,8 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   quint64 c = db.simpleQuery("select * from current").toULongLong();
   if (c)
     select(c, Qt::NoModifier);
+
+  applyFilterFromDialog();
 
   db.query("delete from starting");
 }
@@ -203,8 +207,6 @@ void LightTable::slidePress(quint64 i, Qt::MouseButton b,
 }
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
-  if (i==0)
-    return;
   if (m & Qt::ControlModifier) {
     // Control: Toggle whether image i is selected
     if (selection->contains(i))
@@ -227,7 +229,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
     // Ignore other modifiers for the moment
     if (i==id)
       return;
-    if (!selection->contains(i)) {
+    if (i>0 && !selection->contains(i)) {
       bool localupdate = true; // if we have just a few in selection, we'll
       // repaint just those slides, otherwise the whole view
       if (selection->count()<=10) {
@@ -253,28 +255,31 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   updateSlide(id);
   updateSlide(i);
 
-  QSqlQuery q = db.query("select photos.width, photos.height, photos.orient"
-                         " from photos inner join versions"
-                         " on photos.id=versions.photo"
-                         " where versions.id==:a"
-                         " limit 1", i);
-  if (!q.next())
-    throw NoResult(__FILE__, __LINE__);
-  int w = q.value(0).toInt();
-  int h =  q.value(1).toInt();
-  Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
-  QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
-  slide->newImage(ns);
+  if (i>0) {
+    QSqlQuery q = db.query("select photos.width, photos.height, photos.orient"
+                           " from photos inner join versions"
+                           " on photos.id=versions.photo"
+                           " where versions.id==:a", i);
+    if (!q.next()) 
+      throw NoResult(__FILE__, __LINE__);
+    int w = q.value(0).toInt();
+    int h =  q.value(1).toInt();
+    Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
+    QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
+    slide->newImage(ns);
+  } else {
+    slide->clear();
+    adjuster->clear();
+  }
 
   id = i;
   emit newCurrent(id);
-  if (lay!=LayoutBar::Action::FullGrid) {
+  if (id>0 && lay!=LayoutBar::Action::FullGrid) {
     emit needImage(id, displaySize());
     requestLargerImage();
   }
 
   film->scrollIfNeeded();
-
 }    
 
 void LightTable::updateSlide(quint64 i) {
@@ -403,5 +408,17 @@ void LightTable::scrollToCurrent() {
   film->scrollToCurrent();
 }
 
-void LightTable::actOnFilterDialog(int act) {
-  
+void LightTable::applyFilterFromDialog() {
+  Filter f = filterDialog->extract();
+  db.query("delete from M.filter");
+  db.query("insert into M.filter select versions.id, photos.id from versions "
+           + f.joinClause() + " where " + f.whereClause(db));
+  int N = db.simpleQuery("select count(*) from M.filter").toInt();
+  pDebug() << "Apply Filter" << N;
+
+  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  QSqlQuery q = db.query("select * from M.filter where version==:a", c);
+  pDebug() << "Current not in filter";
+  if (!q.next())
+    select(0, Qt::NoModifier);
+}

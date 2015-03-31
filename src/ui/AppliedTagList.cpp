@@ -44,6 +44,7 @@ void AppliedTagList::resizeEvent(QResizeEvent *) {
 }
 
 void AppliedTagList::rebuild() {
+  setEnabled(cur>0);
   QSet<quint64> sel = selection.current();
   QSet<int> tagsInAny;
   QSet<int> tagsInCur = tags.applied(cur);

@@ -7,22 +7,26 @@
 #include <QSet>
 #include <QStringList>
 #include <QDate>
+#include "PhotoDB.h"
+
+inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 
 class Filter {
 public:
   Filter();
   void reset();
+  bool isTrivial() const;
   // COLLECTION
   void setCollection(QString);
   void unsetCollection();
   bool hasCollection() const { return hascollection; }
   QString collection() const { return collection_; }
   // COLOR LABELS
-  void setColorLabels(QSet<int>);
+  void setColorLabels(QSet<PhotoDB::ColorLabel>);
   void unsetColorLabels();
   bool hasColorLabels() const { return hascolorlabels; }
-  QSet<int> colorLabels() const { return colorlabels; }
-  bool includesColorLabel(int) const;
+  QSet<PhotoDB::ColorLabel> colorLabels() const { return colorlabels; }
+  bool includesColorLabel(PhotoDB::ColorLabel) const;
   // STAR RATING
   void setStarRating(int min, int max);
   void unsetStarRating();
@@ -75,7 +79,7 @@ private:
   bool hascollection;
   QString collection_;
   bool hascolorlabels;
-  QSet<int> colorlabels;
+  QSet<PhotoDB::ColorLabel> colorlabels;
   bool hasstarrating;
   int minstars, maxstars;
   bool hasstatus;

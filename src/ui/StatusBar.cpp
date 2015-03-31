@@ -33,6 +33,7 @@ void StatusBar::paintEvent(QPaintEvent *) {
   p.setPen(QPen(Qt::NoPen));
   p.drawRect(r);
   p.setPen(QPen("#000000"));
-  p.drawText(r, Qt::AlignVCenter | Qt::AlignRight,
-             QString("%1%").arg(round(zoom*100)));
+  if (!isinf(zoom) && !isnan(zoom))
+    p.drawText(r, Qt::AlignVCenter | Qt::AlignRight,
+               QString("%1%").arg(round(zoom*100)));
 }

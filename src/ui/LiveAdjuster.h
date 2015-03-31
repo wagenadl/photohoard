@@ -17,6 +17,7 @@ public:
                class AutoCache *cache,
                QObject *parent=0);
 public slots:
+  void clear();
   void requestAdjusted(quint64 version, QSize size);
   void markVersionAndSize(quint64 version, QSize size);
   /* The latter doesn't immediately request an image, but prepares for

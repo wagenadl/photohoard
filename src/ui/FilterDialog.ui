@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>762</width>
-    <height>456</height>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -303,46 +303,108 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QComboBox" name="cMaker">
-           <item>
-            <property name="text">
-             <string>Any maker</string>
+          <widget class="QWidget" name="widget_6" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </item>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="cMake">
+              <item>
+               <property name="text">
+                <string>Any make</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cCamera">
-           <item>
-            <property name="text">
-             <string>Any camera</string>
+          <widget class="QWidget" name="widget_7" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </item>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="cCamera">
+              <item>
+               <property name="text">
+                <string>Any model</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cLens">
-           <item>
-            <property name="text">
-             <string>Any lens</string>
+          <widget class="QWidget" name="widget_8" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </item>
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="cLens">
+              <item>
+               <property name="text">
+                <string>Any lens</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -624,7 +686,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>752</x>
-     <y>446</y>
+     <y>510</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -640,7 +702,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>752</x>
-     <y>446</y>
+     <y>510</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -927,8 +989,8 @@
    <slot>setCamera()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>226</x>
-     <y>373</y>
+     <x>141</x>
+     <y>394</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -943,8 +1005,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>373</y>
+     <x>116</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -953,14 +1015,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>cMaker</sender>
+   <sender>cMake</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>FilterDialog</receiver>
    <slot>setMaker()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>373</y>
+     <x>135</x>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -991,8 +1053,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>709</x>
-     <y>162</y>
+     <x>705</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
      <x>382</x>
@@ -1151,8 +1213,8 @@
    <slot>buttonClick(QAbstractButton*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>431</y>
+     <x>752</x>
+     <y>510</y>
     </hint>
     <hint type="destinationlabel">
      <x>381</x>

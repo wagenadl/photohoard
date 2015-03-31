@@ -25,6 +25,10 @@ PhotoDB::PhotoDB(QString fn): Database(fn),
   q = query("select id, stdext from filetypes");
   while (q.next()) 
     (*ftypes)[q.value(0).toInt()] = q.value(1).toString();
+
+  query("create table if not exists M.filter "
+        "(version integer references versions(id), "
+        " photo integer references photos(id) )");
 }
 
 QString PhotoDB::ftype(int ft) const {

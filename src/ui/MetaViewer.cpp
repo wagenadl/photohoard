@@ -39,6 +39,12 @@ static QString mpix(int w, int h) {
 }
 
 void MetaViewer::setVersion(quint64 version) {
+  if (version==0) {
+    setHtml("");
+    setEnabled(false);
+    return;
+  }
+  setEnabled(true);
   vrec = db.versionRecord(version);
   prec = db.photoRecord(vrec.photo);
 

@@ -89,6 +89,9 @@ MainWindow::MainWindow(PhotoDB const &db,
 	  tagList, SLOT(setCurrent(quint64)));
   connect(lightTable, SIGNAL(newSelection()),
 	  tagList, SLOT(newSelection()));
+
+  connect(lightTable, SIGNAL(newCurrent(quint64)),
+          histogram, SLOT(setVersion(quint64)));
   
   tagList->setCurrent(lightTable->current());
   metaViewer->setVersion(lightTable->current());

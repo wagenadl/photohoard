@@ -10,6 +10,7 @@
 class Histogram {
 public:
   Histogram();
+  void clear();
   void setImage(Image16 const &);
   void setNumberOfBins(int);
   void setColorSpace(Image16::Format);

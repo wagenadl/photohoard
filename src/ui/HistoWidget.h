@@ -16,6 +16,7 @@ public:
   virtual QSize minimumSizeHint() const override;
 public slots:
   void setImage(Image16 const &);
+  void setVersion(quint64);
 protected:
   void paintEvent(QPaintEvent *);
 private:

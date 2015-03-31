@@ -27,6 +27,13 @@ LiveAdjuster::LiveAdjuster(PhotoDB const &db,
   version = 0;
   mustoffermod = false;
   mustshowupdate = false;
+  controls->setEnabled(false);
+}
+
+void LiveAdjuster::clear() {
+  version = 0;
+  adjuster->clear();
+  controls->setEnabled(false);
 }
 
 void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
@@ -39,12 +46,14 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
                                   " where id=:a limit 1", v).toString();
     sliders.setAll(mods);
     controls->setQuietly(sliders);
+    controls->setEnabled(true);
   }
   targetsize = s;
   version = v;
 
-  if (newvsn)
+  if (newvsn) {
     adjuster->clear();
+  }
 }
 
 void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {

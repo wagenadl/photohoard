@@ -17,6 +17,7 @@ public:
   double fittingZoom() const;
 public slots:
   void newImage(QSize natSize);
+  void clear();
   void updateImage(Image16 img, bool force=false);
   void setZoom(double zm);
   void changeZoomLevel(QPoint center, double delta);
