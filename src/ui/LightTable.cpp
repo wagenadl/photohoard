@@ -28,6 +28,9 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
     db.query("delete from expanded");
   }
   db.query("insert into starting values(1)");
+
+  filterDialog = new FilterDialog(db);
+  populateFilterFromDialog();
   
   selection = new Selection(db, this);
 
@@ -36,8 +39,6 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
 
   slide = new SlideView();
   addWidget(slide);
-
-  filterDialog = new FilterDialog(db);
 
   lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;
   setStretchFactor(0, 0);
@@ -73,9 +74,7 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   
   quint64 c = db.simpleQuery("select * from current").toULongLong();
   if (c)
-    select(c, Qt::NoModifier);
-
-  applyFilterFromDialog();
+    select(c);
 
   db.query("delete from starting");
 }
@@ -376,7 +375,7 @@ void LightTable::filterAction(FilterBar::Action a) {
 void LightTable::clearSelection() {
   quint64 c = db.simpleQuery("select * from current").toULongLong();
   if (c) {
-    select(c, Qt::NoModifier);
+    select(c);
   } else {
     if (selection->count()<=10) {
       QSet<quint64> ss = selection->current();
@@ -409,16 +408,26 @@ void LightTable::scrollToCurrent() {
 }
 
 void LightTable::applyFilterFromDialog() {
+  populateFilterFromDialog();
+  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  QSqlQuery q = db.query("select * from M.filter where version==:a", c);
+  if (!q.next())
+    selectNearestInFilter(c);
+  rescan();
+}
+
+void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
+  pDebug() << "Current not in filter - solution NYI";
+  // we should select something near the version, but for now:
+  select(0);
+}
+
+void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->extract();
   db.query("delete from M.filter");
   db.query("insert into M.filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause(db));
   int N = db.simpleQuery("select count(*) from M.filter").toInt();
-  pDebug() << "Apply Filter" << N;
+  pDebug() << "Populate Filter" << N;
 
-  quint64 c = db.simpleQuery("select * from current").toULongLong();
-  QSqlQuery q = db.query("select * from M.filter where version==:a", c);
-  pDebug() << "Current not in filter";
-  if (!q.next())
-    select(0, Qt::NoModifier);
 }

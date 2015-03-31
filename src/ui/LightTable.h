@@ -25,7 +25,7 @@ public:
 public slots:
   void setLayout(LayoutBar::Action ar);
   void slidePress(quint64 id, Qt::MouseButton, Qt::KeyboardModifiers);
-  void select(quint64 id, Qt::KeyboardModifiers);
+  void select(quint64 id, Qt::KeyboardModifiers=Qt::NoModifier);
   void updateImage(quint64, Image16);
   void rescan();
   void setColorLabel(ColorLabelBar::Action);
@@ -46,6 +46,8 @@ private slots:
 protected:
   void updateSlide(quint64 id);
   void ensureReasonableGridSize();
+  void populateFilterFromDialog();
+  void selectNearestInFilter(quint64 vsn);
 protected:
   PhotoDB db;
   QPointer<LiveAdjuster> adjuster; // we do not own

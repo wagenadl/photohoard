@@ -29,6 +29,8 @@ PhotoDB::PhotoDB(QString fn): Database(fn),
   query("create table if not exists M.filter "
         "(version integer references versions(id), "
         " photo integer references photos(id) )");
+  query("create index if not exists M.photoidx on filter(photo)");
+  
 }
 
 QString PhotoDB::ftype(int ft) const {

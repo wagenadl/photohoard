@@ -179,9 +179,9 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
 
 void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
   if (headerid==0) {
-    QSqlQuery q = db.query("select versions.id"
-                           " from versions inner join photos"
-                           " on versions.photo=photos.id"
+    QSqlQuery q = db.query("select version"
+                           " from filter inner join photos"
+                           " on filter.photo=photos.id"
                            " where photos.capturedate>=:a"
                            " and photos.capturedate<:b"
                            " limit 1", d0, endFor(d0, scl));
@@ -388,8 +388,8 @@ void Strip::clearContents() {
 int Strip::countInRange(QDateTime begin, QDateTime end) const {
   QSqlQuery q(*db);
   q.prepare("select count(*)"
-	    " from versions inner join photos"
-	    " on versions.photo=photos.id"
+	    " from filter inner join photos"
+	    " on filter.photo=photos.id"
 	    " where photos.capturedate>=:a and photos.capturedate<:b");
   q.bindValue(":a", begin);
   q.bindValue(":b", end);
@@ -400,8 +400,9 @@ int Strip::countInRange(QDateTime begin, QDateTime end) const {
 
 QDateTime Strip::firstDateInRange(QDateTime t0, QDateTime t1) const {
   QSqlQuery q(*db);
-  q.prepare("select capturedate from photos"
-	    " where capturedate>=:a and photos.capturedate<:b"
+  q.prepare("select capturedate from filter inner join photos"
+            " on filter.photo==photos.id"
+	    " where capturedate>=:a and capturedate<:b"
 	    " order by capturedate limit 1");
   q.bindValue(":a", t0);
   q.bindValue(":b", t1);
@@ -430,9 +431,9 @@ QDateTime Strip::lastDateInRange(QDateTime t0, QDateTime t1) const {
 QList<quint64> Strip::versionsInRange(QDateTime begin,
 					  QDateTime end) const {
   QSqlQuery q(*db);
-  q.prepare("select versions.id"
-	    " from versions inner join photos"
-	    " on versions.photo=photos.id"
+  q.prepare("select version"
+	    " from filter inner join photos"
+	    " on filter.photo=photos.id"
 	    " where photos.capturedate>=:a and photos.capturedate<:b"
 	    " order by photos.capturedate");
   q.bindValue(":a", begin);
