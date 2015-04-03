@@ -27,7 +27,7 @@ public slots:
   void slidePress(quint64 id, Qt::MouseButton, Qt::KeyboardModifiers);
   void select(quint64 id, Qt::KeyboardModifiers=Qt::NoModifier);
   void updateImage(quint64, Image16);
-  void rescan();
+  void rescan(bool rebuildFilter=true);
   void setColorLabel(ColorLabelBar::Action);
   void filterAction(FilterBar::Action);
   void clearSelection();

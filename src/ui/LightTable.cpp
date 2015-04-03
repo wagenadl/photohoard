@@ -321,7 +321,9 @@ void LightTable::updateImage(quint64 i, Image16 img) {
   slide->updateImage(img);
 }
 
-void LightTable::rescan() {
+void LightTable::rescan(bool rebuildFilter) {
+  if (rebuildFilter)
+    populateFilterFromDialog();
   film->rescan();
 }
 
@@ -413,7 +415,7 @@ void LightTable::applyFilterFromDialog() {
   QSqlQuery q = db.query("select * from M.filter where version==:a", c);
   if (!q.next())
     selectNearestInFilter(c);
-  rescan();
+  rescan(false);
 }
 
 void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
@@ -423,7 +425,7 @@ void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
 }
 
 void LightTable::populateFilterFromDialog() {
-  Filter f = filterDialog->extract();
+  Filter f = filterDialog->filter();
   db.query("delete from M.filter");
   db.query("insert into M.filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause(db));

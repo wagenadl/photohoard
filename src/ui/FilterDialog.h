@@ -14,7 +14,8 @@ public:
   FilterDialog(class PhotoDB const &db, QWidget *parent=0);
   virtual ~FilterDialog() { }
   void populate(Filter const &);
-  Filter extract() const;
+  Filter extract() const; // currently shown in dialog
+  Filter const &filter() const { return f0; } // accepted or applied
 signals:
   void apply();
 private slots: 

@@ -12,8 +12,6 @@ FilterDialog::FilterDialog(PhotoDB const &db, QWidget *parent):
   QDialog(parent), db(db) {
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
-  prepCombos();
-  populate(Filter());
 }
 
 void FilterDialog::prepCombos() {
@@ -215,6 +213,8 @@ Filter FilterDialog::extract() const {
 }
 
 void FilterDialog::populate(Filter const &f) {
+  prepCombos();
+
   // Collections
   ui->collection->setChecked(f.hasCollection());
   int idx = ui->collectionBox->findText(f.collection());
@@ -301,7 +301,7 @@ void FilterDialog::recolorTags() {
 }
 
 void FilterDialog::showEvent(QShowEvent *e) {
-  f0 = extract();
+  populate(f0);
   QDialog::showEvent(e);
 }
 
@@ -310,13 +310,15 @@ void FilterDialog::buttonClick(QAbstractButton *b) {
   switch (role) {
   case QDialogButtonBox::AcceptRole:
   case QDialogButtonBox::ApplyRole:
+    f0 = extract();
     emit apply();
     break;
   case QDialogButtonBox::ResetRole:
-    populate(Filter());
+    f0 = Filter();
+    populate(f0);
     break;
   case QDialogButtonBox::RejectRole:
-    populate(f0);
+    // cancel
   default:
     break;
   }
