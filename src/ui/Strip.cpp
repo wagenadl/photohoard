@@ -151,6 +151,8 @@ QRectF Strip::boundingRect() const {
   case Arrangement::Grid:
     if (hasTopLabel())
       r0.setHeight(subBoundingRect().height());
+    else
+      r0.setWidth(5*r0.width());
     break;
   }
   return r0;
@@ -209,7 +211,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
       r.adjust(0, 2, 0, -2);
     poly << (r.topLeft() + QPointF(2, slantw+2));
     poly << (r.topRight() + QPointF(0, 2));
-    if (arr==Arrangement::Horizontal && scl!=TimeScale::Eternity) {
+    if (/*arr==Arrangement::Horizontal &&*/ scl!=TimeScale::Eternity) {
       poly << (r0.topRight() + QPointF(0, 2));
       poly << r0.bottomRight();
     }
@@ -337,11 +339,12 @@ QString Strip::longLabelFor(QDateTime d0, Strip::TimeScale scl) {
   case TimeScale::Eternity:
     return db.fileName();
   case TimeScale::Decade:
-    return "";
+    return d0.toString("yyyy") + QString::fromUtf8("–")
+      + d0.addYears(9).toString("yyyy");
   case TimeScale::Year:
-    return "";
+    return d0.toString(QString::fromUtf8("yyyy"));
   case TimeScale::Month:
-    return ""; // return d0.toString("MMMM yyyy");
+    return d0.toString(QString::fromUtf8("MMMM yyyy"));
   case TimeScale::Day:
     return d0.toString(QString::fromUtf8("MMMM d, yyyy"));
   case TimeScale::Hour:

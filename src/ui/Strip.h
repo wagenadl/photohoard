@@ -26,7 +26,7 @@ public:
     Hour,
     DecaMinute,
     None,
-  }; 
+  };
 public:
   Strip(PhotoDB const &db, QGraphicsItem *parent);
   virtual ~Strip();

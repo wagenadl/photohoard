@@ -16,8 +16,6 @@ public slots:
   void setVersion(quint64 version);
 private:
   PhotoDB db;
-  PhotoDB::VersionRecord vrec;
-  PhotoDB::PhotoRecord prec;
 };
 
 #endif

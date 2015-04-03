@@ -4,6 +4,7 @@
 #include <QSet>
 #include "Slide.h"
 #include "PDebug.h"
+#include "MetaInfo.h"
 
 #define THRESHOLD 100
 
@@ -113,10 +114,13 @@ void Slidestrip::instantiate() {
       slideMap[id]->setTileSize(tilesize);
     }
     slideMap[id]->setPos(1e6, 1e6);
-    if (expanded)
+    if (expanded) {
       slideMap[id]->show();
-    else
+      QString txt = MetaInfo(db, id).html();
+      slideMap[id]->setToolTip(MetaInfo(db, id).html());
+    } else {
       slideMap[id]->hide();
+    }
     slideOrder << slideMap[id];
     keep << id;
   }
@@ -144,8 +148,12 @@ void Slidestrip::expand() {
   else if (mustRelayout)
     relayout();
   
-  for (auto s: slideOrder)
+  for (auto s: slideOrder) {
+    QString txt = MetaInfo(db, s->version()).html();
+    qDebug() << txt;
+    s->setToolTip(txt);
     s->show();
+  }
 }
 
 void Slidestrip::collapse() {
