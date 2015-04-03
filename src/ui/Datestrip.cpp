@@ -210,16 +210,32 @@ void Datestrip::relayout() {
   switch (arr) {
   case Arrangement::Horizontal: {
     int x = labelBoundingRect().right();
+    bool dx = false;
+    bool suppress = scl!=TimeScale::Eternity;
     for (auto s: stripOrder) {
+      if (s->isExpanded() && !suppress)
+        dx = true;
+      if (dx)
+        x += 4;
       s->setPos(x, 0);
       x += s->netBoundingRect().width();
+      dx = s->isExpanded();
+      suppress = false;
     }
   } break;
   case Arrangement::Vertical: {
     int y = labelBoundingRect().bottom();
+    bool dy = false;
+    bool suppress = scl!=TimeScale::Eternity;
     for (auto s: stripOrder) {
+      if (s->isExpanded() && !suppress)
+        dy = true;
+      if (dy)
+        y += 4;
       s->setPos(0, y);
       y += s->netBoundingRect().height();
+      dy = s->isExpanded();
+      suppress = false;
     }
   } break;
   case Arrangement::Grid: {
@@ -230,12 +246,18 @@ void Datestrip::relayout() {
     int dy = 0;
     int x = x0;
     int y = y0;
+    if (scl==TimeScale::Eternity)
+      y += 2 + edy;
+    else if (hasTopLabel())
+      y += 1;
     bool atstart = true;
     for (auto s: stripOrder) {
       bool ex = s->isExpanded();
       QRectF r1 = s->netBoundingRect();
       if ((ex || x+r1.width()>rowwidth) && !atstart) {
 	y += dy + edy;
+        if (ex)
+          y += 2; // extra space before expanded section
 	x = x0;
 	dy = 0;
 	atstart = true;
@@ -248,6 +270,7 @@ void Datestrip::relayout() {
       if (ex) {
 	x = x0;
 	y += dy + edy;
+        y += 2; // extra space after expanded section
 	dy = 0;
 	atstart = true;
       } else {

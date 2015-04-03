@@ -89,9 +89,18 @@ int Strip::labelHeight(int) {
 }
 
 bool Strip::hasTopLabel() const {
-  return scl==TimeScale::Eternity
-    || scl==TimeScale::Decade
-    || scl==TimeScale::Year;
+  switch (arr) {
+  case Arrangement::Horizontal:
+    return false;
+  case Arrangement::Vertical:
+    return true;
+  case Arrangement::Grid:
+    return scl==TimeScale::Eternity
+      || scl==TimeScale::Decade
+      //    || scl==TimeScale::Year;
+      ;
+  }
+  return false; // not executed
 }
 
 QRectF Strip::labelBoundingRect() const {
@@ -128,7 +137,23 @@ void Strip::recalcLabelRect() {
 }
 
 QRectF Strip::boundingRect() const {
-  return labelBoundingRect();
+  QRectF r0 = labelBoundingRect();
+  if (!isExpanded())
+    return r0;
+  
+  switch (arr) {
+  case Arrangement::Horizontal:
+    r0.setWidth(2*r0.width());
+    break;
+  case Arrangement::Vertical:
+    r0.setHeight(2*r0.height());
+    break;
+  case Arrangement::Grid:
+    if (hasTopLabel())
+      r0.setHeight(subBoundingRect().height());
+    break;
+  }
+  return r0;
 }
 
 QRectF Strip::subBoundingRect() const {
@@ -150,31 +175,79 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
   painter->setBrush(QBrush(bg));
   painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+
+#if 0
+  if (scl==TimeScale::Decade) {
+    painter->setPen(QPen(QColor("#a0a0a0")));
+    for (int y = r.top()+4; y<r.height()-3; y+=4)
+      painter->drawLine(r.left()+4, y,
+                        r.right()-4, y);
+    painter->setPen(QPen(QColor("#ffffff")));
+    for (int y = r.top()+3; y<r.height()-4; y+=4)
+      painter->drawLine(r.left()+4, y,
+                        r.right()-4, y);
+  }
+#endif
 }
 
 void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
+  QRectF r0 = boundingRect();
   int slantw = scl==TimeScale::Eternity ? 0 : 12;
   if (r.width() >= r.height()) {
     poly << (r.topLeft() + QPointF(slantw+2, 2));
     poly << (r.topRight() + QPointF(-slantw, 2));
     poly << r.bottomRight();
+    if (hasTopLabel() && scl!=TimeScale::Eternity) {
+      poly << r0.bottomRight();
+      poly << (r0.bottomLeft() + QPointF(2, 0));
+    }
     poly << (r.bottomLeft() + QPointF(2, 0));
   } else {
+    if (arr==Arrangement::Grid) 
+      r.adjust(0, 2, 0, -2);
     poly << (r.topLeft() + QPointF(2, slantw+2));
     poly << (r.topRight() + QPointF(0, 2));
+    if (arr==Arrangement::Horizontal && scl!=TimeScale::Eternity) {
+      poly << (r0.topRight() + QPointF(0, 2));
+      poly << r0.bottomRight();
+    }
     poly << r.bottomRight();
     poly << (r.bottomLeft() + QPointF(2, -slantw));
   }      
   painter->setBrush(QBrush(QColor(129, 129, 129)));
   painter->drawPolygon(poly);
   poly.translate(-2, -2);
-  painter->setBrush(QBrush(QColor(240, 240, 240)));
+  painter->setBrush(QBrush(QColor(255, 255, 255)));
   painter->drawPolygon(poly);
   poly.translate(1, 1);
   painter->setBrush(QBrush(bg));
-  painter->drawPolygon(poly); 
+  painter->drawPolygon(poly);
+  if (arr==Arrangement::Grid && hasTopLabel() && scl!=TimeScale::Eternity) {
+    int y0 = r.bottom() + 5;
+    int y1 = r0.bottom();
+    QLinearGradient gg(0, y0, 0, y1);
+    gg.setColorAt(0, bg);
+    gg.setColorAt(1, QColor(128, 128, 128));
+    painter->setBrush(QBrush(gg));
+    painter->drawRect(QRectF(QPointF(r.left()+1, y0),
+                             QPointF(r.right()-1, y1)));
+  }
+
+#if 0
+  if (scl==TimeScale::Decade) {
+    painter->setPen(QPen(QColor("#a0a0a0")));
+    for (int y = r.top()+4; y<r.height()-3; y+=4)
+      painter->drawLine(r.left()+r.height()-y+2, y,
+                        r.right()-r.height()+y-2, y);
+    painter->setPen(QPen(QColor("#ffffff")));
+    for (int y = r.top()+3; y<r.height()-4; y+=4)
+      painter->drawLine(r.left()+r.height()-y+2, y,
+                        r.right()-r.height()+y-2, y);
+  }
+#endif
+
 }
 
 void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
@@ -241,7 +314,9 @@ void Strip::paint(QPainter *painter,
                   const QStyleOptionGraphicsItem *,
                   QWidget *) {
   QRectF r = labelBoundingRect();
-  int bggray = (int(scl) & 1) ? 230 : 200;
+  int bggray = (int(scl) & 1) ? 236 : 192;
+  if (scl==TimeScale::Decade)
+    bggray = 255;
   QColor bg(bggray, bggray, bggray);
   if (expanded) {
     paintExpandedHeaderBox(painter, r, bg);
@@ -340,10 +415,7 @@ void Strip::setTileSize(int pix) {
 }
 
 int Strip::subRowWidth(int pix) const {
-  return (scl==TimeScale::Eternity
-	  || scl==TimeScale::Decade
-	  || scl==TimeScale::Year)
-    ? pix : pix - labelHeight(tilesize);  
+  return hasTopLabel() ? pix : pix - labelHeight(tilesize);  
 }
 
 void Strip::setRowWidth(int pix) {

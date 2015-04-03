@@ -17,7 +17,7 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db1), adjuster(adj) {
   setObjectName("LightTable");
   id = 0;
-  tilesize = 80;
+  tilesize = 96;
   lastgridsize = 3*tilesize + 4;
   lay=lastlay=LayoutBar::Action::VGrid;
   showmax = false;
@@ -85,7 +85,7 @@ LightTable::~LightTable() {
 
 void LightTable::ensureReasonableGridSize() {
   int s0 = sizes()[0];
-  int s1 = 2*tilesize + 4*Strip::labelHeight(tilesize)
+  int s1 = 2*tilesize + 5*Strip::labelHeight(tilesize)
     + film->verticalScrollBar()->width() + 4;
   if (s0<s1) {
     lastgridsize = s1;
