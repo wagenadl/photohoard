@@ -80,6 +80,7 @@ public:
   static QDateTime startFor(QDateTime d, TimeScale scl);
   static QDateTime endFor(QDateTime start, TimeScale scl);
   static QString labelFor(QDateTime t0, TimeScale scl);
+  QString longLabelFor(QDateTime t0, TimeScale scl);
   static int labelHeight(int tilesize);
   void requestImage(quint64);
 protected:
@@ -89,6 +90,7 @@ protected:
 protected slots:
   virtual void relayout();
 protected:
+  virtual void rebuildToolTip();
   virtual void clearContents();
   virtual void rebuildContents();
   void setHeaderID(quint64);

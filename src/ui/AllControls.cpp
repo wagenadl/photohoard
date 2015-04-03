@@ -166,17 +166,23 @@ void AllControls::valueChange(QString name) {
 
 void AllControls::resizeEvent(QResizeEvent *e) {
   QScrollArea::resizeEvent(e);
-  int h = widget()->sizeHint().height();
-  int w = viewport()->width(); // - verticalScrollBar()->width();
-  widget()->resize(w, h);
+  QWidget *vp = viewport();
+  QWidget *wdg = widget();
+  if (vp && wdg) {
+    int h = wdg->sizeHint().height();
+    int w = vp->width(); // - verticalScrollBar()->width();
+    wdg->resize(w, h);
+  }
 }
 
 QSize AllControls::sizeHint() const {
+  pDebug() << "AC::sizeHint" << (void*)this;
   QWidget *vp = viewport();
-  if (vp)
-    return widget()->sizeHint() + size() - viewport()->contentsRect().size();
+  QWidget *wdg = widget();
+  if (vp && wdg)
+    return wdg->sizeHint() + size() - vp->contentsRect().size();
   else
-    return widget()->sizeHint(); // hmm.
+    return QSize();
 }
 
 void AllControls::goNext(QString src) {

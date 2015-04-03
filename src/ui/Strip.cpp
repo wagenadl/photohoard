@@ -327,6 +327,34 @@ void Strip::paint(QPainter *painter,
   paintHeaderText(painter, r);
 }
 
+void Strip::rebuildToolTip() {
+  QString s = longLabelFor(d0, scl);
+  setToolTip(s);
+}
+
+QString Strip::longLabelFor(QDateTime d0, Strip::TimeScale scl) {
+  switch (scl) {
+  case TimeScale::Eternity:
+    return db.fileName();
+  case TimeScale::Decade:
+    return "";
+  case TimeScale::Year:
+    return "";
+  case TimeScale::Month:
+    return ""; // return d0.toString("MMMM yyyy");
+  case TimeScale::Day:
+    return d0.toString(QString::fromUtf8("MMMM d, yyyy"));
+  case TimeScale::Hour:
+    return d0.toString("MMMM d, yyyy, h ap");
+  case TimeScale::DecaMinute:
+    return d0.toString("MMMM d, yyyy, h:mm ap");
+  case TimeScale::None:
+    return "None";
+  }
+  return "?";
+}
+  
+
 QString Strip::labelFor(QDateTime d0, Strip::TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
@@ -363,6 +391,7 @@ void Strip::updateImage(quint64 v, Image16 img) {
 void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
   scl = scl1;
   d0 = startFor(t0, scl);
+  rebuildToolTip();
   rebuildContents();
 }
 
