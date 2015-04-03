@@ -42,6 +42,7 @@ public:
 private:
   Exiv2::Exifdatum const &exifDatum(QString const &) const;
   static class NikonLenses const &nikonLenses();
+  static class CanonLenses const &canonLenses();
 private:
   Exiv2::Image::AutoPtr image;
   Exiv2::Exifdatum nullDatum;

@@ -3,6 +3,7 @@
 #include "Exif.h"
 #include <QStringList>
 #include "NikonLenses.h"
+#include "CanonLenses.h"
 #include <exiv2/preview.hpp>
 #include <QByteArray>
 #include <QBuffer>
@@ -28,6 +29,11 @@ static ExifInit exitInit;
 
 NikonLenses const &Exif::nikonLenses() {
   static NikonLenses lenses;
+  return lenses;
+}
+
+CanonLenses const &Exif::canonLenses() {
+  static CanonLenses lenses;
   return lenses;
 }
 
@@ -146,11 +152,23 @@ QString Exif::lens() const {
     return nikonLenses()[lensid];
 
   Exiv2::Exifdatum const &d(exifDatum("Exif.CanonCs.Lens"));
-  if (d.count()>=2)
-    return QString::number(d.toLong(1)/1e3) + "-"
-      + QString::number(d.toLong(0)/1e3);
-  
-  // Could search other databases. Canon?
+  if (d.count()>=2) {
+    int f_low = d.toLong(1);
+    int f_high = d.toLong(0);
+    int f_div = d.toLong(2);
+    Exiv2::Exifdatum const &dd(exifDatum("Exif.CanonCs.LensType"));
+    int typ = (dd.count()>=1) ? dd.toLong(0) : -1;
+    if (typ&0x8000) {
+      // I'm not going to report on fixed lenses, so let's see
+      QString c = exifDatum("Exif.Image.Model").toString().c_str();
+      if (!c.contains("EOS"))
+        return QString(); // assume fixed lens, boring
+    }
+    quint64 id = CanonLenses::buildID(typ, f_low, f_high, f_div);
+    if (canonLenses().contains(id))
+      return canonLenses()[id];
+  }
+
   return QString();
 }
 

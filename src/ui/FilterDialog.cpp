@@ -105,8 +105,14 @@ void FilterDialog::prepLenses(QString make, QString model) {
   }
 
   QStringList lenses;
-  while (q.next())
-    lenses << q.value(0).toString();
+  while (q.next()) {
+    QString l = q.value(0).toString();
+    if (l>="0" && l<="99999") {
+      // ignore numeric lenses
+    } else {
+      lenses << l;
+    }
+  }
   qSort(lenses);
   lenses.removeOne("");
 

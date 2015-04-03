@@ -15,7 +15,7 @@ Scanner::Scanner(PhotoDB const &db):
   QSqlQuery q(*db);
   q.prepare("select extension, filetype from extensions");
   if (!q.exec()) {
-    pDebug() << "Could not select extensions";
+    qDebug() << "Could not select extensions";
     throw q.lastError();
   }
   while (q.next()) 
@@ -33,7 +33,7 @@ void Scanner::addTree(QString path) {
   q.prepare("select id from folders where pathname==:p");
   q.bindValue(":p", path);
   if (!q.exec()) {
-    pDebug() << "Could not select folder";
+    qDebug() << "Could not select folder";
     throw q.lastError();
   }
   quint64 id;
@@ -48,7 +48,7 @@ void Scanner::addTree(QString path) {
     q.prepare("select id from folders where pathname==:p");
     q.bindValue(":p", parentPath);
     if (!q.exec()) {
-      pDebug() << "Could not select folder 2";
+      qDebug() << "Could not select folder 2";
       throw q.lastError();
     }
     quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
@@ -58,7 +58,7 @@ void Scanner::addTree(QString path) {
   q.prepare("insert into folderstoscan values(:i)");
   q.bindValue(":i", id);
   if (!q.exec()) {
-    pDebug() << "Could not insert into folderstoscan";
+    qDebug() << "Could not insert into folderstoscan";
     throw q.lastError();
   }
   t.commit();
@@ -173,32 +173,30 @@ void Scanner::run() {
         l.relock();
       }
       if (sleepok && !stopsoon) {
-        pDebug() << "Scanner: Going to sleep";
 	waiter.wait(&mutex);
-        pDebug() << "Scanner: Woke up";
       }
     }
   } catch (QSqlQuery &q) {
-    pDebug() << "Scanner: SqlError: " << q.lastError().text();
-    pDebug() << "  from " << q.lastQuery();
+    qDebug() << "Scanner: SqlError: " << q.lastError().text();
+    qDebug() << "  from " << q.lastQuery();
     QMap<QString,QVariant> vv = q.boundValues();
     for (auto it=vv.begin(); it!=vv.end(); ++it) 
-      pDebug() << "    " << it.key() << ": " << it.value();
-    pDebug() << "  Thread terminating";
+      qDebug() << "    " << it.key() << ": " << it.value();
+    qDebug() << "  Thread terminating";
     emit exception("Scanner: SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
   } catch (std::system_error &e) {
-    pDebug() << "Scanner: System error: "
+    qDebug() << "Scanner: System error: "
 	     << e.code().value() << e.code().message().c_str();
-    pDebug() << "  Thread terminating";
+    qDebug() << "  Thread terminating";
     emit exception("Scanner: System error");
   } catch (NoResult) {
-    pDebug() << "Scanner: Expected object not found in table.";
-    pDebug() << "  Thread terminating";
+    qDebug() << "Scanner: Expected object not found in table.";
+    qDebug() << "  Thread terminating";
     emit exception("Scanner: No result");
   } catch (...) {
-    pDebug() << "Scanner: Unknown exception";
-    pDebug() << "  Thread terminating";
+    qDebug() << "Scanner: Unknown exception";
+    qDebug() << "  Thread terminating";
     emit exception("Scanner: Unknown exception");
   }
   pDebug() << "Scanner end of run";
@@ -407,7 +405,7 @@ void Scanner::scanPhoto(quint64 id) {
   // Find exif info
   Exif exif(pathname);
   if (!exif.ok()) {
-    pDebug() << "PhotoScanner::doscan: Could not get exif. Oh well.";
+    qDebug() << "PhotoScanner::doscan: Could not get exif. Oh well.";
     return;
   }
 
@@ -429,6 +427,7 @@ void Scanner::scanPhoto(quint64 id) {
   // Now camid is valid unless cam is empty
 
   QString lens = exif.lens();
+  pDebug() << "Scanner: " << make << model << lens;
   quint64 lensid = 0;
   if (!lens.isNull()) {
     q.prepare("select id from lenses where lens==:c");
@@ -490,7 +489,6 @@ void Scanner::scanPhoto(quint64 id) {
 
       if (npix>0) {
         Image16 img = exif.previewImage(maxs);
-        //        pDebug() << "got preview for " << id << " in " << dt << " ms: " << img.size() << " ( " << exif.width() << " x " << exif.height() << ")";
         emit cacheablePreview(vsn, img);
       }
     }

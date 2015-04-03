@@ -1,7 +1,5 @@
 Makefile
 Makefile.*
-debug
-release
 photohoard
 photohoard_debug
 *~
