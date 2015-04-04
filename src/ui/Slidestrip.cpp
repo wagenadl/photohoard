@@ -90,13 +90,22 @@ void Slidestrip::rebuildContents() {
 
   mustRebuild = false;
   prepareGeometryChange();
-  latentVersions = db.versionsInDateRange(startDateTime(), endDateTime());
-  if (latentVersions.size()>THRESHOLD && scl<TimeScale::DecaMinute) {
-    emit overfilled(d0);
-    while (latentVersions.size()>THRESHOLD) {
-      latentVersions.takeLast();
+
+  switch (org) {
+  case Organization::ByDate:
+    latentVersions = db.versionsInDateRange(startDateTime(), endDateTime());
+    if (latentVersions.size()>THRESHOLD && scl<TimeScale::DecaMinute) {
+      emit overfilled(d0);
+      while (latentVersions.size()>THRESHOLD) {
+        latentVersions.takeLast();
+      }
     }
+    break;
+  case Organization::ByFolder:
+    latentVersions = db.versionsInFolder(pathname);
+    break;
   }
+  
   hasLatent = true;
   for (auto s: slideOrder)
     s->hide();
@@ -245,8 +254,8 @@ void Slidestrip::relayout() {
   } break;
   case Arrangement::Grid: {
     bool htl = hasTopLabel();
-    int x0 = htl ? 0 : labelHeight(tilesize);
-    int y0 = htl ? labelHeight(tilesize) : 0;
+    int x0 = (htl || !hasheader) ? 0 : labelHeight(tilesize);
+    int y0 = (htl && hasheader) ? labelHeight(tilesize) : 0;
     bool atstart = true;
     int x = x0;
     int y = y0;

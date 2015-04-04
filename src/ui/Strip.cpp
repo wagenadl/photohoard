@@ -10,6 +10,7 @@
 
 Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
+  hasheader = true;
   arr = Arrangement::Vertical;
   scl = TimeScale::None;
   org = Organization::ByDate;
@@ -25,6 +26,12 @@ Strip::~Strip() {
   setHeaderID(0);
 }
 
+void Strip::makeHeaderless() {
+  hasheader = false;
+  recalcLabelRect();
+  update();
+}
+
 void Strip::setHeaderID(quint64 id) {
   if (headerid==id)
     return;
@@ -33,14 +40,14 @@ void Strip::setHeaderID(quint64 id) {
     if (fs)
       fs->dropHeaderFor(headerid, this);
     else
-      pDebug() << "Strip not in a scene - disaster imminent";
+      qDebug() << "Strip not in a scene - disaster imminent";
   }
   if (id) {
     FilmScene *fs = dynamic_cast<FilmScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
     else
-      pDebug() << "Strip not in a scene - won't show image";
+      qDebug() << "Strip not in a scene - won't show image";
     headerid = id;
   }
 }
@@ -113,6 +120,10 @@ QRectF Strip::labelBoundingRect() const {
 
 void Strip::recalcLabelRect() {
   prepareGeometryChange();
+  if (!hasheader) {
+    labelRect=QRectF();
+    return;
+  }
   switch (arr) {
   case Arrangement::Horizontal:
     if (expanded)
@@ -240,26 +251,25 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
 
 void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
   if (headerid==0) {
-    QSqlQuery q;
     switch (org) {
-    case Organization::ByDate:
-      q = db.query("select version"
-                   " from filter inner join photos"
-                   " on filter.photo=photos.id"
-                   " where photos.capturedate>=:a"
-                   " and photos.capturedate<:b"
-                   " limit 1", d0, endFor(d0, scl));
-      break;
+    case Organization::ByDate: {
+      QSqlQuery q = db.query("select version"
+                             " from filter inner join photos"
+                             " on filter.photo=photos.id"
+                             " where photos.capturedate>=:a"
+                             " and photos.capturedate<:b"
+                             " limit 1", d0, endFor(d0, scl));
+      if (q.next())
+        setHeaderID(q.value(0).toULongLong());
+      else
+        qDebug() << "Could not find header image for " << int(org)
+                 << d0 << endFor(d0, scl) << int(scl)
+                 << pathname;
+    } break;
     case Organization::ByFolder:
-      // hmmm.
+      setHeaderID(db.firstVersionInTree(pathname));
       break;
     }
-    if (q.next())
-      setHeaderID(q.value(0).toULongLong());
-    else
-      qDebug() << "Could not find header image for " << int(org)
-               << d0 << endFor(d0, scl) << int(scl)
-               << pathname;
   }
 
   int ims = tilesize - 20;
@@ -290,15 +300,22 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
   }
 
   if (!expanded) {
+    r = r.adjusted(2, 2, -2, -2);
     painter->setPen(QPen(QColor(0, 0, 0)));
-    painter->drawText(r.adjusted(2, 4, 0, 0), Qt::AlignCenter, lbl);
-    painter->drawText(r.adjusted(4, 2, 0, 0), Qt::AlignCenter, lbl);
-    painter->drawText(r.adjusted(2, 2, 0, 0), Qt::AlignCenter, lbl);
-    painter->drawText(r.adjusted(2, 0, 0, -2), Qt::AlignCenter, lbl);
-    painter->drawText(r.adjusted(0, 2, 0, -2), Qt::AlignCenter, lbl);
-    painter->drawText(r.adjusted(0, 0, -2, -2), Qt::AlignCenter, lbl);
+    painter->drawText(r.translated(1, 2),
+                      Qt::AlignCenter | Qt::TextWordWrap, lbl);
+    painter->drawText(r.translated(2, 1),
+                      Qt::AlignCenter | Qt::TextWordWrap, lbl);
+    painter->drawText(r.translated(1, 1),
+                      Qt::AlignCenter | Qt::TextWordWrap, lbl);
+    painter->drawText(r.translated(-1, 0),
+                      Qt::AlignCenter | Qt::TextWordWrap, lbl);
+    painter->drawText(r.translated(0, -1),
+                      Qt::AlignCenter | Qt::TextWordWrap, lbl);
+    painter->drawText(r.translated(-1, -1),
+                      Qt::AlignCenter | Qt::TextWordWrap, lbl);
     painter->setPen(QPen(QColor(255,255,255)));
-    painter->drawText(r, Qt::AlignCenter, lbl);
+    painter->drawText(r, Qt::AlignCenter | Qt::TextWordWrap, lbl);
   } else if (r.width() >= r.height()) {
     // Horizontal display
     painter->setPen(QPen(QColor(0, 0, 0)));
@@ -328,17 +345,20 @@ void Strip::paint(QPainter *painter,
       bggray = (int(scl) & 1) ? 236 : 192;
     break;
   case Organization::ByFolder:
-    bggray = (pathname.split("/").size() & 1) ? 236 : 192;
+    bggray = ((pathname.split("/").size() + (leafname==""?1:0)) & 1)
+      ? 236 : 192;
     break;
   }
-  QColor bg(bggray, bggray, bggray);
-  if (expanded) {
-    paintExpandedHeaderBox(painter, r, bg);
-  } else {
-    paintCollapsedHeaderBox(painter, r, bg);
-    paintHeaderImage(painter, r);
+  if (hasheader) {
+    QColor bg(bggray, bggray, bggray);
+    if (expanded) {
+      paintExpandedHeaderBox(painter, r, bg);
+    } else {
+      paintCollapsedHeaderBox(painter, r, bg);
+      paintHeaderImage(painter, r);
+    }
+    paintHeaderText(painter, r);
   }
-  paintHeaderText(painter, r);
 }
 
 void Strip::rebuildToolTip() {
@@ -417,6 +437,11 @@ void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
   rebuildContents();
 }
 
+void Strip::setDisplayName(QString s) {
+  leafname = s;
+  update();
+}
+
 void Strip::setFolder(QString f) {
   org = Organization::ByFolder;
   pathname = f;
@@ -477,7 +502,7 @@ void Strip::setTileSize(int pix) {
 }
 
 int Strip::subRowWidth(int pix) const {
-  return hasTopLabel() ? pix : pix - labelHeight(tilesize);  
+  return (hasTopLabel() || !hasheader) ? pix : pix - labelHeight(tilesize);  
 }
 
 void Strip::setRowWidth(int pix) {
@@ -489,8 +514,14 @@ void Strip::expand() {
   if (expanded)
     return;
   expanded = true;
-  if (org==Organization::ByDate)
+  switch (org) {
+  case Organization::ByDate:
     db.query("insert into expanded values(:a,:b)", d0, int(scl));
+    break;
+  case Organization::ByFolder:
+    db.query("insert into expandedfolders values(:a)", pathname);
+    break;
+  }
   recalcLabelRect();
   emit resized();
 }
@@ -499,8 +530,14 @@ void Strip::collapse() {
   if (!expanded)
     return;
   expanded = false;
-  if (org==Organization::ByDate)
+  switch (org) {
+  case Organization::ByDate:
     db.query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
+    break;
+  case Organization::ByFolder:
+    db.query("delete from expandedfolders where path==:a", pathname);
+    break;
+  }
   recalcLabelRect();
   emit resized();
 }
@@ -529,8 +566,11 @@ void Strip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {
 }
 
 void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (!labelRect.contains(e->pos()))
+    return;
+  
   db.beginAndLock();
-  if (e->modifiers() & Qt::ShiftModifier)
+  if (e->modifiers() & Qt::ShiftModifier) 
     expandAll();
   else if (expanded) 
     collapse();

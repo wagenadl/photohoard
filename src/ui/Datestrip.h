@@ -39,10 +39,12 @@ protected:
   void rebuildByDate();
   void rebuildByFolder();
   Strip *newSubstrip(QDateTime t, Strip::TimeScale subs);
+  Strip *newStrip(bool indirect, bool protectoverfill);
   int stripNumberContaining(quint64 vsn);
 protected:
   QMap<QDateTime, Strip *> dateMap;
   QMap<QString, Strip *> folderMap;
+  class Strip *thisFolderStrip; // is a slide strip
   QList<Strip *> stripOrder;
   bool mustRebuild;
   bool mustRelayout;

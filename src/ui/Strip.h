@@ -58,11 +58,13 @@ public:
   virtual Strip *firstExpandedStrip()=0;
   virtual Strip *lastExpandedStrip()=0;
 public slots:
+  void makeHeaderless();
   void rescan();
   void updateImage(quint64, Image16);
   void updateHeader(Image16);
   void setTimeRange(QDateTime t0, TimeScale scl);
   void setFolder(QString pathname);
+  void setDisplayName(QString leaf);
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);
   virtual void setRowWidth(int pix);
@@ -123,6 +125,7 @@ protected:
   Image16 headerimg;
   QPixmap headerpm;
   QRectF labelRect;
+  bool hasheader;
 };
 
 #endif

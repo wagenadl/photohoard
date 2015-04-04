@@ -31,6 +31,7 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   
   PhotoDB dbx(db);
   dbx.beginAndLock();
+
   QSqlQuery q = dbx.query("select d0, scl from expanded order by scl");
   while (q.next()) {
     QDateTime d0 = q.value(0).toDateTime();
@@ -41,7 +42,14 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   }
   dateStrip->expand();
 
-  //  folderStrip->expand();
+  q = dbx.query("select path from expandedfolders order by path");
+  while (q.next()) {
+    QString path = q.value(0).toString();
+    Strip *s = folderStrip->stripByFolder(path);
+    if (s) 
+      s->expand();
+  }
+  folderStrip->expand();
   
   dbx.commitAndUnlock();
   

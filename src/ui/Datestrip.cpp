@@ -16,6 +16,7 @@ Datestrip::Datestrip(PhotoDB const &db, QGraphicsItem *parent):
   Strip(db, parent) {
   mustRebuild = false;
   mustRelayout = false;
+  thisFolderStrip = NULL;
   rebuilding = 0;
 }
 
@@ -48,6 +49,7 @@ void Datestrip::clearContents() {
   stripOrder.clear();
   dateMap.clear();
   folderMap.clear();
+  thisFolderStrip = NULL;
 }
 
 void Datestrip::convertStrip(QDateTime t) {
@@ -72,38 +74,47 @@ void Datestrip::convertStrip(QDateTime t) {
   if (e)
     dateMap[t]->expand();
   relayout();
-}  
+}
 
-Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
-  Strip *s;
-  int n = db.countInDateRange(t, endFor(t, subs));
-  bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
+Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
+  Strip *s = 0; 
   if (indirect) {
     s = new Datestrip(db, this);
   } else {
     s = new Slidestrip(db, this);
-    connect(s, SIGNAL(overfilled(QDateTime)),
-            this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
+    if (protectoverfill)
+      connect(s, SIGNAL(overfilled(QDateTime)),
+              this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
   }
+
   connect(s, SIGNAL(needImage(quint64, QSize)),
           this, SIGNAL(needImage(quint64, QSize)));
-  connect(s,
-          SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
-          this,
-          SIGNAL(pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers)));
-  connect(s, SIGNAL(clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers)),
-          this,
-          SIGNAL(clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers)));
-  connect(s,
-          SIGNAL(doubleClicked(quint64,
-                               Qt::MouseButton, Qt::KeyboardModifiers)),
-          this,
-          SIGNAL(doubleClicked(quint64,
-                               Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(s, SIGNAL(pressed(quint64, Qt::MouseButton,
+                            Qt::KeyboardModifiers)),
+          this, SIGNAL(pressed(quint64, Qt::MouseButton,
+                               Qt::KeyboardModifiers)));
+  connect(s, SIGNAL(clicked(quint64, Qt::MouseButton,
+                            Qt::KeyboardModifiers)),
+          this, SIGNAL(clicked(quint64, Qt::MouseButton,
+                               Qt::KeyboardModifiers)));
+  connect(s, SIGNAL(doubleClicked(quint64, Qt::MouseButton,
+                                  Qt::KeyboardModifiers)),
+          this, SIGNAL(doubleClicked(quint64, Qt::MouseButton,
+                                     Qt::KeyboardModifiers)));
+
   s->setArrangement(arr);
   s->setTileSize(tilesize);
   s->setRowWidth(subRowWidth(rowwidth));
+
   connect(s, SIGNAL(resized()), this, SLOT(relayout()));
+
+  return s;
+}
+
+Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
+  int n = db.countInDateRange(t, endFor(t, subs));
+  bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
+  Strip *s = newStrip(indirect, true);
   return s;
 }
 
@@ -125,7 +136,74 @@ void Datestrip::rebuildContents() {
 }
 
 void Datestrip::rebuildByFolder() {
-  ///
+  rebuilding++;
+
+  bool anyhere = db.countInFolder(pathname)>0;
+  bool anybelow = db.anyInTreeBelow(pathname);
+
+  if (!anyhere && !anybelow) {
+    rebuilding--;
+    clearContents();
+    return;
+  }
+
+  for (auto s: dateMap)
+    delete s;
+  dateMap.clear();
+  stripOrder.clear();
+
+  QSet<QString> keep;
+
+  if (anyhere) {
+    if (!thisFolderStrip) {
+      thisFolderStrip = newStrip(false, false);
+      thisFolderStrip->setFolder(pathname);
+      thisFolderStrip->setDisplayName("");
+      if (!anybelow)
+        thisFolderStrip->makeHeaderless();
+    }
+    if (expanded) {
+      if (!anybelow)
+        thisFolderStrip->expand();
+      thisFolderStrip->show();
+    } else {
+      thisFolderStrip->hide();
+    }
+    stripOrder << thisFolderStrip;
+  } else {
+    delete thisFolderStrip;
+    thisFolderStrip = NULL;
+  }
+
+  if (anybelow) {
+    QList<QString> fff = db.subFolders(pathname);
+    for (QString f: fff) {
+      if (db.countInFolder(f)==0 && !db.anyInTreeBelow(f))
+        continue;
+
+      keep << f;
+      
+      if (!folderMap.contains(f)) {
+        folderMap[f] = newStrip(true, false);
+      }
+      Strip *s = folderMap[f];
+      s->setFolder(f);
+      stripOrder << s;
+      if (expanded)
+        s->show();
+      else
+        s->hide();
+    }
+  }
+
+  for (auto id: folderMap.keys()) {
+    if (!keep.contains(id)) {
+      delete folderMap[id];
+      folderMap.remove(id);
+    }
+  }
+
+  rebuilding--;
   relayout();
 }
 
@@ -144,9 +222,10 @@ void Datestrip::rebuildByDate() {
 
   for (auto s: folderMap)
     delete s;
+  delete thisFolderStrip;
   folderMap.clear();
-
   stripOrder.clear();
+  
   QSet<QDateTime> keep;
 
   while (t.isValid()) {
@@ -190,6 +269,8 @@ void Datestrip::expand() {
 
   for (auto s: stripOrder)
     s->show();
+  if (thisFolderStrip)
+    thisFolderStrip->expand();
 }
 
 void Datestrip::collapse() {
@@ -368,7 +449,6 @@ Strip *Datestrip::stripByFolder(QString path) {
 }
 
 quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
-  pDebug() << "Datestrip " << this << "version at" << vsn << dcr << mustRebuild << mustRelayout << expanded;
   if (mustRebuild || mustRelayout || !expanded)
     return 0; // is this really necessary? Or should we rebuild?
   
@@ -465,7 +545,6 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
             break;
         }
       }
-      pDebug() << "v2: " << v2;
       if (!v2)
         return 0;
       
@@ -478,7 +557,6 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
       // Yes, that's pretty ugly. I should probably improve my infrastructure.
       Q_ASSERT(homeparent);
       int gridx = homeparent->gridPosition(vsn).x();
-      pDebug() << "gridx: " << gridx;
 
       /* Now let's find out the coordinates of our preliminary target */
       Slide *tgts = stripOrder[ktgt]->slideByVersion(v2);
@@ -487,13 +565,11 @@ quint64 Datestrip::versionAt(quint64 vsn, QPoint dcr) {
       // No prettier the second time around.
       Q_ASSERT(tgtparent);
       int gridy = tgtparent->gridPosition(v2).y();
-      pDebug() << "gridy: " << gridy;
       
       /* Ideally, I'd like to go to (gridx, gridy). But that may not exist. */
       while (gridx>=0) {
         quint64 vtgt = tgtparent->versionAt(QPoint(gridx, gridy));
         if (vtgt) {
-          pDebug() << "vtgt" << vtgt;
           return vtgt;
         }
         gridx--;

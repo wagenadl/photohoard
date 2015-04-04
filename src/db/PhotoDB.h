@@ -47,12 +47,10 @@ public:
 public:
   PhotoDB(QString fn);
   static PhotoDB create(QString fn);
+public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
   QDateTime captureDate(quint64 photoid) const;
   QString ftype(int filetypeid) const;
-  QString folder(quint64 folderid) const; // returns full pathname
-  quint64 root(quint64 folderid) const; // returns id of root folder
-  quint64 findFolder(QString) const; // 0 if not found
   PhotoRecord photoRecord(quint64 photoid) const;
   PhotoSize photoSize(quint64 photoid) const;
   VersionRecord versionRecord(quint64 versionid) const;
@@ -63,14 +61,22 @@ public:
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
   void setAcceptReject(quint64 versionid, AcceptReject label);
-public: // convenience functions
+public: // exploration functions
+  QString folder(quint64 folderid) const; // returns full pathname
+  quint64 root(quint64 folderid) const; // returns id of root folder
+  quint64 findFolder(QString) const; // 0 if not found
   int countInDateRange(QDateTime t0, QDateTime t1) const;
   QList<quint64> versionsInDateRange(QDateTime t0, QDateTime t1) const;
   QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
   QDateTime lastDateInRange(QDateTime t0, QDateTime t1) const;
   int countInFolder(QString folder) const;
   int countInTree(QString rootfolder) const;
+  bool anyInTreeBelow(QString rootfolder) const;
+  // _not_ counting this folder itself
   QList<quint64> versionsInFolder(QString folder) const;
+  QList<QString> subFolders(QString folders) const;
+  QList<QString> rootFolders() const;
+  quint64 firstVersionInTree(QString folder) const;
 private:
   mutable QSharedPointer< QMap<quint64, QString> > folders;
   mutable QSharedPointer< QMap<QString, quint64> > revFolders;

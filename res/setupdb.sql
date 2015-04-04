@@ -113,6 +113,10 @@ create table expanded (
        scl int,
        unique(d0, scl) on conflict ignore);
 
+create table expandedfolders (
+       path string,
+       unique(path) on conflict ignore);
+
 create table starting ( 
        -- This table is always empty except while building the LightTable
        -- That way, we can avoid double crashes.

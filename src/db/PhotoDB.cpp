@@ -222,6 +222,17 @@ int PhotoDB::countInTree(QString folder) const {
   return nsub + countInFolder(folder);
 }
 
+bool PhotoDB::anyInTreeBelow(QString folder) const {
+  if (folder=="/")
+    folder = "";
+  QSqlQuery q = constQuery("select 1 from filter"
+                           " inner join photos on filter.photo=photos.id"
+                           " inner join folders on photos.folder==folders.id"
+                           " where folders.pathname like :a limit 1",
+                           folder+"/%");
+  return q.next();
+}
+
 int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
   return simpleQuery("select count(*) from filter"
                      " inner join photos on filter.photo=photos.id"
@@ -280,4 +291,55 @@ QList<quint64> PhotoDB::versionsInFolder(QString folder) const {
   while (q.next())
     vv << q.value(0).toULongLong();
   return vv;
+}
+
+QList<QString> PhotoDB::rootFolders() const {
+  QList<QString> res;
+  QSqlQuery q = constQuery("select pathname from folders"
+                           " where parentfolder is null"
+                           " order by pathname");
+  while (q.next())
+    res << q.value(0).toString();
+  return res;
+}  
+
+QList<QString> PhotoDB::subFolders(QString folder) const {
+  if (folder=="/")
+    return rootFolders();
+  
+  QList<QString> res;
+ 
+  quint64 fid = findFolder(folder);
+  if (fid==0)
+    return res;
+  
+  QSqlQuery q = constQuery("select pathname from folders"
+                           " where parentfolder==:a"
+                           " order by leafname", fid);
+  while (q.next())
+    res << q.value(0).toString();
+  return res;
+}
+
+quint64 PhotoDB::firstVersionInTree(QString folder) const {
+  quint64 fid = findFolder(folder);
+  if (fid==0)
+    return 0;
+  
+  QSqlQuery q = constQuery("select version"
+                           " from filter inner join photos"
+                           " on filter.photo=photos.id"
+                           " where photos.folder==:a"
+                           " order by photos.capturedate limit 1", fid);
+  if (q.next())
+    return q.value(0).toULongLong();
+
+  QList<QString> fff = subFolders(folder);
+  for (QString f: fff) {
+    quint64 v = firstVersionInTree(f);
+    if (v)
+      return v;
+  }
+
+  return 0;
 }
