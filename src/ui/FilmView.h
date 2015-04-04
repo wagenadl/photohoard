@@ -21,6 +21,7 @@ signals:
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
 public slots:
+  void toggleOrganization();
   void scrollTo(quint64);
   void scrollToCurrent();
   void scrollIfNeeded();

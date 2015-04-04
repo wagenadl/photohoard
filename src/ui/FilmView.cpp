@@ -9,6 +9,9 @@
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent), db(db) {
+
+  useFolders = false;
+
   dateScene = new FilmScene(db, this);
   setScene(dateScene);
   dateStrip = new Datestrip(db, 0);
@@ -18,21 +21,28 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   dateScene->addItem(dateStrip);
   placeAndConnect(dateStrip);
 
+  folderScene = new FilmScene(db, this);
+  folderStrip = new Datestrip(db, 0);
+  setArrangement(Datestrip::Arrangement::Grid);
+  folderStrip->setTileSize(80);
+  folderStrip->setFolder("/"); /// hmmm.
+  folderScene->addItem(folderStrip);
+  placeAndConnect(folderStrip);
+  
   PhotoDB dbx(db);
   dbx.beginAndLock();
   QSqlQuery q = dbx.query("select d0, scl from expanded order by scl");
-  bool any = false;
   while (q.next()) {
     QDateTime d0 = q.value(0).toDateTime();
     Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
     Strip *s = dateStrip->stripByDate(d0, scl);
-    if (s) {
+    if (s) 
       s->expand();
-      any = true;
-    }
   }
-  if (!any)
-    dateStrip->expand();
+  dateStrip->expand();
+
+  folderStrip->expand();
+  
   dbx.commitAndUnlock();
   
   stripResized();
@@ -183,13 +193,25 @@ void FilmView::keyPressEvent(QKeyEvent *e) {
 }
 
 FilmScene *FilmView::scene() {
-  return dateScene;
+  return useFolders ? folderScene : dateScene;
 }
 
 Datestrip *FilmView::strip() {
-  return dateStrip;
+  return useFolders ? folderStrip : dateStrip;
 }
 
 void FilmView::enterEvent(QEvent *) {
   setFocus();
+}
+
+void FilmView::toggleOrganization() {
+  Datestrip *oldstrip = strip();
+  useFolders = !useFolders;
+  Datestrip *newstrip = strip();
+  newstrip->setArrangement(oldstrip->arrangement());
+  newstrip->setTileSize(oldstrip->tileSize());
+  newstrip->setRowWidth(oldstrip->rowWidth());
+  setScene(scene());
+  rescan();
+  scrollToCurrent();
 }

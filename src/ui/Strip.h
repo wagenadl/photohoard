@@ -41,6 +41,7 @@ public:
   bool isExpanded() const { return expanded; }
   int subRowWidth(int pix) const;
   int tileSize() const { return tilesize; }
+  int rowWidth() const { return rowwidth; }
   bool hasTopLabel() const;
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
   virtual class Slide *slideByVersion(quint64 vsn);

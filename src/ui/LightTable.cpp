@@ -185,7 +185,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
     pDebug() << "ToggleFullScreen NYI";
     break;
   case LayoutBar::Action::ToggleOrg:
-    pDebug() << "ToggleOrg NYI";
+    film->toggleOrganization();
     break;
   case LayoutBar::Action::N:
     break;
