@@ -182,6 +182,10 @@ void LightTable::setLayout(LayoutBar::Action act) {
       setLayout(LayoutBar::Action::FullPhoto);
     return;
   case LayoutBar::Action::ToggleFullScreen:
+    pDebug() << "ToggleFullScreen NYI";
+    break;
+  case LayoutBar::Action::ToggleOrg:
+    pDebug() << "ToggleOrg NYI";
     break;
   case LayoutBar::Action::N:
     break;
@@ -235,7 +239,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
         QSet<quint64> ss = selection->current();
         selection->clear();
         for (auto i: ss) {
-          Slide *s = film->root()->slideByVersion(i);
+          Slide *s = film->strip()->slideByVersion(i);
           if (s)
             s->update();
         }
@@ -282,7 +286,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
 }    
 
 void LightTable::updateSlide(quint64 i) {
-  Slide *s = film->root()->slideByVersion(i);
+  Slide *s = film->strip()->slideByVersion(i);
   if (s)
     s->update();
 }
@@ -291,7 +295,7 @@ PSize LightTable::displaySize() const {
   if (slide->isVisible())
     return slide->desiredSize();
   else
-    return PSize(film->root()->tileSize(), film->root()->tileSize());
+    return PSize::square(film->strip()->tileSize());
 }
 
 void LightTable::requestLargerImage() {
@@ -336,7 +340,7 @@ void LightTable::setColorLabel(ColorLabelBar::Action a) {
   } else {
     QSet<quint64> cc = selection->current();
     for (auto vsn: cc) {
-      Slide *s = film->root()->slideByVersion(vsn);
+      Slide *s = film->strip()->slideByVersion(vsn);
       if (s)
         s->update();
     }
@@ -383,7 +387,7 @@ void LightTable::clearSelection() {
       QSet<quint64> ss = selection->current();
       selection->clear();
       for (auto i: ss) {
-        Slide *s = film->root()->slideByVersion(i);
+        Slide *s = film->strip()->slideByVersion(i);
         if (s)
           s->update();
       }

@@ -9,14 +9,36 @@
 
 FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   QGraphicsView(parent), db(db) {
-  scene_ = new FilmScene(db, this);
-  setScene(scene_);
-  strip = new Datestrip(db, 0);
+  dateScene = new FilmScene(db, this);
+  setScene(dateScene);
+  dateStrip = new Datestrip(db, 0);
   setArrangement(Datestrip::Arrangement::Grid);
-  strip->setTileSize(80); //width()); // minus scrollbar...
-  strip->setTimeRange(QDateTime(),
-		      Datestrip::TimeScale::Eternity);
-  scene_->addItem(strip);
+  dateStrip->setTileSize(80);
+  dateStrip->setTimeRange(QDateTime(), Datestrip::TimeScale::Eternity);
+  dateScene->addItem(dateStrip);
+  placeAndConnect(dateStrip);
+
+  PhotoDB dbx(db);
+  dbx.beginAndLock();
+  QSqlQuery q = dbx.query("select d0, scl from expanded order by scl");
+  bool any = false;
+  while (q.next()) {
+    QDateTime d0 = q.value(0).toDateTime();
+    Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
+    Strip *s = dateStrip->stripByDate(d0, scl);
+    if (s) {
+      s->expand();
+      any = true;
+    }
+  }
+  if (!any)
+    dateStrip->expand();
+  dbx.commitAndUnlock();
+  
+  stripResized();
+}
+
+void FilmView::placeAndConnect(Strip *strip) {
   strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
@@ -36,38 +58,19 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
 	  this,
           SIGNAL(doubleClicked(quint64,
                                Qt::MouseButton, Qt::KeyboardModifiers)));
-
-  PhotoDB dbx(db);
-  dbx.beginAndLock();
-  QSqlQuery q = dbx.query("select d0, scl from expanded order by scl");
-  bool any = false;
-  while (q.next()) {
-    QDateTime d0 = q.value(0).toDateTime();
-    Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
-    Strip *s = strip->stripByDate(d0, scl);
-    if (s) {
-      s->expand();
-      any = true;
-    }
-  }
-  if (!any)
-    strip->expand();
-  dbx.commitAndUnlock();
-  
-  stripResized();
 }
 
 FilmView::~FilmView() {
 }
 
 void FilmView::setArrangement(Strip::Arrangement ar) {
-  strip->setArrangement(ar);
+  strip()->setArrangement(ar);
   setScrollbarPolicies();
   recalcSizes();
 }
 
 void FilmView::setScrollbarPolicies() {
-  switch (strip->arrangement()) {
+  switch (strip()->arrangement()) {
   case Datestrip::Arrangement::Horizontal:
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -81,9 +84,9 @@ void FilmView::setScrollbarPolicies() {
 }
 
 void FilmView::stripResized() {
-  QRectF r = strip->netBoundingRect();
+  QRectF r = strip()->netBoundingRect();
   r |= QRectF(QPointF(0, 0), viewport()->size());
-  scene_->setSceneRect(r);
+  scene()->setSceneRect(r);
 }
 
 void FilmView::resizeEvent(QResizeEvent *) {
@@ -92,33 +95,33 @@ void FilmView::resizeEvent(QResizeEvent *) {
 }
 
 void FilmView::recalcSizes() {
-  switch (strip->arrangement()) {
+  switch (strip()->arrangement()) {
   case Datestrip::Arrangement::Horizontal:
-    strip->setTileSize(viewport()->height());
+    strip()->setTileSize(viewport()->height());
     break;
   case Datestrip::Arrangement::Vertical:
-    strip->setTileSize(viewport()->width());
+    strip()->setTileSize(viewport()->width());
     break;
   case Datestrip::Arrangement::Grid:
-    strip->setRowWidth(viewport()->width());
+    strip()->setRowWidth(viewport()->width());
     break;
   }
 }
 
 void FilmView::updateImage(quint64 id, Image16 img) {
-  scene_->updateImage(id, img);
+  scene()->updateImage(id, img);
 }
 
 void FilmView::rescan() {
-  strip->rescan();
+  dateStrip->rescan();
 }
 
 void FilmView::setTileSize(int pix) {
-  strip->setTileSize(pix);
+  strip()->setTileSize(pix);
 }
 
 void FilmView::scrollTo(quint64 vsn) {
-  Slide *s = root()->slideByVersion(vsn);
+  Slide *s = strip()->slideByVersion(vsn);
   if (s)
     centerOn(s->sceneBoundingRect().center());
 }
@@ -133,7 +136,7 @@ void FilmView::scrollIfNeeded() {
   quint64 c = current();
   if (!c)
     return;
-  Slide *cs = root()->slideByVersion(c);
+  Slide *cs = strip()->slideByVersion(c);
   if (!cs)
     return;
   QRect portRect = viewport()->rect();
@@ -150,25 +153,25 @@ quint64 FilmView::current() {
 void FilmView::keyPressEvent(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Up: {
-    quint64 v = strip->versionAbove(current());
+    quint64 v = strip()->versionAbove(current());
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Down: {
-    quint64 v = strip->versionBelow(current());
+    quint64 v = strip()->versionBelow(current());
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Left: {
-    quint64 v = strip->versionLeftOf(current());
+    quint64 v = strip()->versionLeftOf(current());
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
   case Qt::Key_Right: {
-    quint64 v = strip->versionRightOf(current());
+    quint64 v = strip()->versionRightOf(current());
     if (v)
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
@@ -177,6 +180,14 @@ void FilmView::keyPressEvent(QKeyEvent *e) {
     QGraphicsView::keyPressEvent(e);
     break;
   }
+}
+
+FilmScene *FilmView::scene() {
+  return dateScene;
+}
+
+Datestrip *FilmView::strip() {
+  return dateStrip;
 }
 
 void FilmView::enterEvent(QEvent *) {

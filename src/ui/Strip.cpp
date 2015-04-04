@@ -12,6 +12,7 @@ Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
   arr = Arrangement::Vertical;
   scl = TimeScale::None;
+  org = Organization::ByDate;
   tilesize = 128;
   rowwidth = 1024;
   expanded = false;
@@ -284,7 +285,15 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
 }
 
 void Strip::paintHeaderText(QPainter *painter, QRectF r) {
-  QString lbl = labelFor(d0, scl);
+  QString lbl;
+  switch (org) {
+  case Organization::ByDate:
+    lbl = labelFor(d0, scl);
+    break;
+  case Organization::ByFolder:
+    lbl = leafname;
+    break;
+  }
 
   if (!expanded) {
     painter->setPen(QPen(QColor(0, 0, 0)));
@@ -330,8 +339,14 @@ void Strip::paint(QPainter *painter,
 }
 
 void Strip::rebuildToolTip() {
-  QString s = longLabelFor(d0, scl);
-  setToolTip(s);
+  switch (org) {
+  case Organization::ByDate:
+    setToolTip(longLabelFor(d0, scl));
+    break;
+  case Organization::ByFolder:
+    setToolTip(foldername);
+    break;
+  }
 }
 
 QString Strip::longLabelFor(QDateTime d0, Strip::TimeScale scl) {
@@ -392,11 +407,21 @@ void Strip::updateImage(quint64 v, Image16 img) {
 }
 
 void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
+  org = Organization::ByDate;
   scl = scl1;
   d0 = startFor(t0, scl);
   rebuildToolTip();
   rebuildContents();
 }
+
+void Strip::setFolder(QString f) {
+  org = Organization::ByFolder;
+  foldername = f;
+  QStringList bits = f.split("/");
+  leafname = bits.isEmpty() ? "/" : bits.last();
+  rebuildToolTip();
+  rebuildContents();
+}  
 
 QDateTime Strip::startFor(QDateTime t0, TimeScale scl) {
   switch (scl) {

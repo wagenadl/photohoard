@@ -26,7 +26,8 @@
   <file alias="icons/folderAdd.svg">../res/icons/folderAdd2-1.svg</file>
   <file alias="icons/export.svg">../res/icons/export-1.svg</file>
   <file alias="icons/search.svg">../res/icons/searchLines2-1.svg</file>
- </qresource>
+  <file alias="icons/toggleOrg.svg">../res/icons/toggleOrg.svg</file>
+ </qresource> 
 </RCC>
 
 <!--

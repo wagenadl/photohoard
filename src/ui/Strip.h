@@ -27,6 +27,10 @@ public:
     DecaMinute,
     None,
   };
+  enum class Organization {
+    ByDate,
+    ByFolder,
+  };
 public:
   Strip(PhotoDB const &db, QGraphicsItem *parent);
   virtual ~Strip();
@@ -56,6 +60,7 @@ public slots:
   void updateImage(quint64, Image16);
   void updateHeader(Image16);
   void setTimeRange(QDateTime t0, TimeScale scl);
+  void setFolder(QString pathname);
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);
   virtual void setRowWidth(int pix);
@@ -108,8 +113,10 @@ protected:
   void recalcLabelRect();
 protected:
   PhotoDB db;
+  Organization org;
   QDateTime d0;
   TimeScale scl;
+  QString foldername, leafname;
   Arrangement arr;
   int tilesize;
   int rowwidth;

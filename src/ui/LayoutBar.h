@@ -20,6 +20,7 @@ public:
       HalfGrid, // not a layout: selects HGrid or VGrid
       ToggleFullPhoto, // not a layout: selects FullPhoto or previous layout
       ToggleFullScreen, // not a layout: toggles full screen display
+      ToggleOrg,
       N
       };
 public:

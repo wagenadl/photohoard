@@ -13,8 +13,8 @@ class FilmView: public QGraphicsView {
 public:
   FilmView(class PhotoDB const &db, QWidget *parent=0);
   virtual ~FilmView();
-  class FilmScene *scene() { return scene_; }
-  class Datestrip *root() { return strip; }
+  class FilmScene *scene();
+  class Datestrip *strip();
 signals:
   void needImage(quint64, QSize);
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
@@ -38,10 +38,12 @@ protected:
   void setScrollbarPolicies();
   void recalcSizes();
   quint64 current();
+  void placeAndConnect(class Strip *strip);
 private:
   PhotoDB db;
-  class FilmScene *scene_;
-  class Datestrip *strip;
+  bool useFolders;
+  class FilmScene *dateScene, *folderScene;
+  class Datestrip *dateStrip, *folderStrip;
 };
 
 #endif
