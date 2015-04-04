@@ -106,13 +106,6 @@ protected:
   void paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg);
   void paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg);
 protected:
-  int countInRange(QDateTime t0, QDateTime t1) const;
-  int countRightHere(QString folder) const;
-  int countHereOrUnder(QString folder) const;
-  QList<quint64> versionsInRange(QDateTime t0, QDateTime t1) const;
-  QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
-  QDateTime lastDateInRange(QDateTime t0, QDateTime t1) const;
-protected:
   int subHeight() const;
   void recalcLabelRect();
 protected:

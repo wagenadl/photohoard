@@ -76,7 +76,7 @@ void Datestrip::convertStrip(QDateTime t) {
 
 Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
   Strip *s;
-  int n = countInRange(t, endFor(t, subs));
+  int n = db.countInDateRange(t, endFor(t, subs));
   bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
   if (indirect) {
     s = new Datestrip(db, this);
@@ -134,7 +134,7 @@ void Datestrip::rebuildByDate() {
 
   TimeScale subs = subScale();
   QDateTime end = endDateTime();
-  QDateTime t = firstDateInRange(startDateTime(), end);
+  QDateTime t = db.firstDateInRange(startDateTime(), end);
 
   if (t.isNull()) {
     rebuilding--;
@@ -166,7 +166,7 @@ void Datestrip::rebuildByDate() {
     else
       s->hide();
 
-    t = firstDateInRange(t1, end);
+    t = db.firstDateInRange(t1, end);
   }
 
   for (auto id: dateMap.keys()) {

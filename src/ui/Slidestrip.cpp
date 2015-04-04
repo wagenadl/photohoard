@@ -90,7 +90,7 @@ void Slidestrip::rebuildContents() {
 
   mustRebuild = false;
   prepareGeometryChange();
-  latentVersions = versionsInRange(startDateTime(), endDateTime());
+  latentVersions = db.versionsInDateRange(startDateTime(), endDateTime());
   if (latentVersions.size()>THRESHOLD && scl<TimeScale::DecaMinute) {
     emit overfilled(d0);
     while (latentVersions.size()>THRESHOLD) {

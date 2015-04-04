@@ -62,6 +62,13 @@ public:
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
   void setAcceptReject(quint64 versionid, AcceptReject label);
+public: // convenience functions
+  int countInDateRange(QDateTime t0, QDateTime t1) const;
+  QList<quint64> versionsInDateRange(QDateTime t0, QDateTime t1) const;
+  QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
+  QDateTime lastDateInRange(QDateTime t0, QDateTime t1) const;
+  int countInFolder(QString folder) const;
+  int countInTree(QString rootfolder) const;
 private:
   QSharedPointer< QMap<quint64, QString> > folders;
   QSharedPointer< QMap<int, QString> > ftypes;

@@ -181,11 +181,71 @@ quint64 PhotoDB::root(quint64 folderid) {
   while (true) {
     bool ok;
     quint64 parentid
-      = simpleQuery("select parentfolder from folders where id==:a",
-		    folderid).toULongLong(&ok);
+      = simpleQuery("select parentfolder from folders where id==:a", folderid)
+      .toULongLong(&ok);
     if (ok && parentid)
       folderid = parentid;
     else
       return folderid;
   }
+}
+
+int PhotoDB::countInFolder(QString folder) const {
+  return simpleQuery("select count(*) from filter"
+                     " inner join photos on filter.photo=photos.id"
+                     " inner join folders on photos.folder==folders.id"
+                     " where folders.pathname==:a", folder).toInt();
+}
+
+int PhotoDB::countInTree(QString folder) const {
+  int nsub =  simpleQuery("select count(*) from filter"
+                          " inner join photos on filter.photo=photos.id"
+                          " inner join folders on photos.folder==folders.id"
+                          " where folders.pathname like :a", folder+"/%")
+    .toInt();
+  return nsub + countInFolder(folder);
+}
+
+int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
+  return simpleQuery("select count(*) from filter"
+                     " inner join photos on filter.photo=photos.id"
+                     " where photos.capturedate>=:a"
+                     " and photos.capturedate<:b", t0, t1).toInt();
+}
+
+QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q = constQuery("select capturedate from filter"
+                           " inner join photos on filter.photo==photos.id"
+                           " where capturedate>=:a and capturedate<:b"
+                           " order by capturedate"
+                           " limit 1", t0, t1);
+  if (q.next())
+    return q.value(0).toDateTime();
+  else
+    return QDateTime();
+}
+
+QDateTime PhotoDB::lastDateInRange(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q = constQuery("select capturedate from filter"
+                           " inner join photos on filter.photo==photos.id"
+                           " where capturedate>=:a and photos.capturedate<:b"
+                           " order by capturedate desc"
+                           " limit 1", t0, t1);
+  if (q.next())
+    return q.value(0).toDateTime();
+  else
+    return QDateTime();
+}
+
+QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
+  QSqlQuery q = constQuery("select version"
+                           " from filter inner join photos"
+                           " on filter.photo=photos.id"
+                           " where photos.capturedate>=:a"
+                           " and photos.capturedate<:b"
+                           " order by photos.capturedate", t0, t1);
+  QList<quint64> vv;
+  while (q.next())
+    vv << q.value(0).toULongLong();
+  return vv;
 }
