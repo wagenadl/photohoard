@@ -521,61 +521,48 @@ void Strip::rescan() {
 void Strip::clearContents() {
 }
 
-int Strip::countInRange(QDateTime begin, QDateTime end) const {
-  QSqlQuery q(*db);
-  q.prepare("select count(*)"
-	    " from filter inner join photos"
-	    " on filter.photo=photos.id"
-	    " where photos.capturedate>=:a and photos.capturedate<:b");
-  q.bindValue(":a", begin);
-  q.bindValue(":b", end);
-  if (!q.exec() || !q.next())
-    throw q;
-  return q.value(0).toInt();
+int Strip::countRightHere(QString folder) const {
+  return 0;
+}
+
+int Strip::countInRange(QDateTime t0, QDateTime t1) const {
+  return db.simpleQuery("select count(*)"
+                        " from filter inner join photos"
+                        " on filter.photo=photos.id"
+                        " where photos.capturedate>=:a"
+                        " and photos.capturedate<:b", t0, t1).toInt();
 }
 
 QDateTime Strip::firstDateInRange(QDateTime t0, QDateTime t1) const {
-  QSqlQuery q(*db);
-  q.prepare("select capturedate from filter inner join photos"
-            " on filter.photo==photos.id"
-	    " where capturedate>=:a and capturedate<:b"
-	    " order by capturedate limit 1");
-  q.bindValue(":a", t0);
-  q.bindValue(":b", t1);
-  if (!q.exec())
-    throw q;
-  if (!q.next())
+  QSqlQuery q = db.constQuery("select capturedate from filter inner join photos"
+                              " on filter.photo==photos.id"
+                              " where capturedate>=:a and capturedate<:b"
+                              " order by capturedate limit 1", t0, t1);
+  if (q.next())
+    return q.value(0).toDateTime();
+  else
     return QDateTime();
-  return q.value(0).toDateTime();
 }
 
 QDateTime Strip::lastDateInRange(QDateTime t0, QDateTime t1) const {
-  QSqlQuery q(*db);
-  q.prepare("select capturedate from photos"
-	    " where capturedate>=:a and photos.capturedate<:b"
-	    " order by capturedate desc"
-	    " limit 1");
-  q.bindValue(":a", t0);
-  q.bindValue(":b", t1);
-  if (!q.exec())
-    throw q;
-  if (!q.next())
+  QSqlQuery q = db.constQuery("select capturedate from photos"
+                              " where capturedate>=:a and photos.capturedate<:b"
+                              " order by capturedate desc"
+                              " limit 1", t0, t1);
+  if (q.next())
+    return q.value(0).toDateTime();
+  else
     return QDateTime();
-  return q.value(0).toDateTime();
 }
 
-QList<quint64> Strip::versionsInRange(QDateTime begin,
-					  QDateTime end) const {
-  QSqlQuery q(*db);
-  q.prepare("select version"
-	    " from filter inner join photos"
-	    " on filter.photo=photos.id"
-	    " where photos.capturedate>=:a and photos.capturedate<:b"
-	    " order by photos.capturedate");
-  q.bindValue(":a", begin);
-  q.bindValue(":b", end);
-  if (!q.exec())
-    throw q;
+QList<quint64> Strip::versionsInRange(QDateTime t0,
+					  QDateTime t1) const {
+  QSqlQuery q = db.constQuery("select version"
+                              " from filter inner join photos"
+                              " on filter.photo=photos.id"
+                              " where photos.capturedate>=:a"
+                              " and photos.capturedate<:b"
+                              " order by photos.capturedate", t0, t1);
   QList<quint64> vv;
   while (q.next())
     vv << q.value(0).toULongLong();

@@ -27,12 +27,12 @@ public:
 public:
   // The following execute the query and return the value(0) from the
   // first result row. They throw an exception if there is no result.
-  QVariant simpleQuery(QString s);
-  QVariant simpleQuery(QString s, QVariant a);
-  QVariant simpleQuery(QString s, QVariant a, QVariant b);
-  QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c);
+  QVariant simpleQuery(QString s) const;
+  QVariant simpleQuery(QString s, QVariant a) const;
+  QVariant simpleQuery(QString s, QVariant a, QVariant b) const;
+  QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c) const;
   QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c,
-                       QVariant d);
+                       QVariant d) const;
   // The following execute the query. Result rows can be obtained by repeatedly
   // calling next(). An exception is thrown if the query cannot execute.
   QSqlQuery query(QString s);
@@ -44,6 +44,17 @@ public:
 		  QVariant e);
   QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d,
 		  QVariant e, QVariant f);
+  // Following are the same, except that caller promises not to alter the db
+  QSqlQuery constQuery(QString s) const;
+  QSqlQuery constQuery(QString s, QVariant a) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                       QVariant d) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                       QVariant d, QVariant e) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                       QVariant d, QVariant e, QVariant f) const;
 protected:
   QSqlDatabase *db;
 private:

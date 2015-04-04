@@ -144,44 +144,50 @@ Transaction::~Transaction() {
     db.rollbackAndUnlock();
 }
    
-QVariant Database::simpleQuery(QString s) {
-  QSqlQuery q = query(s);
+QVariant Database::simpleQuery(QString s) const {
+  QSqlQuery q = constQuery(s);
   if (!q.next())
     throw NoResult(s);
   return q.value(0);
 }
 
-QVariant Database::simpleQuery(QString s, QVariant a) {
-  QSqlQuery q = query(s, a);
+QVariant Database::simpleQuery(QString s, QVariant a) const {
+  QSqlQuery q = constQuery(s, a);
   if (!q.next())
     throw NoResult(s);
   return q.value(0);
 }
    
-QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) {
-  QSqlQuery q = query(s, a, b);
+QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) const {
+  QSqlQuery q = constQuery(s, a, b);
   if (!q.next())
     throw NoResult(s);
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
-                               QVariant c) {
-  QSqlQuery q = query(s, a, b, c);
+                               QVariant c) const {
+  QSqlQuery q = constQuery(s, a, b, c);
   if (!q.next())
     throw NoResult(s);
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
-                               QVariant c, QVariant d) {
-  QSqlQuery q = query(s, a, b, c, d);
+                               QVariant c, QVariant d) const {
+  QSqlQuery q = constQuery(s, a, b, c, d);
   if (!q.next())
     throw NoResult(s);
   return q.value(0);
 }
    
 QSqlQuery Database::query(QString s) {
+  // Operationally, query and constQuery are identical.
+  // Both are provided for easier understanding of code.
+  return constQuery(s);
+}
+
+QSqlQuery Database::constQuery(QString s) const {
   QSqlQuery q(*db);
   q.prepare(s);
   if (q.exec())
@@ -191,6 +197,10 @@ QSqlQuery Database::query(QString s) {
 }
 
 QSqlQuery Database::query(QString s, QVariant a) {
+  return constQuery(s, a);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a) const {
   QSqlQuery q(*db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -201,6 +211,10 @@ QSqlQuery Database::query(QString s, QVariant a) {
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
+  return constQuery(s, a, b);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
   QSqlQuery q(*db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -212,6 +226,11 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
+  return constQuery(s, a, b, c);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
+                               QVariant c) const {
   QSqlQuery q(*db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -225,6 +244,11 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
                           QVariant d) {
+  return constQuery(s, a, b, c, d);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                               QVariant d) const {
   QSqlQuery q(*db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -239,6 +263,11 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
                           QVariant d, QVariant e) {
+  return constQuery(s, a, b, c, d, e);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                               QVariant d, QVariant e) const {
   QSqlQuery q(*db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -254,6 +283,11 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
                           QVariant d, QVariant e, QVariant f) {
+  return constQuery(s, a, b, c, d, e, f);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                               QVariant d, QVariant e, QVariant f) const {
   QSqlQuery q(*db);
   q.prepare(s);
   q.bindValue(":a", a);
