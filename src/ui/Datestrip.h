@@ -15,6 +15,7 @@ public:
 public:
   virtual QRectF subBoundingRect() const; // children
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
+  virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
   Strip::TimeScale subScale() const;
   virtual quint64 versionAt(quint64 vsn, QPoint dcr);
@@ -35,10 +36,13 @@ protected slots:
 protected:
   virtual void clearContents();
   virtual void rebuildContents();
+  void rebuildByDate();
+  void rebuildByFolder();
   Strip *newSubstrip(QDateTime t, Strip::TimeScale subs);
   int stripNumberContaining(quint64 vsn);
 protected:
-  QMap<QDateTime, Strip *> stripMap;
+  QMap<QDateTime, Strip *> dateMap;
+  QMap<QString, Strip *> folderMap;
   QList<Strip *> stripOrder;
   bool mustRebuild;
   bool mustRelayout;

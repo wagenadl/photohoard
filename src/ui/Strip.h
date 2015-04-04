@@ -44,6 +44,7 @@ public:
   int rowWidth() const { return rowwidth; }
   bool hasTopLabel() const;
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
+  virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
   PhotoDB &database() { return db; }
   virtual quint64 versionLeftOf(quint64 vsn); // returns 0 if not found
@@ -117,7 +118,7 @@ protected:
   Organization org;
   QDateTime d0;
   TimeScale scl;
-  QString foldername, leafname;
+  QString pathname, leafname;
   Arrangement arr;
   int tilesize;
   int rowwidth;

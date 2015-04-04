@@ -41,7 +41,7 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   }
   dateStrip->expand();
 
-  folderStrip->expand();
+  //  folderStrip->expand();
   
   dbx.commitAndUnlock();
   

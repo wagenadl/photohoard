@@ -46,30 +46,31 @@ void Datestrip::clearContents() {
   for (auto s: stripOrder)
     delete s;
   stripOrder.clear();
-  stripMap.clear();
+  dateMap.clear();
+  folderMap.clear();
 }
 
 void Datestrip::convertStrip(QDateTime t) {
-  if (!stripMap.contains(t))
+  if (!dateMap.contains(t))
     return;
-  Strip *s = stripMap[t];
+  Strip *s = dateMap[t];
   bool e = s->isExpanded();
   TimeScale subs = subScale();
-  stripMap[t] = newSubstrip(t, subs);
+  dateMap[t] = newSubstrip(t, subs);
   for (auto it=stripOrder.begin(); it!=stripOrder.end(); it++) {
     if (*it == s) {
-      *it = stripMap[t];
+      *it = dateMap[t];
       break;
     }
   }
   delete s;
-  stripMap[t]->setTimeRange(t, subs);
+  dateMap[t]->setTimeRange(t, subs);
   if (isExpanded())
-    stripMap[t]->show();
+    dateMap[t]->show();
   else
-    stripMap[t]->hide();
+    dateMap[t]->hide();
   if (e)
-    stripMap[t]->expand();
+    dateMap[t]->expand();
   relayout();
 }  
 
@@ -113,6 +114,22 @@ void Datestrip::rebuildContents() {
   }
   mustRebuild = false;
 
+  switch (org) {
+  case Organization::ByDate:
+    rebuildByDate();
+    break;
+  case Organization::ByFolder:
+    rebuildByFolder();
+    break;
+  }
+}
+
+void Datestrip::rebuildByFolder() {
+  ///
+  relayout();
+}
+
+void Datestrip::rebuildByDate() {  
   rebuilding++;
 
   TimeScale subs = subScale();
@@ -125,6 +142,10 @@ void Datestrip::rebuildContents() {
     return;
   }
 
+  for (auto s: folderMap)
+    delete s;
+  folderMap.clear();
+
   stripOrder.clear();
   QSet<QDateTime> keep;
 
@@ -134,10 +155,10 @@ void Datestrip::rebuildContents() {
     QDateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
 
-    if (!stripMap.contains(t)) {
-      stripMap[t] = newSubstrip(t, subs);
+    if (!dateMap.contains(t)) {
+      dateMap[t] = newSubstrip(t, subs);
     }
-    Strip *s = stripMap[t];
+    Strip *s = dateMap[t];
     s->setTimeRange(t, subs);
     stripOrder << s;
     if (expanded)
@@ -148,10 +169,10 @@ void Datestrip::rebuildContents() {
     t = firstDateInRange(t1, end);
   }
 
-  for (auto id: stripMap.keys()) {
+  for (auto id: dateMap.keys()) {
     if (!keep.contains(id)) {
-      delete stripMap[id];
-      stripMap.remove(id);
+      delete dateMap[id];
+      dateMap.remove(id);
     }
   }
 
@@ -322,8 +343,23 @@ Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
   if (a)
     return a;
 
-  for (Strip *a0: stripMap) {
+  for (Strip *a0: dateMap) {
     Strip *a = a0->stripByDate(d, s);
+    if (a)
+      return a;
+  }
+
+  return NULL;
+}
+
+
+Strip *Datestrip::stripByFolder(QString path) {
+  Strip *a = Strip::stripByFolder(path);
+  if (a)
+    return a;
+
+  for (Strip *a0: folderMap) {
+    Strip *a = a0->stripByFolder(path);
     if (a)
       return a;
   }

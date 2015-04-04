@@ -96,10 +96,13 @@ bool Strip::hasTopLabel() const {
   case Arrangement::Vertical:
     return true;
   case Arrangement::Grid:
-    return scl==TimeScale::Eternity
-      || scl==TimeScale::Decade
-      //    || scl==TimeScale::Year;
-      ;
+    switch (org) {
+    case Organization::ByDate:
+      return scl==TimeScale::Eternity
+        || scl==TimeScale::Decade;
+    case Organization::ByFolder:
+      return pathname=="/";
+    }
   }
   return false; // not executed
 }
@@ -151,7 +154,7 @@ QRectF Strip::boundingRect() const {
     break;
   case Arrangement::Grid:
     if (hasTopLabel())
-      r0.setHeight(subBoundingRect().height());
+      r0.setHeight((r0 | subBoundingRect()).height());
     else
       r0.setWidth(5*r0.width());
     break;
@@ -178,31 +181,27 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
   painter->setBrush(QBrush(bg));
   painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
-
-#if 0
-  if (scl==TimeScale::Decade) {
-    painter->setPen(QPen(QColor("#a0a0a0")));
-    for (int y = r.top()+4; y<r.height()-3; y+=4)
-      painter->drawLine(r.left()+4, y,
-                        r.right()-4, y);
-    painter->setPen(QPen(QColor("#ffffff")));
-    for (int y = r.top()+3; y<r.height()-4; y+=4)
-      painter->drawLine(r.left()+4, y,
-                        r.right()-4, y);
-  }
-#endif
 }
 
 void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
   QRectF r0 = boundingRect();
-  int slantw = scl==TimeScale::Eternity ? 0 : 12;
+  bool isroot = false;
+  switch (org) {
+  case Organization::ByDate:
+    isroot = scl==TimeScale::Eternity;
+    break;
+  case Organization::ByFolder:
+    isroot = pathname=="/";
+    break;
+  }
+  int slantw = isroot ? 0 : 12;
   if (r.width() >= r.height()) {
     poly << (r.topLeft() + QPointF(slantw+2, 2));
     poly << (r.topRight() + QPointF(-slantw, 2));
     poly << r.bottomRight();
-    if (hasTopLabel() && scl!=TimeScale::Eternity) {
+    if (hasTopLabel() && !isroot) {
       poly << r0.bottomRight();
       poly << (r0.bottomLeft() + QPointF(2, 0));
     }
@@ -212,7 +211,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
       r.adjust(0, 2, 0, -2);
     poly << (r.topLeft() + QPointF(2, slantw+2));
     poly << (r.topRight() + QPointF(0, 2));
-    if (/*arr==Arrangement::Horizontal &&*/ scl!=TimeScale::Eternity) {
+    if (!isroot) {
       poly << (r0.topRight() + QPointF(0, 2));
       poly << r0.bottomRight();
     }
@@ -227,7 +226,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   poly.translate(1, 1);
   painter->setBrush(QBrush(bg));
   painter->drawPolygon(poly);
-  if (arr==Arrangement::Grid && hasTopLabel() && scl!=TimeScale::Eternity) {
+  if (arr==Arrangement::Grid && hasTopLabel() && !isroot) {
     int y0 = r.bottom() + 5;
     int y1 = r0.bottom();
     QLinearGradient gg(0, y0, 0, y1);
@@ -237,35 +236,30 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
     painter->drawRect(QRectF(QPointF(r.left()+1, y0),
                              QPointF(r.right()-1, y1)));
   }
-
-#if 0
-  if (scl==TimeScale::Decade) {
-    painter->setPen(QPen(QColor("#a0a0a0")));
-    for (int y = r.top()+4; y<r.height()-3; y+=4)
-      painter->drawLine(r.left()+r.height()-y+2, y,
-                        r.right()-r.height()+y-2, y);
-    painter->setPen(QPen(QColor("#ffffff")));
-    for (int y = r.top()+3; y<r.height()-4; y+=4)
-      painter->drawLine(r.left()+r.height()-y+2, y,
-                        r.right()-r.height()+y-2, y);
-  }
-#endif
-
 }
 
 void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
   if (headerid==0) {
-    QSqlQuery q = db.query("select version"
-                           " from filter inner join photos"
-                           " on filter.photo=photos.id"
-                           " where photos.capturedate>=:a"
-                           " and photos.capturedate<:b"
-                           " limit 1", d0, endFor(d0, scl));
+    QSqlQuery q;
+    switch (org) {
+    case Organization::ByDate:
+      q = db.query("select version"
+                   " from filter inner join photos"
+                   " on filter.photo=photos.id"
+                   " where photos.capturedate>=:a"
+                   " and photos.capturedate<:b"
+                   " limit 1", d0, endFor(d0, scl));
+      break;
+    case Organization::ByFolder:
+      // hmmm.
+      break;
+    }
     if (q.next())
       setHeaderID(q.value(0).toULongLong());
     else
-      qDebug() << "Could not find header image for " << d0
-               << endFor(d0, scl) << int(scl);
+      qDebug() << "Could not find header image for " << int(org)
+               << d0 << endFor(d0, scl) << int(scl)
+               << pathname;
   }
 
   int ims = tilesize - 20;
@@ -325,9 +319,18 @@ void Strip::paint(QPainter *painter,
                   const QStyleOptionGraphicsItem *,
                   QWidget *) {
   QRectF r = labelBoundingRect();
-  int bggray = (int(scl) & 1) ? 236 : 192;
-  if (scl==TimeScale::Decade)
-    bggray = 255;
+  int bggray = 192;
+  switch (org) {
+  case Organization::ByDate:
+    if (scl==TimeScale::Decade)
+      bggray = 255;
+    else
+      bggray = (int(scl) & 1) ? 236 : 192;
+    break;
+  case Organization::ByFolder:
+    bggray = (pathname.split("/").size() & 1) ? 236 : 192;
+    break;
+  }
   QColor bg(bggray, bggray, bggray);
   if (expanded) {
     paintExpandedHeaderBox(painter, r, bg);
@@ -344,7 +347,7 @@ void Strip::rebuildToolTip() {
     setToolTip(longLabelFor(d0, scl));
     break;
   case Organization::ByFolder:
-    setToolTip(foldername);
+    setToolTip(pathname == "/" ? db.fileName() : pathname);
     break;
   }
 }
@@ -416,9 +419,11 @@ void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
 
 void Strip::setFolder(QString f) {
   org = Organization::ByFolder;
-  foldername = f;
+  pathname = f;
   QStringList bits = f.split("/");
-  leafname = bits.isEmpty() ? "/" : bits.last();
+  leafname = bits.isEmpty() ? "" : bits.last();
+  if (leafname.isEmpty())
+    leafname = "Library";
   rebuildToolTip();
   rebuildContents();
 }  
@@ -484,7 +489,8 @@ void Strip::expand() {
   if (expanded)
     return;
   expanded = true;
-  db.query("insert into expanded values(:a,:b)", d0, int(scl));
+  if (org==Organization::ByDate)
+    db.query("insert into expanded values(:a,:b)", d0, int(scl));
   recalcLabelRect();
   emit resized();
 }
@@ -493,7 +499,8 @@ void Strip::collapse() {
   if (!expanded)
     return;
   expanded = false;
-  db.query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
+  if (org==Organization::ByDate)
+    db.query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
   recalcLabelRect();
   emit resized();
 }
@@ -606,6 +613,13 @@ void Strip::requestImage(quint64 id) {
 
 Strip *Strip::stripByDate(QDateTime d, TimeScale s) {
   if (d==d0 && s==scl)
+    return this;
+  else
+    return NULL;
+}
+
+Strip *Strip::stripByFolder(QString path) {
+  if (path==pathname)
     return this;
   else
     return NULL;
