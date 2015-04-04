@@ -28,9 +28,12 @@ private slots:
   void removeTag(int);
   void applyTag(int);
   void editorAction();
+  void clickBrowse();
 private:
   QMap<int, class AppliedTagWidget *> widgets;
   class AppliedTagEditor *editor;
+  class TagDialog *dialog;
+  class QToolButton *browse;
   PhotoDB db;
   Tags tags;
   Selection selection;

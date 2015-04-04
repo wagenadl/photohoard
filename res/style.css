@@ -27,3 +27,6 @@ AppliedTagEditor {
 AppliedTagWidget {
 }
 
+QLineEdit {
+  background-color: #ffffff;
+}

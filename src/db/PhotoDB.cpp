@@ -22,14 +22,15 @@ PhotoDB::PhotoDB(QString fn): Database(fn),
 	   << ": " << q.value(0).toString() << q.value(1).toString();
 
   query("pragma synchronous = 0");
+  query("pragma foreign_keys = on");
 
   q = query("select id, stdext from filetypes");
   while (q.next()) 
     (*ftypes)[q.value(0).toInt()] = q.value(1).toString();
 
   query("create table if not exists M.filter "
-        "(version integer references versions(id), "
-        " photo integer references photos(id) )");
+        "(version integer, " // references versions(id), "
+        " photo integer )"); // references PDB.photos(id) )");
   query("create index if not exists M.photoidx on filter(photo)");
   
 }

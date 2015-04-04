@@ -23,11 +23,15 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   showmax = false;
   
   bool oldcrash = db.simpleQuery("select count(*) from starting").toInt()>0;
+  pDebug() << "Hello world";
   if (oldcrash) {
     db.query("update current set version=null");
     db.query("delete from expanded");
   }
   db.query("insert into starting values(1)");
+
+  pDebug() << "Hello world";
+  pDebug() << "LT? " << db.simpleQuery("select count(*) from versions").toInt();
 
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();

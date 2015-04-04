@@ -7,9 +7,9 @@ Selection::Selection(PhotoDB const &db1, QObject *parent):
   QObject(parent), db(db1) {
   setObjectName("selection");
   db.query("create table if not exists M.selection ("
-           " version integer unique on conflict ignore "
-           " references versions(id)"
-           "   on delete cascade on update cascade)");
+           " version integer unique on conflict ignore )");
+           // " references versions(id)"
+           // "   on delete cascade on update cascade)");
 }
 
 void Selection::add(quint64 vsn) {

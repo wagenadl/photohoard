@@ -4,14 +4,25 @@
 #include "AppliedTagWidget.h"
 #include "AppliedTagEditor.h"
 #include "PDebug.h"
+#include <QToolButton>
+#include "TagDialog.h"
 
 AppliedTagList::AppliedTagList(PhotoDB const &db, QWidget *parent):
   QFrame(parent),
   db(db), tags(db), selection(db) {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
   editor = new AppliedTagEditor(db, this);
   connect(editor, SIGNAL(returnPressed()),
 	  SLOT(editorAction()));
+
+  dialog = new TagDialog(db);
+  connect(dialog, SIGNAL(apply(int)), SLOT(applyTag(int)));
+  connect(dialog, SIGNAL(unapply(int)), SLOT(removeTag(int)));
+  browse = new QToolButton(this);
+  browse->setText(QString::fromUtf8("…"));
+  connect(browse, SIGNAL(clicked()), SLOT(clickBrowse()));
+  
   cur = 0;
   setAutoFillBackground(true);
   setContentsMargins(2,2,2,2);
@@ -22,12 +33,15 @@ AppliedTagList::~AppliedTagList() {
 
 QSize AppliedTagList::sizeHint() const {
   QMargins m = contentsMargins();
-  return childrenRect().size() + QSize(m.left() + m.right(),
-				       m.top() + m.bottom());    
+  QRect cc = editor->geometry().adjusted(0, 0, 2 + browse->width(), 0);
+  for (auto w: widgets)
+    cc |= w->rect();
+  return cc.size() + QSize(m.left() + m.right(),
+                           m.top() + m.bottom());    
 }
 
 QSize AppliedTagList::minimumSizeHint() const {
-  return QSize(0, sizeHint().height()); // hmmm.
+  return QSize(50, sizeHint().height()); // hmmm.
 }
 
 void AppliedTagList::setCurrent(quint64 vsn) {
@@ -119,6 +133,8 @@ void AppliedTagList::relayout() {
   y += lh + 1;
   x = r.left();
   editor->move(x, y);
+  browse->resize(browse->sizeHint().width(), editor->height());
+  browse->move(r.right()-browse->width(), r.bottom()-browse->height());
   updateGeometry();
 }
 
@@ -162,3 +178,10 @@ void AppliedTagList::editorAction() {
     tags.apply(vsn, id);
   rebuild();
 }
+
+void AppliedTagList::clickBrowse() {
+  dialog->reset();
+  dialog->show();
+}
+
+

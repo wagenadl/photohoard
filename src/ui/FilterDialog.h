@@ -24,6 +24,7 @@ private slots:
   void setMaker();
   void setCamera();
   void recolorTags();
+  void browseTags();
   void buttonClick(class QAbstractButton *);
 protected:
   virtual void showEvent(QShowEvent *) override;
@@ -38,6 +39,7 @@ private:
   class Ui_FilterDialog *ui;
   PhotoDB db;
   Filter f0;
+  bool starting;
 };
 
 #endif

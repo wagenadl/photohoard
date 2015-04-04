@@ -7,11 +7,17 @@
 #include "PhotoDB.h"
 #include "NoResult.h"
 #include "Tags.h"
+#include "TagDialog.h"
 
 FilterDialog::FilterDialog(PhotoDB const &db, QWidget *parent):
   QDialog(parent), db(db) {
+  pDebug() << "FilterDialog";
+  pDebug() << "FD? " << db.simpleQuery("select count(*) from versions").toInt();
+
+  starting = true;
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
+  starting = false;
 }
 
 void FilterDialog::prepCombos() {
@@ -219,6 +225,7 @@ Filter FilterDialog::extract() const {
 }
 
 void FilterDialog::populate(Filter const &f) {
+  starting = true;
   prepCombos();
 
   // Collections
@@ -269,6 +276,7 @@ void FilterDialog::populate(Filter const &f) {
   ui->tagEditor->setText(f.tags().join(", "));
 
   recount();
+  starting = false;
 }
 
 void FilterDialog::recount() {
@@ -286,6 +294,8 @@ void FilterDialog::recount() {
 }
 
 void FilterDialog::setMaker() {
+  if (starting)
+    return;
   QString make = ui->cMake->currentIndex()==0 ? ""
     : ui->cMake->currentText();
   prepModels(make);
@@ -293,6 +303,8 @@ void FilterDialog::setMaker() {
 }
 
 void FilterDialog::setCamera() {
+  if (starting)
+    return;
   QString make = ui->cMake->currentIndex()==0 ? ""
     : ui->cMake->currentText();
   QString model = ui->cCamera->currentIndex()==0 ? ""
@@ -302,6 +314,8 @@ void FilterDialog::setCamera() {
 }
 
 void FilterDialog::recolorTags() {
+  if (starting)
+    return;
   pDebug() << "FD::recolorTags";
   recount();
 }
@@ -328,4 +342,13 @@ void FilterDialog::buttonClick(QAbstractButton *b) {
   default:
     break;
   }
+}
+
+void FilterDialog::browseTags() {
+  TagDialog *td = new TagDialog(db, true);
+  int res = td->exec();
+  if (res == QDialog::Accepted) {
+    pDebug() << "FD: " << td->terminalTag();
+  }
+  delete td;
 }

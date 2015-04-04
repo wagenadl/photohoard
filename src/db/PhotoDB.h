@@ -81,7 +81,7 @@ private:
   mutable QSharedPointer< QMap<quint64, QString> > folders;
   mutable QSharedPointer< QMap<QString, quint64> > revFolders;
   mutable QSharedPointer< QMap<int, QString> > ftypes;
-  QSharedPointer< QMap<int, QString> > makes, models, lenses;
+  mutable QSharedPointer< QMap<int, QString> > makes, models, lenses;
 };
 
 #endif

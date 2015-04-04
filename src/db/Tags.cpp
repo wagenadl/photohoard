@@ -2,6 +2,7 @@
 
 #include "Tags.h"
 #include <QStringList>
+#include "PDebug.h"
 
 Tags::Tags(PhotoDB const &db): db(db) {
 }
@@ -11,6 +12,7 @@ QString Tags::name(int id) {
 }
 
 int Tags::findOne(QString tag) {
+  tag = normalCase(tag);
   QSqlQuery q = db.query("select id from tags where tag==:a", tag);
   int id = 0;
   if (q.next())
@@ -21,6 +23,7 @@ int Tags::findOne(QString tag) {
 }
 
 QSet<int> Tags::findAll(QString tag) {
+  tag = normalCase(tag);
   QSqlQuery q = db.query("select id from tags where tag==:a", tag);
   QSet<int> ids;
   while (q.next())
@@ -29,6 +32,7 @@ QSet<int> Tags::findAll(QString tag) {
 }
 
 QSet<int> Tags::findAbbreviated(QString tag) {
+  tag = normalCase(tag);
   QSqlQuery q = db.query("select id from tags where tag like \""
 			 + tag + "%\"");
   QSet<int> ids;
@@ -39,7 +43,9 @@ QSet<int> Tags::findAbbreviated(QString tag) {
 
 QSet<int> Tags::children(int tagid) {
   QSet<int> ids;
-  QSqlQuery q = db.query("select id from tags where parent==:a", tagid);
+  QSqlQuery q = tagid
+    ? db.query("select id from tags where parent==:a", tagid)
+    : db.query("select id from tags where parent is null");
   while (q.next())
     ids << q.value(0).toInt();
   ids.remove(0); // avoid loop
@@ -73,24 +79,57 @@ void Tags::remove(quint64 versionid, int tagid) {
 	   versionid, tagid);
 }
 
+int Tags::find(QString tag, int parent) {
+  tag = normalCase(tag);
+  QSqlQuery q = parent ?
+    db.query("select id from tags where tag==:a and parent==:b", tag, parent)
+    : db.query("select id from tags where tag==:a and parent is null", tag);
+  if (q.next())
+    return q.value(0).toInt();
+  else
+    return 0;
+}
+
+QString Tags::normalCase(QString s) {
+  QString l = s.toLower();
+  if (l==s)
+    return s.left(1).toUpper() + l.mid(1);
+  else
+    return s;
+}
+
 int Tags::define(QString tag, int parent) {
+  tag = normalCase(tag);
+  int id = find(tag, parent);
+  if (id)
+    return id;
   while (tag.endsWith(".") || tag.endsWith(" "))
     tag = tag.left(tag.size()-1);
-  QSqlQuery q = db.query("insert into tags(tag,parent) values(:a,:b)",
-			 tag, parent);
+  QSqlQuery q = parent ?
+    db.query("insert into tags(tag, parent) values(:a,:b)", tag, parent)
+    : db.query("insert into tags(tag) values(:a,:b)", tag);
   int tagid = q.lastInsertId().toInt();
   return tagid;
 }
 
-bool Tags::undefine(int tagid) {
+bool Tags::canUndefine(int tagid) {
   if (db.simpleQuery("select count(*) from appliedtags where tag==:a",
 		     tagid).toInt()>0)
     return false;
+
   QSet<int> cc = descendants(tagid);
   for (int c: cc)
     if (db.simpleQuery("select count(*) from appliedtags where tag==:a",
 		       c).toInt()>0)
       return false;
+
+  return true;
+}
+
+bool Tags::undefine(int tagid) {
+  if (!canUndefine(tagid))
+    return false;
+  
   db.query("delete from tags where id==:a", tagid);
   return true;
 }
@@ -207,6 +246,8 @@ bool Tags::couldBeNew(QString tag) {
   if (tag.contains("::"))
     return false;
   QStringList bits = tag.split(":");
+  for (int n=0; n<bits.size(); n++)
+    bits[n] = normalCase(bits[n]);
   QString leaf = bits.takeLast();
   if (bits.isEmpty()) 
     return true;
