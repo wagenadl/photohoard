@@ -20,7 +20,7 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *prevmapper = new QSignalMapper(this);
   connect(prevmapper, SIGNAL(mapped(QString)), SLOT(goPrevious(QString)));
   
-  QFile src("/home/wagenaar/progs/photohoard/trunk/res/sliders.txt");
+  QFile src("/home/wagenaar/progs/photohoard/photohoard/res/sliders.txt");
   if (!src.open(QFile::ReadOnly)) {
     pDebug() << "Cannot open control defs";
     return;
@@ -53,6 +53,7 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
       QString name = line.left(idx).simplified();
       Q_ASSERT(Sliders::defaults().contains(name));
       QString label = line.mid(idx+1).simplified();
+      label.replace("~", " ");
       currentjog = new GentleJog(label);
       double v = Sliders::defaultFor(name);
       currentjog->setDefault(v);
