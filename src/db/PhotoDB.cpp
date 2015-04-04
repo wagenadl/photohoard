@@ -9,6 +9,7 @@
 
 PhotoDB::PhotoDB(QString fn): Database(fn),
                               folders(new QMap<quint64, QString>),
+                              revFolders(new QMap<QString, quint64>),
                               ftypes(new QMap<int, QString>),
                               makes(new QMap<int, QString>),
                               models(new QMap<int, QString>),
@@ -37,11 +38,23 @@ QString PhotoDB::ftype(int ft) const {
   return (*ftypes)[ft];
 }
 
-QString PhotoDB::folder(quint64 id) {
+quint64 PhotoDB::findFolder(QString path) const {
+  if (revFolders->contains(path))
+    return (*revFolders)[path];
+
+  QSqlQuery q = constQuery("select id from folders where pathname==:a", path);
+  if (!q.next())
+    return 0;
+  quint64 id = q.value(0).toULongLong();
+  (*revFolders)[path] = id;
+  return id;
+}
+
+QString PhotoDB::folder(quint64 id) const {
   if (folders->contains(id))
     return (*folders)[id];
 
-  QString folder = simpleQuery("select pathname from folders where id=:i", id)
+  QString folder = simpleQuery("select pathname from folders where id=:a", id)
     .toString();
   (*folders)[id] = folder;
   return folder;
@@ -69,19 +82,19 @@ PhotoDB PhotoDB::create(QString fn) {
   return PhotoDB(fn);
 }
 
-quint64 PhotoDB::photoFromVersion(quint64 v) {
+quint64 PhotoDB::photoFromVersion(quint64 v) const {
   return simpleQuery("select photo from versions where id==:a", v)
     .toULongLong();
 }
 
-QDateTime PhotoDB::captureDate(quint64 p) {
+QDateTime PhotoDB::captureDate(quint64 p) const {
   return simpleQuery("select capturedate from photos where id==:a", p)
     .toDateTime();
 }
 
-PhotoDB::PhotoSize PhotoDB::photoSize(quint64 p) {
-  QSqlQuery q = query("select width, height, orient from photos where id==:a",
-		      p);
+PhotoDB::PhotoSize PhotoDB::photoSize(quint64 p) const {
+  QSqlQuery q
+    = constQuery("select width, height, orient from photos where id==:a", p);
   if (!q.next())
     throw NoResult();
   PhotoSize ps;
@@ -90,28 +103,28 @@ PhotoDB::PhotoSize PhotoDB::photoSize(quint64 p) {
   return ps;
 }
 
-QString PhotoDB::camera(int id) {
+QString PhotoDB::camera(int id) const {
   QString m = make(id);
   QString c = model(id);
   return m.isNull() ? c : m + " " + c;
 
 }
 
-QString PhotoDB::model(int id) {
+QString PhotoDB::model(int id) const {
   if (!models->contains(id)) 
     (*models)[id] = simpleQuery("select camera from cameras where id==:a", id)
       .toString();
   return (*models)[id];
 }
 
-QString PhotoDB::make(int id) {
+QString PhotoDB::make(int id) const {
   if (!makes->contains(id)) 
     (*makes)[id] = simpleQuery("select make from cameras where id==:a", id)
       .toString();
   return (*makes)[id];
 }
 
-QString PhotoDB::lens(int id) {
+QString PhotoDB::lens(int id) const {
   if (!lenses->contains(id)) 
     (*lenses)[id] = simpleQuery("select lens from lenses where id==:a", id)
       .toString();
@@ -119,11 +132,11 @@ QString PhotoDB::lens(int id) {
 }
 
 
-PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) {
+PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   VersionRecord vr;
-  QSqlQuery q = query("select photo, mods, "
-                      "starrating, colorlabel, acceptreject "
-                      "from versions where id==:a", id);
+  QSqlQuery q = constQuery("select photo, mods, "
+                           "starrating, colorlabel, acceptreject "
+                           "from versions where id==:a", id);
   if (!q.next())
     throw NoResult();
   vr.id = id;
@@ -135,12 +148,12 @@ PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) {
   return vr;
 }
 
-PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) {
+PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
   PhotoRecord pr;
-  QSqlQuery q = query("select folder, filename, filetype, width, height, "
-                      "camera, lens, exposetime, fnumber, focallength, "
-                      "distance, iso, orient, capturedate "
-                      "from photos where id==:a", id);
+  QSqlQuery q = constQuery("select folder, filename, filetype, width, height,"
+                           " camera, lens, exposetime, fnumber, focallength,"
+                           " distance, iso, orient, capturedate"
+                           " from photos where id==:a", id);
   if (!q.next())
     throw NoResult();
   pr.id = id;
@@ -177,7 +190,7 @@ void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
         int(label), versionid);
 }
 
-quint64 PhotoDB::root(quint64 folderid) {
+quint64 PhotoDB::root(quint64 folderid) const {
   while (true) {
     bool ok;
     quint64 parentid
@@ -191,10 +204,13 @@ quint64 PhotoDB::root(quint64 folderid) {
 }
 
 int PhotoDB::countInFolder(QString folder) const {
-  return simpleQuery("select count(*) from filter"
-                     " inner join photos on filter.photo=photos.id"
-                     " inner join folders on photos.folder==folders.id"
-                     " where folders.pathname==:a", folder).toInt();
+  quint64 id = findFolder(folder);
+  if (id)
+    return simpleQuery("select count(*) from filter"
+                       " inner join photos on filter.photo=photos.id"
+                       " where photos.folder==:a", id).toInt();
+  else
+    return 0;
 }
 
 int PhotoDB::countInTree(QString folder) const {
@@ -244,6 +260,22 @@ QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
                            " where photos.capturedate>=:a"
                            " and photos.capturedate<:b"
                            " order by photos.capturedate", t0, t1);
+  QList<quint64> vv;
+  while (q.next())
+    vv << q.value(0).toULongLong();
+  return vv;
+}
+
+QList<quint64> PhotoDB::versionsInFolder(QString folder) const {
+  quint64 fid = findFolder(folder);
+  if (fid==0)
+    return QList<quint64>();
+  
+  QSqlQuery q = constQuery("select version"
+                           " from filter inner join photos"
+                           " on filter.photo=photos.id"
+                           " where photos.folder==:a"
+                           " order by photos.capturedate", fid);
   QList<quint64> vv;
   while (q.next())
     vv << q.value(0).toULongLong();
