@@ -63,6 +63,7 @@ public:
   void unsetTags();
   bool hasTags() const { return hastags; }
   QStringList tags() const { return tags_; }
+  static QString tagsInterpretation(QStringList, class PhotoDB const &);
 public:
   int count(class PhotoDB &) const;
   QString joinClause() const;

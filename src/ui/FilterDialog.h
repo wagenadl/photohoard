@@ -25,6 +25,7 @@ private slots:
   void setCamera();
   void recolorTags();
   void browseTags();
+  void browseFolders();
   void buttonClick(class QAbstractButton *);
 protected:
   virtual void showEvent(QShowEvent *) override;
@@ -35,6 +36,9 @@ private:
   void prepMakes();
   void prepModels(QString make="");
   void prepLenses(QString make="", QString camera="");
+  void prepFolderTree();
+  QStringList splitTags() const;
+  void buildTree(class QTreeWidgetItem *it, quint64 parentid);
 private:
   class Ui_FilterDialog *ui;
   PhotoDB db;

@@ -54,10 +54,10 @@ MainWindow::MainWindow(PhotoDB const &db,
   adjuster = new LiveAdjuster(db, allControls, autocache, this);
   
   setCentralWidget(lightTable = new LightTable(db, adjuster, this));
-  addToolBar(fileBar = new FileBar(this));
-  addToolBar(layoutBar = new LayoutBar(this));
-  addToolBar(colorLabelBar = new ColorLabelBar(this));
-  addToolBar(filterBar = new FilterBar(this));
+  addToolBar(Qt::LeftToolBarArea, fileBar = new FileBar(this));
+  addToolBar(Qt::LeftToolBarArea, layoutBar = new LayoutBar(this));
+  addToolBar(Qt::LeftToolBarArea, colorLabelBar = new ColorLabelBar(this));
+  addToolBar(Qt::LeftToolBarArea, filterBar = new FilterBar(this));
   // etc.
   
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),

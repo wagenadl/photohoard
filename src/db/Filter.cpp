@@ -3,6 +3,7 @@
 #include "Filter.h"
 #include "PhotoDB.h"
 #include "Tags.h"
+#include "PDebug.h"
 
 Filter::Filter() {
   hascollection = false;
@@ -97,9 +98,11 @@ void Filter::unsetFileLocation() {
   hasfilelocation = false;
 }
 
-void Filter::setTags(QStringList s) {
+void Filter::setTags(QStringList ss) {
   hastags = true;
-  tags_ = s;
+  tags_.clear();
+  for (auto s: ss)
+    tags_ << Tags::normalCase(s.simplified());
 }
 
 void Filter::unsetTags() {
@@ -137,6 +140,7 @@ QString Filter::whereClause(class PhotoDB &db) const {
     clauses << fileLocationClause(db);
   if (hastags)
     clauses << tagsClause(db);
+  pDebug() << clauses.join(" AND ");
   if (clauses.isEmpty())
     return "1>0";
   else
@@ -144,18 +148,19 @@ QString Filter::whereClause(class PhotoDB &db) const {
 }
 
 QString Filter::collectionClause(PhotoDB &db) const {
-  QSqlQuery q = db.query("select id from tags where tag=='Collection'");
+  QSqlQuery q = db.query("select id from tags where tag==:a", "Collections");
   if (!q.next())
     return collection_.isEmpty() ? "1>0" : "0>1";
   int colparent = q.value(0).toInt();
   if (collection_.isEmpty()) {
-    return "id not in ( select id from applied tags where tag in "
-      "( select tag from tags where parent==" + QString::number(colparent)
+    return "versions.id not in ( select version from appliedtags where tag in "
+      "( select id from tags where parent==" + QString::number(colparent)
       +") )";
   } else {
-    q = db.query("select id from tags where tag==:a", collection_);
+    q = db.query("select id from tags where tag==:a and parent==:b",
+                 collection_, colparent);
     if (q.next())
-      return "id in ( select id from appliedtags where tag=="
+      return "versions.id in ( select version from appliedtags where tag=="
 	+ QString::number(q.value(0).toInt()) + " )";
     else
       return "0>1";
@@ -267,6 +272,26 @@ QString Filter::fileLocationClause(PhotoDB &db) const {
   for (int f: folders)
     ss << QString::number(f);
   return "folder in ( " + ss.join(", ") + " )";
+}
+
+QString Filter::tagsInterpretation(QStringList ss, class PhotoDB const &pdb) {
+  Tags tags(pdb);
+  QStringList res;
+  for (auto s: ss) {
+    s = s.simplified();
+    QStringList alts;
+    for (int t: tags.smartFindAll(s))
+      alts << tags.smartName(t);
+    if (alts.isEmpty())
+      res << QString::fromUtf8("–");
+    else if (alts.size()==1)
+      res << alts.first();
+    else
+      res << "{" + alts.join(", ") + "}"; // This could be smarter:
+    // If some of these alts actually occur in appliedtags and others do not,
+    // only the occurring ones need to be shown. Right?
+  }
+  return res.join("\n");
 }
 
 QString Filter::tagsClause(PhotoDB &db) const {

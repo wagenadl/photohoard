@@ -11,6 +11,7 @@
 #include <QPushButton>
 
 TagDialog::TagDialog(PhotoDB const &db, bool ro): db(db), tags(db) {
+  readonly = ro;
   sw = ShowWhat::AllDefined;
   QVBoxLayout *vlay = new QVBoxLayout();
   QHBoxLayout *hlay = new QHBoxLayout();
@@ -60,8 +61,13 @@ TagDialog::TagDialog(PhotoDB const &db, bool ro): db(db), tags(db) {
 
   selectionMapper = new QSignalMapper(this);
   connect(selectionMapper, SIGNAL(mapped(int)), SLOT(updateSelection(int)));
-  editMapper = new QSignalMapper(this);
-  connect(editMapper, SIGNAL(mapped(int)), SLOT(confirmEdit(int)));
+
+  if (readonly) {
+    editMapper = 0;
+  } else {
+    editMapper = new QSignalMapper(this);
+    connect(editMapper, SIGNAL(mapped(int)), SLOT(confirmEdit(int)));
+  }
 
   setWindowTitle("Tag manager");
 
@@ -133,15 +139,17 @@ void TagDialog::rebuild(int lvl) {
     lists << w;
   }
 
-  while (editors.size()<=level) {
-    QLineEdit *e = new QLineEdit();
-    e->setPlaceholderText(QString::fromUtf8("New tag…"));
-    connect(e, SIGNAL(returnPressed()),
-            editMapper, SLOT(map()));
-    connect(e, SIGNAL(textChanged(QString)), SLOT(edited()));
-    editMapper->setMapping(e, editors.size());
-    lay->addWidget(e, 1, editors.size());
-    editors << e;
+  if (!readonly) {
+    while (editors.size()<=level) {
+      QLineEdit *e = new QLineEdit();
+      e->setPlaceholderText(QString::fromUtf8("New tag…"));
+      connect(e, SIGNAL(returnPressed()),
+              editMapper, SLOT(map()));
+      connect(e, SIGNAL(textChanged(QString)), SLOT(edited()));
+      editMapper->setMapping(e, editors.size());
+      lay->addWidget(e, 1, editors.size());
+      editors << e;
+    }
   }
             
   for (int n=0; n<lists.size(); n++)
@@ -150,12 +158,14 @@ void TagDialog::rebuild(int lvl) {
     else
       lists[n]->hide();
 
-  for (int n=0; n<editors.size(); n++) {
-    editors[n]->clear();
-    if (n<=level)
-      editors[n]->show();
-    else
-      editors[n]->hide();
+  if (!readonly) {
+    for (int n=0; n<editors.size(); n++) {
+      editors[n]->clear();
+      if (n<=level)
+        editors[n]->show();
+      else
+        editors[n]->hide();
+    }
   }
 
   lists[level]->load(root);
@@ -172,9 +182,15 @@ void TagDialog::updateButtons() {
 
 void TagDialog::updateApplyButton() {
   applyButton->setEnabled(false);
+
   int t = terminalTag();
   if (!t)
     return;
+
+  if (readonly) {
+    applyButton->setEnabled(true);
+    return;
+  }
   
   QSqlQuery q = db.query("select version from selection");
   while (q.next()) {
@@ -265,11 +281,11 @@ void TagDialog::clickApply() {
     return;
   
   emit apply(t);
-  if (removeButton) {
+  if (readonly) {
+    accept();
+  } else {
     applyButton->setEnabled(false);
     removeButton->setEnabled(true);
-  } else {
-    accept(); // so we know we are read-only
   }
 }
 

@@ -24,6 +24,7 @@ void FilterDialog::prepCombos() {
   /* Get collections, cameras, etc. from db. */
   prepCollections();
   prepCameras();
+  prepFolderTree();
 }
 
 void FilterDialog::prepCameras() {
@@ -152,7 +153,7 @@ void FilterDialog::prepCollections() {
   Tags tags(db);
 
   ui->collectionBox->clear();
-  ui->collectionBox->addItem("Any");
+  ui->collectionBox->addItem("None");
 
   int coltag = tags.findOne("Collections");
   if (coltag>0) {
@@ -170,7 +171,8 @@ void FilterDialog::prepCollections() {
 
 Filter FilterDialog::extract() const {
   Filter f;
-  f.setCollection(ui->collectionBox->currentText());
+  f.setCollection(ui->collectionBox->currentIndex()==0 ? ""
+                  : ui->collectionBox->currentText());
   if (!ui->collection->isChecked())
     f.unsetCollection();
 
@@ -213,15 +215,29 @@ Filter FilterDialog::extract() const {
   f.setDateRange(ui->dStart->date(), ui->dEnd->date());
   if (!ui->dateRange->isChecked())
     f.unsetDateRange();
-  
-  f.setFileLocation(ui->location->text());
+
+  QTreeWidgetItem *fl = ui->location->currentItem();
+  if (fl)
+    f.setFileLocation(fl->text(1));
+  else
+    f.unsetFileLocation();
   if (!ui->fileLocation->isChecked())
     f.unsetFileLocation();
 
-  f.setTags(ui->tagEditor->toPlainText().split(QRegExp("[, ]+")));
+  f.setTags(splitTags());
   if (!ui->tags->isChecked())
     f.unsetTags();
   return f;
+}
+
+QStringList FilterDialog::splitTags() const {
+  QStringList res;
+  for (auto s: ui->tagEditor->toPlainText().split(QRegExp("[,;&\n]+"))) {
+    s = s.simplified();
+    if (!s.isEmpty())
+      res << s;
+  }
+  return res;
 }
 
 void FilterDialog::populate(Filter const &f) {
@@ -269,11 +285,15 @@ void FilterDialog::populate(Filter const &f) {
 
   // File location
   ui->fileLocation->setChecked(f.hasFileLocation());
-  ui->location->setText(f.fileLocation());
+  QList<QTreeWidgetItem *> its = ui->location->findItems(f.fileLocation(),
+                                                         Qt::MatchExactly, 0);
+  if (!its.isEmpty())
+    ui->location->setCurrentItem(its.first(), 0,
+                                 QItemSelectionModel::SelectCurrent);
   
   // Tags
   ui->tags->setChecked(f.hasTags());
-  ui->tagEditor->setText(f.tags().join(", "));
+  ui->tagEditor->setText(f.tags().join("\n"));
 
   recount();
   starting = false;
@@ -317,6 +337,8 @@ void FilterDialog::recolorTags() {
   if (starting)
     return;
   pDebug() << "FD::recolorTags";
+  QStringList tt = splitTags();
+  ui->tagInterpretation->setText(Filter::tagsInterpretation(tt, db));
   recount();
 }
 
@@ -344,11 +366,55 @@ void FilterDialog::buttonClick(QAbstractButton *b) {
   }
 }
 
+void FilterDialog::browseFolders() {
+  /* We need to consider all the roots directories in the database.
+     Ideally, I'd like a modified QFileDialog that allows selection of
+     those roots.
+     And I want to start in the folder specified in the "location" editor.
+     
+   */
+}
+
 void FilterDialog::browseTags() {
   TagDialog *td = new TagDialog(db, true);
   int res = td->exec();
   if (res == QDialog::Accepted) {
-    pDebug() << "FD: " << td->terminalTag();
+    QString tag = Tags(db).smartName(td->terminalTag());
+    QStringList taglist = splitTags();
+    if (!tag.isEmpty())
+      taglist << tag;
+    ui->tagEditor->setText(taglist.join("\n"));
   }
   delete td;
+}
+
+void FilterDialog::buildTree(QTreeWidgetItem *parentit, quint64 parentid) {
+  QSqlQuery q = db.query("select pathname, leafname, id from folders"
+                         " where parentfolder==:a order by pathname",
+                         parentid);
+  while (q.next()) {
+    QString path = q.value(0).toString();
+    QString leaf = q.value(1).toString();
+    quint64 id = q.value(2).toULongLong();
+    QStringList cc; cc << leaf << path;
+    QTreeWidgetItem *it = new QTreeWidgetItem(cc);
+    parentit->addChild(it);
+    buildTree(it, id);
+  }
+}  
+  
+
+void FilterDialog::prepFolderTree() {
+  ui->location->clear();
+
+  QSqlQuery q = db.query("select pathname, id from folders"
+                         " where parentfolder is null order by pathname");
+  while (q.next()) {
+    QString path = q.value(0).toString();
+    quint64 id = q.value(1).toULongLong();
+    QStringList cc; cc << path << path;
+    QTreeWidgetItem *it = new QTreeWidgetItem(cc);
+    ui->location->addTopLevelItem(it);
+    buildTree(it, id);
+  }
 }

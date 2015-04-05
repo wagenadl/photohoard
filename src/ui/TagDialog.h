@@ -58,6 +58,7 @@ protected:
   class QPushButton *applyButton;
   ShowWhat sw;
   int level;
+  bool readonly;
 };
 
 #endif
