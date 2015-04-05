@@ -67,6 +67,9 @@ void Slide::paint(QPainter *painter,
   if (isCurrent)
     b = b.darker(130);
 
+  pDebug() << "  slide paint " << id << isCurrent << isSelected;
+
+  
   int dx = isCurrent ? 2: 1;
   painter->setBrush(isSelected ? b.lighter() : b.darker());
   painter->drawRoundedRect(r.adjusted(2*dx, 2*dx, 0, 0), 4, 4);

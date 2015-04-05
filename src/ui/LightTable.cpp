@@ -16,7 +16,7 @@
 LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db1), adjuster(adj) {
   setObjectName("LightTable");
-  id = 0;
+  curr = 0;
   tilesize = 96;
   lastgridsize = 3*tilesize + 4;
   lay=lastlay=LayoutBar::Action::VGrid;
@@ -195,7 +195,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
     break;
   }
   if (lastlay==LayoutBar::Action::FullGrid && lay!=lastlay) {
-    emit needImage(id, displaySize());
+    emit needImage(curr, displaySize());
     requestLargerImage();
   }
   if (lay!=LayoutBar::Action::FullPhoto)
@@ -213,53 +213,81 @@ void LightTable::slidePress(quint64 i, Qt::MouseButton b,
   }
 }
 
-void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
-  if (m & Qt::ControlModifier) {
-    // Control: Toggle whether image i is selected
-    if (selection->contains(i))
-      selection->remove(i);
+void LightTable::toggleSelection(quint64 i) {
+  // Control: Toggle whether image i is selected
+  if (selection->contains(i)) {
+    selection->remove(i);
+    if (i==curr)
+      makeCurrent(0);
     else
-      selection->add(i);
-    emit newSelection();
-  } else if (m & Qt::ShiftModifier) {
-    // Shift: Select a range from current id to new i
-    // Currently, this always adds, but that needs not be the case
-    QDateTime a = db.captureDate(db.photoFromVersion(id));
-    QDateTime b = db.captureDate(db.photoFromVersion(i));
-    if (a>b)
-      selection->addDateRange(b, a);
-    else
-      selection->addDateRange(a, b);
-    emit newSelection();
-    film->scene()->update();
+      updateSlide(i);
   } else {
-    // Ignore other modifiers for the moment
-    if (i==id)
-      return;
-    if (i>0 && !selection->contains(i)) {
-      bool localupdate = true; // if we have just a few in selection, we'll
-      // repaint just those slides, otherwise the whole view
-      if (selection->count()<=10) {
-        QSet<quint64> ss = selection->current();
-        selection->clear();
-        for (auto i: ss) {
-          Slide *s = film->strip()->slideByVersion(i);
-          if (s)
-            s->update();
-        }
-      } else {
-        localupdate = false;
-        selection->clear();
+    selection->add(i);
+    if (curr==0)
+      makeCurrent(i);
+    else
+      updateSlide(i);
+  }
+  emit newSelection();
+}
+
+void LightTable::extendOrShrinkSelection(quint64 i) {
+  // Shift: Select a range from current id to new i
+  // Currently, this always adds, but that needs not be the case
+  // Also, this should work differently for folder-tree organization
+
+  if (curr==0)
+    makeCurrent(i);
+  
+  QDateTime a = db.captureDate(db.photoFromVersion(curr));
+  QDateTime b = db.captureDate(db.photoFromVersion(i));
+  if (a>b)
+    selection->addDateRange(b, a);
+  else
+    selection->addDateRange(a, b);
+  emit newSelection();
+  film->scene()->update();
+}  
+
+void LightTable::simpleSelection(quint64 i) {
+  // Ignore other modifiers for the moment
+  if (i==curr)
+    return;
+
+  if (i>0 && !selection->contains(i)) {
+    bool localupdate = true; // if we have just a few in selection, we'll
+    // repaint just those slides, otherwise the whole view
+    if (selection->count()<=10) {
+      QSet<quint64> ss = selection->current();
+      selection->clear();
+      for (auto i: ss) {
+        Slide *s = film->strip()->slideByVersion(i);
+        if (s)
+          s->update();
       }
-      selection->add(i);
-      emit newSelection();
-      if (!localupdate)
-        film->scene()->update();
+    } else {
+      localupdate = false;
+      selection->clear();
     }
+    selection->add(i);
+    emit newSelection();
+    if (!localupdate)
+      film->scene()->update();
   }
 
-  db.query("update current set version=:a", i);
-  updateSlide(id);
+  makeCurrent(i);
+}
+
+void LightTable::makeCurrent(quint64 i) {
+  if (i==curr)
+    return;
+
+  if (i>0)
+    db.query("update current set version=:a", i);
+  else
+    db.query("update current set version=null");
+  
+  updateSlide(curr);
   updateSlide(i);
 
   if (i>0) {
@@ -279,14 +307,24 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
     adjuster->clear();
   }
 
-  id = i;
-  emit newCurrent(id);
-  if (id>0 && lay!=LayoutBar::Action::FullGrid) {
-    emit needImage(id, displaySize());
+  curr = i;
+  emit newCurrent(curr);
+  if (curr>0 && lay!=LayoutBar::Action::FullGrid) {
+    emit needImage(curr, displaySize());
     requestLargerImage();
   }
 
   film->scrollIfNeeded();
+}
+
+void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
+  if (m & Qt::ControlModifier) {
+    toggleSelection(i);
+   } else if (m & Qt::ShiftModifier) {
+    extendOrShrinkSelection(i);
+  } else {
+    simpleSelection(i);
+  }
 }    
 
 void LightTable::updateSlide(quint64 i) {
@@ -304,10 +342,10 @@ PSize LightTable::displaySize() const {
 
 void LightTable::requestLargerImage() {
   if (slide->isVisible()) {
-    // also request from cache if helpful and readily available!
-    adjuster->requestAdjusted(id, slide->desiredSize());
+    // also request from cache if helpful and readily available?
+    adjuster->requestAdjusted(curr, slide->desiredSize());
   } else {
-    adjuster->markVersionAndSize(id, slide->desiredSize());
+    adjuster->markVersionAndSize(curr, slide->desiredSize());
   }
 }
 
@@ -316,14 +354,14 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
     return;
   film->updateImage(i, img);
 
-  if (i==id)
+  if (i==curr)
     slide->updateImage(img, true);
 }
 
 void LightTable::updateImage(quint64 i, Image16 img) {
   film->updateImage(i, img);
 
-  if (i!=id)
+  if (i!=curr)
     return;
 
   slide->updateImage(img);

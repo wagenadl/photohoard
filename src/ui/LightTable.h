@@ -20,7 +20,7 @@ public:
   LightTable(PhotoDB const &db, LiveAdjuster *adjuster,
              QWidget *parent=0);
   virtual ~LightTable();
-  quint64 current() const { return id; }
+  quint64 current() const { return curr; }
   PSize displaySize() const;
 public slots:
   void setLayout(LayoutBar::Action ar);
@@ -48,6 +48,10 @@ protected:
   void ensureReasonableGridSize();
   void populateFilterFromDialog();
   void selectNearestInFilter(quint64 vsn);
+  void toggleSelection(quint64 i);
+  void extendOrShrinkSelection(quint64 i);
+  void simpleSelection(quint64 i);
+  void makeCurrent(quint64 i);
 protected:
   PhotoDB db;
   QPointer<LiveAdjuster> adjuster; // we do not own
@@ -57,7 +61,7 @@ protected:
   class FilterDialog *filterDialog;
   bool showmax;
   LayoutBar::Action lastlay, lay;
-  quint64 id;
+  quint64 curr;
   int tilesize;
   int lastgridsize;
 };
