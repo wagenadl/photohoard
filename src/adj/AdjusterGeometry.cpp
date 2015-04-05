@@ -23,18 +23,22 @@ AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
 
 
   // PERSPECTIVE
-  if (final.perspv || final.persph || final.shearv || final.shearv) {
+  if (final.perspv || final.persph || final.shearv || final.shearh) {
     QPolygonF pp;
     double w = tile.image.width();
     double h = tile.image.height();
-    pp << QPointF(w*(-final.perspv+final.shearh)/100.0,
+    // top left
+    pp << QPointF(w*(-final.perspv-final.shearh)/100.0,
+                  h*(+final.persph-final.shearv)/100.0);
+    // top right
+    pp << QPointF(w*(100+final.perspv-final.shearh)/100.0,
                   h*(-final.persph+final.shearv)/100.0);
-    pp << QPointF(w*(100+final.perspv+final.shearh)/100.0,
-                  h*(-final.persph+final.shearv)/100.0);
-    pp << QPointF(w*(final.perspv-final.shearh)/100.0,
-                  h*(100+final.persph-final.shearv)/100.0);
-    pp << QPointF(w*(100-final.perspv-final.shearh)/100.0,
-                  h*(100+final.persph-final.shearv)/100.0);
+    // bottom left
+    pp << QPointF(w*(final.perspv+final.shearh)/100.0,
+                  h*(100-final.persph-final.shearv)/100.0);
+    // bottom right
+    pp << QPointF(w*(100-final.perspv+final.shearh)/100.0,
+                  h*(100+final.persph+final.shearv)/100.0);
     tile.image = tile.image.perspectived(pp);
   }
   
