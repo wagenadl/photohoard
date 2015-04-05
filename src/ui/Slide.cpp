@@ -62,22 +62,25 @@ void Slide::paint(QPainter *painter,
   painter->setPen(QPen(Qt::NoPen));
 
   QColor b0 = colorLabelColor(colorLabel);
-  QColor b = isCurrent ? b0.lighter(150)
-    : isSelected ? b0.lighter(150)
-    : b0;
-
-  pDebug() << "  slide paint " << id << isCurrent << isSelected;
-
-  
-  int dx = isCurrent ? 2: 1;
-  painter->setBrush(isCurrent ? b.darker()
-                    : isSelected ? b.lighter(150) : b.darker());
+  QColor b = isCurrent ? QColor("#ffee00")
+    : isSelected ? QColor("#ff8800") : b0;
+  int dx = 1; //isCurrent ? 2: 1;
+  QColor btl = isCurrent ? b.darker()
+    : isSelected ? b.darker() : b.lighter();
+  QColor bbr = isCurrent ? b.lighter()
+    : isSelected ? b.lighter() : b.darker();
+  painter->setBrush(bbr);
   painter->drawRoundedRect(r.adjusted(2*dx, 2*dx, 0, 0), 4, 4);
-  painter->setBrush(isCurrent ? b.lighter(150)
-                    : isSelected ? b.darker() : b.lighter());
+  painter->setBrush(btl);
   painter->drawRoundedRect(r.adjusted(0, 0, -2*dx, -2*dx), 4, 4);
-  painter->setBrush(b);
+  if (isCurrent || isSelected) {
+    painter->setBrush(b);
+    painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
+    dx = 3;
+  }
+  painter->setBrush(b0);
   painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
+  
   int ims = tilesize - 8;
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
