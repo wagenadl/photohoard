@@ -12,8 +12,8 @@ QString Tags::name(int id) {
 }
 
 int Tags::findOne(QString tag) {
-  tag = normalCase(tag);
-  QSqlQuery q = db.query("select id from tags where tag==:a", tag);
+  QSqlQuery q = db.query("select id from tags where tag==:a collate nocase",
+                         tag);
   int id = 0;
   if (q.next())
     id = q.value(0).toInt();
@@ -23,8 +23,8 @@ int Tags::findOne(QString tag) {
 }
 
 QSet<int> Tags::findAll(QString tag) {
-  tag = normalCase(tag);
-  QSqlQuery q = db.query("select id from tags where tag==:a", tag);
+  QSqlQuery q = db.query("select id from tags where tag==:a collate nocase",
+                         tag);
   QSet<int> ids;
   while (q.next())
     ids << q.value(0).toInt();
@@ -32,9 +32,8 @@ QSet<int> Tags::findAll(QString tag) {
 }
 
 QSet<int> Tags::findAbbreviated(QString tag) {
-  tag = normalCase(tag);
   QSqlQuery q = db.query("select id from tags where tag like \""
-			 + tag + "%\"");
+			 + tag + "%\" collate nocase");
   QSet<int> ids;
   while (q.next())
     ids << q.value(0).toInt();
@@ -80,10 +79,11 @@ void Tags::remove(quint64 versionid, int tagid) {
 }
 
 int Tags::find(QString tag, int parent) {
-  tag = normalCase(tag);
   QSqlQuery q = parent ?
-    db.query("select id from tags where tag==:a and parent==:b", tag, parent)
-    : db.query("select id from tags where tag==:a and parent is null", tag);
+    db.query("select id from tags"
+             " where tag==:a and parent==:b collate nocase", tag, parent)
+    : db.query("select id from tags"
+               " where tag==:a and parent is null collate nocase", tag);
   if (q.next())
     return q.value(0).toInt();
   else
@@ -246,8 +246,6 @@ bool Tags::couldBeNew(QString tag) {
   if (tag.contains("::"))
     return false;
   QStringList bits = tag.split(":");
-  for (int n=0; n<bits.size(); n++)
-    bits[n] = normalCase(bits[n]);
   QString leaf = bits.takeLast();
   if (bits.isEmpty()) 
     return true;
