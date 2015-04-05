@@ -34,8 +34,8 @@ QRectF Slidestrip::subBoundingRect() const {
     return QRectF(0, labelHeight(tilesize), tilesize, nslides*tilesize);
   case Arrangement::Grid: {
     bool horh = hasTopLabel();
-    int lw = horh ? 0 : labelHeight(tilesize);
-    int lh = horh ? labelHeight(tilesize) : 0;
+    int lw = (horh || !hasheader) ? 0 : labelHeight(tilesize);
+    int lh = (horh && hasheader) ? labelHeight(tilesize) : 0;
     int perrow = (rowwidth - lw) / tilesize;
     if (perrow<1)
       perrow = 1;

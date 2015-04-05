@@ -3,13 +3,7 @@
 #include "Selection.h"
 #include <QVariant>
 
-Selection::Selection(PhotoDB const &db1, QObject *parent):
-  QObject(parent), db(db1) {
-  setObjectName("selection");
-  db.query("create table if not exists M.selection ("
-           " version integer unique on conflict ignore )");
-           // " references versions(id)"
-           // "   on delete cascade on update cascade)");
+Selection::Selection(PhotoDB const &db1): db(db1) {
 }
 
 void Selection::add(quint64 vsn) {
@@ -17,8 +11,8 @@ void Selection::add(quint64 vsn) {
 }
 
 void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
-  db.query("insert into selection select versions.id from "
-           " versions inner join photos on versions.photo=photos.id "
+  db.query("insert into selection select version from "
+           " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b",
            start, inclusiveend);
 }
@@ -36,7 +30,7 @@ void Selection::clear() {
 }
 
 void Selection::selectAll() {
-  db.query("insert into M.selection (select versions.id from versions)");
+  db.query("insert into M.selection (select version from filter)");
 }
 
 bool Selection::contains(quint64 vsn) {
@@ -56,3 +50,28 @@ QSet<quint64> Selection::current() {
     vv << q.value(0).toULongLong();
   return vv;
 }
+
+void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
+  db.query("insert into selection select version from filter"
+           " inner join photos on filter.photo==photos.id"
+           " where photos.folder==:a and photos.capturedate<=:b",
+           folder, endAt);
+}
+
+void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
+  db.query("insert into selection select version from filter"
+           " inner join photos on filter.photo==photos.id"
+           " where photos.folder==:a and photos.capturedate>=:b",
+           folder, startAt);
+}
+
+void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
+  QString path1 = db.folder(fid1);
+  QString path2 = db.folder(fid2);
+  db.query("insert into selection select version from filter"
+           " inner join photos on filter.photo==photos.id"
+           " inner join folders on photos.folder==folders.id"
+           " where folders.pathname>:a and folders.pathname<:b",
+           path1, path2);
+}
+  

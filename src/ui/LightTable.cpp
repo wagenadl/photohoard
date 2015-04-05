@@ -36,7 +36,7 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();
   
-  selection = new Selection(db, this);
+  selection = new Selection(db);
 
   film = new FilmView(db);
   addWidget(film);
@@ -85,6 +85,7 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
 
 LightTable::~LightTable() {
   delete filterDialog;
+  delete selection;
 }
 
 void LightTable::ensureReasonableGridSize() {
@@ -238,13 +239,38 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 
   if (curr==0)
     makeCurrent(i);
-  
-  QDateTime a = db.captureDate(db.photoFromVersion(curr));
-  QDateTime b = db.captureDate(db.photoFromVersion(i));
-  if (a>b)
-    selection->addDateRange(b, a);
-  else
-    selection->addDateRange(a, b);
+
+  switch (film->organization()) {
+  case Strip::Organization::ByDate: {
+    QDateTime a = db.captureDate(db.photoFromVersion(curr));
+    QDateTime b = db.captureDate(db.photoFromVersion(i));
+    if (a>b)
+      selection->addDateRange(b, a);
+    else
+      selection->addDateRange(a, b);
+  } break;
+  case Strip::Organization::ByFolder: {
+    PhotoDB::PhotoRecord a = db.photoRecord(db.photoFromVersion(curr));
+    PhotoDB::PhotoRecord b = db.photoRecord(db.photoFromVersion(i));
+    if (a.folderid==b.folderid) {
+      // easy case
+      if (a.capturedate>b.capturedate)
+        selection->addDateRange(b.capturedate, a.capturedate);
+      else
+        selection->addDateRange(a.capturedate, b.capturedate);
+    } else {
+      if (db.folder(a.folderid)<db.folder(b.folderid)) {
+        selection->addRestOfFolder(a.folderid, a.capturedate);
+        selection->addFoldersBetween(a.folderid, b.folderid);
+        selection->addStartOfFolder(b.folderid, b.capturedate);
+      } else {
+        selection->addRestOfFolder(b.folderid, b.capturedate);
+        selection->addFoldersBetween(b.folderid, a.folderid);
+        selection->addStartOfFolder(a.folderid, a.capturedate);
+      }
+    }
+  } break;
+  }
   emit newSelection();
   film->scene()->update();
 }  
@@ -458,7 +484,7 @@ void LightTable::scrollToCurrent() {
 void LightTable::applyFilterFromDialog() {
   populateFilterFromDialog();
   quint64 c = db.simpleQuery("select * from current").toULongLong();
-  QSqlQuery q = db.query("select * from M.filter where version==:a", c);
+  QSqlQuery q = db.query("select * from filter where version==:a", c);
   if (!q.next())
     selectNearestInFilter(c);
   rescan(false);
@@ -472,10 +498,11 @@ void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
 
 void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
-  db.query("delete from M.filter");
-  db.query("insert into M.filter select versions.id, photos.id from versions "
+  db.query("delete from filter");
+  db.query("insert into filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause(db));
-  int N = db.simpleQuery("select count(*) from M.filter").toInt();
+  int N = db.simpleQuery("select count(*) from filter").toInt();
   pDebug() << "Populate Filter" << N;
-
+  db.query("delete from selection"
+           " where version not in (select version from filter)");
 }

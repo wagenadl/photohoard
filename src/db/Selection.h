@@ -4,24 +4,24 @@
 
 #define SELECTION_H
 
-#include <QObject>
 #include "PhotoDB.h"
 #include <QDateTime>
 #include "Strip.h"
 #include <QSet>
 
-class Selection: public QObject {
-  Q_OBJECT;
+class Selection {
 public:
-  Selection(PhotoDB const &photodb, QObject *parent=0);
+  Selection(PhotoDB const &photodb);
   int count();
   QSet<quint64> current();
-public slots:
   void add(quint64 vsn);
   void addDateRange(QDateTime d1, QDateTime inclusiveend);
   void addDateRange(QDateTime start, Strip::TimeScale scl);
-  void selectAll(); // current impl. doesn't know about filters
-  // current impl. doesn't know about filters
+  void selectAll();
+  void addRestOfFolder(quint64 folder, QDateTime startAt);
+  void addStartOfFolder(quint64 folder, QDateTime endAt);
+  void addFoldersBetween(quint64 fid1, quint64 fid2); // not including fid1 and fid2!
+  // current impl. _does_ know about filters for all of the above
   void remove(quint64 vsn);
   void clear();
   bool contains(quint64 vsn);

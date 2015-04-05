@@ -15,6 +15,7 @@ public:
   virtual ~FilmView();
   class FilmScene *scene();
   class Datestrip *strip();
+  Strip::Organization organization() const;
 signals:
   void needImage(quint64, QSize);
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);

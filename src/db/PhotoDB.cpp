@@ -32,6 +32,11 @@ PhotoDB::PhotoDB(QString fn): Database(fn),
         "(version integer, " // references versions(id), "
         " photo integer )"); // references PDB.photos(id) )");
   query("create index if not exists M.photoidx on filter(photo)");
+
+  query("create table if not exists M.selection ("
+        " version integer unique on conflict ignore )");
+  // " references versions(id)"
+  // "   on delete cascade on update cascade)");
   
 }
 

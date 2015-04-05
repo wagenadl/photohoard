@@ -212,6 +212,11 @@ void FilmView::enterEvent(QEvent *) {
   setFocus();
 }
 
+Strip::Organization FilmView::organization() const {
+  return useFolders ? Strip::Organization::ByDate
+    : Strip::Organization::ByFolder;
+}
+
 void FilmView::toggleOrganization() {
   Datestrip *oldstrip = strip();
   useFolders = !useFolders;

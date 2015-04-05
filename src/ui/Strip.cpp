@@ -120,29 +120,26 @@ QRectF Strip::labelBoundingRect() const {
 
 void Strip::recalcLabelRect() {
   prepareGeometryChange();
-  if (!hasheader) {
-    labelRect=QRectF();
-    return;
-  }
+  int lh = hasheader ? labelHeight(tilesize) : 1;
   switch (arr) {
   case Arrangement::Horizontal:
     if (expanded)
-      labelRect = QRectF(0, 0, labelHeight(tilesize), tilesize);
+      labelRect = QRectF(0, 0, lh, tilesize);
     else
       labelRect = QRectF(0, 0, tilesize, tilesize);
     break;
   case Arrangement::Vertical:
     if (expanded)
-      labelRect = QRectF(0, 0, tilesize, labelHeight(tilesize));
+      labelRect = QRectF(0, 0, tilesize, lh);
     else
       labelRect = QRectF(0, 0, tilesize, tilesize);
     break;
   case Arrangement::Grid:
     if (expanded) {
       if (hasTopLabel()) 
-	labelRect = QRectF(0, 0, rowwidth, labelHeight(tilesize));
+	labelRect = QRectF(0, 0, rowwidth, lh);
       else 
-	labelRect = QRectF(0, 0, labelHeight(tilesize), subHeight());
+	labelRect = QRectF(0, 0, lh, subHeight());
     } else {
       labelRect = QRectF(0, 0, tilesize, tilesize);
     }
