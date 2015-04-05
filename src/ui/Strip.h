@@ -110,6 +110,7 @@ protected:
 protected:
   int subHeight() const;
   void recalcLabelRect();
+  static QPixmap const &dashPattern(QColor);
 protected:
   PhotoDB db;
   Organization org;

@@ -183,14 +183,62 @@ QRectF Strip::netBoundingRect() const {
 }
 
 void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
+  int n=0;
+  int N=0;
+  switch (org) {
+  case Organization::ByDate:
+    N = db.countInDateRange(d0, endFor(d0, scl));
+    if (N)
+      n = Selection(db).countInDateRange(d0, endFor(d0, scl));
+    break;
+  case Organization::ByFolder:
+    N = db.countInTree(pathname);
+    if (N)
+      n = Selection(db).countInTree(pathname);
+    break;
+  }
   painter->setPen(QPen(Qt::NoPen));
   painter->setBrush(QBrush(QColor(129, 129, 129)));
   painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
   painter->setBrush(QBrush(QColor(240, 240, 240)));
   painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
+  int dx = 1;
+  if (n>0) {
+    if (n==N) 
+      painter->setBrush(QColor("#ff8800"));
+    else
+      painter->setBrush(dashPattern(bg));
+    painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+    dx = 3;
+  }
   painter->setBrush(QBrush(bg));
-  painter->drawRoundedRect(r.adjusted(1, 1, -1, -1), 4, 4);
+  painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
 }
+
+QPixmap const &Strip::dashPattern(QColor bg1) {
+  static QPixmap pm;
+  static QColor bg;
+  if (pm.isNull() || bg1!=bg) {
+    bg = bg1;
+    QRgb rgb = bg.rgba();
+    constexpr int L = 6;
+    QImage img(L*2, L*2, QImage::Format_RGB32);
+    for (int y=0; y<2*L; y++) {
+      quint32 *ptr = reinterpret_cast<quint32*>(img.scanLine(y));
+      quint32 *p = (y>=L) ? ptr : ptr + L;
+      for (int x=0; x<L; x++)
+        *p++ = 0xffff8800;
+      p = (y>=L) ? ptr + L : ptr;
+      for (int x=0; x<L; x++)
+        *p++ = rgb;
+      
+      
+    }
+    pm = QPixmap::fromImage(img);
+  }
+  return pm;
+}
+  
 
 void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
@@ -293,7 +341,7 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
   case Organization::ByDate:
     lbl = labelFor(d0, scl);
     if (!expanded)
-      n = db.countInDateRange(d0, endFor(d0,scl));
+      n = db.countInDateRange(d0, endFor(d0, scl));
     break;
   case Organization::ByFolder:
     lbl = leafname;
@@ -343,11 +391,6 @@ void Strip::paint(QPainter *painter,
   int bggray = 192;
   switch (org) {
   case Organization::ByDate:
-    //if (scl==TimeScale::Decade)
-    //  bggray = 160;
-    //else
-    //  bggray = (int(scl) & 1) ? 236 : 192;
-    //
     bggray = 160 + 16*(int(scl)-int(TimeScale::Decade));
     break;
   case Organization::ByFolder:
