@@ -242,7 +242,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
     int y1 = r0.bottom();
     QLinearGradient gg(0, y0, 0, y1);
     gg.setColorAt(0, bg);
-    gg.setColorAt(1, QColor(128, 128, 128));
+    gg.setColorAt(1, bg); //QColor(128, 128, 128));
     painter->setBrush(QBrush(gg));
     painter->drawRect(QRectF(QPointF(r.left()+1, y0),
                              QPointF(r.right()-1, y1)));
@@ -340,7 +340,7 @@ void Strip::paint(QPainter *painter,
   switch (org) {
   case Organization::ByDate:
     if (scl==TimeScale::Decade)
-      bggray = 255;
+      bggray = 160;
     else
       bggray = (int(scl) & 1) ? 236 : 192;
     break;

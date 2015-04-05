@@ -61,19 +61,20 @@ void Slide::paint(QPainter *painter,
                                      " where id==:a", id).toInt();
   painter->setPen(QPen(Qt::NoPen));
 
-  QColor b = colorLabelColor(colorLabel);
-  if (isSelected)
-    b = b.darker(130);
-  if (isCurrent)
-    b = b.darker(130);
+  QColor b0 = colorLabelColor(colorLabel);
+  QColor b = isCurrent ? b0.lighter(150)
+    : isSelected ? b0.lighter(150)
+    : b0;
 
   pDebug() << "  slide paint " << id << isCurrent << isSelected;
 
   
   int dx = isCurrent ? 2: 1;
-  painter->setBrush(isSelected ? b.lighter() : b.darker());
+  painter->setBrush(isCurrent ? b.darker()
+                    : isSelected ? b.lighter(150) : b.darker());
   painter->drawRoundedRect(r.adjusted(2*dx, 2*dx, 0, 0), 4, 4);
-  painter->setBrush(isSelected ? b.darker() : b.lighter());
+  painter->setBrush(isCurrent ? b.lighter(150)
+                    : isSelected ? b.darker() : b.lighter());
   painter->drawRoundedRect(r.adjusted(0, 0, -2*dx, -2*dx), 4, 4);
   painter->setBrush(b);
   painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
