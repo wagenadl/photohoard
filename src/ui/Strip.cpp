@@ -343,14 +343,16 @@ void Strip::paint(QPainter *painter,
   int bggray = 192;
   switch (org) {
   case Organization::ByDate:
-    if (scl==TimeScale::Decade)
-      bggray = 160;
-    else
-      bggray = (int(scl) & 1) ? 236 : 192;
+    //if (scl==TimeScale::Decade)
+    //  bggray = 160;
+    //else
+    //  bggray = (int(scl) & 1) ? 236 : 192;
+    //
+    bggray = 160 + 16*(int(scl)-int(TimeScale::Decade));
     break;
   case Organization::ByFolder:
     bggray = ((pathname.split("/").size() + (leafname==""?1:0)) & 1)
-      ? 236 : 192;
+      ? 192 : 160;
     break;
   }
   if (hasheader) {
