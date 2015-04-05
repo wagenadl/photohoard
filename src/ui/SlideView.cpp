@@ -183,7 +183,10 @@ void SlideView::paintEvent(QPaintEvent *) {
     // pDebug() << "SlideView::paintEvent av=" << img.size()
     //          << "space=" << r.size()
     //          << "nat=" << naturalSize;
-    Image16 i1 = img.scaledToFitIn(r.size());
+    Image16 i1 = img.scaledToFitIn(r.size(),
+                                   img.size().scaleFactorToFitIn(r.size())>1
+                                   ? Image16::Interpolation::NearestNeighbor
+                                   : Image16::Interpolation::Linear);
     if (img.width()<naturalSize.width()
         && i1.width()>img.width()
         && img.height()<naturalSize.height()
@@ -237,7 +240,11 @@ void SlideView::paintEvent(QPaintEvent *) {
 			* img.height());
       sourceRect.setHeight(availSize.height()/effZoom);
     }
-    p.drawImage(destRect, img.toQImage(), sourceRect);
+    Image16 im1 = img.cropped(sourceRect.toRect());
+    im1 = im1.scaledToFitIn(destRect.size().toSize(), effZoom>1
+                     ? Image16::Interpolation::NearestNeighbor
+                     : Image16::Interpolation::Linear);
+    p.drawImage(destRect.topLeft(), im1.toQImage());
   }
 }
     
