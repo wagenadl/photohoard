@@ -77,6 +77,7 @@ public: // exploration functions
   QList<QString> subFolders(QString folders) const;
   QList<QString> rootFolders() const;
   quint64 firstVersionInTree(QString folder) const;
+  // all of the above look at the filter
 private:
   mutable QSharedPointer< QMap<quint64, QString> > folders;
   mutable QSharedPointer< QMap<QString, quint64> > revFolders;

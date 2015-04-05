@@ -25,6 +25,10 @@ public:
   void remove(quint64 vsn);
   void clear();
   bool contains(quint64 vsn);
+  int countInDateRange(QDateTime t0, QDateTime t1) const; // just like the
+  int countInFolder(QString folder) const; // ... corresponding functions in
+  int countInTree(QString folder) const; // ... PhotoDB except restricted to
+  // ... selection
 private:
   PhotoDB db;
 };

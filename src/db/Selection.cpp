@@ -75,3 +75,32 @@ void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
            path1, path2);
 }
   
+int Selection::countInDateRange(QDateTime t0, QDateTime t1) const {
+  return db.simpleQuery("select count(*) from selection inner join filter"
+                        " on selection.version==filter.version"
+                        " inner join photos on filter.photo==photos.id"
+                        " where photos.capturedate>=:a"
+                        " and photos.capturedate<:b", t0, t1).toInt();
+}
+
+int Selection::countInFolder(QString folder) const {
+  quint64 id = db.findFolder(folder);
+  if (id)
+    return db.simpleQuery("select count(*) from selection inner join filter"
+                          " on selection.version==filter.version"
+                          " inner join photos on filter.photo=photos.id"
+                          " where photos.folder==:a", id).toInt();
+  else
+    return 0;
+}
+
+int Selection::countInTree(QString folder) const {
+  int nsub
+    = db.simpleQuery("select count(*) from selection"
+                     " inner join filter on selection.version==filter.version"
+                     " inner join photos on filter.photo=photos.id"
+                     " inner join folders on photos.folder==folders.id"
+                     " where folders.pathname like :a", folder+"/%")
+    .toInt();
+  return nsub + countInFolder(folder);
+}

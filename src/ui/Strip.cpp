@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include <QGraphicsSceneMouseEvent>
 #include "FilmScene.h"
+#include "Selection.h"
 
 Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
@@ -287,16 +288,22 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
 
 void Strip::paintHeaderText(QPainter *painter, QRectF r) {
   QString lbl;
+  int n = 0;
   switch (org) {
   case Organization::ByDate:
     lbl = labelFor(d0, scl);
+    if (!expanded)
+      n = db.countInDateRange(d0, endFor(d0,scl));
     break;
   case Organization::ByFolder:
     lbl = leafname;
+    if (!expanded)
+      n = db.countInTree(pathname);
     break;
   }
 
   if (!expanded) {
+    lbl += QString(" (%1)").arg(n);
     r = r.adjusted(2, 2, -2, -2);
     painter->setPen(QPen(QColor(0, 0, 0)));
     painter->drawText(r.translated(1, 2),
