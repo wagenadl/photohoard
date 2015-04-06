@@ -20,6 +20,17 @@ void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
 void Selection::addDateRange(QDateTime start, Strip::TimeScale scl) {
   addDateRange(start, Strip::endFor(start, scl).addMSecs(-1));
 }
+
+void Selection::dropDateRange(QDateTime start, QDateTime inclusiveend) {
+  db.query("delete from selection where version in (select version from "
+           " filter inner join photos on filter.photo=photos.id "
+           " where photos.capturedate>=:a and photos.capturedate<=:b)",
+           start, inclusiveend);
+}
+
+void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
+  dropDateRange(start, Strip::endFor(start, scl).addMSecs(-1));
+}
   
 void Selection::remove(quint64 vsn) {
   db.query("delete from M.selection where version==:i", vsn);
@@ -104,3 +115,38 @@ int Selection::countInTree(QString folder) const {
     .toInt();
   return nsub + countInFolder(folder);
 }
+
+void Selection::addInFolder(QString folder) {
+  quint64 id = db.findFolder(folder);
+  if (id)
+    db.query("insert into selection select version from filter"
+             " inner join photos on filter.photo=photos.id"
+             " where photos.folder==:a", id);
+}
+
+void Selection::addInTree(QString folder) {
+  addInFolder(folder);
+  db.query("insert into selection select version from filter"
+           " inner join photos on filter.photo=photos.id"
+           " inner join folders on photos.folder==folders.id"
+           " where folders.pathname like :a", folder+"/%");
+}
+
+void Selection::dropInFolder(QString folder) {
+  quint64 id = db.findFolder(folder);
+  if (id)
+    db.query("delete from selection where version in"
+             " (select version from filter"
+             " inner join photos on filter.photo=photos.id"
+             " where photos.folder==:a)", id);
+}
+
+void Selection::dropInTree(QString folder) {
+  dropInFolder(folder);
+  db.query("drop from selection select version from filter"
+           " inner join photos on filter.photo=photos.id"
+           " inner join folders on photos.folder==folders.id"
+           " where folders.pathname like :a", folder+"/%");
+}
+
+  

@@ -182,6 +182,34 @@ QRectF Strip::netBoundingRect() const {
   return r;
 }
 
+void Strip::toggleSelection() {
+  int n=0;
+  int N=0;
+  switch (org) {
+  case Organization::ByDate:
+    N = db.countInDateRange(d0, endFor(d0, scl));
+    if (N) {
+      n = Selection(db).countInDateRange(d0, endFor(d0, scl));
+      if (n==N)
+        Selection(db).dropDateRange(d0, scl);
+      else
+        Selection(db).addDateRange(d0, scl);
+    }
+    break;
+  case Organization::ByFolder:
+    N = db.countInTree(pathname);
+    if (N) {
+      n = Selection(db).countInTree(pathname);
+      if (n==N)
+        Selection(db).dropInTree(pathname);
+      else
+        Selection(db).addInTree(pathname);
+    }
+  }
+  update();
+}
+  
+
 void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   int n=0;
   int N=0;
@@ -351,7 +379,7 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
   }
 
   if (!expanded) {
-    lbl += QString(" (%1)").arg(n);
+    lbl += QString("\n(%1)").arg(n);
     r = r.adjusted(2, 2, -2, -2);
     painter->setPen(QPen(QColor(0, 0, 0)));
     painter->drawText(r.translated(1, 2),
@@ -618,8 +646,10 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (!labelRect.contains(e->pos()))
     return;
   
-  db.beginAndLock();
-  if (e->modifiers() & Qt::ShiftModifier) 
+  db.beginAndLock(); // why do I do this>
+  if (e->modifiers() & Qt::ControlModifier)
+    toggleSelection();
+  else if (e->modifiers() & Qt::ShiftModifier) 
     expandAll();
   else if (expanded) 
     collapse();
