@@ -239,6 +239,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 
   if (curr==0)
     makeCurrent(i);
+  pDebug() << "extendorshrink" << i << int(film->organization());
 
   switch (film->organization()) {
   case Strip::Organization::ByDate: {
@@ -252,6 +253,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   case Strip::Organization::ByFolder: {
     PhotoDB::PhotoRecord a = db.photoRecord(db.photoFromVersion(curr));
     PhotoDB::PhotoRecord b = db.photoRecord(db.photoFromVersion(i));
+    pDebug() << curr << i << a.folderid << b.folderid << a.capturedate << b.capturedate;
     if (a.folderid==b.folderid) {
       // easy case
       if (a.capturedate>b.capturedate)

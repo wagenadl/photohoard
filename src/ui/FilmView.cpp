@@ -213,8 +213,8 @@ void FilmView::enterEvent(QEvent *) {
 }
 
 Strip::Organization FilmView::organization() const {
-  return useFolders ? Strip::Organization::ByDate
-    : Strip::Organization::ByFolder;
+  return useFolders ? Strip::Organization::ByFolder
+    : Strip::Organization::ByDate;
 }
 
 void FilmView::toggleOrganization() {
