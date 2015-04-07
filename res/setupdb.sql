@@ -145,4 +145,21 @@ create index if not exists versionidx on versions(photo);
 create index if not exists tagidx on tags(tag);
 create index if not exists tagtreeidx on tags(parent);
 
+-- Not creating an index on photos(folder), becase that wouldn't optimize
+-- the very common LIKE query, only the == query. (See PhotoDB::countInTree
+-- and friends.) And the == query is already surprisingly fast (<1 us!?).
+-- This suggests that perhaps the versionidx is not needed either. But that's
+-- false, that index does improve speed on the admittedly irrelevant
+--   select count(*) from versions where photo>10000;
+-- Interestingly, the index does not substantially speed up things like
+--   select count(*) from versions inner join photos 
+--     on versions.photo==photos.id where camera==74;
+-- And things like
+--   select camera from versions inner join photos 
+--     on versions.photo==photos.id where versions.id==231;
+-- are blindingly fast (<1 us) even without the index.
+-- I guess that things that might benefit would be
+--   select id from versions where versions.photo==xxx
+-- Yes, that goes from 6 ms without index to <1 with.
+
 insert into current values(null);
