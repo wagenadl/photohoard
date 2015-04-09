@@ -29,7 +29,7 @@ QRectF Datestrip::subBoundingRect() const {
     return QRectF();
   if (stripOrder.isEmpty())
     return QRectF();
-  Strip *s = stripOrder.last();
+  Strip *s = stripOrder.last(); // this is not adequate for grid
   return QRectF(QPointF(0, 0),
 		QPointF(s->mapToParent(s->netBoundingRect().bottomRight())));
 }
@@ -353,9 +353,14 @@ void Datestrip::relayout() {
     else if (hasTopLabel())
       y += 1;
     bool atstart = true;
+    if (org==Organization::ByDate)
+      pDebug() << "Datestrip::relayout" << d0 << int(scl);
+    else
+      pDebug() << "Datestrip::relayout" << pathname;
     for (auto s: stripOrder) {
       bool ex = s->isExpanded();
       QRectF r1 = s->netBoundingRect();
+       pDebug() << "  " << QPoint(x, y) << ex << r1.size();
       if ((ex || x+r1.width()>rowwidth) && !atstart) {
 	y += dy + edy;
         if (ex)

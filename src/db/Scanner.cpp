@@ -12,12 +12,7 @@
 Scanner::Scanner(PhotoDB const &db):
   db(db) {
   setObjectName("Scanner");
-  QSqlQuery q(*db);
-  q.prepare("select extension, filetype from extensions");
-  if (!q.exec()) {
-    qDebug() << "Could not select extensions";
-    throw q.lastError();
-  }
+  QSqlQuery q = db.constQuery("select extension, filetype from extensions");
   while (q.next()) 
     exts[q.value(0).toString()] = q.value(1).toInt();
 }
@@ -29,13 +24,8 @@ Scanner::~Scanner() {
 void Scanner::addTree(QString path) {
   // This is called from outside of thread!
   Transaction t(db);
-  QSqlQuery q(*db);
-  q.prepare("select id from folders where pathname==:p");
-  q.bindValue(":p", path);
-  if (!q.exec()) {
-    qDebug() << "Could not select folder";
-    throw q.lastError();
-  }
+  QSqlQuery q = db.constQuery("select id from folders where pathname==:a",
+			      path);
   quint64 id;
   if (q.next()) {
     // folder exists
@@ -45,22 +35,13 @@ void Scanner::addTree(QString path) {
     parent.cdUp();
     QString leaf = parent.relativeFilePath(path);
     QString parentPath = parent.path();
-    q.prepare("select id from folders where pathname==:p");
-    q.bindValue(":p", parentPath);
-    if (!q.exec()) {
-      qDebug() << "Could not select folder 2";
-      throw q.lastError();
-    }
+    QSqlQuery q
+      = db.constQuery("select id from folders where pathname==:a", parentPath);
     quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
     id = addFolder(parentid, path, leaf);
   }
 
-  q.prepare("insert into folderstoscan values(:i)");
-  q.bindValue(":i", id);
-  if (!q.exec()) {
-    qDebug() << "Could not insert into folderstoscan";
-    throw q.lastError();
-  }
+  db.query("insert into folderstoscan values (:a)", id);
   t.commit();
 
   QMutexLocker l(&mutex);
@@ -69,62 +50,36 @@ void Scanner::addTree(QString path) {
 
 quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   // This is called from inside of thread!
-  QSqlQuery q(*db);
-
   // Insert into photo table
-  q.prepare("insert into photos(folder, filename, filetype) "
-	    " values (:p,:l,:t)");
-  q.bindValue(":p", parentid);
-  q.bindValue(":l", leaf);
   int idx = leaf.lastIndexOf(".");
   QString ext = leaf.mid(idx+1).toLower();
-  if (!exts.contains(ext))
-    q.bindValue(":t", QVariant()); // this should not happen
-  else
-    q.bindValue(":t", exts[ext]);
-  if (!q.exec()) 
-    throw q;
-
+  QSqlQuery q
+    = db.query("insert into photos(folder, filename, filetype) "
+	       " values (:a,:b,:c)",
+	       parentid, leaf, exts.contains(ext) ? exts[ext]: QVariant());
   quint64 id = q.lastInsertId().toULongLong();
 
   // Create first version - this is preliminary code
-  q.prepare("insert into versions(photo) values(:i)");
-  q.bindValue(":i", id);
-  if (!q.exec()) 
-    throw q;
+  db.query("insert into versions(photo) values(:i)", id);
+
   return id;
 }
 
 quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
-  QSqlQuery q(*db);
-  q.prepare("insert or replace into folders(parentfolder,leafname,pathname) "
-	    " values (:p,:l,:a)");
-  if (parentid)
-    q.bindValue(":p", parentid);
-  else
-    q.bindValue(":p", QVariant());
-  q.bindValue(":l", leaf);
-  q.bindValue(":a", path);
-  if (!q.exec()) 
-    throw q;
+  QSqlQuery q =
+    db.query("insert into folders(parentfolder,leafname,pathname) "
+	     " values (:a,:b,:c)", parentid?parentid:QVariant(),
+		   leaf, path);
   quint64 id = q.lastInsertId().toULongLong();
 
 #if 0
   if (parentid) {
-    q.prepare("insert into foldertree(descendant,ancestor) "
-	      " values (:d,:a)");
-    q.bindValue(":d", id);
-    q.bindValue(":a", parentid);
-    if (!q.exec())
-      throw q;
-    
-    q.prepare("insert into foldertree(descendant,ancestor) "
-	      " select :d, ancestor "
-	      " from foldertree where descendant==:a");
-    q.bindValue(":d", id);
-    q.bindValue(":a", parentid);
-    if (!q.exec()) 
-      throw q;
+    db.query("insert into foldertree(descendant, ancestor) "
+	     " values (:a, :b)", id, parentid);
+    db.query("insert into foldertree(descendant, ancestor) "
+	     " select :a, ancestor "
+	     " from foldertree where descendant==:b",
+	     id, parentid);
   }
 #endif
   return id;
@@ -132,11 +87,7 @@ quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
 
 void Scanner::removeTree(QString path) {
   Transaction t(db);
-  QSqlQuery q(*db);
-  q.prepare("delete from folders where pathname==:p");
-  q.bindValue(":p", path);
-  if (!q.exec())
-    throw q;
+  db.query("delete from folders where pathname==:a", path);
   t.commit();
 }
 
@@ -203,10 +154,7 @@ void Scanner::run() {
 }
 
 QSet<quint64> Scanner::findPhotosToScan() {
-  QSqlQuery qq(*db);
-  qq.prepare("select photo from photostoscan limit 100");
-  if (!qq.exec())
-    throw qq;
+  QSqlQuery qq = db.constQuery("select photo from photostoscan limit 100");
   QSet<quint64> ids;
   while (qq.next()) 
     ids << qq.value(0).toULongLong();
@@ -219,11 +167,8 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
   QSet<quint64> versions;
   for (auto id: ids) {
     scanPhoto(id);
-    QSqlQuery q(*db);
-    q.prepare("select id from versions where photo==:p and mods is null");
-    q.bindValue(":p", id);
-    if (!q.exec())
-      throw q;
+    QSqlQuery q
+      = db.constQuery("select id from versions where photo==:a", id);
     while (q.next())
       versions << q.value(0).toULongLong();
     n++;
@@ -237,10 +182,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
 }
 
 QSet<quint64> Scanner::findFoldersToScan() {
-  QSqlQuery qq(*db);
-  qq.prepare("select folder from folderstoscan limit 30");
-  if (!qq.exec())
-    throw qq;
+  QSqlQuery qq = db.constQuery("select folder from folderstoscan limit 30");
   QSet<quint64> ids;
   while (qq.next())
     ids << qq.value(0).toULongLong();
@@ -263,20 +205,10 @@ void Scanner::scanFolders(QSet<quint64> ids) {
 }
 
 void Scanner::scanFolder(quint64 id) {
-  QSqlQuery q(*db);
-
-  q.prepare("delete from folderstoscan where folder=:i");
-  q.bindValue(":i", id);
-  if (!q.exec())
-    throw q;
-
-  q.prepare("select pathname from folders where id==:i");
-  q.bindValue(":i", id);
-  if (!q.exec())
-    throw q;
-  if (!q.next())
-    throw NoResult();
-  QDir dir(q.value(0).toString());
+  db.query("delete from folderstoscan where folder=:a", id);
+  QString p = db.simpleQuery("select pathname from folders where id==:a", id)
+    .toString();
+  QDir dir(p);
 
   QSet<QString> newsubdirs;
   QSet<QString> newphotos;
@@ -297,36 +229,25 @@ void Scanner::scanFolder(quint64 id) {
   }
 
   // Collect old subdirs
-  q.prepare("select id, leafname from folders where parentfolder=:p");
-  q.bindValue(":p", id);
-  if (!q.exec())
-    throw q;
+  QSqlQuery q
+    = db.query("select id, leafname from folders where parentfolder==:a", id);
   while (q.next())
     oldsubdirs[q.value(1).toString()] = q.value(0).toULongLong();
 
   // Collect old photos
-  q.prepare("select id, filename from photos where folder=:p");
-  q.bindValue(":p", id);
-  if (!q.exec())
-    throw q;
+  q = db.query("select id, filename from photos where folder==:a", id);
   while (q.next())
     oldphotos[q.value(1).toString()] = q.value(0).toULongLong();
 
   // Drop subdirs that do not exist any more
-  for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) {
-    if (!newsubdirs.contains(it.key())) {
-      q.prepare("delete from folders where id=:i");
-      q.bindValue(":i", it.value());
-    }
-  }
+  for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
+    if (!newsubdirs.contains(it.key())) 
+      db.query("delete from folders where id==:a", it.value());
 
   // Drop photos that do not exist any more
-  for (auto it=oldphotos.begin(); it!=oldphotos.end(); ++it) {
-    if (!newphotos.contains(it.key())) {
-      q.prepare("delete from photos where id=:i");
-      q.bindValue(":i", it.value());
-    }
-  }
+  for (auto it=oldphotos.begin(); it!=oldphotos.end(); ++it) 
+    if (!newphotos.contains(it.key())) 
+      db.query("delete from photos where id==:a", it.value());
 
   // Insert newly found subdirs (and store IDs)
   for (auto s: newsubdirs) 
@@ -339,67 +260,38 @@ void Scanner::scanFolder(quint64 id) {
       oldphotos[s] = addPhoto(id, s);
 
   // Add all existing folders to scan list
-  for (auto s: newsubdirs) {
-    q.prepare("insert into folderstoscan values(:i)");
-    q.bindValue(":i", oldsubdirs[s]);
-    if (!q.exec())
-      throw q;
-  }
+  for (auto s: newsubdirs)
+    db.query("insert into folderstoscan values (:a)", oldsubdirs[s]);
 
   // Add new or modified photos to scan list
   for (auto s: newphotos) {
-    q.prepare("select lastscan from photos where id=:i");
-    q.bindValue(":i", oldphotos[s]);
-    if (!q.exec())
-      throw q;
-    if (!q.next())
-      throw NoResult();
-    QDateTime lastscan = q.value(0).toDateTime();
+    QDateTime lastscan
+      = db.simpleQuery("select lastscan from photos where id==:a",
+		       oldphotos[s]).toDateTime();
     if (photodate[s]>lastscan || !lastscan.isValid()) {
-      q.prepare("insert into photostoscan values(:i)");
-      q.bindValue(":i", oldphotos[s]);
-      if (!q.exec())
-	throw q;
+      db.query("insert into photostoscan values (:a)", oldphotos[s]);
       N++;
     }
   }  
 }
 
 int Scanner::photoQueueLength() {
-  QSqlQuery q(*db);
-  q.prepare("select count(*) from photostoscan");
-  if (!q.exec())
-    throw q;
-  if (!q.next())
-    throw NoResult();
-  return q.value(0).toInt();
+  return db.simpleQuery("select count(*) from photostoscan").toInt();
 }
 
 void Scanner::scanPhoto(quint64 id) {
-  QSqlQuery q(*db);
-
   // Remove from queue
-  q.prepare("delete from photostoscan where photo=:i");
-  q.bindValue(":i", id);
-  if (!q.exec())
-    throw q;
+  db.query("delete from photostoscan where photo==:a", id);
 
   // Find the photo's filename on disk
-  q.prepare("select filename,folder from photos where id==:i");
-  q.bindValue(":i", id);
-  if (!q.exec())
-    throw q;
+  QSqlQuery q = db.query("select filename,folder from photos where id==:a", id);
   if (!q.next())
     throw NoResult();
   QString filename = q.value(0).toString();
   quint64 folder = q.value(1).toULongLong();
-  q.prepare("select pathname from folders where id==:i");
-  q.bindValue(":i", folder);
-  if (!q.exec()) 
-    throw q;
-  if (!q.next())
-    throw NoResult();
-  QString dirname = q.value(0).toString();
+
+  QString dirname = db.simpleQuery("select pathname from folders where id==:a",
+				   folder).toString();
   QString pathname = dirname + "/" + filename;
 
   // Find exif info
@@ -414,13 +306,14 @@ void Scanner::scanPhoto(quint64 id) {
   QString make = exif.make();
   quint64 camid = 0;
   if (!model.isNull()) {
-    q = db.query("select id from cameras where camera==:a and make==:b",
+    QSqlQuery q
+      = db.query("select id from cameras where camera==:a and make==:b",
                  model, make);
     if (q.next()) {
       camid = q.value(0).toULongLong();
     } else {
-      q = db.query("insert into cameras(camera, make) values(:a,:b)",
-                   model, make);
+      QSqlQuery q = db.query("insert into cameras(camera, make) values(:a,:b)",
+			     model, make);
       camid = q.lastInsertId().toULongLong();
     }
   }
@@ -430,17 +323,11 @@ void Scanner::scanPhoto(quint64 id) {
   pDebug() << "Scanner: " << make << model << lens;
   quint64 lensid = 0;
   if (!lens.isNull()) {
-    q.prepare("select id from lenses where lens==:c");
-    q.bindValue(":c", lens);
-    if (!q.exec())
-       throw q;
+    QSqlQuery q = db.query("select id from lenses where lens==:a", lens);
     if (q.next()) {
       lensid = q.value(0).toULongLong();
     } else {
-      q.prepare("insert into lenses(lens) values(:c)");
-      q.bindValue(":c", lens);
-      if (!q.exec())
-	throw q;
+      QSqlQuery q = db.query("insert into lenses(lens) values (:a)", lens);
       lensid = q.lastInsertId().toULongLong();
     }
   }
@@ -467,6 +354,7 @@ void Scanner::scanPhoto(quint64 id) {
   if (!q.exec())
     throw q;
 
+#if 0
   QList<PSize> pvsiz = exif.previewSizes();
   if (!pvsiz.isEmpty()) {
     /* Using these thumbnails makes scanning very slow. I don't think
@@ -492,5 +380,6 @@ void Scanner::scanPhoto(quint64 id) {
         emit cacheablePreview(vsn, img);
       }
     }
-  }    
+  }
+#endif
 }
