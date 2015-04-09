@@ -40,7 +40,10 @@ QRectF Slidestrip::subBoundingRect() const {
     if (perrow<1)
       perrow = 1;
     int rows = (nslides+perrow-1)/perrow;
-    return QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
+    if (rows==1)
+      return QRectF(QPointF(lw, lh), QSizeF(tilesize*nslides, tilesize*rows));
+    else
+      return QRectF(QPointF(lw, lh), QSizeF(tilesize*perrow, tilesize*rows));
   }
   }
   return QRectF(); // not executed

@@ -113,8 +113,9 @@ int Selection::countInTree(QString folder) const {
                      " inner join filter on selection.version==filter.version"
                      " inner join photos on filter.photo=photos.id"
                      " inner join folders on photos.folder==folders.id"
-                     " where folders.pathname like :a", folder+"/%")
-    .toInt();
+		     " where folders.id in"
+		     " (select id from folders where pathname like :a)",
+		     folder+"/%").toInt();
   return nsub + countInFolder(folder);
 }
 
@@ -131,7 +132,9 @@ void Selection::addInTree(QString folder) {
   db.query("insert into selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
-           " where folders.pathname like :a", folder+"/%");
+	   " where folders.id in"
+	   " (select id from folders where pathname like :a)",
+	   folder+"/%");
 }
 
 void Selection::dropInFolder(QString folder) {

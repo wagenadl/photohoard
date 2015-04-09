@@ -223,7 +223,9 @@ int PhotoDB::countInTree(QString folder) const {
   int nsub =  simpleQuery("select count(*) from filter"
                           " inner join photos on filter.photo=photos.id"
                           " inner join folders on photos.folder==folders.id"
-                          " where folders.pathname like :a", folder+"/%")
+                          " where folders.id in "
+			  " (select id from folders where pathname like :a)",
+			  folder+"/%")
     .toInt();
   return nsub + countInFolder(folder);
 }
@@ -234,14 +236,16 @@ bool PhotoDB::anyInTreeBelow(QString folder) const {
   QSqlQuery q = constQuery("select 1 from filter"
                            " inner join photos on filter.photo=photos.id"
                            " inner join folders on photos.folder==folders.id"
-                           " where folders.pathname like :a limit 1",
-                           folder+"/%");
+			   " where folders.id in "
+			   " (select id from folders where pathname like :a)"
+			   " limit 1",
+                           folder + "/%");
   return q.next();
 }
 
 int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
   return simpleQuery("select count(*) from filter"
-                     " inner join photos on filter.photo=photos.id"
+                     " inner join photos on filter.photo==photos.id"
                      " where photos.capturedate>=:a"
                      " and photos.capturedate<:b", t0, t1).toInt();
 }

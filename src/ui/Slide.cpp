@@ -53,8 +53,8 @@ void Slide::paint(QPainter *painter,
     .toULongLong() == id;
   bool isSelected = isCurrent
     ? true
-    : parent->database().simpleQuery("select count(*) from selection"
-                                     " where version==:a", id).toInt()>0;
+    : parent->database().constQuery("select 1 from selection"
+				    " where version==:a limit 1", id).next();
 
   int colorLabel
     = parent->database().simpleQuery("select colorlabel from versions"
