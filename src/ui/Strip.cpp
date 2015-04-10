@@ -18,7 +18,6 @@ Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
   tilesize = 128;
   rowwidth = 1024;
   expanded = false;
-  subheight = -1;
   headerid = 0;
   setPos(1e6, 1e6);
 }
@@ -54,9 +53,7 @@ void Strip::setHeaderID(quint64 id) {
 }
 
 int Strip::subHeight() const {
-  if (subheight<0)
-    subheight = subBoundingRect().height();
-  return subheight;
+  return subBoundingRect().height();
 }
 
 QDateTime Strip::startDateTime() const {
@@ -146,7 +143,6 @@ void Strip::recalcLabelRect() {
     }
     break;
   }
-  update();
 }
 
 QRectF Strip::boundingRect() const {
@@ -415,6 +411,7 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
 void Strip::paint(QPainter *painter,
                   const QStyleOptionGraphicsItem *,
                   QWidget *) {
+  //  pDebug() << "Paint" << d0 << int(scl) << netBoundingRect() << labelBoundingRect();
   QRectF r = labelBoundingRect();
   int bggray = 192;
   switch (org) {
@@ -569,6 +566,7 @@ QDateTime Strip::startFor(QDateTime t0, TimeScale scl) {
 void Strip::setArrangement(Arrangement arr1) {
   arr = arr1;
   recalcLabelRect();
+  update();
 }
 
 void Strip::setTileSize(int pix) {
@@ -576,6 +574,7 @@ void Strip::setTileSize(int pix) {
     pix = 10;
   tilesize = pix;
   recalcLabelRect();
+  update();
 }
 
 int Strip::subRowWidth(int pix) const {
@@ -585,12 +584,14 @@ int Strip::subRowWidth(int pix) const {
 void Strip::setRowWidth(int pix) {
   rowwidth = pix;
   recalcLabelRect();
+  update();
 }
 
 void Strip::expand() {
   if (expanded)
     return;
   expanded = true;
+  prepareGeometryChange();
   switch (org) {
   case Organization::ByDate:
     db.query("insert into expanded values(:a,:b)", d0, int(scl));
@@ -599,13 +600,12 @@ void Strip::expand() {
     db.query("insert into expandedfolders values(:a)", pathname);
     break;
   }
-  recalcLabelRect();
-  emit resized();
 }
 
 void Strip::collapse() {
   if (!expanded)
     return;
+  prepareGeometryChange();
   expanded = false;
   switch (org) {
   case Organization::ByDate:
@@ -615,8 +615,6 @@ void Strip::collapse() {
     db.query("delete from expandedfolders where path==:a", pathname);
     break;
   }
-  recalcLabelRect();
-  emit resized();
 }
 
 void Strip::expandAll() {
@@ -624,7 +622,7 @@ void Strip::expandAll() {
 }
 
 void Strip::relayout() {
-  subheight = -1;
+  prepareGeometryChange();
 }
 	
 void Strip::rescan() {

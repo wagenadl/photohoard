@@ -6,6 +6,7 @@
 
 #include "Strip.h"
 #include <QTimer>
+#include <QPointer>
 
 class Datestrip: public Strip {
   Q_OBJECT;
@@ -41,6 +42,10 @@ protected:
   Strip *newSubstrip(QDateTime t, Strip::TimeScale subs);
   Strip *newStrip(bool indirect, bool protectoverfill);
   int stripNumberContaining(quint64 vsn);
+private:
+  Strip *rightMostSubstrip() const;
+  Strip *bottomMostSubstrip() const;
+  void findBottomRight() const;
 protected:
   QMap<QDateTime, Strip *> dateMap;
   QMap<QString, Strip *> folderMap;
@@ -49,6 +54,8 @@ protected:
   bool mustRebuild;
   bool mustRelayout;
   int rebuilding;
+  mutable QPointer<Strip> rightmostsub, bottommostsub;
+  QRectF oldbb;
 };
 
 #endif

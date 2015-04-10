@@ -29,9 +29,11 @@ QRectF Datestrip::subBoundingRect() const {
     return QRectF();
   if (stripOrder.isEmpty())
     return QRectF();
-  Strip *s = stripOrder.last(); // this is not adequate for grid
-  return QRectF(QPointF(0, 0),
-		QPointF(s->mapToParent(s->netBoundingRect().bottomRight())));
+  Strip *rs = rightMostSubstrip();
+  Strip *bs = bottomMostSubstrip();
+  double r = rs ? rs->mapToParent(rs->netBoundingRect().bottomRight()).x() : 1;
+  double b = bs ? bs->mapToParent(bs->netBoundingRect().bottomRight()).y() : 1;
+  return QRectF(QPointF(0, 0), QPointF(r, b));                        
 }
 
 Strip::TimeScale Datestrip::subScale() const {
@@ -106,7 +108,7 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
   s->setTileSize(tilesize);
   s->setRowWidth(subRowWidth(rowwidth));
 
-  connect(s, SIGNAL(resized()), this, SLOT(relayout()));
+  connect(s, SIGNAL(resized()), this, SLOT(relayout()), Qt::QueuedConnection);
 
   return s;
 }
@@ -261,7 +263,10 @@ void Datestrip::rebuildByDate() {
 
 
 void Datestrip::expand() {
+  QRectF bb0 = oldbb;
   Strip::expand();
+
+  //  pDebug() << "Expand" << d0 << int(scl) << mustRebuild << mustRelayout;
   if (mustRebuild)
     rebuildContents();
   if (mustRelayout)
@@ -271,15 +276,38 @@ void Datestrip::expand() {
     s->show();
   if (thisFolderStrip)
     thisFolderStrip->expand();
+
+  recalcLabelRect();
+
+  QRectF bb1 = netBoundingRect();
+  if (bb1!=bb0) {
+    //    pDebug() << "Expand" << d0 << int(scl) << bb0 << bb1 << expanded;
+    oldbb = bb1;
+    emit resized();
+  }
+
+  update();
 }
 
 void Datestrip::collapse() {
+  QRectF bb0 = oldbb;
+  Strip::collapse();
+
   for (auto s: stripOrder) {
     if (s->isExpanded()) 
       s->collapse();
     s->hide();
   }
-  Strip::collapse();
+
+  recalcLabelRect();
+  QRectF bb1 = netBoundingRect();
+  if (bb1!=bb0) {
+    //    pDebug() << "Collapse" << d0 << int(scl) << bb0 << bb1 << expanded;
+    oldbb = bb1;
+    emit resized();
+  }
+
+  update();
 }
 
 void Datestrip::expandAll() {
@@ -295,8 +323,40 @@ void Datestrip::expandAll() {
     relayout();
 }
 
+Strip *Datestrip::rightMostSubstrip() const {
+  if (!rightmostsub)
+    findBottomRight();
+  return rightmostsub;
+}
+
+Strip *Datestrip::bottomMostSubstrip() const {
+  if (!rightmostsub)
+    findBottomRight();
+  return bottommostsub;
+}
+
+void Datestrip::findBottomRight() const {
+  double r = -1;
+  double b = -1;
+  Strip *rs=0, *bs=0;
+  for (Strip *s: stripOrder) {
+    QPointF br = s->mapToParent(s->netBoundingRect().bottomRight());
+    if (rs==0 || br.x()>r) {
+      r = br.x();
+      rs = s;
+    }
+    if (bs==0 || br.y()>b) {
+      b = br.y();
+      bs = s;
+    }
+  }
+  rightmostsub = rs;
+  bottommostsub = bs;
+}      
 
 void Datestrip::relayout() {
+  prepareGeometryChange();
+  
   if (!isExpanded()) {
     recalcLabelRect();
     mustRelayout = true;
@@ -306,6 +366,11 @@ void Datestrip::relayout() {
     return;
   }
   mustRelayout = false;
+
+  QRectF bb0 = oldbb;
+
+  rightmostsub = QPointer<Strip>(0);
+  bottommostsub = QPointer<Strip>(0);
 
   Strip::relayout();
 
@@ -353,15 +418,11 @@ void Datestrip::relayout() {
     else if (hasTopLabel())
       y += 1;
     bool atstart = true;
-    if (org==Organization::ByDate)
-      pDebug() << "Datestrip::relayout" << d0 << int(scl);
-    else
-      pDebug() << "Datestrip::relayout" << pathname;
+
     for (auto s: stripOrder) {
       bool ex = s->isExpanded();
       QRectF r1 = s->netBoundingRect();
-       pDebug() << "  " << QPoint(x, y) << ex << r1.size();
-      if ((ex || x+r1.width()>rowwidth) && !atstart) {
+      if (x+r1.width()>rowwidth && !atstart) {
 	y += dy + edy;
         if (ex)
           y += 2; // extra space before expanded section
@@ -374,21 +435,21 @@ void Datestrip::relayout() {
       if (r1.height()>dy)
 	dy = r1.height();
 
-      if (ex) {
-	x = x0;
-	y += dy + edy;
-        y += 2; // extra space after expanded section
-	dy = 0;
-	atstart = true;
-      } else {
-	x += r1.width();	
-	atstart = false;
-      }
+      x += r1.width();	
+      atstart = false;
     }
   } break;
   }
+
   recalcLabelRect();
-  emit resized();
+  QRectF bb1 = netBoundingRect();
+  if (bb1!=bb0) {
+    //    pDebug() << "Relayout" << d0 << int(scl) << bb0 << bb1 << expanded;
+    oldbb = bb1;
+    emit resized();
+  }
+
+  update();
 }
 
 class Slide *Datestrip::slideByVersion(quint64 vsn) {

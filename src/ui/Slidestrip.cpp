@@ -112,6 +112,8 @@ void Slidestrip::rebuildContents() {
   hasLatent = true;
   for (auto s: slideOrder)
     s->hide();
+  
+  recalcLabelRect(); // hmmm
   update();
 }
 
@@ -151,7 +153,9 @@ void Slidestrip::instantiate() {
 }
 
 void Slidestrip::expand() {
+  QRectF bb0 = oldbb;
   Strip::expand();
+
   if (hasLatent)
     return;
 
@@ -166,12 +170,30 @@ void Slidestrip::expand() {
     s->setToolTip(txt);
     s->show();
   }
+
+  recalcLabelRect();
+  QRectF bb1 = netBoundingRect();
+  if (bb1!=bb0) {
+    oldbb = bb1;
+    emit resized();
+  }
+  update();
 }
 
 void Slidestrip::collapse() {
+  QRectF bb0 = netBoundingRect();
   Strip::collapse();
+
   for (auto s: slideOrder)
     s->hide();
+
+  recalcLabelRect();
+  QRectF bb1 = netBoundingRect();
+  if (bb1!=bb0) {
+    oldbb = bb1;
+    emit resized();
+  }
+  update();
 }
 
 
@@ -215,6 +237,8 @@ quint64 Slidestrip::versionAt(quint64 vsn, QPoint dcr) {
 }
 
 void Slidestrip::relayout() {
+  QRectF bb0 = oldbb;
+  
   placement.clear();
   revplace.clear();
   if (hasLatent) {
@@ -236,7 +260,7 @@ void Slidestrip::relayout() {
   
   switch (arr) {
   case Arrangement::Horizontal: {
-    int x = labelBoundingRect().right();
+    int x = labelHeight(tilesize);
     int k = 0;
     for (auto s: slideOrder) {
       s->setPos(x, 0);
@@ -246,7 +270,7 @@ void Slidestrip::relayout() {
     }
   } break;
   case Arrangement::Vertical: {
-    int y = labelBoundingRect().bottom();
+    int y = labelHeight(tilesize);
     int k = 0;
     for (auto s: slideOrder) {
       s->setPos(0, y);
@@ -288,7 +312,13 @@ void Slidestrip::relayout() {
     revplace[it.value()] = it.key();
   }
   recalcLabelRect();
-  emit resized();
+
+  QRectF bb1 = netBoundingRect();
+  if (bb1!=bb0) {
+    oldbb = bb1;
+    emit resized();
+  }
+  update();
 }
 
   

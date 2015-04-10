@@ -103,4 +103,15 @@ public:
    to be more general and actually easier to read.
    
 */
+
+/* Putting mods in a separated table is a good idea anyway, because it
+   will much more easily allow the future addition of adjustment
+   layers: the ADJUSTMENTS table would simply gain a LAYER column, and
+   a LAYERS table would define the geometry of the layers. Note that
+   layers could be defined based on ROIs, but also on features such as
+   hue or local sharpness or whatever. Indeed, they could potentially
+   even be handdrawn. Tools for drawing them would have to be
+   invented, as well as a translucent overlay to visualize them.
+*/
+
 #endif

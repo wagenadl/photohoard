@@ -53,6 +53,7 @@ protected:
   int maxcplace;
   bool mustRelayout;
   bool mustRebuild;
+  QRectF oldbb;
 };
 
 #endif

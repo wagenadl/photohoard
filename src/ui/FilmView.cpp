@@ -105,6 +105,8 @@ void FilmView::stripResized() {
   QRectF r = strip()->netBoundingRect();
   r |= QRectF(QPointF(0, 0), viewport()->size());
   scene()->setSceneRect(r);
+  pDebug() << "stripResized";
+  update();
 }
 
 void FilmView::resizeEvent(QResizeEvent *) {
