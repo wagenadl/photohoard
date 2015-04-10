@@ -1,0 +1,249 @@
+{ "typ": "page",
+  "cre": "2015-02-07T22:18:39",
+  "mod": "2015-02-08T08:20:09",
+  "stampTime": 0,
+  "startPage": 1,
+  "unlocked": false,
+  "uuid": "5f0eba0b",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-02-07T22:18:39",
+      "mod": "2015-02-07T22:18:43",
+      "uuid": "d5c8441d",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-07T22:18:39",
+          "mod": "2015-02-07T22:18:43",
+          "text": "IPT color",
+          "uuid": "74a98a92"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-02-07T22:18:39",
+      "mod": "2015-02-07T22:22:39",
+      "uuid": "312a25ac",
+      "cc": [
+        { "typ": "res",
+          "cre": "2015-02-07T22:20:19",
+          "mod": "2015-02-07T22:20:19",
+          "archive": "1_-fc7fea45.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "1",
+          "title": "",
+          "uuid": "fc7fea45"
+        },
+        { "typ": "res",
+          "cre": "2015-02-07T22:20:36",
+          "mod": "2015-02-07T22:20:36",
+          "archive": "2_-dd67c6a1.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "2",
+          "title": "",
+          "uuid": "dd67c6a1"
+        },
+        { "typ": "res",
+          "cre": "2015-02-07T22:22:39",
+          "mod": "2015-02-07T22:22:39",
+          "archive": "3_-15570bb7.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "3",
+          "title": "",
+          "uuid": "15570bb7"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-07T22:18:44",
+      "mod": "2015-02-07T22:20:09",
+      "h": 96.375,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4cea24c0",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-07T22:18:44",
+          "mod": "2015-02-07T22:20:09",
+          "text": "For photohoard, I’d like to use an easy-to-compute color space that has a straightforward interpretation of lightness and saturation. I stumbled upon “IPT” space in a PhD thesis by Febner: https://ritdml.rit.edu/handle/1850/14025.",
+          "uuid": "fb761f67"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2015-02-07T22:20:19",
+      "mod": "2015-02-08T08:20:09",
+      "h": 257.638,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0538133f",
+      "xref": 0.0,
+      "y0": 168.375,
+      "yref": -18.0762,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2015-02-07T22:20:19",
+          "mod": "2015-02-07T22:20:51",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 426.0,
+          "res": [
+            "1"
+          ],
+          "resName": "1",
+          "scale": 0.54929,
+          "uuid": "aa84338a",
+          "width": 415.0,
+          "x": -11.25,
+          "y": -9.07619
+        },
+        { "typ": "gfximage",
+          "cre": "2015-02-07T22:20:36",
+          "mod": "2015-02-08T08:20:09",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 437.0,
+          "res": [
+            "2"
+          ],
+          "resName": "2",
+          "scale": 0.543048,
+          "uuid": "3acda6f8",
+          "width": 388.0,
+          "x": 231.578,
+          "y": -6.75,
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2015-02-08T07:46:55",
+              "mod": "2015-02-08T08:20:09",
+              "dx": 27.75,
+              "dy": -53.25,
+              "sheet": 0,
+              "textWidth": 67.5156,
+              "uuid": "9c288b09",
+              "x": 206.1,
+              "y": 343.061,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-02-08T07:46:55",
+                  "mod": "2015-02-08T08:20:09",
+                  "text": "are flipped!",
+                  "uuid": "b6f7eb36"
+                }
+              ]
+            },
+            { "typ": "gfxnote",
+              "cre": "2015-02-08T07:47:03",
+              "mod": "2015-02-08T07:47:09",
+              "dx": 30.75,
+              "dy": 51.75,
+              "sheet": 0,
+              "textWidth": 72.75,
+              "uuid": "19c8c2a1",
+              "x": 201.957,
+              "y": 93.0834,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-02-08T07:47:03",
+                  "mod": "2015-02-08T07:47:06",
+                  "text": "these matrices",
+                  "uuid": "c028a6a9"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-07T22:22:18",
+      "mod": "2015-02-07T22:22:38",
+      "h": 52.1875,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "2928129e",
+      "y0": 426.013,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-07T22:22:18",
+          "mod": "2015-02-07T22:22:38",
+          "text": "The author claims that constant hue lines are straighter in IPT than in Lab:",
+          "uuid": "8f290f81"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2015-02-07T22:22:39",
+      "mod": "2015-02-07T22:22:42",
+      "h": 183.677,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f2173fff",
+      "xref": 0.0,
+      "y0": 478.201,
+      "yref": -9.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2015-02-07T22:22:39",
+          "mod": "2015-02-07T22:22:42",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 373.0,
+          "res": [
+            "3"
+          ],
+          "resName": "3",
+          "scale": 0.444174,
+          "uuid": "86d23649",
+          "width": 767.0,
+          "x": 0.0,
+          "y": 0.0
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-07T22:23:05",
+      "mod": "2015-02-07T22:27:37",
+      "h": 57.3906,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        25.0
+      ],
+      "uuid": "d04b2f71",
+      "y0": 661.878,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-07T22:23:05",
+          "mod": "2015-02-07T22:27:37",
+          "text": "I am not sure, by the way, what “XD65” means. But if I assume that P=T=0 means neutral gray, I can figure it out.",
+          "uuid": "415f9403",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-02-07T22:23:13",
+              "mod": "2015-02-07T22:23:13",
+              "end": 37,
+              "start": 34,
+              "style": 7,
+              "uuid": "fbfe7b93"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{ "typ": "page",
+  "cre": "2015-02-28T07:07:18",
+  "mod": "2015-02-28T07:21:37",
+  "stampTime": 0,
+  "startPage": 9,
+  "unlocked": false,
+  "uuid": "bea3cf60",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-02-28T07:07:18",
+      "mod": "2015-02-28T07:07:22",
+      "uuid": "76cf4a26",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:07:18",
+          "mod": "2015-02-28T07:07:22",
+          "text": "Photohoard: Main window",
+          "uuid": "12747db9"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-02-28T07:07:18",
+      "mod": "2015-02-28T07:07:18",
+      "uuid": "f2db769e"
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-28T07:07:22",
+      "mod": "2015-02-28T07:07:56",
+      "h": 74.2812,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "9e3c05d0",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:07:22",
+          "mod": "2015-02-28T07:07:56",
+          "text": "The editing pane can be added to the QMainWindow as a QDockWidget. Couldn’t be easier. Histogram, etc., could be separate QDockWidgets.",
+          "uuid": "7f8ed93a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-28T07:07:57",
+      "mod": "2015-02-28T07:08:17",
+      "h": 54.7812,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "7378a0fd",
+      "y0": 146.281,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:07:57",
+          "mod": "2015-02-28T07:08:17",
+          "text": "A transparent status bar is not  a QStatusBar. Rather, qtcentre.org has this suggestion:",
+          "uuid": "57209fe4",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-02-28T07:08:02",
+              "mod": "2015-02-28T07:08:02",
+              "end": 31,
+              "start": 28,
+              "style": 1,
+              "uuid": "0458788e"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-28T07:08:29",
+      "mod": "2015-02-28T07:13:18",
+      "h": 219.125,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "3e9a4629",
+      "y0": 201.062,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:08:29",
+          "mod": "2015-02-28T07:13:18",
+          "text": "class Overlay : public QWidget {\n  public:\n    Overlay(QWidget *parent): QWidget(parent) {\n       setPalette(Qt::transparent); // sic\n       setAttribute(Qt::WA_TransparentForMouseEvents);\n    }\n  protected:\n     void paintEvent(QPaintEvent *) {\n         QPainter p(this);\n         p.setRenderHint(QPainter::Antialiasing);\n         p.drawLine(…);\n};",
+          "uuid": "9ae7fbcd"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-28T07:11:05",
+      "mod": "2015-02-28T07:21:37",
+      "h": 75.5781,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0a32e449",
+      "y0": 420.188,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:11:05",
+          "mod": "2015-02-28T07:21:37",
+          "text": "They suggest to make this a child of QMainWindow’s central widget and resize it with it. Oddly, the code example uses the QMainWindow ’s resize event for this, not the central widget’s:",
+          "uuid": "c4cd8688",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-02-28T07:17:29",
+              "mod": "2015-02-28T07:17:29",
+              "end": 133,
+              "start": 122,
+              "style": 1,
+              "uuid": "1b54ac0e"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-28T07:11:36",
+      "mod": "2015-02-28T07:18:53",
+      "h": 80.5625,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "41accfe0",
+      "y0": 495.766,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:11:36",
+          "mod": "2015-02-28T07:18:53",
+          "text": "void MainWindow::resizeEvent(QResizeEvent *e) {\n    overlay→resize(e→size());\n    e→accept();\n}",
+          "uuid": "9a6566a8"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-28T07:18:44",
+      "mod": "2015-02-28T07:21:24",
+      "h": 118.469,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a316d78a",
+      "y0": 576.328,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-28T07:18:44",
+          "mod": "2015-02-28T07:21:24",
+          "text": "That doesn’t make sense to me, because that would make the overlay be the same size as the main window, not as the central widget. (In their example, the central widget is the same size as the main window because it has no tool bars, etc., so this would not be a problem.)",
+          "uuid": "7add3143"
+        }
+      ]
+    }
+  ]
+}

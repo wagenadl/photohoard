@@ -1,0 +1,310 @@
+{ "typ": "page",
+  "cre": "2015-02-15T10:41:04",
+  "mod": "2015-02-15T10:50:55",
+  "stampTime": 0,
+  "startPage": 4,
+  "unlocked": false,
+  "uuid": "fcd61a23",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-02-15T10:41:04",
+      "mod": "2015-02-15T10:41:09",
+      "uuid": "bf7430b3",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:41:04",
+          "mod": "2015-02-15T10:41:09",
+          "text": "Old Photohoard notes",
+          "uuid": "feebc38f"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-02-15T10:41:04",
+      "mod": "2015-02-15T10:41:04",
+      "uuid": "ebd42929"
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:41:09",
+      "mod": "2015-02-15T10:45:37",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b02e42fa",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:41:09",
+          "mod": "2015-02-15T10:45:37",
+          "text": "Tag hierarchy: when searching by tag, you can just name the child, or you can say “parent:” to refer to any child or “parent::” “parent…” to refer to any descendent.",
+          "uuid": "7fe00f0d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:42:15",
+      "mod": "2015-02-15T10:45:39",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4dc2477e",
+      "y0": 146.281,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:42:15",
+          "mod": "2015-02-15T10:45:39",
+          "text": "Tag names are nec’ly unique, e.g., one could have “people:Sam”  and “museum:SAM”. Search will find both, unless spec’d.",
+          "uuid": "75bcb40a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:42:52",
+      "mod": "2015-02-15T10:45:41",
+      "h": 78.1719,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "6dad5ba4",
+      "y0": 220.562,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:42:52",
+          "mod": "2015-02-15T10:45:41",
+          "text": "I think mods  should be encoded as an ordered list of (key,val) pairs, probably as JSON. But the empty list is always rep’d as empty string.",
+          "uuid": "c550e447",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-02-15T10:42:55",
+              "mod": "2015-02-15T10:42:55",
+              "end": 12,
+              "start": 8,
+              "style": 1,
+              "uuid": "835c328f"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:43:16",
+      "mod": "2015-02-15T10:45:42",
+      "h": 52.1875,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "40a9cb46",
+      "y0": 298.734,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:43:16",
+          "mod": "2015-02-15T10:45:42",
+          "text": "I do not yet know whether I’ll implement any mods myself or whether I’ll use dartable. Options:",
+          "uuid": "e5c2df4e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:43:50",
+      "mod": "2015-02-15T10:45:21",
+      "h": 166.344,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0fa77c48",
+      "y0": 350.922,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:43:50",
+          "mod": "2015-02-15T10:45:21",
+          "text": "- I could impl. all my own mods, which is ismple, but restrictive;\n- I could implement some on my own and farm others out, e.g., by linking to (bits of) darktable;\n- I could farm out all mods to darktable and rely on its gui for editing.\nThe last is more work initially, but allows for free extensions of my set of mods when darktable is improved. It is most future proof. But getting the casche to fill fast in theis scheme may not be trial.",
+          "uuid": "332f4cb0"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:45:29",
+      "mod": "2015-02-15T10:45:51",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "51509b06",
+      "y0": 517.266,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:45:29",
+          "mod": "2015-02-15T10:45:51",
+          "text": "The basic mods that I would want to have are:",
+          "uuid": "c67e7590"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:45:52",
+      "mod": "2015-02-15T10:46:32",
+      "h": 95.9688,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "bdfd7661",
+      "y0": 547.359,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:45:52",
+          "mod": "2015-02-15T10:46:32",
+          "text": "- crop, rotate, perspective\n- unsharp mask, selective sharpening\n- exposure, haze subtraction (black pt. correction), fill light\n- white balance\n- saturation/vibrance",
+          "uuid": "f8920c1b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:46:33",
+      "mod": "2015-02-15T10:47:08",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        43.0938
+      ],
+      "uuid": "403b6675",
+      "y0": 643.328,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:46:33",
+          "mod": "2015-02-15T10:47:08",
+          "text": "Heal/clone could be farmed out to GIMP and done on the orig. image so that all other mods can still apply. But sometimes mods like sharpening make earlier cloning look bad.",
+          "uuid": "2b57ac0a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:47:11",
+      "mod": "2015-02-15T10:47:20",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "d431ef87",
+      "y0": 103.188,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:47:11",
+          "mod": "2015-02-15T10:47:20",
+          "text": "Most color mods need to happen in XYZ or Lab space",
+          "uuid": "30c5a52c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:47:21",
+      "mod": "2015-02-15T10:48:30",
+      "h": 140.562,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "6d532e1a",
+      "y0": 133.281,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:47:21",
+          "mod": "2015-02-15T10:48:30",
+          "text": "CA correction—very different if original is raw vs jpeg, but user doesn’t care. This and WB are about the only things that should be farmed out to dcraw when pos. Should they even be part of the mods list? Probably, because the fact that dcraw does it is an implementation detail. This would change in the future and the db shouldn’t have to change.",
+          "uuid": "a08ba7ad"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:48:31",
+      "mod": "2015-02-15T10:48:35",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "8964b420",
+      "y0": 273.844,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:48:31",
+          "mod": "2015-02-15T10:48:35",
+          "text": "Barrel distortion",
+          "uuid": "d5b74f71"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:48:37",
+      "mod": "2015-02-15T10:49:10",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "587c4b51",
+      "y0": 303.938,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:48:37",
+          "mod": "2015-02-15T10:49:10",
+          "text": "Perhaps the mods can be stored as an unordered set of (k,v) pairs: the order of application can be standardized. After all, specifying an order in the UI is not so obvious.",
+          "uuid": "43a3c6c6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:49:10",
+      "mod": "2015-02-15T10:50:01",
+      "h": 118.469,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "d63242d8",
+      "y0": 378.219,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:49:10",
+          "mod": "2015-02-15T10:50:01",
+          "text": "Regardless, I need some UI. I think a button bar is needed. Buttons should be grouped and hidable. Eg., color normally shows just one color (last applied). Right click (or left hold) shows all avail, and a (+) button to expand. When expanded, right click reveals (–) button.",
+          "uuid": "c3578627"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:50:04",
+      "mod": "2015-02-15T10:50:33",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "68e4bd5a",
+      "y0": 496.688,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:50:04",
+          "mod": "2015-02-15T10:50:33",
+          "text": "Rotate left/right buttons auto show on each tile. Keys 1..6, 0 apply color labels, shift+num applies stars. 9 applies accept, 8 reject; shift removes.",
+          "uuid": "366f4184"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-02-15T10:50:33",
+      "mod": "2015-02-15T10:50:55",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "9ab3190d",
+      "y0": 570.969,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-02-15T10:50:33",
+          "mod": "2015-02-15T10:50:55",
+          "text": "",
+          "uuid": "61b87350"
+        }
+      ]
+    }
+  ]
+}

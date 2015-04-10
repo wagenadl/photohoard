@@ -1,0 +1,144 @@
+{ "typ": "page",
+  "cre": "2015-04-10T11:32:50",
+  "mod": "2015-04-10T11:38:24",
+  "stampTime": 0,
+  "startPage": 13,
+  "unlocked": false,
+  "uuid": "578c9655",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-04-10T11:32:50",
+      "mod": "2015-04-10T11:32:59",
+      "uuid": "6089a59e",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-10T11:32:50",
+          "mod": "2015-04-10T11:32:59",
+          "text": "QSql concurrency",
+          "uuid": "9d0de621"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-04-10T11:32:50",
+      "mod": "2015-04-10T11:32:50",
+      "uuid": "b2e85bcd"
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-10T11:32:59",
+      "mod": "2015-04-10T11:34:05",
+      "h": 118.469,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "5617395f",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-10T11:32:59",
+          "mod": "2015-04-10T11:34:05",
+          "text": "The notes clearly say that QSql cannot work across threads. Today I experimentally determined that, indeed, if you do not “clone” a database connection, queries from one thread interfere with queries from another thread even if that other thread uses transactions.",
+          "uuid": "98614afe"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-10T11:34:10",
+      "mod": "2015-04-10T11:35:59",
+      "h": 148.344,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "cf6be666",
+      "y0": 190.469,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-10T11:34:10",
+          "mod": "2015-04-10T11:35:59",
+          "text": "However, if I do  clone the database connection, the clone’s connection becomes rather more independent than I would like. In particular, they do not share their attached “:memory:” database. Perhaps that’s my clue that the selection  and filter  tables should not  be in the memory database. Of course, it is still perfectly possible to put them in an attached in-file db.",
+          "uuid": "c5b358e7",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-04-10T11:34:18",
+              "mod": "2015-04-10T11:34:18",
+              "end": 16,
+              "start": 14,
+              "style": 1,
+              "uuid": "39ab535e"
+            },
+            { "typ": "markup",
+              "cre": "2015-04-10T11:35:25",
+              "mod": "2015-04-10T11:35:25",
+              "end": 245,
+              "start": 239,
+              "style": 1,
+              "uuid": "d910783b"
+            },
+            { "typ": "markup",
+              "cre": "2015-04-10T11:35:26",
+              "mod": "2015-04-10T11:35:26",
+              "end": 233,
+              "start": 224,
+              "style": 1,
+              "uuid": "a08e2ebc"
+            },
+            { "typ": "markup",
+              "cre": "2015-04-10T11:35:37",
+              "mod": "2015-04-10T11:35:37",
+              "end": 264,
+              "start": 261,
+              "style": 1,
+              "uuid": "09bffb1b"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-10T11:36:24",
+      "mod": "2015-04-10T11:36:42",
+      "h": 53.4844,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "26517d7b",
+      "y0": 338.813,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-10T11:36:24",
+          "mod": "2015-04-10T11:36:42",
+          "text": "However, even without cloning, I cannot easily get the test program to actually crash .",
+          "uuid": "b412fd46",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-04-10T11:36:42",
+              "mod": "2015-04-10T11:36:42",
+              "end": 85,
+              "start": 80,
+              "style": 1,
+              "uuid": "6b67ae63"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-10T11:37:56",
+      "mod": "2015-04-10T11:38:24",
+      "h": 52.1875,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "5b7574ac",
+      "y0": 392.297,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-10T11:37:56",
+          "mod": "2015-04-10T11:38:24",
+          "text": "I am happy to report that when using cloned dbs, the test program respects transactions even without mutexes.",
+          "uuid": "8b04f91e"
+        }
+      ]
+    }
+  ]
+}

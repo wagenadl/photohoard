@@ -1,0 +1,259 @@
+{ "typ": "page",
+  "cre": "2015-03-10T22:25:07",
+  "mod": "2015-04-05T10:34:16",
+  "stampTime": 0,
+  "startPage": 11,
+  "unlocked": false,
+  "uuid": "ec9ee737",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-03-10T22:25:07",
+      "mod": "2015-03-10T22:25:12",
+      "uuid": "3cc99db8",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:25:07",
+          "mod": "2015-03-10T22:25:12",
+          "text": "Photohoard: next steps",
+          "uuid": "456d406b",
+          "cc": [
+            { "typ": "latenote",
+              "cre": "2015-04-05T10:28:00",
+              "mod": "2015-04-05T10:34:16",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 283.0,
+              "uuid": "f9177abb",
+              "x": 198.0,
+              "y": 681.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-05T10:28:00",
+                  "mod": "2015-04-05T10:34:16",
+                  "text": "(see p. 71)",
+                  "uuid": "5417dd92",
+                  "cc": [
+                    { "typ": "markup",
+                      "cre": "2015-04-05T10:28:00",
+                      "mod": "2015-04-05T10:34:16",
+                      "end": 10,
+                      "res": [
+                        "71"
+                      ],
+                      "start": 8,
+                      "style": 4,
+                      "uuid": "828640e2"
+                    }
+                  ]
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-05T10:34:31",
+              "mod": "2015-04-05T10:34:32",
+              "dx": 19.5,
+              "dy": 27.75,
+              "sheet": 0,
+              "textWidth": 154.75,
+              "uuid": "e90c9c19",
+              "x": 306.75,
+              "y": 238.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-05T10:34:31",
+                  "mod": "2015-04-05T10:34:32",
+                  "text": "done",
+                  "uuid": "647a639b"
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-05T10:34:34",
+              "mod": "2015-04-05T10:34:35",
+              "dx": 24.0,
+              "dy": 7.5,
+              "sheet": 0,
+              "textWidth": 244.0,
+              "uuid": "329068ac",
+              "x": 213.0,
+              "y": 206.5,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-05T10:34:34",
+                  "mod": "2015-04-05T10:34:35",
+                  "text": "done",
+                  "uuid": "46f3cdc1"
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-05T10:35:52",
+              "mod": "2015-04-05T10:36:03",
+              "dx": 27.75,
+              "dy": 37.5,
+              "sheet": 0,
+              "textWidth": 193.0,
+              "uuid": "91b45542",
+              "x": 267.0,
+              "y": 160.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-05T10:35:52",
+                  "mod": "2015-04-05T10:35:55",
+                  "text": "done using opencv",
+                  "uuid": "e43aac55"
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-05T10:45:50",
+              "mod": "2015-04-05T10:45:51",
+              "dx": 14.25,
+              "dy": 45.0,
+              "sheet": 0,
+              "textWidth": 128.5,
+              "uuid": "74b16721",
+              "x": 338.25,
+              "y": 184.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-05T10:45:50",
+                  "mod": "2015-04-05T10:45:51",
+                  "text": "done",
+                  "uuid": "994ff773"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-03-10T22:25:07",
+      "mod": "2015-04-05T10:34:16",
+      "uuid": "eded3df3",
+      "cc": [
+        { "typ": "res",
+          "cre": "2015-04-05T10:34:16",
+          "mod": "2015-04-05T10:34:16",
+          "archive": "71_-27d9debb",
+          "desc": "",
+          "preview": "71_-27d9debbp.png",
+          "source": "page://71",
+          "tag": "71",
+          "title": "",
+          "uuid": "27d9debb"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-03-10T22:25:12",
+      "mod": "2015-03-10T22:25:27",
+      "h": 52.1875,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "3b431341",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:25:12",
+          "mod": "2015-03-10T22:25:27",
+          "text": "I’ve got the basic date view system working pretty well. Next steps include",
+          "uuid": "9ff1ef96"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-03-10T22:25:27",
+      "mod": "2015-03-10T22:25:34",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e6242d0d",
+      "y0": 124.188,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:25:27",
+          "mod": "2015-03-10T22:25:34",
+          "text": "– Make Export actually work",
+          "uuid": "4123a71e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-03-10T22:25:34",
+      "mod": "2015-03-10T22:26:13",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "2013a2aa",
+      "y0": 154.281,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:25:34",
+          "mod": "2015-03-10T22:26:13",
+          "text": "– More sophisticated Image16 scaling: Don’t use QImage, first of all, but also make Bicubic or better available for export. When upscaling, nearest neighbor is probably useful.",
+          "uuid": "9c713e40"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-03-10T22:26:14",
+      "mod": "2015-03-10T22:26:23",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "7d364a1e",
+      "y0": 228.562,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:26:14",
+          "mod": "2015-03-10T22:26:23",
+          "text": "– Shape-altering adjustments",
+          "uuid": "a9504263"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-03-10T22:26:27",
+      "mod": "2015-03-10T22:26:41",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4b0aaae3",
+      "y0": 258.656,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:26:27",
+          "mod": "2015-03-10T22:26:41",
+          "text": "– Directory strip as alternative to Date strip",
+          "uuid": "47d8b37b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-03-10T22:26:41",
+      "mod": "2015-03-10T22:26:41",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "389a8328",
+      "y0": 288.75,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-03-10T22:26:41",
+          "mod": "2015-03-10T22:26:41",
+          "text": "",
+          "uuid": "156562da"
+        }
+      ]
+    }
+  ]
+}
