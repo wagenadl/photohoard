@@ -11,7 +11,7 @@
 class Datestrip: public Strip {
   Q_OBJECT;
 public:
-  Datestrip(PhotoDB const &db, QGraphicsItem *parent);
+  Datestrip(PhotoDB *db, QGraphicsItem *parent);
   virtual ~Datestrip();
 public:
   virtual QRectF subBoundingRect() const; // children

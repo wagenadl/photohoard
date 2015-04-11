@@ -1,6 +1,7 @@
 // AC_Worker.cpp
 
 #include "AC_Worker.h"
+
 #include "IF_Bank.h"
 #include "BasicCache.h"
 #include <QVariant>
@@ -12,11 +13,14 @@ inline uint qHash(PSize const &s) {
   return qHash(QPair<int,int>(s.width(), s.height()));
 }
 
-AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
+AC_Worker::AC_Worker(PhotoDB const *db0, QString rootdir,
 		     AC_ImageHolder *holder,
                      QObject *parent):
-  QObject(parent), db(db), cache(cache), holder(holder) {
+  QObject(parent), holder(holder) {
   setObjectName("AC_Worker");
+  db.clone(*db0);
+  cache = new BasicCache;
+  cache->open(rootdir);
   threshold = 100;
   bank = new IF_Bank(4, this); // number of threads comes from where?
   connect(bank, SIGNAL(foundImage(quint64, Image16, QSize)),
@@ -28,12 +32,18 @@ AC_Worker::AC_Worker(PhotoDB const &db, class BasicCache *cache,
   N = 0;
 }
 
+AC_Worker::~AC_Worker() {
+  db.close();
+  cache->close();
+  delete cache;
+}
+
 void AC_Worker::countQueue() {
   N = n + queueLength();
 }
 
 int AC_Worker::queueLength() {
-  return cache->database().simpleQuery("select count(*) from queue").toInt();
+  return cache->database()->simpleQuery("select count(*) from queue").toInt();
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
@@ -68,7 +78,7 @@ void AC_Worker::boot() {
 }
 
 QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
-  QSqlQuery qq(*cache->database());
+  QSqlQuery qq(cache->database()->query());
   qq.prepare("select version from queue limit :m");
   qq.bindValue(":m", QVariant(maxres));
   if (!qq.exec())
@@ -99,7 +109,7 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   Transaction t(cache->database());
   for (auto v: versions) {
     cache->markOutdated(v);
-    cache->database().query("insert into queue values(:a)", v);
+    cache->database()->query("insert into queue values(:a)", v);
   }
   t.commit();
 }
@@ -179,11 +189,12 @@ void AC_Worker::cacheModified(quint64 vsn) {
 }
 
 void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
-  quint64 photo = db.simpleQuery("select photo from versions where id=:a", vsn)
+  quint64 photo
+    = db.simpleQuery("select photo from versions where id=:a", vsn)
     .toULongLong();
 
   QSqlQuery q = db.query("select width, height, orient "
-                         "from photos where id=:a", photo);
+                          "from photos where id=:a", photo);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   int wid = q.value(0).toInt();
@@ -201,7 +212,7 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // or if readyToLoad is empty and beingLoaded also (after removing
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
-  //  pDebug() << "AC_Worker::HandleFoundImage" << id << fullSize << img.size();
+
   try {
     if (!fullSize.isEmpty())
       ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
@@ -217,7 +228,8 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
 
     processLoaded();
   } catch (QSqlQuery &q) {
-    emit exception("AC_Worker (handleFoundImage): SqlError: " + q.lastError().text()
+    emit exception("AC_Worker (handleFoundImage): SqlError: "
+                   + q.lastError().text()
 		   + " from " + q.lastQuery());
   } catch (NoResult) {
     emit exception("AC_Worker (handleFoundImage): No result");
@@ -231,7 +243,8 @@ void AC_Worker::processLoaded() {
     && readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold) {
     storeLoadedInDB();
-    pDebug() << "AC_Worker: Cache progress: " << n << "/" << N << "(" << done <<")";
+    pDebug() << "AC_Worker: Cache progress: " << n << "/" << N
+             << "(" << done <<")";
     emit cacheProgress(n, N);
   }
     
@@ -249,13 +262,13 @@ void AC_Worker::processLoaded() {
 
 void AC_Worker::sendToBank(quint64 version) {
   QSqlQuery q(db.query("select photo, mods from versions"
-                       " where id=:a limit 1", version));
+                        " where id=:a limit 1", version));
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   quint64 photo = q.value(0).toULongLong();
   QString mods = q.value(1).toString();
   q = db.query("select folder, filename, filetype, width, height, orient "
-               " from photos where id=:a limit 1", photo);
+                " from photos where id=:a limit 1", photo);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   quint64 folder = q.value(0).toULongLong();
@@ -266,7 +279,8 @@ void AC_Worker::sendToBank(quint64 version) {
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
   QString path = db.folder(folder) + "/" + fn;
-  qDebug() << "AC_Worker sendtobank" << version << wid << hei << int(orient) << osize << path;
+  pDebug() << "AC_Worker sendtobank" << version << wid << hei << int(orient)
+           << osize << path;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(version,
 		  path, db.ftype(ftype), orient, osize,
@@ -285,7 +299,7 @@ void AC_Worker::storeLoadedInDB() {
     cache->add(version, img, outd);
     if (outd)
       noutdated++;
-    cache->database().query("delete from queue where version==:a", version);
+    cache->database()->query("delete from queue where version==:a", version);
   }
   t.commit();
   pDebug() << "  storeLoadedinDB done";

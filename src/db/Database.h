@@ -12,19 +12,18 @@
 
 class Database {
 public:
-  Database(Database const &);
-  Database(QString filename, QString id="");
+  Database(QString id="");
+  virtual void open(QString filename);
+  virtual void close();
+  virtual void clone(Database const &src);
   virtual ~Database();
-  Database &operator=(Database const &);
-  QSqlDatabase &operator*() const { return *db; }
-  QSqlDatabase &operator->() const { return *db; }
-  bool tryBeginAndLock();
-  void beginAndLock();
-  void commitAndUnlock();
-  void rollbackAndUnlock();
-  QString fileName() const;
-  QString name() const;
+  bool isOpen() const { return db.isOpen(); }
+  QString name() const { return db.databaseName(); }
+  void begin();
+  void commit();
+  void rollback();
 public:
+  QSqlQuery query();
   // The following execute the query and return the value(0) from the
   // first result row. They throw an exception if there is no result.
   QVariant simpleQuery(QString s) const;
@@ -56,24 +55,32 @@ public:
   QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
                        QVariant d, QVariant e, QVariant f) const;
 protected:
-  QSqlDatabase *db;
+  QString id;
+  QSqlDatabase db;
 private:
-  void ref();
-  void unref();
-private:
-  static QMap<QString, QSqlDatabase *> &databases();
-  static QMap<QSqlDatabase *, QString> &names();
-  static QMap<QSqlDatabase *, int> &refcount();
-  static QMap<QSqlDatabase *, class QMutex *> &mutexes();
+  Database(Database const &) = delete;
+  Database &operator=(Database const &) = delete;
+protected:
+  static QString autoid();
 };
 
 class Transaction {
 public:
-  Transaction(Database const &db);
-  ~Transaction();
-  void commit();
+  Transaction(Database *db): db(db) {
+    cmt = false;
+    db->begin();
+  }
+  void commit() {
+    db->commit();
+    cmt = true;
+  }
+  ~Transaction() {
+    if (!cmt)
+      db->rollback();
+  }
 private:
-  Database db;
-  bool committed, rolledback;
+  Database *db;
+  bool cmt;
 };
+
 #endif

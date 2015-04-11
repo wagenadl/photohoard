@@ -34,20 +34,18 @@ QString MetaInfo::mpix(int w, int h) {
 }
 
 
-MetaInfo::MetaInfo(PhotoDB const &db_, quint64 version) {
-  PhotoDB db(db_);
-  
+MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   if (version==0) {
     txt = "";
     return;
   }
 
-  PhotoDB::VersionRecord vrec = db.versionRecord(version);
-  PhotoDB::PhotoRecord prec = db.photoRecord(vrec.photo);
+  PhotoDB::VersionRecord vrec = db->versionRecord(version);
+  PhotoDB::PhotoRecord prec = db->photoRecord(vrec.photo);
 
 
   txt = QString("<b>%1</b><br>").arg(prec.filename);
-  QString folder = db.folder(prec.folderid);
+  QString folder = db->folder(prec.folderid);
   folder = folder.replace("/", QString("/") + QChar(0x200b));
   txt += QString("<i>%1</i><br>").arg(folder);
   txt += "<b>"
@@ -63,9 +61,9 @@ MetaInfo::MetaInfo(PhotoDB const &db_, quint64 version) {
     bits << QString("ISO %1").arg(prec.iso);
   if (!bits.isEmpty())
     txt += bits.join(" &nbsp; ") + "<br>";
-  QString cam = prec.cameraid ? db.camera(prec.cameraid)
+  QString cam = prec.cameraid ? db->camera(prec.cameraid)
     : QString("<i>unknown camera</i>");
-  QString lens = prec.lensid ? db.lens(prec.lensid)
+  QString lens = prec.lensid ? db->lens(prec.lensid)
     : QString("<i>unknown lens</i>");
   QString camlens = (prec.cameraid && prec.lensid) ? cam + ", " + lens : cam;
   if (prec.focallength_mm>0) {

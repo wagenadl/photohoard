@@ -10,7 +10,7 @@
 #include "PDebug.h"
 #include <QPushButton>
 
-TagDialog::TagDialog(PhotoDB const &db, bool ro): db(db), tags(db) {
+TagDialog::TagDialog(PhotoDB *db, bool ro): db(db), tags(db) {
   readonly = ro;
   sw = ShowWhat::AllDefined;
   QVBoxLayout *vlay = new QVBoxLayout();
@@ -192,10 +192,10 @@ void TagDialog::updateApplyButton() {
     return;
   }
   
-  QSqlQuery q = db.query("select version from selection");
+  QSqlQuery q = db->query("select version from selection");
   while (q.next()) {
     quint64 vsn = q.value(0).toULongLong();
-    if (db.simpleQuery("select count(*) from appliedtags"
+    if (db->simpleQuery("select count(*) from appliedtags"
                        " where tag==:a and version==:b",
                        t, vsn).toInt()==0) {
       applyButton->setEnabled(true);
@@ -213,10 +213,10 @@ void TagDialog::updateRemoveButton() {
   if (!t)
     return;
   
-  QSqlQuery q = db.query("select version from selection");
+  QSqlQuery q = db->query("select version from selection");
   while (q.next()) {
     quint64 vsn = q.value(0).toULongLong();
-    if (db.simpleQuery("select count(*) from appliedtags"
+    if (db->simpleQuery("select count(*) from appliedtags"
                        " where tag==:a and version==:b",
                        t, vsn).toInt()>0) {
       removeButton->setEnabled(true);

@@ -5,16 +5,19 @@
 #define AC_WORKER_H
 
 #include <QObject>
-#include "PhotoDB.h"
+
 #include <QSet>
 #include "Image16.h"
+#include <QMap>
+#include "PhotoDB.h"
 
 class AC_Worker: public QObject {
   Q_OBJECT;
 public:
-  AC_Worker(PhotoDB const &db, class BasicCache *cache,
+  AC_Worker(PhotoDB const *db, QString rootdir,
 	    class AC_ImageHolder *holder,
             QObject *parent=0);
+  virtual ~AC_Worker();
 public slots:
   void boot(); // get initial list of cachable items from db
   void recache(QSet<quint64> versions);

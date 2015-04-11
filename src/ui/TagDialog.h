@@ -18,7 +18,7 @@ public:
     UsedInSelectedVersions,
   };
 public:
-  TagDialog(PhotoDB const &db, bool readOnly=false);
+  TagDialog(PhotoDB *db, bool readOnly=false);
   virtual ~TagDialog();
   void setShown(TagDialog::ShowWhat);
   QList<int> selectedTags();
@@ -45,7 +45,7 @@ private:
   void updateDeleteButton();
   void updateButtons();
 protected:
-  PhotoDB db;
+  PhotoDB *db;
   Tags tags;
   class QGridLayout *lay;
   QList<class TagListWidget *> lists;

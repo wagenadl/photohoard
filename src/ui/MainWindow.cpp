@@ -21,7 +21,7 @@
 
 #include "PDebug.h"
 
-MainWindow::MainWindow(PhotoDB const &db,
+MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter): exporter(exporter) {
   exportDialog = 0;

@@ -10,7 +10,7 @@
 class AppliedTagEditor: public QFrame {
   Q_OBJECT;
 public:
-  AppliedTagEditor(PhotoDB const &db, QWidget *parent=0);
+  AppliedTagEditor(PhotoDB *db, QWidget *parent=0);
   virtual ~AppliedTagEditor() { }
   QString text() const;
   QSize sizeHint() const override;

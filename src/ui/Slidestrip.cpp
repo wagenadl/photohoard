@@ -12,7 +12,7 @@ static uint qHash(QPoint p) {
   return qHash(p.x()) ^ qHash(p.y() ^ 23478912361);
 }
 
-Slidestrip::Slidestrip(PhotoDB const &db, QGraphicsItem *parent):
+Slidestrip::Slidestrip(PhotoDB *db, QGraphicsItem *parent):
   Strip(db, parent) {
   hasLatent = false;
   mustRelayout = false;
@@ -96,7 +96,7 @@ void Slidestrip::rebuildContents() {
 
   switch (org) {
   case Organization::ByDate:
-    latentVersions = db.versionsInDateRange(startDateTime(), endDateTime());
+    latentVersions = db->versionsInDateRange(startDateTime(), endDateTime());
     if (latentVersions.size()>THRESHOLD && scl<TimeScale::DecaMinute) {
       emit overfilled(d0);
       while (latentVersions.size()>THRESHOLD) {
@@ -105,7 +105,7 @@ void Slidestrip::rebuildContents() {
     }
     break;
   case Organization::ByFolder:
-    latentVersions = db.versionsInFolder(pathname);
+    latentVersions = db->versionsInFolder(pathname);
     break;
   }
   

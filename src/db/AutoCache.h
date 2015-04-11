@@ -14,9 +14,9 @@
 class AutoCache: public QObject {
   Q_OBJECT;
 public:
-  AutoCache(PhotoDB const &db, QString rootdir, QObject *parent=0);
+  AutoCache(PhotoDB *db, QString rootdir, QObject *parent=0);
   virtual ~AutoCache();
-  class BasicCache *basicCache() const { return cache; }
+  //  class BasicCache *basicCache() const { return cache; }
 public slots:
   void recache(QSet<quint64> versions);
   void recache(quint64 version);
@@ -47,10 +47,9 @@ signals: // private
   void forwardCachePreview(quint64 version, Image16 img);
   void forwardCacheModified(quint64 version);
 private:
+  PhotoDB *db; // we do not own
   QThread thread;
   class AC_Worker *worker;
-  PhotoDB db;
-  class BasicCache *cache;
   class AC_ImageHolder *holder;
 };
 

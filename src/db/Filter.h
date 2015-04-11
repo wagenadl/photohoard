@@ -13,7 +13,7 @@ inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 
 class Filter {
 public:
-  Filter();
+  Filter(PhotoDB *);
   void reset();
   bool isTrivial() const;
   // COLLECTION
@@ -63,20 +63,21 @@ public:
   void unsetTags();
   bool hasTags() const { return hastags; }
   QStringList tags() const { return tags_; }
-  static QString tagsInterpretation(QStringList, class PhotoDB const &);
+  QString tagsInterpretation(QStringList);
 public:
-  int count(class PhotoDB &) const;
+  int count() const;
   QString joinClause() const;
-  QString whereClause(class PhotoDB &) const;
-  QString collectionClause(class PhotoDB &) const;
+  QString whereClause() const;
+  QString collectionClause() const;
   QString colorLabelClause() const;
   QString starRatingClause() const;
   QString statusClause() const;
-  QString cameraClause(class PhotoDB &) const;
+  QString cameraClause() const;
   QString dateRangeClause() const;
-  QString fileLocationClause(class PhotoDB &) const;
-  QString tagsClause(class PhotoDB &) const;
+  QString fileLocationClause() const;
+  QString tagsClause() const;
 private:
+  PhotoDB *db;
   bool hascollection;
   QString collection_;
   bool hascolorlabels;

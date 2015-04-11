@@ -32,7 +32,7 @@ public:
     ByFolder,
   };
 public:
-  Strip(PhotoDB const &db, QGraphicsItem *parent);
+  Strip(PhotoDB *db, QGraphicsItem *parent);
   virtual ~Strip();
   QDateTime startDateTime() const;
   QDateTime endDateTime() const;
@@ -46,7 +46,7 @@ public:
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
   virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
-  PhotoDB &database() { return db; }
+  PhotoDB *database() { return db; }
   virtual quint64 versionLeftOf(quint64 vsn); // returns 0 if not found
   virtual quint64 versionRightOf(quint64 vsn);
   virtual quint64 versionAbove(quint64 vsn);
@@ -113,7 +113,7 @@ protected:
   void toggleSelection();
   static QPixmap const &dashPattern(QColor);
 protected:
-  PhotoDB db;
+  PhotoDB *db;
   Organization org;
   QDateTime d0;
   TimeScale scl;

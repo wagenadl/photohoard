@@ -12,7 +12,7 @@
 class TagListWidget: public QListWidget {
   Q_OBJECT;
 public:
-  TagListWidget(PhotoDB const &db, int parenttagid, QWidget *parent=0);
+  TagListWidget(PhotoDB *db, int parenttagid, QWidget *parent=0);
   virtual ~TagListWidget();
   virtual QSize sizeHint() const;
   bool isEmpty() const { return count()==0; }
@@ -26,7 +26,7 @@ public slots:
 private:
   void recalculateWidth();
 private:
-  PhotoDB db;
+  PhotoDB *db;
   int parentid;
   TagDialog::ShowWhat sw;
   int wid;

@@ -9,20 +9,29 @@
 #include <system_error>
 #include "SqlFile.h"
 
-BasicCache::BasicCache(QString rootdir, QObject *parent):
-  QObject(parent), root(rootdir), db(rootdir + "/cache.db") {
-  setObjectName("BasicCache");
+void BasicCache::open(QString rootdir) {
+  if (isOpen())
+    close();
+  
+  root = rootdir;
+  db.open(rootdir + "/cache.db");
   readConfig();
+  db.query("pragma synchronous = 0");
   attach();
   pDebug() << "BasicCache opened " << (rootdir + "/cache.db");
 }
 
-BasicCache::BasicCache(QDir root, Database const &db, QObject *parent):
-  QObject(parent), root(root), db(db) {
-  setObjectName("BasicCache");
+void BasicCache::clone(BasicCache const &src) {
+  if (isOpen())
+    close();
+
+  root = src.root;
+  db.clone(src.db);
   readConfig();
+  db.query("pragma synchronous = 0");
   attach();
-}
+  pDebug() << "BasicCache cloned " << db.name();
+}  
 
 void BasicCache::attach() {
   QString q1 = "attach '" + root.absolutePath() + "/blobs%1.db' as B%2";
@@ -33,19 +42,23 @@ void BasicCache::attach() {
     db.query(q1.arg(k).arg(k));
     db.query(q2.arg(k));
   }
-  //  db.query("pragma synchronous = 0");
 }
 
 BasicCache::~BasicCache() {
+  if (db.isOpen()) {
+    qDebug() << "Caution: BasicCache deleted while open";
+    close();
+  }
+}
+ 
+void BasicCache::close() {
   for (int k=1; k<=stdsizes.size(); k++) 
     db.query(QString("detach B%1").arg(k));
-  QSqlDatabase::removeDatabase(root.absolutePath());
+  db.close();
 }
 
 void BasicCache::readConfig() {
-  QSqlQuery q(*db);
-  if (!q.exec("select bytes from memthresh"))
-    throw q;
+  QSqlQuery q = db.query("select bytes from memthresh");
   if (q.next()) {
     memthresh = q.value(0).toInt();
   } else {
@@ -53,17 +66,18 @@ void BasicCache::readConfig() {
     pDebug() << "Could not read memory threshold from db";
   }
 
-  if (!q.exec("select maxdim from sizes"))
-    throw q;
+  q = db.query("select maxdim from sizes");
   QList<int> sizes;
   while (q.next())
     sizes << q.value(0).toInt();
   qSort(sizes.begin(), sizes.end(), qGreater<int>());
+
+  stdsizes.clear();
   for (int s: sizes)
     stdsizes << PSize::square(s);
 }
   
-BasicCache *BasicCache::create(QString rootdir) {
+void BasicCache::create(QString rootdir) {
   QDir root(rootdir);
   
   if (root.exists()) 
@@ -77,19 +91,18 @@ BasicCache *BasicCache::create(QString rootdir) {
 
   try {
     Database db(rootdir + "/cache.db");
+    Transaction t(&db);
     SqlFile sql(":/setupcache.sql");
-    QSqlQuery q(*db);
-    db.beginAndLock();
+    QSqlQuery q = db.query();
     for (auto c: sql) {
       if (!q.exec(c)) {
 	pDebug() << "BasicCache: Could not setup: " << q.lastError().text();
 	pDebug() << "  at " << c;
-	db.rollbackAndUnlock();
 	throw q;
       }
     }
-    db.commitAndUnlock();
-    return new BasicCache(root, db);
+    t.commit();
+    db.close();
   } catch (...) {
     pDebug() << "BasicCache caught error while creating. Failure.";
     root.remove("cache.db");

@@ -13,8 +13,8 @@
 #include "Exif.h"
 #include "FilterDialog.h"
 
-LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
-  QSplitter(parent), db(db1), adjuster(adj) {
+LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
+  QSplitter(parent), db(db), adjuster(adj) {
   setObjectName("LightTable");
   curr = 0;
   tilesize = 96;
@@ -22,16 +22,15 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   lay=lastlay=LayoutBar::Action::VGrid;
   showmax = false;
   
-  bool oldcrash = db.simpleQuery("select count(*) from starting").toInt()>0;
+  bool oldcrash = db->simpleQuery("select count(*) from starting").toInt()>0;
   pDebug() << "Hello world";
   if (oldcrash) {
-    db.query("update current set version=null");
-    db.query("delete from expanded");
+    db->query("update current set version=null");
+    db->query("delete from expanded");
   }
-  db.query("insert into starting values(1)");
-
+  pDebug() << "Starting";
+  db->query("insert into starting values(1)");
   pDebug() << "Hello world";
-  pDebug() << "LT? " << db.simpleQuery("select count(*) from versions").toInt();
 
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();
@@ -76,11 +75,11 @@ LightTable::LightTable(PhotoDB const &db1, LiveAdjuster *adj, QWidget *parent):
   connect(filterDialog, SIGNAL(apply()),
 	  SLOT(applyFilterFromDialog()));
   
-  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  quint64 c = db->simpleQuery("select * from current").toULongLong();
   if (c)
     select(c);
 
-  db.query("delete from starting");
+  db->query("delete from starting");
 }
 
 LightTable::~LightTable() {
@@ -243,16 +242,16 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 
   switch (film->organization()) {
   case Strip::Organization::ByDate: {
-    QDateTime a = db.captureDate(db.photoFromVersion(curr));
-    QDateTime b = db.captureDate(db.photoFromVersion(i));
+    QDateTime a = db->captureDate(db->photoFromVersion(curr));
+    QDateTime b = db->captureDate(db->photoFromVersion(i));
     if (a>b)
       selection->addDateRange(b, a);
     else
       selection->addDateRange(a, b);
   } break;
   case Strip::Organization::ByFolder: {
-    PhotoDB::PhotoRecord a = db.photoRecord(db.photoFromVersion(curr));
-    PhotoDB::PhotoRecord b = db.photoRecord(db.photoFromVersion(i));
+    PhotoDB::PhotoRecord a = db->photoRecord(db->photoFromVersion(curr));
+    PhotoDB::PhotoRecord b = db->photoRecord(db->photoFromVersion(i));
     pDebug() << curr << i << a.folderid << b.folderid << a.capturedate << b.capturedate;
     if (a.folderid==b.folderid) {
       // easy case
@@ -261,7 +260,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
       else
         selection->addDateRange(a.capturedate, b.capturedate);
     } else {
-      if (db.folder(a.folderid)<db.folder(b.folderid)) {
+      if (db->folder(a.folderid)<db->folder(b.folderid)) {
         selection->addRestOfFolder(a.folderid, a.capturedate);
         selection->addFoldersBetween(a.folderid, b.folderid);
         selection->addStartOfFolder(b.folderid, b.capturedate);
@@ -311,15 +310,15 @@ void LightTable::makeCurrent(quint64 i) {
     return;
 
   if (i>0)
-    db.query("update current set version=:a", i);
+    db->query("update current set version=:a", i);
   else
-    db.query("update current set version=null");
+    db->query("update current set version=null");
   
   updateSlide(curr);
   updateSlide(i);
 
   if (i>0) {
-    QSqlQuery q = db.query("select photos.width, photos.height, photos.orient"
+    QSqlQuery q = db->query("select photos.width, photos.height, photos.orient"
                            " from photos inner join versions"
                            " on photos.id=versions.photo"
                            " where versions.id==:a", i);
@@ -403,7 +402,7 @@ void LightTable::rescan(bool rebuildFilter) {
 
 void LightTable::setColorLabel(ColorLabelBar::Action a) {
   int color = int(a);
-  db.query("update versions set colorlabel=:a where id in "
+  db->query("update versions set colorlabel=:a where id in "
            " (select version from selection)", color);
   if (selection->count() > 10) {
     film->scene()->update();
@@ -449,7 +448,7 @@ void LightTable::filterAction(FilterBar::Action a) {
 }
         
 void LightTable::clearSelection() {
-  quint64 c = db.simpleQuery("select * from current").toULongLong();
+  quint64 c = db->simpleQuery("select * from current").toULongLong();
   if (c) {
     select(c);
   } else {
@@ -485,8 +484,8 @@ void LightTable::scrollToCurrent() {
 
 void LightTable::applyFilterFromDialog() {
   populateFilterFromDialog();
-  quint64 c = db.simpleQuery("select * from current").toULongLong();
-  QSqlQuery q = db.query("select * from filter where version==:a", c);
+  quint64 c = db->simpleQuery("select * from current").toULongLong();
+  QSqlQuery q = db->query("select * from filter where version==:a", c);
   if (!q.next())
     selectNearestInFilter(c);
   rescan(false);
@@ -500,11 +499,11 @@ void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
 
 void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
-  db.query("delete from filter");
-  db.query("insert into filter select versions.id, photos.id from versions "
-           + f.joinClause() + " where " + f.whereClause(db));
-  int N = db.simpleQuery("select count(*) from filter").toInt();
+  db->query("delete from filter");
+  db->query("insert into filter select versions.id, photos.id from versions "
+           + f.joinClause() + " where " + f.whereClause());
+  int N = db->simpleQuery("select count(*) from filter").toInt();
   pDebug() << "Populate Filter" << N;
-  db.query("delete from selection"
+  db->query("delete from selection"
            " where version not in (select version from filter)");
 }

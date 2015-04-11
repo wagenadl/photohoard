@@ -45,8 +45,10 @@ public:
     Exif::Orientation orient;
   };
 public:
-  PhotoDB(QString fn);
-  static PhotoDB create(QString fn);
+  PhotoDB(QString id=""): Database(id) { }
+  virtual void open(QString fn) override;
+  virtual void clone(PhotoDB const &);
+  static void create(QString fn);
 public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
   QDateTime captureDate(quint64 photoid) const;
@@ -79,10 +81,10 @@ public: // exploration functions
   quint64 firstVersionInTree(QString folder) const;
   // all of the above look at the filter
 private:
-  mutable QSharedPointer< QMap<quint64, QString> > folders;
-  mutable QSharedPointer< QMap<QString, quint64> > revFolders;
-  mutable QSharedPointer< QMap<int, QString> > ftypes;
-  mutable QSharedPointer< QMap<int, QString> > makes, models, lenses;
+  mutable QMap<quint64, QString> folders;
+  mutable QMap<QString, quint64> revFolders;
+  mutable QMap<int, QString> ftypes;
+  mutable QMap<int, QString> makes, models, lenses;
 };
 
 #endif

@@ -49,15 +49,15 @@ void Slide::paint(QPainter *painter,
 		  QWidget *) {
   QRectF r = boundingRect();
   bool isCurrent
-    = parent->database().simpleQuery("select version from current")
+    = parent->database()->simpleQuery("select version from current")
     .toULongLong() == id;
   bool isSelected = isCurrent
     ? true
-    : parent->database().constQuery("select 1 from selection"
-				    " where version==:a limit 1", id).next();
+    : parent->database()->constQuery("select 1 from selection"
+                                     " where version==:a limit 1", id).next();
 
   int colorLabel
-    = parent->database().simpleQuery("select colorlabel from versions"
+    = parent->database()->simpleQuery("select colorlabel from versions"
                                      " where id==:a", id).toInt();
   painter->setPen(QPen(Qt::NoPen));
 

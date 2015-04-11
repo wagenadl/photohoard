@@ -9,7 +9,7 @@
 #include "AutoCache.h"
 #include "PDebug.h"
 
-LiveAdjuster::LiveAdjuster(PhotoDB const &db, 
+LiveAdjuster::LiveAdjuster(PhotoDB *db, 
                            class AllControls *controls,
                            class AutoCache *cache,
                            QObject *parent):
@@ -42,7 +42,7 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   if (newvsn) {
     originalSize = ofinder->originalSize(v);
     //    pDebug() << "LiveAdjuster newvsn size is " << originalSize ;
-    QString mods = db.simpleQuery("select mods from versions"
+    QString mods = db->simpleQuery("select mods from versions"
                                   " where id=:a limit 1", v).toString();
     sliders.setAll(mods);
     controls->setQuietly(sliders);
@@ -104,7 +104,7 @@ void LiveAdjuster::setSlider(QString k, double v) {
       adjuster->requestReduced(sliders, targetsize);
   }
   QString mods = sliders.getAll();
-  db.query("update versions set mods=:a where id==:b limit 1",
+  db->query("update versions set mods=:a where id==:b limit 1",
            mods, version);
 }
 

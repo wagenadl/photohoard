@@ -14,7 +14,7 @@
 class OriginalFinder: public QObject {
   Q_OBJECT;
 public:
-  OriginalFinder(PhotoDB const &db, QObject *parent=0);
+  OriginalFinder(PhotoDB *db, QObject *parent=0);
   virtual ~OriginalFinder();
   PSize originalSize(quint64 version);
 public slots:
@@ -29,7 +29,7 @@ private slots:
 private:
   void fixOrientation(Image16 &);
 private:
-  PhotoDB db;
+  PhotoDB *db;
   class InterruptableFileReader *filereader;
   class InterruptableRawReader *rawreader;
 private:

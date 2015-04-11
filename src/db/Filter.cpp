@@ -5,7 +5,7 @@
 #include "Tags.h"
 #include "PDebug.h"
 
-Filter::Filter() {
+Filter::Filter(PhotoDB *db): db(db) {
   hascollection = false;
   hascolorlabels = false;
   hasstarrating = false;
@@ -22,7 +22,7 @@ Filter::Filter() {
 }
 
 void Filter::reset() {
-  *this = Filter();
+  *this = Filter(db);
 }
 
 void Filter::setCollection(QString s) {
@@ -109,10 +109,10 @@ void Filter::unsetTags() {
   hastags = false;
 }
 
-int Filter::count(class PhotoDB &db) const {
-  return db.simpleQuery("select count(*) from versions "
+int Filter::count() const {
+  return db->simpleQuery("select count(*) from versions "
 			+ joinClause()
-			+ " where " + whereClause(db)).toInt();
+			+ " where " + whereClause()).toInt();
 }
 
 QString Filter::joinClause() const {
@@ -122,10 +122,10 @@ QString Filter::joinClause() const {
   return joins.join(" ");
 }
 
-QString Filter::whereClause(class PhotoDB &db) const {
+QString Filter::whereClause() const {
   QStringList clauses;
   if (hascollection)
-    clauses << collectionClause(db);
+    clauses << collectionClause();
   if (hascolorlabels)
     clauses << colorLabelClause();
   if (hasstarrating)
@@ -133,22 +133,22 @@ QString Filter::whereClause(class PhotoDB &db) const {
   if (hasstatus)
     clauses << statusClause();
   if (hascamera)
-    clauses << cameraClause(db);
+    clauses << cameraClause();
   if (hasdaterange)
     clauses << dateRangeClause();
   if (hasfilelocation)
-    clauses << fileLocationClause(db);
+    clauses << fileLocationClause();
   if (hastags)
-    clauses << tagsClause(db);
-  pDebug() << clauses.join(" AND ");
+    clauses << tagsClause();
+  pDebug() << clauses.join(" and ");
   if (clauses.isEmpty())
     return "1>0";
   else
     return clauses.join(" and ");
 }
 
-QString Filter::collectionClause(PhotoDB &db) const {
-  QSqlQuery q = db.query("select id from tags where tag==:a", "Collections");
+QString Filter::collectionClause() const {
+  QSqlQuery q = db->query("select id from tags where tag==:a", "Collections");
   if (!q.next())
     return collection_.isEmpty() ? "1>0" : "0>1";
   int colparent = q.value(0).toInt();
@@ -157,7 +157,7 @@ QString Filter::collectionClause(PhotoDB &db) const {
       "( select id from tags where parent==" + QString::number(colparent)
       +") )";
   } else {
-    q = db.query("select id from tags where tag==:a and parent==:b",
+    q = db->query("select id from tags where tag==:a and parent==:b",
                  collection_, colparent);
     if (q.next())
       return "versions.id in ( select version from appliedtags where tag=="
@@ -205,7 +205,7 @@ QString Filter::statusClause() const {
   }
 }
 
-QString Filter::cameraClause(PhotoDB &db) const {
+QString Filter::cameraClause() const {
   QStringList bits;
 
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
@@ -213,15 +213,15 @@ QString Filter::cameraClause(PhotoDB &db) const {
     QSqlQuery q;
     if (cameramake.isEmpty()) {
       // select just on model
-      q = db.query("select id from cameras where camera==:a",
+      q = db->query("select id from cameras where camera==:a",
 		   cameramodel);
     } else if (cameramodel.isEmpty()) {
       // select just on make
-      q = db.query("select id from cameras where make==:a",
+      q = db->query("select id from cameras where make==:a",
 		   cameramake);
     } else {
       // select on both
-      q = db.query("select id from cameras where make==:a and camera==:b",
+      q = db->query("select id from cameras where make==:a and camera==:b",
 		   cameramake, cameramodel);
     }
     QStringList cameraids;
@@ -236,7 +236,7 @@ QString Filter::cameraClause(PhotoDB &db) const {
   }
   
   if (!cameralens.isEmpty()) {
-    QSqlQuery q = db.query("select id from lenses where lens==:a", cameralens);
+    QSqlQuery q = db->query("select id from lenses where lens==:a", cameralens);
     if (q.next())
       bits << "lens==" + QString::number(q.value(0).toInt());
     else
@@ -254,15 +254,15 @@ QString Filter::dateRangeClause() const {
     + " and capturedate<='" + enddate.toString("yyyy-MM-dd") + "T23:59:59'";
 }
 
-QString Filter::fileLocationClause(PhotoDB &db) const {
+QString Filter::fileLocationClause() const {
   if (filelocation.isEmpty())
     return "0>1";
   QSet<int> folders;
-  QSqlQuery q = db.query("select id from folders where pathname==:a",
+  QSqlQuery q = db->query("select id from folders where pathname==:a",
 			 filelocation);
   if (q.next())
     folders << q.value(0).toInt();
-  q = db.query("select id from folders where pathname like :a",
+  q = db->query("select id from folders where pathname like :a",
 	       filelocation + "/%");
   while (q.next())
     folders << q.value(0).toInt();
@@ -274,8 +274,8 @@ QString Filter::fileLocationClause(PhotoDB &db) const {
   return "folder in ( " + ss.join(", ") + " )";
 }
 
-QString Filter::tagsInterpretation(QStringList ss, class PhotoDB const &pdb) {
-  Tags tags(pdb);
+QString Filter::tagsInterpretation(QStringList ss) {
+  Tags tags(db);
   QStringList res;
   for (auto s: ss) {
     s = s.simplified();
@@ -294,7 +294,7 @@ QString Filter::tagsInterpretation(QStringList ss, class PhotoDB const &pdb) {
   return res.join("\n");
 }
 
-QString Filter::tagsClause(PhotoDB &db) const {
+QString Filter::tagsClause() const {
   QStringList bits;
   Tags tdb(db);
   for (QString t: tags_) {

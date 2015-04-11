@@ -9,19 +9,20 @@
 #include "Image16.h"
 #include "Database.h"
 
-class BasicCache: public QObject {
+class BasicCache {
 public:
-  BasicCache(QString rootdir, QObject *parent=0);
-  /*:F constructor
-   *:D Opens the cache located at ROOTDIR.
-   */
+  BasicCache() { }
+  void open(QString rootdir);
+  void clone(BasicCache const &src);
+  void close();
+  bool isOpen() const { return db.isOpen(); }
   virtual ~BasicCache();
-  static BasicCache *create(QString rootdir);
+  static void create(QString rootdir);
   /*:F create
    *:D Creates a new basic cache located at ROOTDIR. The directory must not
    already exist.
   */
-  Database &database() { return db; }
+  Database *database() { return &db; }
   void add(quint64 vsn, Image16 img, bool instantlyOutdated=false);
   /*:F add
    *:D Adds an image to the cache at each of the sizes defined in the cache.

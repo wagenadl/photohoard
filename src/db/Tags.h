@@ -8,7 +8,7 @@
 
 class Tags {
 public:
-  Tags(PhotoDB const &db);
+  Tags(PhotoDB *db);
   int findOne(QString tag); // 0 for not found or -1 if not unique
   QSet<int> findAll(QString tag); // find all tags matching name
   QSet<int> findAbbreviated(QString tag);
@@ -38,7 +38,7 @@ private:
   QSet<int> chainfind(QStringList bits);
   QSet<int> findAllOrAbbreviated(QString tag);
 private:
-  PhotoDB db;
+  PhotoDB *db;
 };
 
 #endif

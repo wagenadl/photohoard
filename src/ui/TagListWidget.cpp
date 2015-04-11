@@ -3,9 +3,9 @@
 #include "TagListWidget.h"
 #include "PDebug.h"
 
-TagListWidget::TagListWidget(PhotoDB const &db1, int parenttagid,
+TagListWidget::TagListWidget(PhotoDB *db, int parenttagid,
                              QWidget *parent):
-  QListWidget(parent), db(db1), parentid(parenttagid) {
+  QListWidget(parent), db(db), parentid(parenttagid) {
 
   sw = TagDialog::ShowWhat::AllDefined;
   wid = 0;
@@ -79,7 +79,7 @@ void TagListWidget::reload() {
     qq += " where " + wheres.join("and");
   qq += " order by tags.tag";
   
-  QSqlQuery q = db.query(qq);
+  QSqlQuery q = db->query(qq);
   while (q.next()) {
     int id = q.value(0).toInt();
     QString tag = q.value(1).toString();

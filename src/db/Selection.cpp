@@ -4,15 +4,15 @@
 #include <QVariant>
 #include "PDebug.h"
 
-Selection::Selection(PhotoDB const &db1): db(db1) {
+Selection::Selection(PhotoDB *db): db(db) {
 }
 
 void Selection::add(quint64 vsn) {
-  db.query("insert into M.selection values (:i)", vsn);
+  db->query("insert into M.selection values (:i)", vsn);
 }
 
 void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
-  db.query("insert into selection select version from "
+  db->query("insert into selection select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b",
            start, inclusiveend);
@@ -23,7 +23,7 @@ void Selection::addDateRange(QDateTime start, Strip::TimeScale scl) {
 }
 
 void Selection::dropDateRange(QDateTime start, QDateTime inclusiveend) {
-  db.query("delete from selection where version in (select version from "
+  db->query("delete from selection where version in (select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b)",
            start, inclusiveend);
@@ -34,29 +34,29 @@ void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
 }
   
 void Selection::remove(quint64 vsn) {
-  db.query("delete from M.selection where version==:i", vsn);
+  db->query("delete from M.selection where version==:i", vsn);
 }
   
 void Selection::clear() {
-  db.query("delete from M.selection");
+  db->query("delete from M.selection");
 }
 
 void Selection::selectAll() {
-  db.query("insert into M.selection (select version from filter)");
+  db->query("insert into M.selection (select version from filter)");
 }
 
 bool Selection::contains(quint64 vsn) {
-  return db.simpleQuery("select count(*) from M.selection "
+  return db->simpleQuery("select count(*) from M.selection "
                         " where version==:v limit 1",
                         vsn).toInt() > 0;
 }
 
 int Selection::count() {
-  return db.simpleQuery("select count(*) from M.selection").toInt();
+  return db->simpleQuery("select count(*) from M.selection").toInt();
 }
 
 QSet<quint64> Selection::current() {
-  QSqlQuery q = db.query("select version from selection");
+  QSqlQuery q = db->query("select version from selection");
   QSet<quint64> vv;
   while (q.next())
     vv << q.value(0).toULongLong();
@@ -64,24 +64,24 @@ QSet<quint64> Selection::current() {
 }
 
 void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
-  db.query("insert into selection select version from filter"
+  db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate<=:b",
            folder, endAt);
 }
 
 void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
-  db.query("insert into selection select version from filter"
+  db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate>=:b",
            folder, startAt);
 }
 
 void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
-  QString path1 = db.folder(fid1);
-  QString path2 = db.folder(fid2);
+  QString path1 = db->folder(fid1);
+  QString path2 = db->folder(fid2);
   pDebug() << "addfoldersbetween" << path1 << path2;
-  db.query("insert into selection select version from filter"
+  db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " inner join folders on photos.folder==folders.id"
            " where folders.pathname>:a and folders.pathname<:b",
@@ -89,7 +89,7 @@ void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
 }
   
 int Selection::countInDateRange(QDateTime t0, QDateTime t1) const {
-  return db.simpleQuery("select count(*) from selection inner join filter"
+  return db->simpleQuery("select count(*) from selection inner join filter"
                         " on selection.version==filter.version"
                         " inner join photos on filter.photo==photos.id"
                         " where photos.capturedate>=:a"
@@ -97,9 +97,9 @@ int Selection::countInDateRange(QDateTime t0, QDateTime t1) const {
 }
 
 int Selection::countInFolder(QString folder) const {
-  quint64 id = db.findFolder(folder);
+  quint64 id = db->findFolder(folder);
   if (id)
-    return db.simpleQuery("select count(*) from selection inner join filter"
+    return db->simpleQuery("select count(*) from selection inner join filter"
                           " on selection.version==filter.version"
                           " inner join photos on filter.photo=photos.id"
                           " where photos.folder==:a", id).toInt();
@@ -109,7 +109,7 @@ int Selection::countInFolder(QString folder) const {
 
 int Selection::countInTree(QString folder) const {
   int nsub
-    = db.simpleQuery("select count(*) from selection"
+    = db->simpleQuery("select count(*) from selection"
                      " inner join filter on selection.version==filter.version"
                      " inner join photos on filter.photo=photos.id"
                      " inner join folders on photos.folder==folders.id"
@@ -120,16 +120,16 @@ int Selection::countInTree(QString folder) const {
 }
 
 void Selection::addInFolder(QString folder) {
-  quint64 id = db.findFolder(folder);
+  quint64 id = db->findFolder(folder);
   if (id)
-    db.query("insert into selection select version from filter"
+    db->query("insert into selection select version from filter"
              " inner join photos on filter.photo=photos.id"
              " where photos.folder==:a", id);
 }
 
 void Selection::addInTree(QString folder) {
   addInFolder(folder);
-  db.query("insert into selection select version from filter"
+  db->query("insert into selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
 	   " where folders.id in"
@@ -138,9 +138,9 @@ void Selection::addInTree(QString folder) {
 }
 
 void Selection::dropInFolder(QString folder) {
-  quint64 id = db.findFolder(folder);
+  quint64 id = db->findFolder(folder);
   if (id)
-    db.query("delete from selection where version in"
+    db->query("delete from selection where version in"
              " (select version from filter"
              " inner join photos on filter.photo=photos.id"
              " where photos.folder==:a)", id);
@@ -148,7 +148,7 @@ void Selection::dropInFolder(QString folder) {
 
 void Selection::dropInTree(QString folder) {
   dropInFolder(folder);
-  db.query("drop from selection select version from filter"
+  db->query("drop from selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
            " where folders.pathname like :a", folder+"/%");
