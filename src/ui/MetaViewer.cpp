@@ -3,7 +3,7 @@
 #include "MetaViewer.h"
 #include "MetaInfo.h"
 
-MetaViewer::MetaViewer(PhotoDB const &db, QWidget *parent):
+MetaViewer::MetaViewer(PhotoDB *db, QWidget *parent):
   QTextEdit(parent), db(db) {
   setReadOnly(true);
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);

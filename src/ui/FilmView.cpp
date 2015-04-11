@@ -7,7 +7,7 @@
 #include "Slide.h"
 #include <QKeyEvent>
 
-FilmView::FilmView(PhotoDB const &db, QWidget *parent):
+FilmView::FilmView(PhotoDB *db, QWidget *parent):
   QGraphicsView(parent), db(db) {
 
   useFolders = false;
@@ -29,10 +29,7 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   folderScene->addItem(folderStrip);
   placeAndConnect(folderStrip);
   
-  PhotoDB dbx(db);
-  dbx.beginAndLock();
-
-  QSqlQuery q = dbx.query("select d0, scl from expanded order by scl");
+  QSqlQuery q = db->query("select d0, scl from expanded order by scl");
   while (q.next()) {
     QDateTime d0 = q.value(0).toDateTime();
     Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
@@ -42,7 +39,7 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
   }
   dateStrip->expand();
 
-  q = dbx.query("select path from expandedfolders order by path");
+  q = db->query("select path from expandedfolders order by path");
   while (q.next()) {
     QString path = q.value(0).toString();
     Strip *s = folderStrip->stripByFolder(path);
@@ -50,8 +47,6 @@ FilmView::FilmView(PhotoDB const &db, QWidget *parent):
       s->expand();
   }
   folderStrip->expand();
-  
-  dbx.commitAndUnlock();
   
   stripResized();
 }
@@ -167,7 +162,7 @@ void FilmView::scrollIfNeeded() {
 }
 
 quint64 FilmView::current() {
-  return db.simpleQuery("select * from current").toULongLong();
+  return db->simpleQuery("select * from current").toULongLong();
 }
 
 void FilmView::keyPressEvent(QKeyEvent *e) {

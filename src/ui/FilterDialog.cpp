@@ -9,10 +9,10 @@
 #include "Tags.h"
 #include "TagDialog.h"
 
-FilterDialog::FilterDialog(PhotoDB const &db, QWidget *parent):
-  QDialog(parent), db(db) {
+FilterDialog::FilterDialog(PhotoDB *db, QWidget *parent):
+  QDialog(parent), db(db), f0(db) {
   pDebug() << "FilterDialog";
-  pDebug() << "FD? " << db.simpleQuery("select count(*) from versions").toInt();
+  pDebug() << "FD? " << db->simpleQuery("select count(*) from versions").toInt();
 
   starting = true;
   ui = new Ui_FilterDialog();
@@ -21,7 +21,7 @@ FilterDialog::FilterDialog(PhotoDB const &db, QWidget *parent):
 }
 
 void FilterDialog::prepCombos() {
-  /* Get collections, cameras, etc. from db. */
+  /* Get collections, cameras, etc. from db-> */
   prepCollections();
   prepCameras();
   prepFolderTree();
@@ -37,7 +37,7 @@ void FilterDialog::prepMakes() {
   ui->cMake->clear();
   ui->cMake->addItem("Any make");
 
-  QSqlQuery q = db.query("select distinct make from cameras");
+  QSqlQuery q = db->query("select distinct make from cameras");
   QStringList makes;
   while (q.next()) 
     makes << q.value(0).toString();
@@ -57,8 +57,8 @@ void FilterDialog::prepModels(QString make) {
   ui->cCamera->clear();
   ui->cCamera->addItem("Any model");
 
-  QSqlQuery q = make.isEmpty() ? db.query("select distinct camera from cameras")
-    : db.query("select distinct camera from cameras where make=:a", make);
+  QSqlQuery q = make.isEmpty() ? db->query("select distinct camera from cameras")
+    : db->query("select distinct camera from cameras where make=:a", make);
   QStringList models;
   while (q.next())
     models << q.value(0).toString();
@@ -94,20 +94,20 @@ void FilterDialog::prepLenses(QString make, QString model) {
 
   QSqlQuery q;
   if (make.isEmpty() && model.isEmpty()) {
-    q = db.query("select lens from lenses");
+    q = db->query("select lens from lenses");
   } else {
     QString qq = "select distinct lenses.lens from lenses "
       "inner join photos on lenses.id==photos.lens "
       "inner join cameras on photos.camera==cameras.id where ";
     if (model.isEmpty()) {
       qq += "cameras.make==:a";
-      q = db.query(qq, make);
+      q = db->query(qq, make);
     } else if (make.isEmpty()) {
       qq += "cameras.camera==:a";
-      q = db.query(qq, model);
+      q = db->query(qq, model);
     } else {
       qq += "cameras.make==:a and cameras.camera==:b";
-      q = db.query(qq, make, model);
+      q = db->query(qq, make, model);
     }
   }
 
@@ -158,7 +158,7 @@ void FilterDialog::prepCollections() {
   int coltag = tags.findOne("Collections");
   if (coltag>0) {
     QSet<QString> cols;
-    QSqlQuery q = db.query("select tag from tags "
+    QSqlQuery q = db->query("select tag from tags "
 			   "where parent==:a", coltag);
     while (q.next())
       cols << q.value(0).toString();
@@ -170,7 +170,7 @@ void FilterDialog::prepCollections() {
 }
 
 Filter FilterDialog::extract() const {
-  Filter f;
+  Filter f(db);
   f.setCollection(ui->collectionBox->currentIndex()==0 ? ""
                   : ui->collectionBox->currentText());
   if (!ui->collection->isChecked())
@@ -302,7 +302,7 @@ void FilterDialog::populate(Filter const &f) {
 void FilterDialog::recount() {
   Filter f = extract();
   try {
-    ui->count->setText(QString::number(f.count(db)));
+    ui->count->setText(QString::number(f.count()));
   } catch (QSqlQuery const &q) {
     pDebug() << "recount error: " + q.lastError().text()
       + " from " + q.lastQuery();
@@ -338,7 +338,7 @@ void FilterDialog::recolorTags() {
     return;
   pDebug() << "FD::recolorTags";
   QStringList tt = splitTags();
-  ui->tagInterpretation->setText(Filter::tagsInterpretation(tt, db));
+  ui->tagInterpretation->setText(f0.tagsInterpretation(tt));
   recount();
 }
 
@@ -356,7 +356,7 @@ void FilterDialog::buttonClick(QAbstractButton *b) {
     emit apply();
     break;
   case QDialogButtonBox::ResetRole:
-    f0 = Filter();
+    f0 = Filter(db);
     populate(f0);
     break;
   case QDialogButtonBox::RejectRole:
@@ -389,7 +389,7 @@ void FilterDialog::browseTags() {
 }
 
 void FilterDialog::buildTree(QTreeWidgetItem *parentit, quint64 parentid) {
-  QSqlQuery q = db.query("select pathname, leafname, id from folders"
+  QSqlQuery q = db->query("select pathname, leafname, id from folders"
                          " where parentfolder==:a order by pathname",
                          parentid);
   while (q.next()) {
@@ -407,7 +407,7 @@ void FilterDialog::buildTree(QTreeWidgetItem *parentit, quint64 parentid) {
 void FilterDialog::prepFolderTree() {
   ui->location->clear();
 
-  QSqlQuery q = db.query("select pathname, id from folders"
+  QSqlQuery q = db->query("select pathname, id from folders"
                          " where parentfolder is null order by pathname");
   while (q.next()) {
     QString path = q.value(0).toString();

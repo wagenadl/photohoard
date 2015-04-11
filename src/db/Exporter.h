@@ -24,7 +24,7 @@ public:
     QSet<quint64> failed;
   };
 public:
-  Exporter(PhotoDB const &db, QObject *parent=0);
+  Exporter(PhotoDB const *db, QObject *parent=0);
   void setup(ExportSettings const &);
   void addSelection();
   void add(QSet<quint64> const &vsns);

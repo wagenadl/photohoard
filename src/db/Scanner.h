@@ -5,16 +5,16 @@
 #define SCANNER_H
 
 #include "BasicThread.h"
-#include "PhotoDB.h"
 #include <QMutex>
 #include <QWaitCondition>
 #include <QSet>
 #include "Image16.h"
+#include "PhotoDB.h"
 
 class Scanner: public BasicThread {
   Q_OBJECT;
 public:
-  Scanner(PhotoDB const &);
+  Scanner(PhotoDB const *);
   virtual ~Scanner();
 public slots:
   void addTree(QString path);

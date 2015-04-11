@@ -9,9 +9,9 @@
 #include "Exif.h"
 #include "NoResult.h"
 
-Scanner::Scanner(PhotoDB const &db):
-  db(db) {
+Scanner::Scanner(PhotoDB const *db0) {
   setObjectName("Scanner");
+  db.clone(*db0);
   QSqlQuery q = db.constQuery("select extension, filetype from extensions");
   while (q.next()) 
     exts[q.value(0).toString()] = q.value(1).toInt();
@@ -19,11 +19,12 @@ Scanner::Scanner(PhotoDB const &db):
 
 Scanner::~Scanner() {
   stopAndWait();
+  db.close();
 }
 
 void Scanner::addTree(QString path) {
   // This is called from outside of thread!
-  Transaction t(db);
+  Transaction t(&db);
   QSqlQuery q = db.constQuery("select id from folders where pathname==:a",
 			      path);
   quint64 id;
@@ -86,7 +87,7 @@ quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
 }
 
 void Scanner::removeTree(QString path) {
-  Transaction t(db);
+  Transaction t(&db);
   db.query("delete from folders where pathname==:a", path);
   t.commit();
 }
@@ -162,7 +163,7 @@ QSet<quint64> Scanner::findPhotosToScan() {
 }
   
 void Scanner::scanPhotos(QSet<quint64> ids) {
-  Transaction t(db);
+  Transaction t(&db);
   bool worked = false;
   QSet<quint64> versions;
   for (auto id: ids) {
@@ -190,7 +191,7 @@ QSet<quint64> Scanner::findFoldersToScan() {
 }
 
 void Scanner::scanFolders(QSet<quint64> ids) {
-  Transaction t(db);
+  Transaction t(&db);
   int N0 = N;
   bool worked = false;
   for (auto id: ids) {

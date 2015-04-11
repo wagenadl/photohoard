@@ -12,7 +12,7 @@
 class LiveAdjuster: public QObject {
   Q_OBJECT;
 public:
-  LiveAdjuster(PhotoDB const &db, 
+  LiveAdjuster(PhotoDB *db, 
                class AllControls *controls,
                class AutoCache *cache,
                QObject *parent=0);
@@ -30,7 +30,7 @@ private slots:
   void provideScaledOriginal(quint64, QSize osize, Image16);
   void provideAdjusted(Image16);
 private:
-  PhotoDB db;
+  PhotoDB *db;
   AllControls *controls; // we do not own
   AutoCache *cache;  // we do not own
   quint64 version;

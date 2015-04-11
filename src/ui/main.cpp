@@ -78,34 +78,35 @@ int main(int argc, char **argv) {
       pDebug() << "Creating database at " << dbfn;
       PhotoDB::create(dbfn);
     }
+
+    PhotoDB db;
+    db.open(dbfn);
+    
     if (!QDir(cachefn).exists()) {
       pDebug() << "Creating cache at " << cachefn;
-      delete BasicCache::create(cachefn);
+      BasicCache::create(cachefn);
     }
 
     ExceptionReporter *excrep = new ExceptionReporter();
 
-    PhotoDB db(dbfn);
-
-    AutoCache *ac = new AutoCache(db, cachefn);
+    AutoCache *ac = new AutoCache(&db, cachefn);
     QObject::connect(ac, SIGNAL(exception(QString)),
                      excrep, SLOT(report(QString)));
 
-    Scanner *scan = new Scanner(db);
+    Scanner *scan = new Scanner(&db);
     QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
                      ac, SLOT(recache(QSet<quint64>)));
     QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
                      ac, SLOT(cachePreview(quint64, Image16)));
     QObject::connect(scan, SIGNAL(exception(QString)),
                      excrep, SLOT(report(QString)));
-    scan->start();
 
-    Exporter *expo = new Exporter(db, 0);
+    Exporter *expo = new Exporter(&db, 0);
     expo->start();
 
     scan->addTree(picroot); // this should not always happen
 
-    MainWindow *mw = new MainWindow(db, scan, ac, expo);
+    MainWindow *mw = new MainWindow(&db, scan, ac, expo);
     QDesktopWidget *dw = app.desktop();
     mw->resize(dw->width()*8/10, dw->height()*8/10);
     mw->move(dw->width()/10, dw->height()/10);
@@ -113,6 +114,8 @@ int main(int argc, char **argv) {
 
     mw->scrollToCurrent();
     
+    scan->start();
+
     int res = app.exec();
     pDebug() << "App returned " << res;
     pDebug() << "Stopping scanner";

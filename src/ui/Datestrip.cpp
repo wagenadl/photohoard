@@ -12,7 +12,7 @@ inline uint qHash(QDateTime const &dt) {
   return qHash(dt.toMSecsSinceEpoch());
 }
 
-Datestrip::Datestrip(PhotoDB const &db, QGraphicsItem *parent):
+Datestrip::Datestrip(PhotoDB *db, QGraphicsItem *parent):
   Strip(db, parent) {
   mustRebuild = false;
   mustRelayout = false;
@@ -114,7 +114,7 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
 }
 
 Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
-  int n = db.countInDateRange(t, endFor(t, subs));
+  int n = db->countInDateRange(t, endFor(t, subs));
   bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
   Strip *s = newStrip(indirect, true);
   return s;
@@ -140,8 +140,8 @@ void Datestrip::rebuildContents() {
 void Datestrip::rebuildByFolder() {
   rebuilding++;
 
-  bool anyhere = db.countInFolder(pathname)>0;
-  bool anybelow = db.anyInTreeBelow(pathname);
+  bool anyhere = db->countInFolder(pathname)>0;
+  bool anybelow = db->anyInTreeBelow(pathname);
 
   if (!anyhere && !anybelow) {
     rebuilding--;
@@ -178,9 +178,9 @@ void Datestrip::rebuildByFolder() {
   }
 
   if (anybelow) {
-    QList<QString> fff = db.subFolders(pathname);
+    QList<QString> fff = db->subFolders(pathname);
     for (QString f: fff) {
-      if (db.countInFolder(f)==0 && !db.anyInTreeBelow(f))
+      if (db->countInFolder(f)==0 && !db->anyInTreeBelow(f))
         continue;
 
       keep << f;
@@ -214,7 +214,7 @@ void Datestrip::rebuildByDate() {
 
   TimeScale subs = subScale();
   QDateTime end = endDateTime();
-  QDateTime t = db.firstDateInRange(startDateTime(), end);
+  QDateTime t = db->firstDateInRange(startDateTime(), end);
 
   if (t.isNull()) {
     rebuilding--;
@@ -247,7 +247,7 @@ void Datestrip::rebuildByDate() {
     else
       s->hide();
 
-    t = db.firstDateInRange(t1, end);
+    t = db->firstDateInRange(t1, end);
   }
 
   for (auto id: dateMap.keys()) {

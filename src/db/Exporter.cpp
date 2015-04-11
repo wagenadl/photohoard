@@ -8,8 +8,9 @@
 #include <QRegExp>
 #include <QDir>
 
-Exporter::Exporter(PhotoDB const &db, QObject *parent):
-  QThread(parent), db(db) {
+Exporter::Exporter(PhotoDB const *db0, QObject *parent):
+  QThread(parent) {
+  db.clone(*db0);
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");
   worker = new IF_Worker(this);
 }
@@ -30,6 +31,7 @@ Exporter::~Exporter() {
       }
     }
   }
+  db.close();
 }
 
 void Exporter::setup(ExportSettings const &s) {

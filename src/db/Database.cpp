@@ -8,138 +8,77 @@
 #include <QMutex>
 #include "NoResult.h"
 
-Database::Database(Database const &o) {
-  db = o.db;
-  ref();
+Database::Database(QString id0): id(id0) {
+  if (id.isEmpty())
+    id = autoid();
 }
 
-Database &Database::operator=(Database const &o) {
-  if (this != &o) {
-    unref();
-    db = o.db;
-    ref();
-  }
-  return *this;
-}
-  
-Database::Database(QString filename, QString id) {
-  if (id=="")
-    id = filename;
-  if (databases().contains(id)) {
-    db = databases()[id];
-  } else {
-    db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", id));
-    db->setDatabaseName(filename);
-    if (!db->open()) {
-      qDebug() << "Could not open database " << filename;
-      throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
-    }
-    databases()[id] = db;
-    mutexes()[db] = new QMutex;
-    refcount()[db] = 0;
-    names()[db] = id;
+void Database::open(QString filename) {
+  if (db.isOpen())
+    close();
 
-    query("attach database ':memory:' as M");
+  db = QSqlDatabase::addDatabase("QSQLITE", id);
+  db.setDatabaseName(filename);
+  if (!db.open()) {
+    qDebug() << "Could not open database " << filename;
+    throw std::system_error(std::make_error_code
+                            (std::errc::no_such_file_or_directory));
   }
-  ref();
+}
+
+void Database::close() {
+  db.close();
+  db = QSqlDatabase();
+  QSqlDatabase::removeDatabase(id);
+}
+
+QString Database::autoid() {
+  static int id=0;
+  id++;
+  return QString("db%1").arg(id);
+}
+
+void Database::clone(Database const &src) {
+  if (db.isOpen())
+    close();
+  db = QSqlDatabase::cloneDatabase(src.db, id);
+  if (!db.open()) {
+    qDebug() << "Could not open cloned database:"
+             << db.databaseName();      
+    throw std::system_error(std::make_error_code
+                            (std::errc::no_such_file_or_directory));
+  }
 }
 
 Database::~Database() {
-  unref();
-}
-
-void Database::ref() {
-  refcount()[db] ++;
-}
-
-void Database::unref() {
-  refcount()[db] --;
-  if (refcount()[db]==0) {
-    delete db;
-    QString name = names()[db];
-    refcount().remove(db);
-    names().remove(db);
-    databases().remove(name);
-    delete mutexes()[db];
-    mutexes().remove(db);
-  }
-}
-  
-QMap<QString, QSqlDatabase *> &Database::databases() {
-  static QMap<QString, QSqlDatabase *> dbs;
-  return dbs;
-}
-
-QMap<QSqlDatabase *, int> &Database::refcount() {
-  static QMap<QSqlDatabase *, int> refs;
-  return refs;
-}
-
-QMap<QSqlDatabase *, QString> &Database::names() {
-  static QMap<QSqlDatabase *, QString> nms;
-  return nms;
-}
-
-QMap<QSqlDatabase *, QMutex *> &Database::mutexes() {
-  static QMap<QSqlDatabase *, QMutex *> mtx;
-  return mtx;
-}
-
-void Database::beginAndLock() {
-  mutexes()[db]->lock();
-  QSqlQuery q(*db);
-  if (!q.exec("begin transaction")) {
-    mutexes()[db]->unlock();
-    throw q.lastError();
+  if (db.isOpen()) {
+    qDebug() << "Caution: Database destructed while still open: "
+             << db.databaseName();
+    close();
   }
 }
 
-bool Database::tryBeginAndLock() {
-  if (!mutexes()[db]->tryLock())
-    return false;
-  QSqlQuery q(*db);
-  if (!q.exec("begin transaction")) {
-    mutexes()[db]->unlock();
-    qDebug() << "Database: Could not begin transaction: "
-	     << q.lastError().text();
-    return false;
+void Database::begin() {
+  if (!db.transaction()) {
+    qDebug() << "Could not begin transaction";
+    throw db.lastError();
   }
-  return true;
 }
 
-void Database::commitAndUnlock() {
-  QSqlQuery q(*db);
-  bool ok = q.exec("commit transaction");
-  mutexes()[db]->unlock();
-  if (!ok)
-    throw q.lastError();
+void Database::commit() {
+  if (!db.commit()) {
+    qDebug() << "Could not commit transaction";
+    throw db.lastError();
+  }
 }
 
-void Database::rollbackAndUnlock() {
-  QSqlQuery q(*db);
-  bool ok = q.exec("rollback transaction");
-  mutexes()[db]->unlock();
-  if (!ok)
-    throw q.lastError();
+void Database::rollback() {
+  if (!db.rollback()) {
+    qDebug() << "Could not rollback transaction";
+    throw db.lastError();
+  }
 }
 
-//////////////////////////////////////////////////////////////////////
-
-Transaction::Transaction(Database const &db):
-  db(db), committed(false) {
-  this->db.beginAndLock();
-}
-
-void Transaction::commit() {
-  db.commitAndUnlock();
-  committed = true;
-}
-
-Transaction::~Transaction() {
-  if (!committed)
-    db.rollbackAndUnlock();
-}
-   
 QVariant Database::simpleQuery(QString s) const {
   QSqlQuery q = constQuery(s);
   if (!q.next())
@@ -184,7 +123,7 @@ QSqlQuery Database::query(QString s) {
 }
 
 QSqlQuery Database::constQuery(QString s) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   if (q.exec())
     return q;
@@ -197,7 +136,7 @@ QSqlQuery Database::query(QString s, QVariant a) {
 }
 
 QSqlQuery Database::constQuery(QString s, QVariant a) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   if (q.exec())
@@ -211,7 +150,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
 }
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
@@ -227,7 +166,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
@@ -245,7 +184,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
@@ -264,7 +203,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d, QVariant e) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
@@ -284,7 +223,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d, QVariant e, QVariant f) const {
-  QSqlQuery q(*db);
+  QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
@@ -298,10 +237,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
     throw q;
 }
 
-QString Database::fileName() const {
-  return db->databaseName();
+QSqlQuery Database::query() {
+  return QSqlQuery(db);
 }
-
-QString Database::name() const {
-  return db->connectionName();
-}
+  

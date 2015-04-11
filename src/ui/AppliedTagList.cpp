@@ -7,7 +7,7 @@
 #include <QToolButton>
 #include "TagDialog.h"
 
-AppliedTagList::AppliedTagList(PhotoDB const &db, QWidget *parent):
+AppliedTagList::AppliedTagList(PhotoDB *db, QWidget *parent):
   QFrame(parent),
   db(db), tags(db), selection(db) {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);

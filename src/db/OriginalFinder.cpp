@@ -7,7 +7,7 @@
 #include "Exif.h"
 #include "PDebug.h"
 
-OriginalFinder::OriginalFinder(PhotoDB const &db, 
+OriginalFinder::OriginalFinder(PhotoDB *db, 
                                QObject *parent):
   QObject(parent), db(db) {
   filereader = new InterruptableFileReader(this);
@@ -27,9 +27,9 @@ void OriginalFinder::requestOriginal(quint64 version) {
 
 PSize OriginalFinder::originalSize(quint64 vsn) {
   try {
-    quint64 photo = db.simpleQuery("select photo from versions"
+    quint64 photo = db->simpleQuery("select photo from versions"
 				   " where id=:a limit 1", vsn).toULongLong();
-    QSqlQuery q = db.query("select width, height, orient "
+    QSqlQuery q = db->query("select width, height, orient "
                " from photos where id=:a limit 1", photo);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
@@ -45,10 +45,10 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   pDebug() << "requestScaledOriginal " << vsn << ds;
   try {
-    quint64 photo = db.simpleQuery("select photo from versions"
+    quint64 photo = db->simpleQuery("select photo from versions"
 				   " where id=:a limit 1", vsn).toULongLong();
     QSqlQuery q
-      = db.query("select folder, filename, filetype, width, height, orient "
+      = db->query("select folder, filename, filetype, width, height, orient "
 		 " from photos where id=:a limit 1", photo);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
@@ -59,8 +59,8 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     int hei = q.value(4).toInt();
     orient = Exif::Orientation(q.value(5).toInt());
     osize = Exif::fixOrientation(PSize(wid, hei), orient);
-    QString path = db.folder(folder) + "/" + fn;
-    QString ext = db.ftype(ftype);
+    QString path = db->folder(folder) + "/" + fn;
+    QString ext = db->ftype(ftype);
     InterruptableReader *reader = 0;
     if (ext=="nef" || ext=="cr2")
       reader = rawreader;

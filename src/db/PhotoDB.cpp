@@ -7,17 +7,13 @@
 #include <QFile>
 #include "NoResult.h"
 
-PhotoDB::PhotoDB(QString fn): Database(fn),
-                              folders(new QMap<quint64, QString>),
-                              revFolders(new QMap<QString, quint64>),
-                              ftypes(new QMap<int, QString>),
-                              makes(new QMap<int, QString>),
-                              models(new QMap<int, QString>),
-                              lenses(new QMap<int, QString>) {
+void PhotoDB::open(QString fn) {
+  Database::open(fn);
+
   QSqlQuery q = query("select id, version from info limit 1");
   if (!q.next())
     throw NoResult();
-
+  
   pDebug() << "Opened PhotoDB " << fn
 	   << ": " << q.value(0).toString() << q.value(1).toString();
 
@@ -26,67 +22,77 @@ PhotoDB::PhotoDB(QString fn): Database(fn),
 
   q = query("select id, stdext from filetypes");
   while (q.next()) 
-    (*ftypes)[q.value(0).toInt()] = q.value(1).toString();
+    ftypes[q.value(0).toInt()] = q.value(1).toString();
 
-  query("create table if not exists M.filter "
-        "(version integer, " // references versions(id), "
-        " photo integer )"); // references PDB.photos(id) )");
+  query("attach database ':memory:' as M");
+  query("create table if not exists M.filter"
+        " ( version integer, "
+        "   photo integer )");
   query("create index if not exists M.photoidx on filter(photo)");
-
-  query("create table if not exists M.selection ("
-        " version integer unique on conflict ignore )");
-  // " references versions(id)"
-  // "   on delete cascade on update cascade)");
   
+  query("create table if not exists M.selection"
+        " ( version integer unique on conflict ignore )");
 }
 
-QString PhotoDB::ftype(int ft) const {
-  return (*ftypes)[ft];
+void PhotoDB::clone(PhotoDB const &src) {
+  Database::clone(src);
+
+  query("pragma synchronous = 0");
+  query("pragma foreign_keys = on");
+
+  ftypes = src.ftypes;
 }
 
-quint64 PhotoDB::findFolder(QString path) const {
-  if (revFolders->contains(path))
-    return (*revFolders)[path];
-
-  QSqlQuery q = constQuery("select id from folders where pathname==:a", path);
-  if (!q.next())
-    return 0;
-  quint64 id = q.value(0).toULongLong();
-  (*revFolders)[path] = id;
-  return id;
-}
-
-QString PhotoDB::folder(quint64 id) const {
-  if (folders->contains(id))
-    return (*folders)[id];
-
-  QString folder = simpleQuery("select pathname from folders where id=:a", id)
-    .toString();
-  (*folders)[id] = folder;
-  return folder;
-}
-
-PhotoDB PhotoDB::create(QString fn) {
+void PhotoDB::create(QString fn) {
   QFile f(fn);
   if (f.exists()) {
     pDebug() << "Could not create new PhotoDB: File exists: " << fn;
     throw std::system_error(std::make_error_code(std::errc::file_exists));
   }
-  Database db(fn);
+
+  Database db;
+  db.open(fn);
   SqlFile sql(":/setupdb.sql");
-  QSqlQuery q(*db);
-  db.beginAndLock();
+  QSqlQuery q = db.query();
+  db.begin();
   for (auto c: sql) {
     if (!q.exec(c)) {
       pDebug() << "PhotoDB: Could not setup: " << q.lastError().text();
       pDebug() << "  at " << c;
-      db.rollbackAndUnlock();
+      db.rollback();
       throw q;
     }
   }
-  db.commitAndUnlock();
-  return PhotoDB(fn);
+  db.commit();
+  db.close();
 }
+
+QString PhotoDB::ftype(int ft) const {
+  return ftypes[ft];
+}
+
+quint64 PhotoDB::findFolder(QString path) const {
+  if (revFolders.contains(path))
+    return revFolders[path];
+
+  QSqlQuery q = constQuery("select id from folders where pathname==:a", path);
+  if (!q.next())
+    return 0;
+  quint64 id = q.value(0).toULongLong();
+  revFolders[path] = id;
+  return id;
+}
+
+QString PhotoDB::folder(quint64 id) const {
+  if (folders.contains(id))
+    return folders[id];
+
+  QString folder = simpleQuery("select pathname from folders where id=:a", id)
+    .toString();
+  folders[id] = folder;
+  return folder;
+}
+
 
 quint64 PhotoDB::photoFromVersion(quint64 v) const {
   return simpleQuery("select photo from versions where id==:a", v)
@@ -117,24 +123,24 @@ QString PhotoDB::camera(int id) const {
 }
 
 QString PhotoDB::model(int id) const {
-  if (!models->contains(id)) 
-    (*models)[id] = simpleQuery("select camera from cameras where id==:a", id)
+  if (!models.contains(id)) 
+    models[id] = simpleQuery("select camera from cameras where id==:a", id)
       .toString();
-  return (*models)[id];
+  return models[id];
 }
 
 QString PhotoDB::make(int id) const {
-  if (!makes->contains(id)) 
-    (*makes)[id] = simpleQuery("select make from cameras where id==:a", id)
+  if (!makes.contains(id)) 
+    makes[id] = simpleQuery("select make from cameras where id==:a", id)
       .toString();
-  return (*makes)[id];
+  return makes[id];
 }
 
 QString PhotoDB::lens(int id) const {
-  if (!lenses->contains(id)) 
-    (*lenses)[id] = simpleQuery("select lens from lenses where id==:a", id)
+  if (!lenses.contains(id)) 
+    lenses[id] = simpleQuery("select lens from lenses where id==:a", id)
       .toString();
-  return (*lenses)[id];
+  return lenses[id];
 }
 
 

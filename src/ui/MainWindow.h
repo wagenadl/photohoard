@@ -12,7 +12,7 @@
 class MainWindow: public QMainWindow {
   Q_OBJECT;
 public:
-  MainWindow(class PhotoDB const &,
+  MainWindow(class PhotoDB *,
              class Scanner *,
              class AutoCache *,
              class Exporter *);

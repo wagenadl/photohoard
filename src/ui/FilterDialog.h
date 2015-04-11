@@ -11,7 +11,7 @@
 class FilterDialog: public QDialog {
   Q_OBJECT;
 public:
-  FilterDialog(class PhotoDB const &db, QWidget *parent=0);
+  FilterDialog(class PhotoDB *db, QWidget *parent=0);
   virtual ~FilterDialog() { }
   void populate(Filter const &);
   Filter extract() const; // currently shown in dialog
@@ -41,7 +41,7 @@ private:
   void buildTree(class QTreeWidgetItem *it, quint64 parentid);
 private:
   class Ui_FilterDialog *ui;
-  PhotoDB db;
+  PhotoDB *db;
   Filter f0;
   bool starting;
 };

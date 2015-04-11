@@ -9,7 +9,7 @@
 #include "FilmScene.h"
 #include "Selection.h"
 
-Strip::Strip(PhotoDB const &db, QGraphicsItem *parent):
+Strip::Strip(PhotoDB *db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
   hasheader = true;
   arr = Arrangement::Vertical;
@@ -183,7 +183,7 @@ void Strip::toggleSelection() {
   int N=0;
   switch (org) {
   case Organization::ByDate:
-    N = db.countInDateRange(d0, endFor(d0, scl));
+    N = db->countInDateRange(d0, endFor(d0, scl));
     if (N) {
       n = Selection(db).countInDateRange(d0, endFor(d0, scl));
       if (n==N)
@@ -193,7 +193,7 @@ void Strip::toggleSelection() {
     }
     break;
   case Organization::ByFolder:
-    N = db.countInTree(pathname);
+    N = db->countInTree(pathname);
     if (N) {
       n = Selection(db).countInTree(pathname);
       if (n==N)
@@ -211,12 +211,12 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   int N=0;
   switch (org) {
   case Organization::ByDate:
-    N = db.countInDateRange(d0, endFor(d0, scl));
+    N = db->countInDateRange(d0, endFor(d0, scl));
     if (N)
       n = Selection(db).countInDateRange(d0, endFor(d0, scl));
     break;
   case Organization::ByFolder:
-    N = db.countInTree(pathname);
+    N = db->countInTree(pathname);
     if (N)
       n = Selection(db).countInTree(pathname);
     break;
@@ -323,7 +323,7 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
   if (headerid==0) {
     switch (org) {
     case Organization::ByDate: {
-      QSqlQuery q = db.query("select version"
+      QSqlQuery q = db->query("select version"
                              " from filter inner join photos"
                              " on filter.photo=photos.id"
                              " where photos.capturedate>=:a"
@@ -337,7 +337,7 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
                  << pathname;
     } break;
     case Organization::ByFolder:
-      setHeaderID(db.firstVersionInTree(pathname));
+      setHeaderID(db->firstVersionInTree(pathname));
       break;
     }
   }
@@ -365,12 +365,12 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
   case Organization::ByDate:
     lbl = labelFor(d0, scl);
     if (!expanded)
-      n = db.countInDateRange(d0, endFor(d0, scl));
+      n = db->countInDateRange(d0, endFor(d0, scl));
     break;
   case Organization::ByFolder:
     lbl = leafname;
     if (!expanded)
-      n = db.countInTree(pathname);
+      n = db->countInTree(pathname);
     break;
   }
 
@@ -441,7 +441,7 @@ void Strip::rebuildToolTip() {
     setToolTip(longLabelFor(d0, scl));
     break;
   case Organization::ByFolder:
-    setToolTip(pathname == "/" ? db.fileName() : pathname);
+    setToolTip(pathname == "/" ? db->name() : pathname);
     break;
   }
 }
@@ -449,7 +449,7 @@ void Strip::rebuildToolTip() {
 QString Strip::longLabelFor(QDateTime d0, Strip::TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
-    return db.fileName();
+    return db->name();
   case TimeScale::Decade:
     return d0.toString("yyyy") + QString::fromUtf8("–")
       + d0.addYears(9).toString("yyyy");
@@ -594,10 +594,10 @@ void Strip::expand() {
   prepareGeometryChange();
   switch (org) {
   case Organization::ByDate:
-    db.query("insert into expanded values(:a,:b)", d0, int(scl));
+    db->query("insert into expanded values(:a,:b)", d0, int(scl));
     break;
   case Organization::ByFolder:
-    db.query("insert into expandedfolders values(:a)", pathname);
+    db->query("insert into expandedfolders values(:a)", pathname);
     break;
   }
 }
@@ -609,10 +609,10 @@ void Strip::collapse() {
   expanded = false;
   switch (org) {
   case Organization::ByDate:
-    db.query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
+    db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
     break;
   case Organization::ByFolder:
-    db.query("delete from expandedfolders where path==:a", pathname);
+    db->query("delete from expandedfolders where path==:a", pathname);
     break;
   }
 }
@@ -644,7 +644,6 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (!labelRect.contains(e->pos()))
     return;
   
-  db.beginAndLock(); // why do I do this>
   if (e->modifiers() & Qt::ControlModifier)
     toggleSelection();
   else if (e->modifiers() & Qt::ShiftModifier) 
@@ -653,7 +652,6 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     collapse();
   else
     expand();
-  db.commitAndUnlock();
 }
 
 void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {

@@ -10,12 +10,12 @@
 class MetaViewer: public QTextEdit {
   Q_OBJECT;
 public:
-  MetaViewer(PhotoDB const &, QWidget *parent=0);
+  MetaViewer(PhotoDB *, QWidget *parent=0);
   virtual ~MetaViewer() { }
 public slots:
   void setVersion(quint64 version);
 private:
-  PhotoDB db;
+  PhotoDB *db;
 };
 
 #endif

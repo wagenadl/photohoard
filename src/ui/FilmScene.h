@@ -13,7 +13,7 @@
 class FilmScene: public QGraphicsScene {
   Q_OBJECT;
 public:
-  FilmScene(PhotoDB const &db, QObject *parent=0);
+  FilmScene(PhotoDB *db, QObject *parent=0);
   virtual ~FilmScene();
   void markSlideFor(quint64, class Slide *);
   void dropSlideFor(quint64);
@@ -26,7 +26,7 @@ signals:
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
-  PhotoDB const &db;
+  PhotoDB *db;
   QMap<quint64, class Slide *> slidemap;
   QMultiMap<quint64, class Strip *> headermap;
 };

@@ -11,7 +11,7 @@
 class FilmView: public QGraphicsView {
   Q_OBJECT;
 public:
-  FilmView(class PhotoDB const &db, QWidget *parent=0);
+  FilmView(PhotoDB *db, QWidget *parent=0);
   virtual ~FilmView();
   class FilmScene *scene();
   class Datestrip *strip();
@@ -42,7 +42,7 @@ protected:
   quint64 current();
   void placeAndConnect(class Strip *strip);
 private:
-  PhotoDB db;
+  PhotoDB *db;
   bool useFolders;
   class FilmScene *dateScene, *folderScene;
   class Datestrip *dateStrip, *folderStrip;

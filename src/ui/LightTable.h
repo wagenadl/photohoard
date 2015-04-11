@@ -17,7 +17,7 @@
 class LightTable: public QSplitter {
   Q_OBJECT;
 public:
-  LightTable(PhotoDB const &db, LiveAdjuster *adjuster,
+  LightTable(PhotoDB *db, LiveAdjuster *adjuster,
              QWidget *parent=0);
   virtual ~LightTable();
   quint64 current() const { return curr; }
@@ -53,7 +53,7 @@ protected:
   void simpleSelection(quint64 i);
   void makeCurrent(quint64 i);
 protected:
-  PhotoDB db;
+  PhotoDB *db;
   QPointer<LiveAdjuster> adjuster; // we do not own
   class Selection *selection;
   class FilmView *film;

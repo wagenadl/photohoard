@@ -7,12 +7,11 @@
 #include "PDebug.h"
 #include "AC_ImageHolder.h"
 
-AutoCache::AutoCache(PhotoDB const &db, QString rootdir, QObject *parent):
+AutoCache::AutoCache(PhotoDB *db, QString rootdir, QObject *parent):
   QObject(parent), db(db) {
   setObjectName("AutoCache");
-  cache = new BasicCache(rootdir, this);
   holder = new AC_ImageHolder(this);
-  worker = new AC_Worker(db, cache, holder);
+  worker = new AC_Worker(db, rootdir, holder);
   worker->moveToThread(&thread);
   
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");

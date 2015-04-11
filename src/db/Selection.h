@@ -11,7 +11,7 @@
 
 class Selection {
 public:
-  Selection(PhotoDB const &photodb);
+  Selection(PhotoDB *photodb);
   int count();
   QSet<quint64> current();
   void add(quint64 vsn);
@@ -36,7 +36,7 @@ public:
   int countInTree(QString folder) const; // ... PhotoDB except restricted to
   // ... selection
 private:
-  PhotoDB db;
+  PhotoDB *db;
 };
 
 #endif

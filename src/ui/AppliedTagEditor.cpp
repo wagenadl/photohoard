@@ -9,7 +9,7 @@
 #include "PDebug.h"
 #include <QPainter>
 
-AppliedTagEditor::AppliedTagEditor(PhotoDB const &db, QWidget *parent):
+AppliedTagEditor::AppliedTagEditor(PhotoDB *db, QWidget *parent):
   QFrame(parent), tags(db) {
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   setContentsMargins(2, 2, 2, 2);

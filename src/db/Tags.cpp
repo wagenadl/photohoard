@@ -4,15 +4,15 @@
 #include <QStringList>
 #include "PDebug.h"
 
-Tags::Tags(PhotoDB const &db): db(db) {
+Tags::Tags(PhotoDB *db): db(db) {
 }
 
 QString Tags::name(int id) {
-  return db.simpleQuery("select tag from tags where id==:a", id).toString();
+  return db->simpleQuery("select tag from tags where id==:a", id).toString();
 }
 
 int Tags::findOne(QString tag) {
-  QSqlQuery q = db.query("select id from tags where tag==:a collate nocase",
+  QSqlQuery q = db->query("select id from tags where tag==:a collate nocase",
                          tag);
   int id = 0;
   if (q.next())
@@ -23,7 +23,7 @@ int Tags::findOne(QString tag) {
 }
 
 QSet<int> Tags::findAll(QString tag) {
-  QSqlQuery q = db.query("select id from tags where tag==:a collate nocase",
+  QSqlQuery q = db->query("select id from tags where tag==:a collate nocase",
                          tag);
   QSet<int> ids;
   while (q.next())
@@ -32,7 +32,7 @@ QSet<int> Tags::findAll(QString tag) {
 }
 
 QSet<int> Tags::findAbbreviated(QString tag) {
-  QSqlQuery q = db.query("select id from tags where tag like \""
+  QSqlQuery q = db->query("select id from tags where tag like \""
 			 + tag + "%\" collate nocase");
   QSet<int> ids;
   while (q.next())
@@ -43,8 +43,8 @@ QSet<int> Tags::findAbbreviated(QString tag) {
 QSet<int> Tags::children(int tagid) {
   QSet<int> ids;
   QSqlQuery q = tagid
-    ? db.query("select id from tags where parent==:a", tagid)
-    : db.query("select id from tags where parent is null");
+    ? db->query("select id from tags where parent==:a", tagid)
+    : db->query("select id from tags where parent is null");
   while (q.next())
     ids << q.value(0).toInt();
   ids.remove(0); // avoid loop
@@ -61,7 +61,7 @@ QSet<int> Tags::descendants(int tagid) {
 
 QSet<int> Tags::applied(quint64 versionid) {
   QSet<int> res;
-  QSqlQuery q = db.query("select tag from appliedtags where version==:a",
+  QSqlQuery q = db->query("select tag from appliedtags where version==:a",
 			 versionid);
   while (q.next())
     res << q.value(0).toInt();
@@ -69,20 +69,20 @@ QSet<int> Tags::applied(quint64 versionid) {
 }
 
 void Tags::apply(quint64 versionid, int tagid) {
-  db.query("insert into appliedtags(version, tag) values(:a,:b)",
+  db->query("insert into appliedtags(version, tag) values(:a,:b)",
 	   versionid, tagid);
 }
 
 void Tags::remove(quint64 versionid, int tagid) {
-  db.query("delete from appliedtags where version==:a and tag==:b",
+  db->query("delete from appliedtags where version==:a and tag==:b",
 	   versionid, tagid);
 }
 
 int Tags::find(QString tag, int parent) {
   QSqlQuery q = parent ?
-    db.query("select id from tags"
+    db->query("select id from tags"
              " where tag==:a and parent==:b collate nocase", tag, parent)
-    : db.query("select id from tags"
+    : db->query("select id from tags"
                " where tag==:a and parent is null collate nocase", tag);
   if (q.next())
     return q.value(0).toInt();
@@ -106,20 +106,20 @@ int Tags::define(QString tag, int parent) {
   while (tag.endsWith(".") || tag.endsWith(" "))
     tag = tag.left(tag.size()-1);
   QSqlQuery q = parent ?
-    db.query("insert into tags(tag, parent) values(:a,:b)", tag, parent)
-    : db.query("insert into tags(tag) values(:a,:b)", tag);
+    db->query("insert into tags(tag, parent) values(:a,:b)", tag, parent)
+    : db->query("insert into tags(tag) values(:a,:b)", tag);
   int tagid = q.lastInsertId().toInt();
   return tagid;
 }
 
 bool Tags::canUndefine(int tagid) {
-  if (db.simpleQuery("select count(*) from appliedtags where tag==:a",
+  if (db->simpleQuery("select count(*) from appliedtags where tag==:a",
 		     tagid).toInt()>0)
     return false;
 
   QSet<int> cc = descendants(tagid);
   for (int c: cc)
-    if (db.simpleQuery("select count(*) from appliedtags where tag==:a",
+    if (db->simpleQuery("select count(*) from appliedtags where tag==:a",
 		       c).toInt()>0)
       return false;
 
@@ -130,12 +130,12 @@ bool Tags::undefine(int tagid) {
   if (!canUndefine(tagid))
     return false;
   
-  db.query("delete from tags where id==:a", tagid);
+  db->query("delete from tags where id==:a", tagid);
   return true;
 }
 
 int Tags::parent(int tagid) {
-  return db.simpleQuery("select parent from tags where id==:a", tagid).toInt();
+  return db->simpleQuery("select parent from tags where id==:a", tagid).toInt();
 }
 
 QString Tags::fullName(int tagid) {
