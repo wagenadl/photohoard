@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
     mw->scrollToCurrent();
     
-    scan->start();
+    scan->start(); // doing this here ensures that the mainwindow can open 1st
 
     int res = app.exec();
     pDebug() << "App returned " << res;

@@ -160,7 +160,7 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
     break;
   }
 
-  qDebug() << "ATE: " << take << t;
+  pDebug() << "ATE: " << take << t;
   if (!take && !t.isEmpty()) {
     deleteSelection();
     txt = txt.left(cursorpos) + t + txt.mid(cursorpos);

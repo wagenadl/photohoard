@@ -128,7 +128,6 @@ void AppliedTagList::relayout() {
       lh = h;
     x += w1 + 8;
   }
-  qDebug() << "";
 
   y += lh + 1;
   x = r.left();

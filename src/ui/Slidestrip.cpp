@@ -166,7 +166,7 @@ void Slidestrip::expand() {
   
   for (auto s: slideOrder) {
     QString txt = MetaInfo(db, s->version()).html();
-    qDebug() << txt;
+    //    qDebug() << txt;
     s->setToolTip(txt);
     s->show();
   }
