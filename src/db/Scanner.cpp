@@ -9,7 +9,7 @@
 #include "Exif.h"
 #include "NoResult.h"
 
-Scanner::Scanner(PhotoDB const *db0) {
+Scanner::Scanner(PhotoDB *db0): db0(db0) {
   setObjectName("Scanner");
   db.clone(*db0);
   QSqlQuery q = db.constQuery("select extension, filetype from extensions");
@@ -24,8 +24,8 @@ Scanner::~Scanner() {
 
 void Scanner::addTree(QString path) {
   // This is called from outside of thread!
-  Transaction t(&db);
-  QSqlQuery q = db.constQuery("select id from folders where pathname==:a",
+  Transaction t(db0);
+  QSqlQuery q = db0->constQuery("select id from folders where pathname==:a",
 			      path);
   quint64 id;
   if (q.next()) {
@@ -37,12 +37,13 @@ void Scanner::addTree(QString path) {
     QString leaf = parent.relativeFilePath(path);
     QString parentPath = parent.path();
     QSqlQuery q
-      = db.constQuery("select id from folders where pathname==:a", parentPath);
+      = db0->constQuery("select id from folders where pathname==:a",
+                        parentPath);
     quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
     id = addFolder(parentid, path, leaf);
   }
 
-  db.query("insert into folderstoscan values (:a)", id);
+  db0->query("insert into folderstoscan values (:a)", id);
   t.commit();
 
   QMutexLocker l(&mutex);
@@ -54,6 +55,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   // Insert into photo table
   int idx = leaf.lastIndexOf(".");
   QString ext = leaf.mid(idx+1).toLower();
+
   QSqlQuery q
     = db.query("insert into photos(folder, filename, filetype) "
 	       " values (:a,:b,:c)",
@@ -68,27 +70,28 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
 
 quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
   QSqlQuery q =
-    db.query("insert into folders(parentfolder,leafname,pathname) "
-	     " values (:a,:b,:c)", parentid?parentid:QVariant(),
-		   leaf, path);
+    db0->query("insert into folders(parentfolder,leafname,pathname) "
+               " values (:a,:b,:c)", parentid?parentid:QVariant(),
+               leaf, path);
   quint64 id = q.lastInsertId().toULongLong();
 
 #if 0
   if (parentid) {
-    db.query("insert into foldertree(descendant, ancestor) "
-	     " values (:a, :b)", id, parentid);
-    db.query("insert into foldertree(descendant, ancestor) "
-	     " select :a, ancestor "
-	     " from foldertree where descendant==:b",
-	     id, parentid);
+    db0->query("insert into foldertree(descendant, ancestor) "
+               " values (:a, :b)", id, parentid);
+    db0->query("insert into foldertree(descendant, ancestor) "
+               " select :a, ancestor "
+               " from foldertree where descendant==:b",
+               id, parentid);
   }
 #endif
   return id;
 }
 
 void Scanner::removeTree(QString path) {
-  Transaction t(&db);
-  db.query("delete from folders where pathname==:a", path);
+  // called from caller, not our thread
+  Transaction t(db0);
+  db0->query("delete from folders where pathname==:a", path);
   t.commit();
 }
 
@@ -206,6 +209,7 @@ void Scanner::scanFolders(QSet<quint64> ids) {
 }
 
 void Scanner::scanFolder(quint64 id) {
+  // do not create transaction: called from scanFolders
   db.query("delete from folderstoscan where folder=:a", id);
   QString p = db.simpleQuery("select pathname from folders where id==:a", id)
     .toString();
@@ -281,6 +285,8 @@ int Scanner::photoQueueLength() {
 }
 
 void Scanner::scanPhoto(quint64 id) {
+  // Do not create transaction: called from scanPhotos
+  
   // Remove from queue
   db.query("delete from photostoscan where photo==:a", id);
 

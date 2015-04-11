@@ -14,7 +14,7 @@
 class Scanner: public BasicThread {
   Q_OBJECT;
 public:
-  Scanner(PhotoDB const *);
+  Scanner(PhotoDB *);
   virtual ~Scanner();
 public slots:
   void addTree(QString path);
@@ -39,7 +39,8 @@ private:
   void scanPhoto(quint64 photo);
   int photoQueueLength();
 private:
-  PhotoDB db;  
+  PhotoDB *db0; // this is the original of the caller
+  PhotoDB db; // this is our copy in the thread
   QMap<QString, int> exts;
   int n, N;
   class CacheFiller *filler;
