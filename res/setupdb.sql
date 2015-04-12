@@ -89,6 +89,7 @@ create table adjustments (
        version integer,
        k text,
        v,
+       unique(version, k) on conflict replace,
        foreign key(version) references versions(id)
                on delete cascade
                on update cascade );

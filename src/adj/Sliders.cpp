@@ -8,6 +8,18 @@
 #include <QStringList>
 #include <limits>
 
+#include <QMetaType>
+
+class SlidersFoo {
+public:
+  SlidersFoo() {
+    qRegisterMetaType<Sliders>("Sliders");
+  }
+};
+
+static SlidersFoo foo;
+
+
 Sliders::Sliders() {
   reset();
 }

@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QThread>
 #include "Exif.h"
+#include "Sliders.h"
 
 class ImageFinder: public QObject {
   Q_OBJECT;
@@ -14,10 +15,9 @@ public:
   ImageFinder(QObject *parent=0);
   virtual ~ImageFinder();
   int queueLength() const { return queuelength; }
-public slots:
   void findImage(quint64 id, QString path, QString ext,
 		 Exif::Orientation orient, QSize ns,
-		 QString mods,
+		 class Sliders const &mods,
 		 int maxdim, bool urgent);
 signals:
   void foundImage(quint64, Image16, QSize);
@@ -27,7 +27,7 @@ private slots:
 signals:  // private
   void forwardFindImage(quint64 id, QString path, QString ext,
 			Exif::Orientation orient, QSize ns,
-			QString mods,
+			Sliders mods,
 			int maxdim, bool urgent);
 private:
   QThread thread;

@@ -8,6 +8,7 @@
 #include "PDebug.h"
 #include "NoResult.h"
 #include "AC_ImageHolder.h"
+#include "Sliders.h"
 
 inline uint qHash(PSize const &s) {
   return qHash(QPair<int,int>(s.width(), s.height()));
@@ -260,15 +261,17 @@ void AC_Worker::processLoaded() {
   activateBank();
 }   
 
-void AC_Worker::sendToBank(quint64 version) {
-  QSqlQuery q(db.query("select photo, mods from versions"
-                        " where id=:a limit 1", version));
-  if (!q.next())
-    throw NoResult(__FILE__, __LINE__);
-  quint64 photo = q.value(0).toULongLong();
-  QString mods = q.value(1).toString();
+void AC_Worker::sendToBank(quint64 vsn) {
+  quint64 photo = db.simpleQuery("select photo from versions"
+                                 " where id==:a", vsn).toULongLong();
+  Sliders adjs;
+  QSqlQuery q = db.query("select k, v from adjustments where version==:a",
+                         vsn);
+  while (q.next())
+    adjs.set(q.value(0).toString(), q.value(0).toDouble());
+
   q = db.query("select folder, filename, filetype, width, height, orient "
-                " from photos where id=:a limit 1", photo);
+                " from photos where id==:a limit 1", photo);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   quint64 folder = q.value(0).toULongLong();
@@ -277,15 +280,16 @@ void AC_Worker::sendToBank(quint64 version) {
   int wid = q.value(3).toInt();
   int hei = q.value(4).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
+  
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
   QString path = db.folder(folder) + "/" + fn;
-  pDebug() << "AC_Worker sendtobank" << version << wid << hei << int(orient)
+  pDebug() << "AC_Worker sendtobank" << vsn << wid << hei << int(orient)
            << osize << path;
   int maxdim = cache->maxSize().maxDim();
-  bank->findImage(version,
+  bank->findImage(vsn,
 		  path, db.ftype(ftype), orient, osize,
-		  mods,
-                  maxdim, requests.contains(version));
+		  adjs,
+                  maxdim, requests.contains(vsn));
 }
 
 void AC_Worker::storeLoadedInDB() {

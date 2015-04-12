@@ -32,7 +32,7 @@ ImageFinder::~ImageFinder() {
 
 void ImageFinder::findImage(quint64 id, QString path, QString ext,
 			    Exif::Orientation orient, QSize ns,
-			    QString mods,
+			    Sliders const &mods,
 			    int maxdim, bool urgent) {
   queuelength++;
   emit forwardFindImage(id, path, ext, orient, ns, mods, maxdim, urgent);
