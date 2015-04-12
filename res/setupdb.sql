@@ -84,6 +84,15 @@ create table versions (
                on delete cascade
                on update cascade);
 
+create table adjustments (
+-- Table of adjustments to versions
+       version integer,
+       k text,
+       v,
+       foreign key(version) references versions(id)
+               on delete cascade
+               on update cascade );
+
 create table appliedtags (
 -- Table of tags applied to versions
        tag integer,
