@@ -19,7 +19,6 @@ public:
   struct VersionRecord {
     quint64 id;
     quint64 photo;
-    QString mods;
     int starrating;
     ColorLabel colorlabel;
     AcceptReject acceptreject;

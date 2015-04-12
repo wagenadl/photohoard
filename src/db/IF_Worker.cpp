@@ -15,13 +15,11 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
 
 Image16 IF_Worker::findImageNow(QString path, QString ext,
 				Exif::Orientation orient, PSize naturalSize,
-				QString mods,				
+				Sliders const &s,				
 				int maxdim, bool urgent,
 				PSize *fullSizeReturn) {
   if (fullSizeReturn)
     *fullSizeReturn = PSize();
-
-  Sliders s(mods);
 
   PSize needed = Adjuster::neededScaledOriginalSize(naturalSize, s,
                                                     PSize(maxdim,maxdim));
@@ -89,7 +87,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 
   pDebug() << "IF_Worker oriented to " << img.size() << " needed" << needed; 
 
-  if (mods != "") {
+  if (!s.isDefault()) {
     if (img.size()==fullsize)
       adjuster->setOriginal(img);
     else
@@ -103,7 +101,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 
 void IF_Worker::findImage(quint64 id, QString path, QString ext,
                           Exif::Orientation orient, QSize ns,
-			  QString mods,
+			  Sliders mods,
 			  int maxdim, bool urgent) {
   Q_ASSERT(maxdim>0);
   try {

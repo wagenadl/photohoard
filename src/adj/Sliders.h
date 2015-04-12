@@ -13,6 +13,7 @@ public:
   explicit Sliders(QString kv): Sliders() { setAll(kv); }
   void reset();
   void setAll(QString kv);
+  void setAll(QMap<QString, double> const &);
   QString getAll() const;
   bool set(QString k, double v);
   double get(QString k) const;

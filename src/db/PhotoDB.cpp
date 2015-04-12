@@ -146,17 +146,16 @@ QString PhotoDB::lens(int id) const {
 
 PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   VersionRecord vr;
-  QSqlQuery q = constQuery("select photo, mods, "
+  QSqlQuery q = constQuery("select photo, "
                            "starrating, colorlabel, acceptreject "
                            "from versions where id==:a", id);
   if (!q.next())
     throw NoResult();
   vr.id = id;
   vr.photo = q.value(0).toULongLong();
-  vr.mods = q.value(1).toString();
-  vr.starrating = q.value(2).toInt();
-  vr.colorlabel = ColorLabel(q.value(3).toInt());
-  vr.acceptreject = AcceptReject(q.value(4).toInt());
+  vr.starrating = q.value(1).toInt();
+  vr.colorlabel = ColorLabel(q.value(2).toInt());
+  vr.acceptreject = AcceptReject(q.value(3).toInt());
   return vr;
 }
 

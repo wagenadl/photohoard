@@ -367,26 +367,6 @@ void Scanner::scanPhoto(quint64 id) {
     /* Using these thumbnails makes scanning very slow. I don't think
        it's worth it. Perhaps the cache process can somehow use
        them? */
-    q.prepare("select id from versions where photo==:i and mods is null");
-    q.bindValue(":i", id);
-    if (q.exec() && q.next()) {
-      quint64 vsn = q.value(0).toULongLong();
-      PSize maxs;
-      int npix = 0;
-      for (int n=0; n<pvsiz.size(); n++) {
-        PSize s = pvsiz[n];
-        int np = s.width()*s.height();
-        if (np>npix && np<100*1000) {
-          maxs = s;
-          npix = np;
-        }
-      }
-
-      if (npix>0) {
-        Image16 img = exif.previewImage(maxs);
-        emit cacheablePreview(vsn, img);
-      }
-    }
   }
 #endif
 }

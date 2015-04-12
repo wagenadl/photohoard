@@ -7,6 +7,7 @@
 #include "NoResult.h"
 #include <QRegExp>
 #include <QDir>
+#include "Sliders.h"
 
 Exporter::Exporter(PhotoDB const *db0, QObject *parent):
   QThread(parent) {
@@ -117,13 +118,16 @@ void Exporter::run() {
 }
 
 bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
-  
-  QSqlQuery q(db.query("select photo, mods from versions"
-                       " where id=:a limit 1", vsn));
+  QSqlQuery q 
+    = db.constQuery("select photo from versions where id=:a", vsn);
   if (!q.next())
     return false;
   quint64 photo = q.value(0).toULongLong();
-  QString mods = q.value(1).toString();
+  
+  Sliders adjs;
+  q = db.query("select k, v from adjustments where version==:a", vsn);
+  while (q.next())
+    adjs.set(q.value(0).toString(), q.value(1).toDouble());
 
   q = db.query("select folder, filename, filetype, width, height, orient, "
                " capturedate"
@@ -142,7 +146,7 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   
   Image16 img = worker
     ->findImageNow(path, db.ftype(ftype), orient, PSize(wid, hei),
-                   mods, 0, true);
+                   adjs, 0, true);
   if (img.isNull())
     return false;
 
