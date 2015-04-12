@@ -1,0 +1,82 @@
+{ "typ": "page",
+  "cre": "2015-04-11T11:04:37",
+  "mod": "2015-04-11T11:06:34",
+  "stampTime": 0,
+  "startPage": 14,
+  "unlocked": false,
+  "uuid": "83819587",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-04-11T11:04:37",
+      "mod": "2015-04-11T11:04:51",
+      "uuid": "0fd6cced",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-11T11:04:37",
+          "mod": "2015-04-11T11:04:51",
+          "text": "QSql and threading; next steps",
+          "uuid": "abadc8ad"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-04-11T11:04:37",
+      "mod": "2015-04-11T11:04:37",
+      "uuid": "a9ebdc61"
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-11T11:04:51",
+      "mod": "2015-04-11T11:05:14",
+      "h": 52.1875,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "de5395f1",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-11T11:04:51",
+          "mod": "2015-04-11T11:05:14",
+          "text": "I made PhotoDB be explicitly cloned for the threads. And I am now passing it as a pointer between most classes. Much cleaner.",
+          "uuid": "b525202a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-11T11:05:14",
+      "mod": "2015-04-11T11:05:14",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "7d795ec0",
+      "y0": 124.188,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-11T11:05:14",
+          "mod": "2015-04-11T11:05:14",
+          "text": "",
+          "uuid": "69867820"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-11T11:05:15",
+      "mod": "2015-04-11T11:06:34",
+      "h": 118.469,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "bf71bce0",
+      "y0": 154.281,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-11T11:05:15",
+          "mod": "2015-04-11T11:06:34",
+          "text": "Next step: relayout() is still called many times for each change. This is absurd. Can I have it be queued and collapsed somehow? I could create a QTimer for every Strip, but that seems less than elegant. Isn’t there a callback that would be called just before returning to the event loop?",
+          "uuid": "45644a7b"
+        }
+      ]
+    }
+  ]
+}

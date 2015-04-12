@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-04-10T11:32:44",
-  "mod": "2015-04-10T11:32:59",
+  "mod": "2015-04-11T11:04:51",
   "uuid": "756eee76",
   "cc": [
     { "typ": "entry",
@@ -50,6 +50,14 @@
       "startPage": 13,
       "title": "QSql concurrency",
       "uuid": "578c9655"
+    },
+    { "typ": "entry",
+      "cre": "2015-04-11T11:04:37",
+      "mod": "2015-04-11T11:04:51",
+      "sheetCount": 1,
+      "startPage": 14,
+      "title": "QSql and threading; next steps",
+      "uuid": "83819587"
     }
   ]
 }
