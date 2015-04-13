@@ -23,8 +23,6 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 
   PSize needed = Adjuster::neededScaledOriginalSize(naturalSize, s,
                                                     PSize(maxdim,maxdim));
-  pDebug() << "IF_Worker:findImageNow" << path << naturalSize << "rq" << maxdim
-           << " need" << needed;
   bool halfsize = false;
   Image16 img;
   if (ext=="jpeg" || ext=="png" || ext=="tiff") {
@@ -34,8 +32,6 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     if (!urgent)
       dcraw.renice(10);
     QStringList args;
-    pDebug() << "half? " << PSize(naturalSize/2) << needed
-             << PSize(naturalSize/2).isLargeEnoughFor(needed);
     if (maxdim>0 && PSize(naturalSize/2).isLargeEnoughFor(needed)) {
       args << "-h";
       halfsize = true;
@@ -64,13 +60,8 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
   if (fullSizeReturn)
     *fullSizeReturn = fullsize;
 
-  pDebug() << "IF_Worker " << path << " got orig at " << img.size()
-           << "(" << fullsize << ")";
-  
   img = img.scaledDownToFitIn(Exif::fixOrientation(needed, orient));
 
-  pDebug() << "IF_Worker scaled down to " << img.size(); 
-    
   switch (orient) {
   case Exif::Upright:
     break;
@@ -84,8 +75,6 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     img.rotate90CCW();
     break;
   }
-
-  pDebug() << "IF_Worker oriented to " << img.size() << " needed" << needed; 
 
   if (!s.isDefault()) {
     if (img.size()==fullsize)
@@ -109,8 +98,6 @@ void IF_Worker::findImage(quint64 id, QString path, QString ext,
     Image16 img = findImageNow(path, ext, orient, ns, mods,
 			       maxdim, urgent,
 			       &fullSize);
-    pDebug() << "IF_Worker::findImage " << id << path << ns << maxdim
-             << " got " << img.size() << "(" << fullSize << ")";
     emit foundImage(id, img, fullSize);
   } catch (QSqlQuery const &q) {
     emit exception("IF_Worker: SqlError: " + q.lastError().text()

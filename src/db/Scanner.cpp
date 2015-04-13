@@ -40,7 +40,7 @@ void Scanner::addTree(QString path) {
       = db0->constQuery("select id from folders where pathname==:a",
                         parentPath);
     quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
-    id = addFolder(parentid, path, leaf);
+    id = addFolder(db0, parentid, path, leaf);
   }
 
   db0->query("insert into folderstoscan values (:a)", id);
@@ -68,18 +68,19 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   return id;
 }
 
-quint64 Scanner::addFolder(quint64 parentid, QString path, QString leaf) {
+quint64 Scanner::addFolder(PhotoDB *db,
+			   quint64 parentid, QString path, QString leaf) {
   QSqlQuery q =
-    db0->query("insert into folders(parentfolder,leafname,pathname) "
+    db->query("insert into folders(parentfolder,leafname,pathname) "
                " values (:a,:b,:c)", parentid?parentid:QVariant(),
                leaf, path);
   quint64 id = q.lastInsertId().toULongLong();
 
 #if 0
   if (parentid) {
-    db0->query("insert into foldertree(descendant, ancestor) "
+    db->query("insert into foldertree(descendant, ancestor) "
                " values (:a, :b)", id, parentid);
-    db0->query("insert into foldertree(descendant, ancestor) "
+    db->query("insert into foldertree(descendant, ancestor) "
                " select :a, ancestor "
                " from foldertree where descendant==:b",
                id, parentid);
@@ -257,7 +258,7 @@ void Scanner::scanFolder(quint64 id) {
   // Insert newly found subdirs (and store IDs)
   for (auto s: newsubdirs) 
     if (!oldsubdirs.contains(s)) 
-      oldsubdirs[s] = addFolder(id, dir.path()+"/"+s, s);
+      oldsubdirs[s] = addFolder(&db, id, dir.path()+"/"+s, s);
 
   // Insert newly found photos
   for (auto s: newphotos)
@@ -327,7 +328,6 @@ void Scanner::scanPhoto(quint64 id) {
   // Now camid is valid unless cam is empty
 
   QString lens = exif.lens();
-  pDebug() << "Scanner: " << make << model << lens;
   quint64 lensid = 0;
   if (!lens.isNull()) {
     QSqlQuery q = db.query("select id from lenses where lens==:a", lens);

@@ -191,7 +191,7 @@ void AC_Worker::cacheModified(quint64 vsn) {
 
 void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   quint64 photo
-    = db.simpleQuery("select photo from versions where id=:a", vsn)
+    = db.simpleQuery("select photo from versions where id==:a", vsn)
     .toULongLong();
 
   QSqlQuery q = db.query("select width, height, orient "
@@ -202,10 +202,12 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   int hei = q.value(1).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(2).toInt());
   PSize fs = Exif::fixOrientation(siz, orient);
+  q = QSqlQuery();
 
-  if (wid!=fs.width() || hei!=fs.height())
+  if (wid!=fs.width() || hei!=fs.height()) {
     db.query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
+  }
 }
 
 void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
@@ -229,6 +231,7 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
 
     processLoaded();
   } catch (QSqlQuery &q) {
+    qDebug() << "AC_Worker exception db=" << (void*)&db;
     emit exception("AC_Worker (handleFoundImage): SqlError: "
                    + q.lastError().text()
 		   + " from " + q.lastQuery());
@@ -283,8 +286,6 @@ void AC_Worker::sendToBank(quint64 vsn) {
   
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
   QString path = db.folder(folder) + "/" + fn;
-  pDebug() << "AC_Worker sendtobank" << vsn << wid << hei << int(orient)
-           << osize << path;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(vsn,
 		  path, db.ftype(ftype), orient, osize,
@@ -293,7 +294,6 @@ void AC_Worker::sendToBank(quint64 vsn) {
 }
 
 void AC_Worker::storeLoadedInDB() {
-  pDebug() << "storeLoadedInDB";
   Transaction t(cache->database());
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
@@ -306,13 +306,11 @@ void AC_Worker::storeLoadedInDB() {
     cache->database()->query("delete from queue where version==:a", version);
   }
   t.commit();
-  pDebug() << "  storeLoadedinDB done";
   n += loaded.size() - noutdated;
   loaded.clear();
 }
 
 void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
-  //  pDebug() << "AC_Worker::requestIfEasy" << version << desired;
   try {
     if (loaded.contains(version)) {
       Image16 res = loaded[version].scaledDownToFitIn(desired);
@@ -339,7 +337,6 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
 void AC_Worker::requestImage(quint64 version, QSize desired) {
   if (version==0)
     return;
-  //  pDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
     if (loaded.contains(version)) {
@@ -366,7 +363,6 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       // We're getting it already
       requests[version] << desired;
     } else {
-      //      pDebug() << "AC_Worker: request: will load " << version << desired;
       if (!mustCache.contains(version))
 	N++; /* This is not actually formally correct, because
 		it may be that version is in the dbqueue. Worse, by not

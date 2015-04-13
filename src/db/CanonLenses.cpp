@@ -29,7 +29,6 @@ QString CanonLenses::operator[](quint64 id) const {
 }
 
 bool CanonLenses::contains(quint64 id) const {
-  pDebug() << "CanonLenses::contains?" << QString("0x%1").arg(id, 10, 16, QChar('0'));
   if (id & 0x8000)
     return true; // negative, will confabulate
   else return lenses.contains(id);

@@ -5,7 +5,6 @@
 #include <QSqlError>
 #include <system_error>
 #include <QSqlQuery>
-#include <QMutex>
 #include "NoResult.h"
 
 Database::Database(QString id0): id(id0) {
@@ -67,7 +66,7 @@ void Database::begin() {
 
 void Database::commit() {
   if (!db.commit()) {
-    qDebug() << "Could not commit transaction";
+    qDebug() << "Could not commit transaction:" << db.lastError().databaseText() << " / " << db.lastError().driverText();
     throw db.lastError();
   }
 }
@@ -241,3 +240,20 @@ QSqlQuery Database::query() {
   return QSqlQuery(db);
 }
   
+//////////////////////////////////////////////////////////////////////
+
+Transaction::Transaction(Database *db): db(db) {
+  cmt = false;
+  db->begin();
+}
+
+void Transaction::commit() {
+  db->commit();
+  cmt = true;
+}
+
+Transaction::~Transaction() {
+  if (!cmt) {
+    db->rollback();
+  }
+}
