@@ -1,0 +1,108 @@
+{ "typ": "page",
+  "cre": "2015-04-12T22:19:41",
+  "mod": "2015-04-12T22:23:39",
+  "stampTime": 0,
+  "startPage": 15,
+  "unlocked": false,
+  "uuid": "cc2dbf8a",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-04-12T22:19:41",
+      "mod": "2015-04-12T22:19:57",
+      "uuid": "a8c1e6af",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-12T22:19:41",
+          "mod": "2015-04-12T22:19:57",
+          "text": "QSql and threading − transactions",
+          "uuid": "779c2e61"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-04-12T22:19:41",
+      "mod": "2015-04-12T22:22:01",
+      "uuid": "7aa2ed4b",
+      "cc": [
+        { "typ": "res",
+          "cre": "2015-04-12T22:22:01",
+          "mod": "2015-04-12T22:22:01",
+          "archive": "1_-38785793.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "1",
+          "title": "",
+          "uuid": "38785793"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-12T22:19:57",
+      "mod": "2015-04-12T22:21:52",
+      "h": 184.75,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "46aa1be5",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-12T22:19:57",
+          "mod": "2015-04-12T22:21:52",
+          "text": "When a transaction is in progress, another thread gets locked out of the database. Even for read access if the transaction has written something. Interestingly, the reading thread appears to simply sleep for a while before retrying, rather than using some sort of wait condition. Here is the result of a very simple test where one thread writes incrementing integers to a single row of a table and another tries to read it. I am timing how long a simple “select” statement takes.",
+          "uuid": "289ad511"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2015-04-12T22:22:01",
+      "mod": "2015-04-12T22:22:06",
+      "h": 201.685,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "8b0d8b02",
+      "xref": 0.0,
+      "y0": 256.75,
+      "yref": -9.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2015-04-12T22:22:01",
+          "mod": "2015-04-12T22:22:06",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 241.0,
+          "res": [
+            "1"
+          ],
+          "resName": "1",
+          "scale": 0.762177,
+          "uuid": "a8bf2353",
+          "width": 543.0,
+          "x": 0.0,
+          "y": 0.0
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-12T22:22:08",
+      "mod": "2015-04-12T22:23:39",
+      "h": 162.656,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0ee24336",
+      "y0": 458.435,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-12T22:22:08",
+          "mod": "2015-04-12T22:23:39",
+          "text": "The distribution is interesting: mostly, the statement takes less than 200 μs. But if it takes more than that, it usually takes between 1050 and 1400 μs. If it takes more than that, between 3100 and 3400 μs, etc. This means that the Scanner thread should try to keep its locks for a brief time, and should probably sleep between transactions for 1.5 ms or so to give others a chance.",
+          "uuid": "3532c527"
+        }
+      ]
+    }
+  ]
+}
