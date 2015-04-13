@@ -62,22 +62,14 @@ private:
   Database &operator=(Database const &) = delete;
 protected:
   static QString autoid();
+  friend class Transaction;
 };
 
 class Transaction {
 public:
-  Transaction(Database *db): db(db) {
-    cmt = false;
-    db->begin();
-  }
-  void commit() {
-    db->commit();
-    cmt = true;
-  }
-  ~Transaction() {
-    if (!cmt)
-      db->rollback();
-  }
+  Transaction(Database *db);
+  void commit();
+  ~Transaction();
 private:
   Database *db;
   bool cmt;

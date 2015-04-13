@@ -14,10 +14,11 @@ SqlFile::SqlFile(QString fn) {
   QString sql = QString(sqlf.readAll());
   QStringList cmds = sql.split(";");
   for (auto c: cmds) {
-    c.replace(QRegExp("--.*?\n"), "");
+    c.replace(QRegExp("--[^\\n]*\\n?"), "");
     c.replace(QRegExp("^\\s+"), "");
     c.replace(QRegExp("\\s+$"), "");
-    if (!c.isEmpty())
+    if (!c.isEmpty()) {
       *this << c;
+    }
   }
 }

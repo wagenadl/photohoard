@@ -29,7 +29,7 @@ signals:
 protected:
   virtual void run() override;
 private:
-  quint64 addFolder(quint64 parentid, QString path, QString leaf);
+  quint64 addFolder(PhotoDB *db, quint64 parentid, QString path, QString leaf);
   quint64 addPhoto(quint64 parentid, QString leaf);
   QSet<quint64> findFoldersToScan();
   QSet<quint64> findPhotosToScan();
