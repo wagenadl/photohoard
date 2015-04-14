@@ -59,6 +59,8 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     int hei = q.value(4).toInt();
     orient = Exif::Orientation(q.value(5).toInt());
     osize = Exif::fixOrientation(PSize(wid, hei), orient);
+    q.finish();
+    
     QString path = db->folder(folder) + "/" + fn;
     QString ext = db->ftype(ftype);
     InterruptableReader *reader = 0;

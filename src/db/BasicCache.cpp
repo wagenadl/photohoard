@@ -94,8 +94,8 @@ void BasicCache::create(QString rootdir) {
     db.open(rootdir + "/cache.db");
     Transaction t(&db);
     SqlFile sql(":/setupcache.sql");
-    QSqlQuery q = db.query();
     for (auto c: sql) {
+      QSqlQuery q = db.query();
       if (!q.exec(c)) {
 	qDebug() << "BasicCache: Could not setup: " << q.lastError().text();
 	qDebug() << "  at " << c;
@@ -113,6 +113,7 @@ void BasicCache::create(QString rootdir) {
 }
 
 void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
+  // should be called within a transaction
   PSize s0 = maxSize();
   bool done = false;
 
@@ -136,6 +137,7 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
 }
 
 void BasicCache::dropOutdatedFromCache(quint64 vsn) {
+  // should be called within a transaction
   QSqlQuery q(db.query("select id, maxdim, dbno from cache"
 		       " where version==:a and outdated>0", vsn));
   while (q.next()) {
@@ -153,6 +155,7 @@ void BasicCache::dropOutdatedFromCache(quint64 vsn) {
 
 void BasicCache::addToCache(quint64 vsn, Image16 const &img,
                             bool instantlyOutdated) {
+  // should be called within a transaction
   QBuffer buf;
   QImageWriter writer(&buf, "jpeg");
   writer.write(img.toQImage());
@@ -223,6 +226,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
 }
 
 void BasicCache::remove(quint64 vsn) {
+  // should be called within a transaction
   QSqlQuery q(db.query("select id, maxdim, dbno from cache"
 		       " where version==:a", vsn));
   while (q.next()) {

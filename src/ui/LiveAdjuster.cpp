@@ -42,11 +42,12 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   if (newvsn) {
     originalSize = ofinder->originalSize(v);
     //    pDebug() << "LiveAdjuster newvsn size is " << originalSize ;
+    sliders.reset();
     QSqlQuery q
       = db->constQuery("select k,v from adjustments where version==:a", v);
-    sliders.reset();
     while (q.next())
       sliders.set(q.value(0).toString(), q.value(1).toDouble());
+    q.finish();
     controls->setQuietly(sliders);
     controls->setEnabled(true);
   }
