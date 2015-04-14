@@ -170,23 +170,24 @@ QSet<quint64> Scanner::findPhotosToScan() {
 }
   
 void Scanner::scanPhotos(QSet<quint64> ids) {
-  Transaction t(&db);
-  bool worked = false;
   QSet<quint64> versions;
   for (auto id: ids) {
+    Transaction t(&db);
     scanPhoto(id);
     QSqlQuery q
       = db.constQuery("select id from versions where photo==:a", id);
+    QSet<quint64> vv;
     while (q.next())
-      versions << q.value(0).toULongLong();
+      vv << q.value(0).toULongLong();
     n++;
-    worked = true;
+    t.commit();
+    if (!vv.isEmpty())
+      emit updated(vv);
+    versions |= vv;
   }
 
-  if (worked) {
-    t.commit();
-    emit updated(versions);
-  }
+  if (!versions.isEmpty())
+    emit updatedBatch(versions);
 }
 
 QSet<quint64> Scanner::findFoldersToScan() {
@@ -198,21 +199,23 @@ QSet<quint64> Scanner::findFoldersToScan() {
 }
 
 void Scanner::scanFolders(QSet<quint64> ids) {
-  Transaction t(&db);
   int N0 = N;
-  bool worked = false;
+  //  bool worked = false;
   for (auto id: ids) {
     // There's work to do
+    Transaction t(&db);
     scanFolder(id);
-    worked = true;
+    //    worked = true;
+    //  if (worked) 
+    t.commit();
     if (N >= N0 + 1000)
       break;
   }
-  if (worked) 
-    t.commit();
+  /*
   if (N>=N0+1000)
     usleep(9000); // give others a chance to hog the db for a few ms
-  /* For my current db with 1145 folders, this adds 0.342 s to a full scan. */
+    // For my current db with 1145 folders, this adds 0.342 s to a full scan.
+  */
 }
 
 void Scanner::scanFolder(quint64 id) {
