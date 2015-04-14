@@ -71,6 +71,8 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
 
 quint64 Scanner::addFolder(PhotoDB *db,
 			   quint64 parentid, QString path, QString leaf) {
+  // This is called from with thread or caller's thread.
+  // Normally, a transaction should be in progress.
   QSqlQuery q =
     db->query("insert into folders(parentfolder,leafname,pathname) "
                " values (:a,:b,:c)", parentid?parentid:QVariant(),
@@ -208,6 +210,9 @@ void Scanner::scanFolders(QSet<quint64> ids) {
   }
   if (worked) 
     t.commit();
+  if (N>=N0+1000)
+    usleep(9000); // give others a chance to hog the db for a few ms
+  /* For my current db with 1145 folders, this adds 0.342 s to a full scan. */
 }
 
 void Scanner::scanFolder(quint64 id) {
