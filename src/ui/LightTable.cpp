@@ -327,6 +327,7 @@ void LightTable::makeCurrent(quint64 i) {
     int w = q.value(0).toInt();
     int h =  q.value(1).toInt();
     Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
+    q.finish();
     QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
     slide->newImage(ns);
   } else {

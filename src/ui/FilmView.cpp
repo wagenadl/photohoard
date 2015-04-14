@@ -37,6 +37,7 @@ FilmView::FilmView(PhotoDB *db, QWidget *parent):
     if (s) 
       s->expand();
   }
+  q.finish();
   dateStrip->expand();
 
   q = db->query("select path from expandedfolders order by path");
@@ -46,6 +47,7 @@ FilmView::FilmView(PhotoDB *db, QWidget *parent):
     if (s) 
       s->expand();
   }
+  q.finish();
   folderStrip->expand();
   
   stripResized();

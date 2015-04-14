@@ -40,6 +40,7 @@ void Scanner::addTree(QString path) {
       = db0->constQuery("select id from folders where pathname==:a",
                         parentPath);
     quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
+    q.finish();
     id = addFolder(db0, parentid, path, leaf);
   }
 
@@ -63,7 +64,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   quint64 id = q.lastInsertId().toULongLong();
 
   // Create first version - this is preliminary code
-  db.query("insert into versions(photo) values(:i)", id);
+  q = db.query("insert into versions(photo) values(:i)", id);
 
   return id;
 }
@@ -244,6 +245,7 @@ void Scanner::scanFolder(quint64 id) {
   q = db.query("select id, filename from photos where folder==:a", id);
   while (q.next())
     oldphotos[q.value(1).toString()] = q.value(0).toULongLong();
+  q.finish();
 
   // Drop subdirs that do not exist any more
   for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
@@ -297,6 +299,7 @@ void Scanner::scanPhoto(quint64 id) {
     throw NoResult();
   QString filename = q.value(0).toString();
   quint64 folder = q.value(1).toULongLong();
+  q.finish();
 
   QString dirname = db.simpleQuery("select pathname from folders where id==:a",
 				   folder).toString();
@@ -320,8 +323,8 @@ void Scanner::scanPhoto(quint64 id) {
     if (q.next()) {
       camid = q.value(0).toULongLong();
     } else {
-      QSqlQuery q = db.query("insert into cameras(camera, make) values(:a,:b)",
-			     model, make);
+      q = db.query("insert into cameras(camera, make) values(:a,:b)",
+                   model, make);
       camid = q.lastInsertId().toULongLong();
     }
   }
@@ -334,7 +337,7 @@ void Scanner::scanPhoto(quint64 id) {
     if (q.next()) {
       lensid = q.value(0).toULongLong();
     } else {
-      QSqlQuery q = db.query("insert into lenses(lens) values (:a)", lens);
+      q = db.query("insert into lenses(lens) values (:a)", lens);
       lensid = q.lastInsertId().toULongLong();
     }
   }

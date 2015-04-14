@@ -41,6 +41,8 @@ void FilterDialog::prepMakes() {
   QStringList makes;
   while (q.next()) 
     makes << q.value(0).toString();
+  q.finish();
+  
   qSort(makes);
   makes.removeOne("");
 
@@ -49,7 +51,6 @@ void FilterDialog::prepMakes() {
 
   for (QString m: makes)
     ui->cMake->addItem(m);
-  
 }
 
 void FilterDialog::prepModels(QString make) {
@@ -57,11 +58,14 @@ void FilterDialog::prepModels(QString make) {
   ui->cCamera->clear();
   ui->cCamera->addItem("Any model");
 
-  QSqlQuery q = make.isEmpty() ? db->query("select distinct camera from cameras")
+  QSqlQuery q = make.isEmpty()
+    ? db->query("select distinct camera from cameras")
     : db->query("select distinct camera from cameras where make=:a", make);
   QStringList models;
   while (q.next())
     models << q.value(0).toString();
+  q.finish();
+  
   qSort(models);
   models.removeOne("");
 
@@ -120,6 +124,8 @@ void FilterDialog::prepLenses(QString make, QString model) {
       lenses << l;
     }
   }
+  q.finish();
+  
   qSort(lenses);
   lenses.removeOne("");
 
@@ -162,6 +168,8 @@ void FilterDialog::prepCollections() {
 			   "where parent==:a", coltag);
     while (q.next())
       cols << q.value(0).toString();
+    q.finish();
+    
     if (!cols.isEmpty())
       ui->cMake->insertSeparator(1);
     for (QString c: cols)
