@@ -68,7 +68,7 @@ MainWindow::MainWindow(PhotoDB *db,
           autocache, SLOT(request(quint64, QSize)));
   connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
           SLOT(updateImage(quint64, QSize, Image16)));
-  connect(scanner, SIGNAL(updated(QSet<quint64>)),
+  connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
           lightTable, SLOT(rescan()));
 
   connect(layoutBar, SIGNAL(triggered(LayoutBar::Action)),
