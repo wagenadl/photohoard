@@ -108,7 +108,7 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
   s->setTileSize(tilesize);
   s->setRowWidth(subRowWidth(rowwidth));
 
-  connect(s, SIGNAL(resized()), this, SLOT(relayout()), Qt::QueuedConnection);
+  connect(s, SIGNAL(resized()), this, SLOT(relayout()));
 
   return s;
 }
@@ -269,15 +269,18 @@ void Datestrip::expand() {
   //  pDebug() << "Expand" << d0 << int(scl) << mustRebuild << mustRelayout;
   if (mustRebuild)
     rebuildContents();
-  if (mustRelayout)
-    relayout();
 
+  rebuilding ++;
   for (auto s: stripOrder)
     s->show();
   if (thisFolderStrip)
     thisFolderStrip->expand();
 
   recalcLabelRect();
+  rebuilding --;
+  
+  if (mustRelayout)
+    relayout();
 
   QRectF bb1 = netBoundingRect();
   if (bb1!=bb0) {
@@ -356,15 +359,19 @@ void Datestrip::findBottomRight() const {
 
 void Datestrip::relayout() {
   prepareGeometryChange();
-  
-  if (!isExpanded()) {
-    recalcLabelRect();
+
+  if (rebuilding>0) {
     mustRelayout = true;
     return;
-  } else if (rebuilding>0) {
+  }  
+
+  recalcLabelRect();
+
+  if (!isExpanded()) {
     mustRelayout = true;
     return;
   }
+
   mustRelayout = false;
 
   QRectF bb0 = oldbb;
@@ -464,24 +471,30 @@ class Slide *Datestrip::slideByVersion(quint64 vsn) {
 }
 
 void Datestrip::setArrangement(Arrangement arr) {
+  rebuilding ++;
   Strip::setArrangement(arr);
   for (auto s: stripOrder) 
     s->setArrangement(arr);
+  rebuilding --;
   relayout();
 }
   
 void Datestrip::setTileSize(int pix) {
+  rebuilding ++;
   Strip::setTileSize(pix);
   for (auto s: stripOrder)
     s->setTileSize(pix);
+  rebuilding --;
   relayout();
 }
 
 void Datestrip::setRowWidth(int pix) {
+  rebuilding ++;
   Strip::setRowWidth(pix);
   int subwidth = subRowWidth(pix);
   for (auto s: stripOrder) 
     s->setRowWidth(subwidth);
+  rebuilding --;
   relayout();
 }
 
