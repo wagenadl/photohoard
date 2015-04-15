@@ -39,11 +39,13 @@ private:
   void scanFolder(quint64 folder);
   void scanPhoto(quint64 photo);
   int photoQueueLength();
+  int folderQueueLength();
 private:
   PhotoDB *db0; // this is the original of the caller
   PhotoDB db; // this is our copy in the thread
   QMap<QString, int> exts;
   int n, N;
+  int m, M;
   class CacheFiller *filler;
 };
 

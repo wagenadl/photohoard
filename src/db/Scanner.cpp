@@ -104,6 +104,8 @@ void Scanner::run() {
     QMutexLocker l(&mutex);
     n = 0;
     N = photoQueueLength();
+    m = 0;
+    M = folderQueueLength(); // must actually maintain this
     while (!stopsoon) {
       bool sleepok = true;
       QSet<quint64> ids;
@@ -202,27 +204,14 @@ void Scanner::scanFolders(QSet<quint64> ids) {
   int N0 = N;
   //  bool worked = false;
   for (auto id: ids) {
-    // There's work to do
-    Transaction t(&db);
     scanFolder(id);
-    //    worked = true;
-    //  if (worked) 
-    t.commit();
     if (N >= N0 + 1000)
       break;
   }
-  /*
-  if (N>=N0+1000)
-    usleep(9000); // give others a chance to hog the db for a few ms
-    // For my current db with 1145 folders, this adds 0.342 s to a full scan.
-  */
 }
 
 void Scanner::scanFolder(quint64 id) {
-  // do not create transaction: called from scanFolders
-  db.query("delete from folderstoscan where folder=:a", id);
-  QString p = db.simpleQuery("select pathname from folders where id==:a", id)
-    .toString();
+  QString p = db.folder(id);
   QDir dir(p);
 
   QSet<QString> newsubdirs;
@@ -255,6 +244,12 @@ void Scanner::scanFolder(quint64 id) {
     oldphotos[q.value(1).toString()] = q.value(0).toULongLong();
   q.finish();
 
+  // let's update the database
+
+  usleep(9000); // optional
+  Transaction t(&db);
+  db.query("delete from folderstoscan where folder=:a", id);
+  
   // Drop subdirs that do not exist any more
   for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
     if (!newsubdirs.contains(it.key())) 
@@ -288,11 +283,17 @@ void Scanner::scanFolder(quint64 id) {
       db.query("insert into photostoscan values (:a)", oldphotos[s]);
       N++;
     }
-  }  
+  }
+
+  t.commit();
 }
 
 int Scanner::photoQueueLength() {
   return db.simpleQuery("select count(*) from photostoscan").toInt();
+}
+
+int Scanner::folderQueueLength() {
+  return db.simpleQuery("select count(*) from folderstoscan").toInt();
 }
 
 void Scanner::scanPhoto(quint64 id) {
