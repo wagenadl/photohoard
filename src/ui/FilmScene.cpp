@@ -7,7 +7,7 @@
 
 FilmScene::FilmScene(PhotoDB *db, QObject *parent):
   QGraphicsScene(parent), db(db) {
-  setBackgroundBrush(QColor(128, 128, 128));
+  setBackgroundBrush(QColor(160, 160, 160));
 }
 
 FilmScene::~FilmScene() {
