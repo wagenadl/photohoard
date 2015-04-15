@@ -91,7 +91,9 @@ Strip::TimeScale Strip::timeScale() const {
 }
 
 int Strip::labelHeight(int) {
-  return 16;
+  QFont f;
+  QFontMetrics fm(f);
+  return fm.boundingRect("0").height();
 }
 
 bool Strip::hasTopLabel() const {
@@ -159,9 +161,9 @@ QRectF Strip::boundingRect() const {
     break;
   case Arrangement::Grid:
     if (hasTopLabel())
-      r0.setHeight((r0 | subBoundingRect()).height());
+      r0.setHeight(2*r0.height());
     else
-      r0.setWidth(5*r0.width());
+      r0.setWidth(2*r0.width());
     break;
   }
   return r0;
@@ -264,10 +266,10 @@ QPixmap const &Strip::dashPattern(QColor bg1) {
 }
   
 
-void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
+void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
-  QRectF r0 = boundingRect();
+  QRectF r = boundingRect();
   bool isroot = false;
   switch (org) {
   case Organization::ByDate:
@@ -277,45 +279,69 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
     isroot = pathname=="/";
     break;
   }
-  int slantw = isroot ? 0 : 12;
-  if (r.width() >= r.height()) {
-    poly << (r.topLeft() + QPointF(slantw+2, 2));
-    poly << (r.topRight() + QPointF(-slantw, 2));
-    poly << r.bottomRight();
-    if (hasTopLabel() && !isroot) {
-      poly << r0.bottomRight();
-      poly << (r0.bottomLeft() + QPointF(2, 0));
+  if (isroot) {
+    painter->setPen(QPen(QColor(129, 129, 129), 1));
+    poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5);
+    poly << QPointF(r.bottomRight()) + QPointF(-0.5, -0.5);
+    poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5);
+    painter->drawPolyline(poly);
+    poly.clear();
+    painter->setPen(QPen(QColor(255, 255, 255), 1));
+    poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5);
+    poly << QPointF(r.topLeft()) + QPointF(0.5, 0.5);
+    poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5);
+    painter->drawPolyline(poly);
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setBrush(QBrush(bg));
+    painter->drawRect(r.adjusted(1, 1, -1, -1));
+  } else {    
+    int slantw = labelHeight(tilesize)-4;
+    if (r.width() >= r.height()) {
+      painter->setPen(QPen(QColor(129, 129, 129), 1));
+      poly << QPointF(r.bottomRight()) + QPointF(-0.5, -0.5);
+      poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5 + slantw);
+      poly << QPointF(r.topRight()) + QPointF(-0.5 - slantw, 0.5);
+      painter->drawPolyline(poly);
+      poly.clear();
+      painter->setPen(QPen(QColor(255, 255, 255), 1));
+      poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5);
+      poly << QPointF(r.topLeft()) + QPointF(0.5, 0.5 + slantw);
+      poly << QPointF(r.topLeft()) + QPointF(0.5 + slantw, 0.5);
+      poly << QPointF(r.topRight()) + QPointF(-0.5 - slantw, 0.5);
+      painter->drawPolyline(poly);
+      poly.clear();
+      painter->setPen(QPen(Qt::NoPen));
+      painter->setBrush(QBrush(bg));
+      poly << QPointF(r.bottomLeft()) + QPointF(1, -1);
+      poly << QPointF(r.topLeft()) + QPointF(1, 1 + slantw);
+      poly << QPointF(r.topLeft()) + QPointF(1 + slantw, 1);
+      poly << QPointF(r.topRight()) + QPointF(1 - slantw, 1);
+      poly << QPointF(r.topRight()) + QPointF(1, 1 + slantw);
+      poly << QPointF(r.bottomRight()) + QPointF(-1, -1);
+      painter->drawPolygon(poly);
+    } else {
+      painter->setPen(QPen(QColor(129, 129, 129), 1));
+      poly << QPointF(r.bottomLeft()) + QPointF(0.5 + slantw, -0.5);
+      poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5 - slantw);
+      painter->drawPolyline(poly);
+      poly.clear();
+      painter->setPen(QPen(QColor(255, 255, 255), 1));
+      poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5 - slantw);
+      poly << QPointF(r.topLeft()) + QPointF(0.5, 0.5 + slantw);
+      poly << QPointF(r.topLeft()) + QPointF(0.5 + slantw, 0.5);
+      poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5);
+      painter->drawPolyline(poly);
+      poly.clear();
+      painter->setPen(QPen(Qt::NoPen));
+      painter->setBrush(QBrush(bg));
+      poly << QPointF(r.bottomLeft()) + QPointF(1, -1 - slantw);
+      poly << QPointF(r.topLeft()) + QPointF(1, 1 + slantw);
+      poly << QPointF(r.topLeft()) + QPointF(1 + slantw, 1);
+      poly << QPointF(r.topRight()) + QPointF(-1, 1);
+      poly << QPointF(r.bottomRight()) + QPointF(-1, -1);
+      poly << QPointF(r.bottomLeft()) + QPointF(1 + slantw, -1);
+      painter->drawPolygon(poly);
     }
-    poly << (r.bottomLeft() + QPointF(2, 0));
-  } else {
-    if (arr==Arrangement::Grid) 
-      r.adjust(0, 2, 0, -2);
-    poly << (r.topLeft() + QPointF(2, slantw+2));
-    poly << (r.topRight() + QPointF(0, 2));
-    if (!isroot) {
-      poly << (r0.topRight() + QPointF(0, 2));
-      poly << r0.bottomRight();
-    }
-    poly << r.bottomRight();
-    poly << (r.bottomLeft() + QPointF(2, -slantw));
-  }      
-  painter->setBrush(QBrush(QColor(129, 129, 129)));
-  painter->drawPolygon(poly);
-  poly.translate(-2, -2);
-  painter->setBrush(QBrush(QColor(255, 255, 255)));
-  painter->drawPolygon(poly);
-  poly.translate(1, 1);
-  painter->setBrush(QBrush(bg));
-  painter->drawPolygon(poly);
-  if (arr==Arrangement::Grid && hasTopLabel() && !isroot) {
-    int y0 = r.bottom() + 5;
-    int y1 = r0.bottom();
-    QLinearGradient gg(0, y0, 0, y1);
-    gg.setColorAt(0, bg);
-    gg.setColorAt(1, bg); //QColor(128, 128, 128));
-    painter->setBrush(QBrush(gg));
-    painter->drawRect(QRectF(QPointF(r.left()+1, y0),
-                             QPointF(r.right()-1, y1)));
   }
 }
 
