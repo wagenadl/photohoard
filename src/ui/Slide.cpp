@@ -17,7 +17,6 @@ Slide::Slide(quint64 id, Slidestrip *parent):
     fs->markSlideFor(id, this);
   else
     pDebug() << "Slide not in a scene - won't show image";
-  dbgstarted = false;
 }
 
 Slide::~Slide() {
@@ -57,7 +56,6 @@ void Slide::paint(QPainter *painter,
                                      " where version==:a limit 1", id).next();
   if (isCurrent) {
     pDebug() << "Slide::paint current" << id;
-    Database::disableDebug();
   }
 
   int colorLabel
@@ -101,19 +99,8 @@ void Slide::paint(QPainter *painter,
 			   tilesize/2-tgt.height()/2), tgt);
 	painter->drawPixmap(dst, pm);
       }
-      if (!dbgstarted) {
-	// dbgtime.start();
-        // dbgstarted = true;
-      }
       parent->requestImage(id);
       return;
-    }
-    if (dbgstarted) {
-      int dt = dbgtime.elapsed();
-      dbgstarted = false;
-      QTime t = QTime::currentTime();
-      pDebug() << "Time" << id << dt
-	       << t.msec() + 1000*t.second() + 60*1000*t.minute() + 60*60*1000*t.hour();
     }
     if (!img.isNull()) {
       // pDebug() << "Slide " << id << "image was sized" << img.size();
