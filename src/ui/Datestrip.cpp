@@ -709,3 +709,13 @@ int Datestrip::stripNumberContaining(quint64 vsn) {
       return k;
   return -1;
 }
+
+void Datestrip::block() {
+  rebuilding++;
+}
+
+void Datestrip::unblock() {
+  rebuilding--;
+  if (rebuilding==0 && mustRelayout)
+    relayout();
+}

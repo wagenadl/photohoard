@@ -346,6 +346,7 @@ void LightTable::makeCurrent(quint64 i) {
 }
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
+  pDebug() << "select" << i;
   if (m & Qt::ControlModifier) {
     toggleSelection(i);
    } else if (m & Qt::ShiftModifier) {
@@ -353,6 +354,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   } else {
     simpleSelection(i);
   }
+  pDebug() << "select done" << i;
 }    
 
 void LightTable::updateSlide(quint64 i) {
@@ -378,6 +380,8 @@ void LightTable::requestLargerImage() {
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i) {
+  if (i==curr)
+    pDebug() << "LightTable::updateAdjusted current" << i << img.size();
   if (img.isNull())
     return;
   film->updateImage(i, img);
@@ -387,12 +391,19 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
 }
 
 void LightTable::updateImage(quint64 i, Image16 img) {
+  if (i==curr)
+    pDebug() << "LightTable::updateImage current" << i << img.size();
   film->updateImage(i, img);
 
   if (i!=curr)
     return;
 
+  pDebug() << "LightTable::updateImage current slide" << i << img.size();
   slide->updateImage(img);
+  if (i==curr) {
+    pDebug() << "LightTable::updateImage current done" << i << img.size();
+    Database::enableDebug();
+  }
 }
 
 void LightTable::rescan(bool rebuildFilter) {

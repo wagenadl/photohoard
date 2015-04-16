@@ -22,6 +22,8 @@ public:
   void begin();
   void commit();
   void rollback();
+  static void enableDebug();
+  static void disableDebug();
 public:
   QSqlQuery query();
   // The following execute the query and return the value(0) from the
@@ -60,6 +62,7 @@ protected:
 private:
   Database(Database const &) = delete;
   Database &operator=(Database const &) = delete;
+  static bool &debugging();
 protected:
   static QString autoid();
   friend class Transaction;

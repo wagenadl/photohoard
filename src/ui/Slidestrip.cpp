@@ -59,6 +59,7 @@ void Slidestrip::paint(QPainter *painter,
 
 void Slidestrip::slidePressed(quint64 id,
                               Qt::MouseButton b, Qt::KeyboardModifiers m) {
+  pDebug() << "slidePressed" << id;
   emit pressed(id, b, m);
 }
 
