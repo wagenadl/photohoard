@@ -159,6 +159,8 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
 }
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
+  if (debugging())
+    pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);

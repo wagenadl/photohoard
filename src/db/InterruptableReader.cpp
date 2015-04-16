@@ -34,6 +34,7 @@ void InterruptableReader::stop() {
 }
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
+  pDebug() << "InterruptableReader::request" << fn << request << original;
   QMutexLocker l(&mutex);
   newreq = fn;
   rqSize = request;
@@ -96,6 +97,7 @@ void InterruptableReader::run() {
   mutex.lock();
   while (!stopsoon) {
     if (newreq != "") {
+      pDebug() << "InterruptableReader new request" << newreq;
       lNewReq();
     } else if (canceling) {
       lCancel();
@@ -103,6 +105,7 @@ void InterruptableReader::run() {
       lReadSome();
     } else {
       cond.wait(&mutex);
+      pDebug() << "InterruptableReader woke up";
     }
   }
   mutex.unlock();
@@ -195,6 +198,8 @@ void InterruptableReader::lReadSome() {
 }
 
 void InterruptableReader::lComplete() {
+  pDebug() << "InterruptableReader: complete " << current;
+  
   mutex.unlock();
   tSource().close();
   mutex.lock();
@@ -208,7 +213,9 @@ void InterruptableReader::lComplete() {
     running = false;
     QString c = current;
     mutex.unlock();
+    pDebug() << "InterruptableReader emitting ready";
     emit ready(c);
+    pDebug() << "InterruptableReader emitted ready";
     mutex.lock();
   }
 }

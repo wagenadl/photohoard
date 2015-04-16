@@ -347,6 +347,7 @@ void LightTable::makeCurrent(quint64 i) {
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   pDebug() << "select" << i;
+  //  Database::enableDebug();
   if (m & Qt::ControlModifier) {
     toggleSelection(i);
    } else if (m & Qt::ShiftModifier) {
@@ -402,7 +403,7 @@ void LightTable::updateImage(quint64 i, Image16 img) {
   slide->updateImage(img);
   if (i==curr) {
     pDebug() << "LightTable::updateImage current done" << i << img.size();
-    Database::enableDebug();
+    Database::disableDebug();
   }
 }
 
