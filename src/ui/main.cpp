@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
     Exporter *expo = new Exporter(&db, 0);
     expo->start();
 
-    scan->addTree(picroot); // this should not always happen
+    //    scan->addTree(picroot); // this should not always happen
 
     MainWindow *mw = new MainWindow(&db, scan, ac, expo);
     QDesktopWidget *dw = app.desktop();
@@ -130,6 +130,8 @@ int main(int argc, char **argv) {
     expo->stop();
     delete expo;
     pDebug() << "Done";
+
+    db.close();
 
     return res;
     

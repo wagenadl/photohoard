@@ -55,6 +55,10 @@ void Slide::paint(QPainter *painter,
     ? true
     : parent->database()->constQuery("select 1 from selection"
                                      " where version==:a limit 1", id).next();
+  if (isCurrent) {
+    pDebug() << "Slide::paint current" << id;
+    Database::disableDebug();
+  }
 
   int colorLabel
     = parent->database()->simpleQuery("select colorlabel from versions"
