@@ -224,64 +224,34 @@ Image16 Image16::scaledToHeight(int h, Image16::Interpolation i) const {
 
 void Image16::rotate90CCW() {
   Image16 dst(PSize(height(), width()), format());
-  int bpp = bytesPerPixel();
-  int X = dst.width();
-  int Y = dst.height();
-  int SL = bytesPerLine();
-  int DL = dst.bytesPerLine();
-  uchar const *s = bytes();
-  uchar *d = dst.bytes();
-  for (int y=0; y<Y; y++) {
-    uchar const *s1 = s + bpp*y;
-    uchar *d1 = d + DL*y;
-    for (int x=0; x<X; x++) {
-      uchar const *s2 = s1 + SL*(X-1-x);
-      memcpy(d1, s2, bpp);
-      d1 += bpp;
-    }
-  }
+  cv::Mat const in(height(), width(), cvFormat(format()),
+                   (void*)bytes(), bytesPerLine());
+  cv::Mat out(dst.height(), dst.width(), cvFormat(format()),
+              (void*)dst.bytes(), dst.bytesPerLine());
+  pDebug() << "Rotate90CCW with opencv";
+  cv::transpose(in, out);
+  cv::flip(out, out, 1);
+  pDebug() << "Done with opencv";
   *this = dst;
 }
 
 void Image16::rotate90CW() {
   Image16 dst(PSize(height(), width()), format());
-  int bpp = bytesPerPixel();
-  int X = dst.width();
-  int Y = dst.height();
-  int SL = bytesPerLine();
-  int DL = dst.bytesPerLine();
-  uchar const *s = bytes();
-  uchar *d = dst.bytes();
-  for (int y=0; y<Y; y++) {
-    uchar const *s1 = s + bpp*(Y-1-y);
-    uchar *d1 = d + DL*y;
-    for (int x=0; x<X; x++) {
-      uchar const *s2 = s1 + SL*x;
-      memcpy(d1, s2, bpp);
-      d1 += bpp;
-    }
-  }
+  cv::Mat const in(height(), width(), cvFormat(format()),
+                   (void*)bytes(), bytesPerLine());
+  cv::Mat out(dst.height(), dst.width(), cvFormat(format()),
+              (void*)dst.bytes(), dst.bytesPerLine());
+  pDebug() << "Rotate90CCW with opencv";
+  cv::transpose(in, out);
+  cv::flip(out, out, 0);
+  pDebug() << "Done with opencv";
   *this = dst;
 }
 
 void Image16::rotate180() {
-  Image16 dst(size(), format());
-  int X = width();
-  int Y = height();
-  int bpp = bytesPerPixel();
-  int DL = bytesPerLine();
-  uchar const *s = bytes();
-  uchar *d = dst.bytes();
-  for (int y=0; y<Y; y++) {
-    uchar const *s1 = s + DL*(Y-1-y);
-    uchar *d1 = d + DL*y;
-    for (int x=0; x<X; x++) {
-      uchar const *s2 = s1 + (X-1-x)*bpp;
-      memcpy(d1, s2, bpp);
-      d1 += bpp;
-    }
-  }
-  *this = dst;
+  cv::Mat in(height(), width(), cvFormat(format()),
+             (void*)bytes(), bytesPerLine());
+  cv::flip(in, in, -1);
 }
 
 void Image16::crop(QRect r) {
