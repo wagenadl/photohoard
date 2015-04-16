@@ -269,7 +269,7 @@ QPixmap const &Strip::dashPattern(QColor bg1) {
 void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
-  QRectF r = boundingRect();
+  QRectF r = boundingRect().adjusted(1, 1, -1, -1);
   bool isroot = false;
   switch (org) {
   case Organization::ByDate:
@@ -280,66 +280,67 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
     break;
   }
   if (isroot) {
-    painter->setPen(QPen(QColor(129, 129, 129), 1));
-    poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5);
-    poly << QPointF(r.bottomRight()) + QPointF(-0.5, -0.5);
-    poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5);
+    painter->setPen(QPen(QColor(129, 129, 129), 2));
+    poly << QPointF(r.bottomLeft());
+    poly << QPointF(r.bottomRight());
+    poly << QPointF(r.topRight());
     painter->drawPolyline(poly);
     poly.clear();
-    painter->setPen(QPen(QColor(255, 255, 255), 1));
-    poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5);
-    poly << QPointF(r.topLeft()) + QPointF(0.5, 0.5);
-    poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5);
+    painter->setPen(QPen(QColor(255, 255, 255), 2));
+    poly << QPointF(r.bottomLeft());
+    poly << QPointF(r.topLeft());
+    poly << QPointF(r.topRight());
     painter->drawPolyline(poly);
     painter->setPen(QPen(Qt::NoPen));
     painter->setBrush(QBrush(bg));
-    painter->drawRect(r.adjusted(1, 1, -1, -1));
+    painter->drawRect(r);
   } else {    
     int slantw = labelHeight(tilesize)-4;
     if (r.width() >= r.height()) {
-      painter->setPen(QPen(QColor(129, 129, 129), 1));
-      poly << QPointF(r.bottomRight()) + QPointF(-0.5, -0.5);
-      poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5 + slantw);
-      poly << QPointF(r.topRight()) + QPointF(-0.5 - slantw, 0.5);
+      painter->setPen(QPen(QColor(129, 129, 129), 2));
+      poly << QPointF(r.bottomRight()) + QPointF(0, -1);
+      poly << QPointF(r.topRight()) + QPointF(0, slantw);
+      poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
       painter->drawPolyline(poly);
       poly.clear();
-      painter->setPen(QPen(QColor(255, 255, 255), 1));
-      poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5);
-      poly << QPointF(r.topLeft()) + QPointF(0.5, 0.5 + slantw);
-      poly << QPointF(r.topLeft()) + QPointF(0.5 + slantw, 0.5);
-      poly << QPointF(r.topRight()) + QPointF(-0.5 - slantw, 0.5);
+      painter->setPen(QPen(QColor(255, 255, 255), 2));
+      poly << QPointF(r.bottomLeft());
+      poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
+      poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
+      poly << QPointF(r.topRight()) + QPointF(-slantw-1, 0);
       painter->drawPolyline(poly);
       poly.clear();
       painter->setPen(QPen(Qt::NoPen));
       painter->setBrush(QBrush(bg));
-      poly << QPointF(r.bottomLeft()) + QPointF(1, -1);
-      poly << QPointF(r.topLeft()) + QPointF(1, 1 + slantw);
-      poly << QPointF(r.topLeft()) + QPointF(1 + slantw, 1);
-      poly << QPointF(r.topRight()) + QPointF(1 - slantw, 1);
-      poly << QPointF(r.topRight()) + QPointF(1, 1 + slantw);
-      poly << QPointF(r.bottomRight()) + QPointF(-1, -1);
+      poly << QPointF(r.bottomLeft());
+      poly << QPointF(r.topLeft()) + QPointF(0, slantw);
+      poly << QPointF(r.topLeft()) + QPointF(slantw, 0);
+      poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
+      poly << QPointF(r.topRight()) + QPointF(0, slantw);
+      poly << QPointF(r.bottomRight());
       painter->drawPolygon(poly);
     } else {
-      painter->setPen(QPen(QColor(129, 129, 129), 1));
-      poly << QPointF(r.bottomLeft()) + QPointF(0.5 + slantw, -0.5);
-      poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5 - slantw);
+      painter->setPen(QPen(QColor(129, 129, 129), 2));
+      poly << QPointF(r.bottomRight()) + QPointF(-1, 0);
+      poly << QPointF(r.bottomLeft()) + QPointF(slantw-1, 0);
+      poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw+1);
       painter->drawPolyline(poly);
       poly.clear();
-      painter->setPen(QPen(QColor(255, 255, 255), 1));
-      poly << QPointF(r.bottomLeft()) + QPointF(0.5, -0.5 - slantw);
-      poly << QPointF(r.topLeft()) + QPointF(0.5, 0.5 + slantw);
-      poly << QPointF(r.topLeft()) + QPointF(0.5 + slantw, 0.5);
-      poly << QPointF(r.topRight()) + QPointF(-0.5, 0.5);
+      painter->setPen(QPen(QColor(255, 255, 255), 2));
+      poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
+      poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
+      poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
+      poly << QPointF(r.topRight());
       painter->drawPolyline(poly);
       poly.clear();
       painter->setPen(QPen(Qt::NoPen));
       painter->setBrush(QBrush(bg));
-      poly << QPointF(r.bottomLeft()) + QPointF(1, -1 - slantw);
-      poly << QPointF(r.topLeft()) + QPointF(1, 1 + slantw);
-      poly << QPointF(r.topLeft()) + QPointF(1 + slantw, 1);
-      poly << QPointF(r.topRight()) + QPointF(-1, 1);
-      poly << QPointF(r.bottomRight()) + QPointF(-1, -1);
-      poly << QPointF(r.bottomLeft()) + QPointF(1 + slantw, -1);
+      poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
+      poly << QPointF(r.topLeft()) + QPointF(0, slantw);
+      poly << QPointF(r.topLeft()) + QPointF(slantw, 0);
+      poly << QPointF(r.topRight());
+      poly << QPointF(r.bottomRight());
+      poly << QPointF(r.bottomLeft()) + QPointF(slantw, 0);
       painter->drawPolygon(poly);
     }
   }

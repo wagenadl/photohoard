@@ -34,8 +34,6 @@ private:
   Image16 img;
   QPixmap pm;
   int tilesize;
-  QTime dbgtime;
-  bool dbgstarted;
 };
 
 #endif
