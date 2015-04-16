@@ -72,13 +72,19 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   if (stages.isEmpty() || !stages[0].roi.isEmpty() || stages[0].image.isNull())
     return Image16();
 
+  pDebug() << "Adjuster::retrieveReduced: starting";
+
   applyNeedBasedScaling(settings, maxSize);
 
+  pDebug() << "Adjuster::retrieveReduced: scaled";
+  
   if (stages.last().settings == settings)
     return stages.last().image;
 
   if (!applySettings(settings))
     return Image16();
+
+  pDebug() << "Adjuster::retrieveReduced: applied settings";  
 
   return stages.last().image;
 }
@@ -103,6 +109,8 @@ void Adjuster::applyNeedBasedScaling(Sliders const &settings,
     // It's worth scaling
     // Should we reduce excessive scale stacks? Probably. Later.
     dropFrom(k+1);
+    pDebug() << "Adjuster: scaling" << stages[k].osize << " to "
+             << stages[k].image.size().scaledToFitIn(needed);
     stages << AdjusterTile(stages[k].image.scaledToFitIn(needed),
 			   stages[k].osize);
     stages.last().stage = Stage_Reduced;

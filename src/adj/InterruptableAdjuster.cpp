@@ -120,7 +120,9 @@ void InterruptableAdjuster::handleNewRequest() {
     }
   } else {
     mutex.unlock();
+    pDebug() << "InterruptableAdjuster: emitting ready";
     emit ready(img);
+    pDebug() << "InterruptableAdjuster: emitted ready";
     mutex.lock();
   }
 }  
@@ -144,11 +146,14 @@ void InterruptableAdjuster::run() {
     } else if (cancel) {
       cancel = false;
     } else if (!newOriginal.isNull()) {
+      pDebug() << "InterruptableAdjuster: new image";
       handleNewImage();
     } else if (newreq) {
+      pDebug() << "InterruptableAdjuster: new request";
       handleNewRequest();
     } else {
       waitcond.wait(&mutex);
+      pDebug() <<"InterruptableAdjuster: woke up";
     }
   }
   mutex.unlock();

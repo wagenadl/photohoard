@@ -112,6 +112,7 @@ void LiveAdjuster::setSlider(QString k, double v) {
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img) {
+  pDebug() << "LiveAdjuster: provide adjusted " << img.size();
   if (mustoffermod) {
     mustoffermod = false;
     cache->cacheModified(version, img);
@@ -119,12 +120,14 @@ void LiveAdjuster::provideAdjusted(Image16 img) {
   if (mustshowupdate) {
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
+    pDebug() << "LiveAdjusted: emitting image changed";
     emit imageChanged(img, version);
+    pDebug() << "LiveAdjusted: emitted image changed";
   }
 }
   
 void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
-  //  pDebug() << "LiveAdjuster::provideOriginal" << v << img.size();
+  pDebug() << "LiveAdjuster::provideOriginal" << v << img.size();
   if (v!=version)
     return;
   originalSize = img.size();
@@ -138,7 +141,7 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
 }
 
 void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
-  //  pDebug() << "LiveAdjuster: provideScaledOriginal" << v << osize << img.size();
+  pDebug() << "LiveAdjuster: provideScaledOriginal" << v << osize << img.size();
   if (v!=version)
     return;
   originalSize = osize;
@@ -148,4 +151,5 @@ void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
     adjuster->requestReduced(sliders, img.size());
   else
     adjuster->requestReduced(sliders, targetsize);
+  pDebug() << "LiveAdjuster: requested reduced";
 }
