@@ -203,19 +203,32 @@ void InterruptableReader::lComplete() {
   mutex.unlock();
   tSource().close();
   mutex.lock();
+  if (canceling) {
+    lCancel();
+    return;
+  }
+
+  mutex.unlock();
+  pDebug() << "InterruptableReader interpreting image";
+  res.image = Image16::loadFromMemory(res.data);
+  res.data.clear();
+  pDebug() << "InterruptableReader interpreted image";
+  mutex.lock();
 
   if (canceling) {
     lCancel();
-  } else {
-    res.ok = true;
-    res.error = "";
-    lUnprepSource();
-    running = false;
-    QString c = current;
-    mutex.unlock();
-    pDebug() << "InterruptableReader emitting ready";
-    emit ready(c);
-    pDebug() << "InterruptableReader emitted ready";
-    mutex.lock();
+    return;
   }
+
+  res.ok = true;
+  res.error = "";
+  lUnprepSource();
+  running = false;
+
+  QString c = current;
+  mutex.unlock();
+  pDebug() << "InterruptableReader emitting ready";
+  emit ready(c);
+  pDebug() << "InterruptableReader emitted ready";
+  mutex.lock();
 }

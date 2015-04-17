@@ -9,6 +9,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QSize>
+#include "Image16.h"
 
 class InterruptableReader: public QThread {
   Q_OBJECT;
@@ -17,7 +18,8 @@ public:
   public:
     Result(QString e="Not started") { ok = false; error = e; }
   public:
-    QByteArray data;
+    QByteArray data; // set to null after image constructed
+    Image16 image; // constructed just before emitting "ready"
     bool ok;
     QString error;
   };

@@ -115,7 +115,7 @@ void OriginalFinder::provide(QString fn) {
     return;
   }
   pDebug() << "Getting image";
-  Image16 img = Image16::loadFromMemory(res.data);
+  Image16 img = res.image;
   pDebug() << "Got image";
   if (img.isNull()) {
     pDebug() << "  got null image";

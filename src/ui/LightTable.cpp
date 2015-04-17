@@ -338,7 +338,10 @@ void LightTable::makeCurrent(quint64 i) {
   curr = i;
   emit newCurrent(curr);
   if (curr>0 && lay!=LayoutBar::Action::FullGrid) {
+    pDebug() << "emitting needimage " << curr;
     emit needImage(curr, displaySize());
+    pDebug() << "emitted needimage " << curr;
+    // Check that this works
     requestLargerImage();
   }
 

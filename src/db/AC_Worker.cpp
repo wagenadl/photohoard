@@ -335,21 +335,36 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
+  bool dbg = desired.width()>200;
   if (version==0)
     return;
+  if (dbg)
+    pDebug() << "AC_Worker::requestImage" << version << desired;
   PSize actual;
   try {
     if (loaded.contains(version)) {
+      if (dbg)
+        pDebug() << "  AC_Worker::already loaded" << version;
       Image16 res = loaded[version].scaledDownToFitIn(desired);
+      if (dbg)
+        pDebug() << "  AC_worker::emitting available" << version;
       emit available(version, desired, res);
       actual = res.size();
     } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
+      if (dbg)
+        pDebug() << "  AC_Worker::exists in cache" << version;
       bool od;
       Image16 img = cache->get(version, actual, &od).scaledDownToFitIn(desired);
-      if (img.isNull()) // can this happen?
+      if (dbg)
+        pDebug() << "  AC_Worker::got from cache" << version << img.size();
+      if (img.isNull()) {
+        // can this happen?
 	actual = PSize();
-      else
-	emit available(version, desired, img);
+      } else {
+        if (dbg)
+          pDebug() << "  AC_Worker::emitting available" << version;
+        emit available(version, desired, img);
+      }
       if (od)
 	actual = PSize();
     }
@@ -361,8 +376,12 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     // We will request it
     if (beingLoaded.contains(version)) {
       // We're getting it already
+        if (dbg)
+          pDebug() << "  AC_Worker::being loaded" << version;
       requests[version] << desired;
     } else {
+      if (dbg)
+        pDebug() << "  AC_Worker::adding to load list" << version;
       if (!mustCache.contains(version))
 	N++; /* This is not actually formally correct, because
 		it may be that version is in the dbqueue. Worse, by not
