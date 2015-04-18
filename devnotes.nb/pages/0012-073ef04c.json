@@ -86,6 +86,73 @@
                   "uuid": "8167e505"
                 }
               ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-17T19:52:42",
+              "mod": "2015-04-17T19:52:52",
+              "dx": 22.5,
+              "dy": 7.5,
+              "sheet": 0,
+              "textWidth": 199.0,
+              "uuid": "5e133175",
+              "x": 250.5,
+              "y": 439.75,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-17T19:52:42",
+                  "mod": "2015-04-17T19:52:43",
+                  "text": "done",
+                  "uuid": "001536d7"
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-17T19:53:27",
+              "mod": "2015-04-17T19:53:51",
+              "dx": 12.75,
+              "dy": 21.75,
+              "sheet": 0,
+              "textWidth": 67.0,
+              "uuid": "f8091486",
+              "x": 401.25,
+              "y": 349.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-17T19:53:27",
+                  "mod": "2015-04-17T19:53:51",
+                  "text": "better now, but bug remains where collapsed header is not redrawn when its selection states changes",
+                  "uuid": "e1b0645a"
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-04-17T19:54:32",
+              "mod": "2015-04-17T19:54:32",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 283.0,
+              "uuid": "1856ce4b",
+              "x": 198.0,
+              "y": 681.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-17T19:54:32",
+                  "mod": "2015-04-17T19:54:32",
+                  "text": "(see p. 16)",
+                  "uuid": "d3ff98e8",
+                  "cc": [
+                    { "typ": "markup",
+                      "cre": "2015-04-17T19:54:32",
+                      "mod": "2015-04-17T19:54:32",
+                      "end": 10,
+                      "start": 8,
+                      "style": 4,
+                      "uuid": "592e7a3c"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
