@@ -79,7 +79,6 @@ quint64 Scanner::addFolder(PhotoDB *db,
                leaf, path);
   quint64 id = q.lastInsertId().toULongLong();
 
-#if 0
   if (parentid) {
     db->query("insert into foldertree(descendant, ancestor) "
                " values (:a, :b)", id, parentid);
@@ -88,7 +87,7 @@ quint64 Scanner::addFolder(PhotoDB *db,
                " from foldertree where descendant==:b",
                id, parentid);
   }
-#endif
+
   return id;
 }
 
