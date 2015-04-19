@@ -19,6 +19,7 @@ public:
 public slots:
   void setFormat(int);
   void setResolutionMode();
+  void browse();
 private:
   class Ui_exportDialog *ui;
 };

@@ -9,7 +9,11 @@
 class Tags {
 public:
   Tags(PhotoDB *db);
+  int collectionRoot();
+  QStringList collections();
+  int findCollection(QString);
   int findOne(QString tag); // 0 for not found or -1 if not unique
+  int ensureCollection(QString); // creates if not existing
   QSet<int> findAll(QString tag); // find all tags matching name
   QSet<int> findAbbreviated(QString tag);
   int find(QString tag, int parent);

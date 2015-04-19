@@ -9,6 +9,8 @@
 #include <QSqlError>
 #include <QMap>
 #include <QVariant>
+#include <QSharedPointer>
+#include <QAtomicInt>
 
 class Database {
 public:
@@ -24,6 +26,7 @@ public:
   void rollback();
   static void enableDebug();
   static void disableDebug();
+  bool transactionsWaiting() const;
 public:
   QSqlQuery query();
   // The following execute the query and return the value(0) from the
@@ -34,6 +37,10 @@ public:
   QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c) const;
   QVariant simpleQuery(QString s, QVariant a, QVariant b, QVariant c,
                        QVariant d) const;
+  // The following execute the query and return the value(0) from the
+  // first result row. They return the provided default if there is no result.
+  QVariant defaultQuery(QString s, QVariant dflt) const;
+  QVariant defaultQuery(QString s, QVariant a, QVariant dflt) const;
   // The following execute the query. Result rows can be obtained by repeatedly
   // calling next(). An exception is thrown if the query cannot execute.
   QSqlQuery query(QString s);
@@ -65,7 +72,9 @@ private:
   static bool &debugging();
 protected:
   static QString autoid();
+  QSharedPointer<QAtomicInt> transWait;
   friend class Transaction;
+  friend class Untransaction;
 };
 
 class Transaction {
@@ -76,6 +85,14 @@ public:
 private:
   Database *db;
   bool cmt;
+};
+
+class Untransaction {
+public:
+  Untransaction(Database *db);
+  ~Untransaction();
+private:
+  Database *db;
 };
 
 #endif

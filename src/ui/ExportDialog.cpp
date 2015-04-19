@@ -4,6 +4,7 @@
 #include "ui_ExportDialog.h"
 #include "PhotoDB.h"
 #include "PDebug.h"
+#include <QFileDialog>
 
 ExportDialog::ExportDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_exportDialog();
@@ -102,3 +103,12 @@ ExportSettings ExportDialog::settings() const {
   return s;
 }
 
+
+void ExportDialog::browse() {
+  QString dir
+    = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                        QDir::homePath(),
+                                        QFileDialog::ShowDirsOnly);
+  if (!dir.isEmpty())
+    ui->destination->setText(dir);
+}

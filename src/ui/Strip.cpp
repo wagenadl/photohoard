@@ -619,6 +619,7 @@ void Strip::expand() {
     return;
   expanded = true;
   prepareGeometryChange();
+  Untransaction t(db);
   switch (org) {
   case Organization::ByDate:
     db->query("insert into expanded values(:a,:b)", d0, int(scl));
@@ -634,6 +635,7 @@ void Strip::collapse() {
     return;
   prepareGeometryChange();
   expanded = false;
+  Untransaction t(db);
   switch (org) {
   case Organization::ByDate:
     db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));

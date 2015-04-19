@@ -23,6 +23,8 @@ public slots:
   void updateImage(quint64, QSize, Image16);
   void setLayout(LayoutBar::Action);
 private:
+  class PhotoDB *db;
+  class Scanner *scanner;
   class Exporter *exporter;
 private:
   class LightTable *lightTable;

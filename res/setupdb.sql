@@ -114,6 +114,19 @@ create table appliedtags (
                on update cascade,
        unique(tag, version) on conflict ignore );
 
+create table defaulttags (
+-- Table of tags applied to all new versions in a given folder
+-- Intended for default collections
+       tag integer,
+       folder integer,
+       foreign key(tag) references tags(id)
+               on delete cascade
+               on update cascade,
+       foreign key(folder) references folders(id)
+               on delete cascade
+               on update cascade,
+       unique(tag, folder) on conflict ignore );
+
 create table folderstoscan (
        folder integer unique on conflict ignore,
        foreign key(folder) references folders(id) );

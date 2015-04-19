@@ -7,7 +7,7 @@
 #include <QSqlQuery>
 #include "NoResult.h"
 
-Database::Database(QString id0): id(id0) {
+Database::Database(QString id0): id(id0), transWait(new QAtomicInt()) {
   if (id.isEmpty())
     id = autoid();
 }
@@ -47,6 +47,7 @@ void Database::clone(Database const &src) {
     throw std::system_error(std::make_error_code
                             (std::errc::no_such_file_or_directory));
   }
+  transWait = src.transWait;
 }
 
 Database::~Database() {
@@ -78,6 +79,16 @@ void Database::rollback() {
   }
 }
 
+QVariant Database::defaultQuery(QString s, QVariant dflt) const {
+  QSqlQuery q = constQuery(s);
+  return q.next() ? q.value(0) : dflt;
+}
+ 
+QVariant Database::defaultQuery(QString s, QVariant a, QVariant dflt) const {
+  QSqlQuery q = constQuery(s, a);
+  return q.next() ? q.value(0) : dflt;
+}
+  
 QVariant Database::simpleQuery(QString s) const {
   QSqlQuery q = constQuery(s);
   if (!q.next())
@@ -294,7 +305,9 @@ bool &Database::debugging() {
 
 Transaction::Transaction(Database *db): db(db) {
   cmt = false;
+  db->transWait->ref();
   db->begin();
+  db->transWait->deref();
 }
 
 void Transaction::commit() {
@@ -306,4 +319,16 @@ Transaction::~Transaction() {
   if (!cmt) {
     db->rollback();
   }
+}
+
+Untransaction::Untransaction(Database *db): db(db) {
+  db->transWait->ref();
+}
+
+Untransaction::~Untransaction() {
+  db->transWait->deref();
+}
+
+bool Database::transactionsWaiting() const {
+  return *transWait > 0;
 }
