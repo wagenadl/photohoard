@@ -15,10 +15,12 @@ public:
   virtual QSize minimumSizeHint() const override;
 public slots:
   void setZoom(double v);
+  void setCollection(QString c);
 protected:
   virtual void paintEvent(QPaintEvent *) override;
 private:
   double zoom;
+  QString col;
 };
 
 #endif

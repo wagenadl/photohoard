@@ -87,6 +87,8 @@ MainWindow::MainWindow(PhotoDB *db,
           metaViewer, SLOT(setVersion(quint64)));
   connect(lightTable, SIGNAL(newZoom(double)),
           statusBar, SLOT(setZoom(double)));
+  connect(lightTable, SIGNAL(newCollection(QString)),
+          statusBar, SLOT(setCollection(QString)));
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
 	  tagList, SLOT(setCurrent(quint64)));
@@ -145,13 +147,5 @@ void MainWindow::updateImage(quint64 i, QSize, Image16 img) {
 }
 
 void MainWindow::setLayout(LayoutBar::Action a) {
-//  if (a==LayoutBar::Action::FullGrid) {
-//    histogram->hide();
-//    allControls->hide();
-//  } else {
-//    histogram->show();
-//    allControls->show();
-//  }
-
   lightTable->setLayout(a);
 }
