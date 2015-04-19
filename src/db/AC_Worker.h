@@ -50,12 +50,14 @@ private:
   class IF_Bank *bank;
   int n, N;
   int threshold;
+  int bytethreshold;
   QSet<quint64> readyToLoad;
   QList<quint64> rtlOrder;
   QSet<quint64> mustCache;
   QSet<quint64> beingLoaded;
   QSet<quint64> invalidatedWhileLoading;
   QMap<quint64, Image16> loaded;
+  int loadedmemsize;
   QSet<quint64> outdatedLoaded;
   QMap<quint64, QSet<PSize> > requests;
   class AC_ImageHolder *holder;

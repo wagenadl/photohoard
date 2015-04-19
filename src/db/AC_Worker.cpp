@@ -23,6 +23,8 @@ AC_Worker::AC_Worker(PhotoDB const *db0, QString rootdir,
   cache = new BasicCache;
   cache->open(rootdir);
   threshold = 100;
+  bytethreshold = 200*1000*1000;
+  loadedmemsize = 0;
   bank = new IF_Bank(4, this); // number of threads comes from where?
   connect(bank, SIGNAL(foundImage(quint64, Image16, QSize)),
 	  this, SLOT(handleFoundImage(quint64, Image16, QSize)),
@@ -30,7 +32,7 @@ AC_Worker::AC_Worker(PhotoDB const *db0, QString rootdir,
   connect(bank, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   n = 0;
-  N = 0;
+  countQueue();
 }
 
 AC_Worker::~AC_Worker() {
@@ -95,6 +97,7 @@ void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
     if (beingLoaded.contains(v)) 
       invalidatedWhileLoading << v;
     else if (loaded.contains(v))
+      loadedmemsize -= loaded[v].byteCount();
       loaded.remove(v);
     if (!readyToLoad.contains(v)) {
       readyToLoad << v;
@@ -165,6 +168,7 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
   if (loaded.contains(id))
     return;
   loaded[id] = img;
+  loadedmemsize += img.byteCount();
   outdatedLoaded << id;
   processLoaded();
 }
@@ -205,7 +209,6 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   q.finish();
 
   if (wid!=fs.width() || hei!=fs.height()) {
-    pDebug() << "ensureDBSizeCorrect" << vsn << siz;
     Untransaction ut(&db);
     db.query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
@@ -226,10 +229,14 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
     beingLoaded.remove(id);
     outdatedLoaded.remove(id);
 
-    if (invalidatedWhileLoading.contains(id)) 
+    if (invalidatedWhileLoading.contains(id)) {
       invalidatedWhileLoading.remove(id);
-    else if (mustCache.contains(id))
+    } else if (mustCache.contains(id)) {
       loaded[id] = img;
+      loadedmemsize += img.byteCount();
+      pDebug() << "loadedmemsize now" << loadedmemsize
+               << (loadedmemsize*100.0/bytethreshold);
+    }
 
     processLoaded();
   } catch (QSqlQuery &q) {
@@ -247,7 +254,7 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
 void AC_Worker::processLoaded() {
   bool done = loaded.size()>0
     && readyToLoad.isEmpty() && beingLoaded.isEmpty();
-  if (done || loaded.size() > threshold) {
+  if (done || loaded.size() > threshold || loadedmemsize>bytethreshold) {
     storeLoadedInDB();
     pDebug() << "AC_Worker: Cache progress: " << n << "/" << N
              << "(" << done <<")";
@@ -310,6 +317,7 @@ void AC_Worker::storeLoadedInDB() {
   t.commit();
   n += loaded.size() - noutdated;
   loaded.clear();
+  loadedmemsize = 0;
 }
 
 void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
