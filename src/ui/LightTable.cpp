@@ -342,6 +342,7 @@ void LightTable::makeCurrent(quint64 i) {
 
   curr = i;
   emit newCurrent(curr);
+  emit newZoom(slide->currentZoom());
   if (curr>0 && lay!=LayoutBar::Action::FullGrid) {
     pDebug() << "emitting needimage " << curr;
     emit needImage(curr, displaySize());
@@ -528,4 +529,8 @@ void LightTable::populateFilterFromDialog() {
   pDebug() << "Populate Filter" << N;
   db->query("delete from selection"
            " where version not in (select version from filter)");
+  if (f.hasCollection())
+    emit newCollection(f.collection());
+  else
+    emit newCollection("");
 }
