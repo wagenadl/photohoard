@@ -1,0 +1,356 @@
+{ "typ": "page",
+  "cre": "2015-04-17T20:13:23",
+  "mod": "2015-04-17T20:37:28",
+  "stampTime": 0,
+  "startPage": 17,
+  "unlocked": false,
+  "uuid": "7955b5de",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-04-17T20:13:23",
+      "mod": "2015-04-17T20:13:30",
+      "uuid": "d2601af7",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:13:23",
+          "mod": "2015-04-17T20:13:30",
+          "text": "Maintaining the foldertree again",
+          "uuid": "926111ea"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-04-17T20:13:23",
+      "mod": "2015-04-17T20:13:23",
+      "uuid": "86f13330"
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:13:30",
+      "mod": "2015-04-17T20:14:44",
+      "h": 101.562,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "eef8348c",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:13:30",
+          "mod": "2015-04-17T20:14:44",
+          "text": "I stopped maintaining the foldertree  table a while ago, but it is actually really useful, so I reinstated it. Main uses include the ability to avoid searching using “like” in byfolder organization and in general quickly finding everything below a certain folder.",
+          "uuid": "15f5dc05",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-04-17T20:13:36",
+              "mod": "2015-04-17T20:13:36",
+              "end": 36,
+              "start": 26,
+              "style": 1,
+              "uuid": "9b030734"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:14:49",
+      "mod": "2015-04-17T20:14:59",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "495e3945",
+      "y0": 173.562,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:14:49",
+          "mod": "2015-04-17T20:14:59",
+          "text": "I don’t need a separate “roots” table, because",
+          "uuid": "1574c04f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:14:59",
+      "mod": "2015-04-17T20:15:09",
+      "h": 25.5938,
+      "ind": 2,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b8bcb4c4",
+      "y0": 203.656,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:14:59",
+          "mod": "2015-04-17T20:15:09",
+          "text": "select id from folders where parentfolder is null",
+          "uuid": "db1f92f6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:15:10",
+      "mod": "2015-04-17T20:15:16",
+      "h": 30.0938,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "36a725fd",
+      "y0": 229.25,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:15:10",
+          "mod": "2015-04-17T20:15:16",
+          "text": "does the job just fine.",
+          "uuid": "324bf216"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:15:16",
+      "mod": "2015-04-17T20:15:26",
+      "h": 31.3906,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "08ac7bf8",
+      "y0": 259.343,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:15:16",
+          "mod": "2015-04-17T20:15:26",
+          "text": "I populated the foldertree  by first running",
+          "uuid": "5225c85c",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-04-17T20:15:21",
+              "mod": "2015-04-17T20:15:21",
+              "end": 26,
+              "start": 16,
+              "style": 1,
+              "uuid": "1c144544"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:15:26",
+      "mod": "2015-04-17T20:15:40",
+      "h": 43.1875,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f0f6a24d",
+      "y0": 290.734,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:15:26",
+          "mod": "2015-04-17T20:15:40",
+          "text": "insert into foldertree(ancestor, descendant) select parentfolder, id from folders where not parentfolder is null;",
+          "uuid": "38671a6d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:15:42",
+      "mod": "2015-04-17T20:15:50",
+      "h": 30.0938,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a7ca098c",
+      "y0": 333.921,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:15:42",
+          "mod": "2015-04-17T20:15:50",
+          "text": "and then, many times:",
+          "uuid": "7cba5cf6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:15:51",
+      "mod": "2015-04-17T20:16:05",
+      "h": 78.375,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "796ea161",
+      "y0": 364.015,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:15:51",
+          "mod": "2015-04-17T20:16:05",
+          "text": "insert into foldertree(ancestor, descendant) select folders.parentfolder, foldertree.descendant from folders inner join foldertree on folders.id==foldertree.ancestor where not folders.parentfolder is null;",
+          "uuid": "ce32cd8e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:16:06",
+      "mod": "2015-04-17T20:16:09",
+      "h": 30.0938,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "3f5b76c2",
+      "y0": 442.39,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:16:06",
+          "mod": "2015-04-17T20:16:09",
+          "text": "until",
+          "uuid": "dc25a3cf"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:16:09",
+      "mod": "2015-04-17T20:16:20",
+      "h": 25.5938,
+      "ind": 2,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d0e0f8dd",
+      "y0": 472.484,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:16:09",
+          "mod": "2015-04-17T20:16:20",
+          "text": "select count(1) from foldertree;",
+          "uuid": "d45441c5"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:16:21",
+      "mod": "2015-04-17T20:16:24",
+      "h": 30.0938,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d032afbd",
+      "y0": 498.078,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:16:21",
+          "mod": "2015-04-17T20:16:24",
+          "text": "no longer changed.",
+          "uuid": "3b5e276b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:32:46",
+      "mod": "2015-04-17T20:33:16",
+      "h": 52.1875,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "459bc2e2",
+      "y0": 528.172,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:32:46",
+          "mod": "2015-04-17T20:33:16",
+          "text": "Cool. I used this to create defaulttags for all my current folders like this:",
+          "uuid": "1805644e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:33:16",
+      "mod": "2015-04-17T20:36:04",
+      "h": 366.438,
+      "ind": 6,
+      "sheet": 0,
+      "split": [
+        111.156
+      ],
+      "uuid": "14b1e08a",
+      "y0": 580.359,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:33:16",
+          "mod": "2015-04-17T20:36:04",
+          "text": "insert into defaulttags select 24, id from folders;\nselect * from folders where leafname==\"Jennifer Art\";\n⇒ 15|5|Jennifer Art|/home/wagenaar/Pictures/bibble5/Jennifer Art|\nselect count(1) from defaulttags;\n ⇒ 1145\ndelete from defaulttags where folder in (select descendant from foldertree where ancestor==15);\nselect count(1) from defaulttags;\n⇒ 957\ninsert into defaulttags select 26, descendant from foldertree where ancestor==15;\nselect count(1) from defaulttags;\n⇒ 1145\nselect * from folders where leafname==\"Work\";\n⇒ 8|5|Work|/home/wagenaar/Pictures/bibble5/Work|\ndelete from defaulttags where folder in (select descendant from foldertree where ancestor==8);\ninsert into defaulttags select 25, descendant from foldertree where ancestor==8;",
+          "uuid": "9a59e9ae"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:36:05",
+      "mod": "2015-04-17T20:36:35",
+      "h": 52.1875,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "950f7770",
+      "y0": 327.281,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:36:05",
+          "mod": "2015-04-17T20:36:35",
+          "text": "SQL is remarkably powerful. After that, it was trivial to add the default tags also to the versions:",
+          "uuid": "22ecddc1"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:36:42",
+      "mod": "2015-04-17T20:36:48",
+      "h": 78.375,
+      "ind": 6,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "146c7942",
+      "y0": 379.469,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:36:42",
+          "mod": "2015-04-17T20:36:45",
+          "text": "insert into appliedtags select defaulttags.tag, versions.id from versions inner join photos on versions.photo==photos.id inner join folders on photos.folder==folders.id inner join defaulttags on folders.id==defaulttags.folder;",
+          "uuid": "812d8946"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:37:28",
+      "mod": "2015-04-17T20:37:28",
+      "h": 30.0938,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "73b82c90",
+      "y0": 457.844,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:37:28",
+          "mod": "2015-04-17T20:37:28",
+          "text": "",
+          "uuid": "955b8a81"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:37:06",
+      "mod": "2015-04-17T20:37:18",
+      "h": 30.0938,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "31328a0e",
+      "y0": 487.938,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:37:06",
+          "mod": "2015-04-17T20:37:18",
+          "text": "So now I am ready to program an “Add root” dialog.",
+          "uuid": "4d556717"
+        }
+      ]
+    }
+  ]
+}

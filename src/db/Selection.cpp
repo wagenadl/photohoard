@@ -8,10 +8,12 @@ Selection::Selection(PhotoDB *db): db(db) {
 }
 
 void Selection::add(quint64 vsn) {
+  Untransaction t(db);
   db->query("insert into M.selection values (:i)", vsn);
 }
 
 void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
+  Untransaction t(db);
   db->query("insert into selection select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b",
@@ -23,6 +25,7 @@ void Selection::addDateRange(QDateTime start, Strip::TimeScale scl) {
 }
 
 void Selection::dropDateRange(QDateTime start, QDateTime inclusiveend) {
+  Untransaction t(db);
   db->query("delete from selection where version in (select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b)",
@@ -34,14 +37,17 @@ void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
 }
   
 void Selection::remove(quint64 vsn) {
+  Untransaction t(db);
   db->query("delete from M.selection where version==:i", vsn);
 }
   
 void Selection::clear() {
+  Untransaction t(db);
   db->query("delete from M.selection");
 }
 
 void Selection::selectAll() {
+  Untransaction t(db);
   db->query("insert into M.selection (select version from filter)");
 }
 
@@ -64,6 +70,7 @@ QSet<quint64> Selection::current() {
 }
 
 void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
+  Untransaction t(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate<=:b",
@@ -71,6 +78,7 @@ void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
 }
 
 void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
+  Untransaction t(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate>=:b",
@@ -81,6 +89,7 @@ void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
   QString path1 = db->folder(fid1);
   QString path2 = db->folder(fid2);
   pDebug() << "addfoldersbetween" << path1 << path2;
+  Untransaction t(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " inner join folders on photos.folder==folders.id"
@@ -121,14 +130,17 @@ int Selection::countInTree(QString folder) const {
 
 void Selection::addInFolder(QString folder) {
   quint64 id = db->findFolder(folder);
-  if (id)
+  if (id) {
+    Untransaction t(db);
     db->query("insert into selection select version from filter"
              " inner join photos on filter.photo=photos.id"
              " where photos.folder==:a", id);
+  }
 }
 
 void Selection::addInTree(QString folder) {
   addInFolder(folder);
+  Untransaction t(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
@@ -139,16 +151,19 @@ void Selection::addInTree(QString folder) {
 
 void Selection::dropInFolder(QString folder) {
   quint64 id = db->findFolder(folder);
-  if (id)
+  if (id) {
+    Untransaction t(db);
     db->query("delete from selection where version in"
              " (select version from filter"
              " inner join photos on filter.photo=photos.id"
              " where photos.folder==:a)", id);
+  }
 }
 
 void Selection::dropInTree(QString folder) {
   dropInFolder(folder);
-  db->query("drop from selection select version from filter"
+  Untransaction t(db);
+  db->query("delete from selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
            " where folders.pathname like :a", folder+"/%");

@@ -107,6 +107,7 @@ void LiveAdjuster::setSlider(QString k, double v) {
       adjuster->requestReduced(sliders, targetsize);
   }
 
+  Untransaction t(db);
   db->query("insert or replace into adjustments (version, k, v)"
             " values (:a, :b, :c)", version, k, v);
 }

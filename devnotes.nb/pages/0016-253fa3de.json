@@ -1,0 +1,155 @@
+{ "typ": "page",
+  "cre": "2015-04-17T19:54:32",
+  "mod": "2015-04-17T20:02:36",
+  "stampTime": 0,
+  "startPage": 16,
+  "unlocked": false,
+  "uuid": "253fa3de",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-04-17T19:54:32",
+      "mod": "2015-04-17T19:54:54",
+      "uuid": "d08d7f65",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T19:54:32",
+          "mod": "2015-04-17T19:54:54",
+          "text": "Automatic collection assignment",
+          "uuid": "29de5008",
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2015-04-17T19:54:32",
+              "mod": "2015-04-17T19:54:32",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 0.0,
+              "uuid": "1bf39f38",
+              "x": -47.8125,
+              "y": 45.0,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-04-17T19:54:32",
+                  "mod": "2015-04-17T19:54:32",
+                  "text": "p. 12 >",
+                  "uuid": "65eb4f87",
+                  "cc": [
+                    { "typ": "markup",
+                      "cre": "2015-04-17T19:54:32",
+                      "mod": "2015-04-17T19:54:32",
+                      "end": 5,
+                      "res": [
+                        "12"
+                      ],
+                      "start": 3,
+                      "style": 4,
+                      "uuid": "0ef6054f"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-04-17T19:54:32",
+      "mod": "2015-04-17T19:54:32",
+      "uuid": "67b863bc",
+      "cc": [
+        { "typ": "res",
+          "cre": "2015-04-17T19:54:32",
+          "mod": "2015-04-17T19:54:32",
+          "archive": "12_-041ccbb5",
+          "desc": "",
+          "preview": "12_-041ccbb5p.png",
+          "source": "page://12",
+          "tag": "12",
+          "title": "",
+          "uuid": "041ccbb5"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T19:54:33",
+      "mod": "2015-04-17T19:56:28",
+      "h": 96.375,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d0bd9951",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T19:54:33",
+          "mod": "2015-04-17T19:56:28",
+          "text": "I haven’t fixed even half of the outstanding issues on p. 12, but I feel that the issue of automatic collection assignment may be the most critical. Because once I have that working, I can import all of the jennifer-art tree. How should this work?",
+          "uuid": "8f6af62c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T19:57:18",
+      "mod": "2015-04-17T20:01:35",
+      "h": 287.391,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "98445e97",
+      "y0": 168.375,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T19:57:18",
+          "mod": "2015-04-17T20:01:35",
+          "text": "I think each folder should have a “defaultcollection” associated with it. This could  be stored in the folders  table, but probably better in a separate table. (Because most  uses of the folders table won’t need to read this thing.) Then, when the user adds a root, the dialog will offer to attach a defaultcollection to it. Whenever a new folder is added to the folders table, it inherits any defaultcollection from its parent. Whenever a new photo is created, the associated new version gets a collection tag based on its photo’s folder’s defaultcollection. Later, when copying versions is implemented, the collection tag will come along for the ride, because I will automatically copy all tags.",
+          "uuid": "a1babeee",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-04-17T19:57:54",
+              "mod": "2015-04-17T19:57:54",
+              "end": 84,
+              "start": 79,
+              "style": 1,
+              "uuid": "3eab685c"
+            },
+            { "typ": "markup",
+              "cre": "2015-04-17T19:57:58",
+              "mod": "2015-04-17T19:57:58",
+              "end": 110,
+              "start": 103,
+              "style": 1,
+              "uuid": "2ace759f"
+            },
+            { "typ": "markup",
+              "cre": "2015-04-17T19:58:22",
+              "mod": "2015-04-17T19:58:22",
+              "end": 173,
+              "start": 169,
+              "style": 1,
+              "uuid": "a13a1dee"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-04-17T20:01:47",
+      "mod": "2015-04-17T20:02:36",
+      "h": 74.2812,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f89cf969",
+      "y0": 455.766,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-04-17T20:01:47",
+          "mod": "2015-04-17T20:02:36",
+          "text": "An interface will have to be created to change the defaultcollection for a folder (and optionally its subtree), probably using a context menu on the strip header.",
+          "uuid": "3e1079cd"
+        }
+      ]
+    }
+  ]
+}

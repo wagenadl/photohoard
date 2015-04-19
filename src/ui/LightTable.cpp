@@ -25,11 +25,14 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   bool oldcrash = db->simpleQuery("select count(*) from starting").toInt()>0;
   pDebug() << "Hello world";
   if (oldcrash) {
+    Untransaction t(db);
     db->query("update current set version=null");
     db->query("delete from expanded");
   }
   pDebug() << "Starting";
-  db->query("insert into starting values(1)");
+  { Untransaction t(db);
+    db->query("insert into starting values(1)");
+  }
   pDebug() << "Hello world";
 
   filterDialog = new FilterDialog(db);
@@ -79,7 +82,9 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   if (c)
     select(c);
 
-  db->query("delete from starting");
+  { Untransaction t(db);
+    db->query("delete from starting");
+  }
 }
 
 LightTable::~LightTable() {
@@ -515,6 +520,7 @@ void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
 
 void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
+  Untransaction t(db);
   db->query("delete from filter");
   db->query("insert into filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause());

@@ -27,6 +27,7 @@
   <file alias="icons/export.svg">../res/icons/export-1.svg</file>
   <file alias="icons/search.svg">../res/icons/searchLines2-1.svg</file>
   <file alias="icons/toggleOrg.svg">../res/icons/toggleOrg.svg</file>
+  <file alias="icons/rescan.svg">../res/icons/rescan.svg</file>
  </qresource> 
 </RCC>
 

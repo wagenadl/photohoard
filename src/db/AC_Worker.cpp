@@ -202,9 +202,11 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   int hei = q.value(1).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(2).toInt());
   PSize fs = Exif::fixOrientation(siz, orient);
-  q = QSqlQuery();
+  q.finish();
 
   if (wid!=fs.width() || hei!=fs.height()) {
+    pDebug() << "ensureDBSizeCorrect" << vsn << siz;
+    Untransaction ut(&db);
     db.query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
   }

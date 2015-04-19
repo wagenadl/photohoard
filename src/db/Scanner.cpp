@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include "Exif.h"
 #include "NoResult.h"
+#include "Tags.h"
 
 Scanner::Scanner(PhotoDB *db0): db0(db0) {
   setObjectName("Scanner");
@@ -22,31 +23,51 @@ Scanner::~Scanner() {
   db.close();
 }
 
-void Scanner::addTree(QString path) {
+void Scanner::addTree(QString path, QString defaultCollection) {
   // This is called from outside of thread!
-  Transaction t(db0);
-  QSqlQuery q = db0->constQuery("select id from folders where pathname==:a",
-			      path);
-  quint64 id;
-  if (q.next()) {
-    // folder exists
-    id = q.value(0).toULongLong();
-  } else {
+  if (!db0->findFolder(path)) {
     QDir parent(path);
     parent.cdUp();
     QString leaf = parent.relativeFilePath(path);
     QString parentPath = parent.path();
-    QSqlQuery q
-      = db0->constQuery("select id from folders where pathname==:a",
-                        parentPath);
-    quint64 parentid = q.next() ? q.value(0).toULongLong() : 0;
-    q.finish();
-    id = addFolder(db0, parentid, path, leaf);
+    Transaction t(db0);
+    quint64 parentid = db0->defaultQuery("select id from folders"
+                                         " where pathname==:a", parentPath, 0)
+      .toULongLong();
+    quint64 id = addFolder(db0, parentid, path, leaf);
+    if (!defaultCollection.isEmpty()) {
+      Tags tags(db0);
+      int t = tags.ensureCollection(defaultCollection);
+      db0->query("insert into defaulttags(folder, tag) values(:a,:b)",
+                 id, t);
+    }
+    t.commit();
   }
 
-  db0->query("insert into folderstoscan values (:a)", id);
-  t.commit();
+  rescan(path);
+}
 
+void Scanner::rescanAll() {
+  // This is called from outside of thread!
+  QSqlQuery q = db0->query("select pathname from folders"
+                           " where parentfolder is null");
+  QStringList roots;
+  while (q.next())
+    roots << q.value(0).toString();
+  q.finish();
+
+  for (QString r: roots)
+    rescan(r);
+}
+
+void Scanner::rescan(QString path) {
+  // This is called from outside of thread!
+  pDebug() << "rescan" << path;
+  Untransaction t(db0);
+  db0->query("insert into folderstoscan select id from folders"
+             " where pathname==:a", path);
+  pDebug() << "rescan" << path << "inserted";
+  
   QMutexLocker l(&mutex);
   waiter.wakeOne();
 }
@@ -80,12 +101,18 @@ quint64 Scanner::addFolder(PhotoDB *db,
   quint64 id = q.lastInsertId().toULongLong();
 
   if (parentid) {
+    // update the foldertree
     db->query("insert into foldertree(descendant, ancestor) "
                " values (:a, :b)", id, parentid);
     db->query("insert into foldertree(descendant, ancestor) "
                " select :a, ancestor "
                " from foldertree where descendant==:b",
                id, parentid);
+
+    // copy the defaulttags from parent
+    db->query("insert into defaulttags(tag, folder) "
+              " select tag, :a from defaulttags where folder==:b",
+              id, parentid);
   }
 
   return id;
@@ -93,9 +120,8 @@ quint64 Scanner::addFolder(PhotoDB *db,
 
 void Scanner::removeTree(QString path) {
   // called from caller, not our thread
-  Transaction t(db0);
+  Untransaction t(db0);
   db0->query("delete from folders where pathname==:a", path);
-  t.commit();
 }
 
 void Scanner::run() {
@@ -173,7 +199,12 @@ QSet<quint64> Scanner::findPhotosToScan() {
 void Scanner::scanPhotos(QSet<quint64> ids) {
   QSet<quint64> versions;
   for (auto id: ids) {
+    while (db.transactionsWaiting()) {
+      pDebug() << "scanner waiting in photos";
+      usleep(100000);
+    }
     Transaction t(&db);
+    //    pDebug() << "Scanner::scanPhotos: transaction started";
     scanPhoto(id);
     QSqlQuery q
       = db.constQuery("select id from versions where photo==:a", id);
@@ -182,6 +213,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
       vv << q.value(0).toULongLong();
     n++;
     t.commit();
+    //    pDebug() << "Scanner::scanPhotos: transaction committed";
     if (!vv.isEmpty())
       emit updated(vv);
     versions |= vv;
@@ -245,8 +277,12 @@ void Scanner::scanFolder(quint64 id) {
 
   // let's update the database
 
-  usleep(9000); // optional
+  while (db.transactionsWaiting()) {
+    pDebug() << "Scanner waiting in folders";
+    usleep(100000); 
+  }
   Transaction t(&db);
+  //  pDebug() << "Scanner::scanFolders: transaction started";
   db.query("delete from folderstoscan where folder=:a", id);
   
   // Drop subdirs that do not exist any more
@@ -285,6 +321,7 @@ void Scanner::scanFolder(quint64 id) {
   }
 
   t.commit();
+  //  pDebug() << "Scanner::scanFolders: transaction committed";
 }
 
 int Scanner::photoQueueLength() {

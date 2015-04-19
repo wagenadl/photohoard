@@ -551,9 +551,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>browse</sender>
+   <signal>clicked()</signal>
+   <receiver>exportDialog</receiver>
+   <slot>browse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>229</x>
+     <y>425</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>416</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>setResolutionMode()</slot>
   <slot>setFormat(int)</slot>
+  <slot>browse()</slot>
  </slots>
 </ui>

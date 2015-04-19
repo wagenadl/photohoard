@@ -11,7 +11,8 @@ class FileBar: public ActionBar {
 public:
   enum class Action {
     AddFolder,
-      ImportCamera,
+      RescanFolders,
+      ImportFromCamera,
       OpenExportDialog,
       ExportSelected,
       N

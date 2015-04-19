@@ -17,8 +17,10 @@ public:
   Scanner(PhotoDB *);
   virtual ~Scanner();
 public slots:
-  void addTree(QString path);
+  void addTree(QString path, QString defaultCollection="");
   void removeTree(QString path);
+  void rescanAll();
+  void rescan(QString root);
 signals:
   void collecting(int N);
   void progressed(int n, int N);

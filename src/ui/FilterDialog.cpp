@@ -161,20 +161,13 @@ void FilterDialog::prepCollections() {
   ui->collectionBox->clear();
   ui->collectionBox->addItem("None");
 
-  int coltag = tags.findOne("Collections");
-  if (coltag>0) {
-    QSet<QString> cols;
-    QSqlQuery q = db->query("select tag from tags "
-			   "where parent==:a", coltag);
-    while (q.next())
-      cols << q.value(0).toString();
-    q.finish();
-    
-    if (!cols.isEmpty())
-      ui->cMake->insertSeparator(1);
-    for (QString c: cols)
-      ui->collectionBox->addItem(c);
-  }
+  QStringList cc = tags.collections();
+  if (cc.isEmpty())
+    return;
+
+  ui->cMake->insertSeparator(1);
+  for (QString c: cc)
+    ui->collectionBox->addItem(c);
 }
 
 Filter FilterDialog::extract() const {

@@ -18,12 +18,14 @@
 #include "MetaViewer.h"
 #include "StatusBar.h"
 #include "AppliedTagList.h"
-
+#include "AddRootDialog.h"
+#include <QDir>
 #include "PDebug.h"
 
 MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
-                       Exporter *exporter): exporter(exporter) {
+                       Exporter *exporter):
+  db(db), scanner(scanner), exporter(exporter) {
   exportDialog = 0;
 
   QDockWidget *dock = new QDockWidget("Histogram", this);
@@ -103,6 +105,19 @@ MainWindow::~MainWindow() {
 
 void MainWindow::fileAction(FileBar::Action a) {
   switch (a) {
+  case FileBar::Action::AddFolder: {
+    AddRootDialog dlg(db);
+    if (dlg.exec()) {
+      if (!dlg.path().isEmpty() && !dlg.defaultCollection().isEmpty()) {
+        QDir root(dlg.path());
+        if (root.exists())
+          scanner->addTree(root.absolutePath(), dlg.defaultCollection());
+      }
+    }
+  } break;
+  case FileBar::Action::RescanFolders:
+    scanner->rescanAll();
+    break;
   case FileBar::Action::OpenExportDialog:
     if (!exportDialog)
       exportDialog = new ExportDialog();

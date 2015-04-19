@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-04-10T11:32:44",
-  "mod": "2015-04-17T19:54:54",
+  "mod": "2015-04-17T20:33:32",
   "uuid": "756eee76",
   "cc": [
     { "typ": "entry",
@@ -74,6 +74,14 @@
       "startPage": 16,
       "title": "Automatic collection assignment",
       "uuid": "253fa3de"
+    },
+    { "typ": "entry",
+      "cre": "2015-04-17T20:13:23",
+      "mod": "2015-04-17T20:33:32",
+      "sheetCount": 2,
+      "startPage": 17,
+      "title": "Maintaining the foldertree again",
+      "uuid": "7955b5de"
     }
   ]
 }

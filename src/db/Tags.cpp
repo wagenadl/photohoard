@@ -69,11 +69,13 @@ QSet<int> Tags::applied(quint64 versionid) {
 }
 
 void Tags::apply(quint64 versionid, int tagid) {
+  Untransaction t(db);
   db->query("insert into appliedtags(version, tag) values(:a,:b)",
 	   versionid, tagid);
 }
 
 void Tags::remove(quint64 versionid, int tagid) {
+  Untransaction t(db);
   db->query("delete from appliedtags where version==:a and tag==:b",
 	   versionid, tagid);
 }
@@ -105,6 +107,7 @@ int Tags::define(QString tag, int parent) {
     return id;
   while (tag.endsWith(".") || tag.endsWith(" "))
     tag = tag.left(tag.size()-1);
+  Untransaction t(db);
   QSqlQuery q = parent ?
     db->query("insert into tags(tag, parent) values(:a,:b)", tag, parent)
     : db->query("insert into tags(tag) values(:a,:b)", tag);
@@ -275,4 +278,42 @@ int Tags::define(QString tag) {
   else
     return 0;
 }
- 
+
+int Tags::collectionRoot() {
+  QSqlQuery q = db->query("select id from tags where tag==:a"
+                          " and parent is null collate nocase",
+                          "Collections");
+  if (q.next())
+    return q.value(0).toInt();
+
+  Untransaction t(db);
+  q = db->query("insert into tags(tag) values(:a)", "Collections");
+  return q.lastInsertId().toInt();
+}
+
+int Tags::ensureCollection(QString c) {
+  int t = findCollection(c);
+  if (t)
+    return t;
+  
+  Untransaction ut(db);
+  QSqlQuery q = db->query("insert into tags(tag,parent) values(:a,:b)",
+                          c, collectionRoot());
+  return q.lastInsertId().toInt();
+}
+  
+QStringList Tags::collections() {
+  QStringList cc;
+  QSqlQuery q = db->query("select tag from tags where parent==:a",
+                          collectionRoot());
+  while (q.next())
+    cc << q.value(0).toString();
+  return cc;  
+}
+
+int Tags::findCollection(QString tag) {
+  QSqlQuery q = db->query("select id from tags where tag==:a"
+                          " and parent==:b collate nocase",
+                          tag, collectionRoot());
+  return q.next() ? q.value(0).toInt() : 0;
+}

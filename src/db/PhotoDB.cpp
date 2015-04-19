@@ -78,6 +78,7 @@ quint64 PhotoDB::findFolder(QString path) const {
   QSqlQuery q = constQuery("select id from folders where pathname==:a", path);
   if (!q.next())
     return 0;
+  
   quint64 id = q.value(0).toULongLong();
   revFolders[path] = id;
   return id;
