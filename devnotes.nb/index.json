@@ -13,7 +13,6 @@
   "about": [
     4
   ],
-  "absurd": [ ],
   "accept": [
     4,
     9
@@ -151,7 +150,6 @@
   "assume": [
     1
   ],
-  "at": [ ],
   "attach": [
     16
   ],
@@ -245,8 +243,6 @@
   "brief": [
     15
   ],
-  "bug": [ ],
-  "bugfix": [ ],
   "but": [
     17,
     1,
@@ -272,9 +268,6 @@
   "ca": [
     4
   ],
-  "callback": [ ],
-  "called": [ ],
-  "camera": [ ],
   "can": [
     1,
     4,
@@ -316,9 +309,6 @@
   "class": [
     9
   ],
-  "classes": [ ],
-  "cleaner": [ ],
-  "clearer": [ ],
   "clearly": [
     13
   ],
@@ -342,8 +332,6 @@
   "code": [
     9
   ],
-  "collapse": [ ],
-  "collapsed": [ ],
   "collection": [
     16
   ],
@@ -398,7 +386,6 @@
   "crash": [
     13
   ],
-  "create": [ ],
   "created": [
     16
   ],
@@ -408,7 +395,6 @@
   "crop": [
     4
   ],
-  "current": [ ],
   "d": [
     1,
     4
@@ -442,7 +428,6 @@
   "defaultcollection": [
     16
   ],
-  "deleting": [ ],
   "descendant": [
     17
   ],
@@ -465,7 +450,6 @@
   "directory": [
     11
   ],
-  "display": [ ],
   "distortion": [
     4
   ],
@@ -489,14 +473,13 @@
     11
   ],
   "done": [
+    17,
     4,
     11
   ],
   "drawline": [
     9
   ],
-  "duplicated": [ ],
-  "duplicating": [ ],
   "e": [
     4,
     9
@@ -527,15 +510,12 @@
   "eg": [
     4
   ],
-  "elegant": [ ],
   "empty": [
     4
   ],
   "encoded": [
     4
   ],
-  "entire": [ ],
-  "error": [ ],
   "etc": [
     9,
     15
@@ -549,7 +529,6 @@
   "event": [
     9
   ],
-  "every": [ ],
   "everything": [
     17
   ],
@@ -565,7 +544,6 @@
   "experimentally": [
     13
   ],
-  "explicitly": [ ],
   "export": [
     11
   ],
@@ -676,14 +654,12 @@
   "give": [
     15
   ],
-  "good": [ ],
   "got": [
     11
   ],
   "gray": [
     1
   ],
-  "grid": [ ],
   "grouped": [
     4
   ],
@@ -775,7 +751,6 @@
   "image16": [
     11
   ],
-  "images": [ ],
   "impl": [
     4
   ],
@@ -816,7 +791,6 @@
   "independent": [
     13
   ],
-  "indication": [ ],
   "inherits": [
     16
   ],
@@ -865,7 +839,6 @@
   "ismple": [
     4
   ],
-  "isn": [ ],
   "issue": [
     16
   ],
@@ -939,7 +912,6 @@
   "less": [
     15
   ],
-  "levels": [ ],
   "light": [
     4
   ],
@@ -979,11 +951,9 @@
   "look": [
     4
   ],
-  "loop": [ ],
   "ly": [
     4
   ],
-  "made": [ ],
   "main": [
     17,
     9
@@ -1025,11 +995,9 @@
   "menu": [
     16
   ],
-  "mode": [ ],
   "mods": [
     4
   ],
-  "month": [ ],
   "more": [
     4,
     11,
@@ -1046,7 +1014,6 @@
   "ms": [
     15
   ],
-  "much": [ ],
   "museum": [
     4
   ],
@@ -1066,7 +1033,6 @@
   "names": [
     4
   ],
-  "near": [ ],
   "nearest": [
     11
   ],
@@ -1240,7 +1206,6 @@
   "particular": [
     13
   ],
-  "passing": [ ],
   "people": [
     4
   ],
@@ -1254,7 +1219,6 @@
   "perspective": [
     4
   ],
-  "perspectivizing": [ ],
   "phd": [
     1
   ],
@@ -1262,7 +1226,6 @@
     17,
     16
   ],
-  "photodb": [ ],
   "photohoard": [
     1,
     4,
@@ -1272,7 +1235,6 @@
   "photos": [
     17
   ],
-  "pointer": [ ],
   "populated": [
     17
   ],
@@ -1288,7 +1250,6 @@
   "pretty": [
     11
   ],
-  "previously": [ ],
   "probably": [
     4,
     11,
@@ -1354,11 +1315,9 @@
   "qtcentre": [
     9
   ],
-  "qtimer": [ ],
   "queries": [
     13
   ],
-  "queued": [ ],
   "quickly": [
     17
   ],
@@ -1370,7 +1329,6 @@
     13,
     15
   ],
-  "rationalization": [ ],
   "raw": [
     4
   ],
@@ -1399,18 +1357,15 @@
   "reject": [
     4
   ],
-  "relayout": [ ],
   "rely": [
     4
   ],
-  "remain": [ ],
   "remarkably": [
     17
   ],
   "removes": [
     4
   ],
-  "rendering": [ ],
   "rep": [
     4
   ],
@@ -1435,7 +1390,6 @@
   "retrying": [
     15
   ],
-  "returning": [ ],
   "reveals": [
     4
   ],
@@ -1461,7 +1415,6 @@
   "rotate": [
     4
   ],
-  "rotating": [ ],
   "row": [
     15
   ],
@@ -1506,13 +1459,10 @@
   "see": [
     11
   ],
-  "seems": [ ],
   "select": [
     17,
     15
   ],
-  "selected": [ ],
-  "selecting": [ ],
   "selection": [
     13
   ],
@@ -1551,7 +1501,6 @@
   "shift": [
     4
   ],
-  "shortcuts": [ ],
   "should": [
     4,
     13,
@@ -1582,12 +1531,9 @@
   "size": [
     9
   ],
-  "slanting": [ ],
   "sleep": [
     15
   ],
-  "smaller": [ ],
-  "snapping": [ ],
   "so": [
     17,
     4,
@@ -1598,7 +1544,6 @@
     4,
     15
   ],
-  "somehow": [ ],
   "something": [
     15
   ],
@@ -1624,8 +1569,6 @@
   "sql": [
     17
   ],
-  "sqlite": [ ],
-  "standard": [ ],
   "standardized": [
     4
   ],
@@ -1638,7 +1581,6 @@
   "status": [
     9
   ],
-  "step": [ ],
   "steps": [
     11
   ],
@@ -1666,7 +1608,6 @@
     11,
     16
   ],
-  "strips": [ ],
   "stumbled": [
     1
   ],
@@ -1685,7 +1626,6 @@
   "sure": [
     1
   ],
-  "syntax": [ ],
   "system": [
     11
   ],
@@ -1759,7 +1699,6 @@
     17,
     16
   ],
-  "there": [ ],
   "these": [
     1
   ],
@@ -1787,7 +1726,6 @@
     15,
     16
   ],
-  "though": [ ],
   "thread": [
     13,
     15
@@ -1869,7 +1807,6 @@
   "until": [
     17
   ],
-  "untitled": [ ],
   "upon": [
     1
   ],
@@ -2043,7 +1980,6 @@
     4,
     13
   ],
-  "zoom": [ ],
   "μs": [
     15
   ]
