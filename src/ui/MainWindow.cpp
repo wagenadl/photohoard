@@ -49,7 +49,7 @@ MainWindow::MainWindow(PhotoDB *db,
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
   dock = new QDockWidget("Status",this);
-  dock->setWidget(statusBar = new StatusBar(this));
+  dock->setWidget(statusBar = new StatusBar(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   

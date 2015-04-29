@@ -6,7 +6,16 @@
 
 constexpr int SB_Height = 20;
 
-StatusBar::StatusBar(QWidget *parent): QFrame(parent) {
+class StatusBarUI {
+public:
+  //  class QComboBox *colbox;
+  //  class ZoomSpinBox *zoombox;
+public:
+  void setupUI(QWidget */*owner*/) {
+  }
+};
+
+StatusBar::StatusBar(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
   zoom = 0;
   setContentsMargins(3, 0, 3, 0);
