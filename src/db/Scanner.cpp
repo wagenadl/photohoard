@@ -357,6 +357,13 @@ void Scanner::scanPhoto(quint64 id) {
     return;
   }
 
+  QDateTime captureDate =  exif.dateTime();
+  if (!captureDate.isValid()) {
+    // use file datestamp instead
+    QFileInfo fileInfo(pathname);
+    captureDate = fileInfo.lastModified();
+  }    
+
   // Find camera, possibly creating new record
   QString model = exif.model();
   QString make = exif.make();
@@ -403,7 +410,7 @@ void Scanner::scanPhoto(quint64 id) {
   q.bindValue(":fl", exif.focalLength_mm());
   q.bindValue(":d", exif.focusDistance_m());
   q.bindValue(":iso", exif.iso());
-  q.bindValue(":cd", exif.dateTime()); // does this work?
+  q.bindValue(":cd", captureDate);
   q.bindValue(":ls", QDateTime::currentDateTime());
   q.bindValue(":id", id);
   if (!q.exec())
