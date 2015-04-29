@@ -9,7 +9,7 @@
 class StatusBar: public QFrame {
   Q_OBJECT;
 public:
-  StatusBar(QWidget *parent=0);
+  StatusBar(class PhotoDB *db, QWidget *parent=0);
   virtual ~StatusBar() { }
   virtual QSize sizeHint() const override;
   virtual QSize minimumSizeHint() const override;
@@ -19,6 +19,8 @@ public slots:
 protected:
   virtual void paintEvent(QPaintEvent *) override;
 private:
+  PhotoDB *db;
+  class StatusBarUI *ui;
   double zoom;
   QString col;
 };
