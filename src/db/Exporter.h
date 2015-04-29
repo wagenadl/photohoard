@@ -24,7 +24,7 @@ public:
     QSet<quint64> failed;
   };
 public:
-  Exporter(PhotoDB const *db, QObject *parent=0);
+  Exporter(PhotoDB *db, QObject *parent=0);
   void setup(ExportSettings const &);
   void addSelection();
   void add(QSet<quint64> const &vsns);
@@ -39,10 +39,11 @@ protected:
 private:
   bool doExport(quint64 vsn, ExportSettings const &settings);
 private:
+  PhotoDB *db0; // calling thread
   QMutex mutex;
   QWaitCondition cond;
   ExportSettings settings;
-  PhotoDB db;
+  PhotoDB db; // our clone
   QList<Job> jobs;
   bool stopsoon;
   class IF_Worker *worker;

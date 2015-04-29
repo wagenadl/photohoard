@@ -9,8 +9,8 @@
 #include <QDir>
 #include "Sliders.h"
 
-Exporter::Exporter(PhotoDB const *db0, QObject *parent):
-  QThread(parent) {
+Exporter::Exporter(PhotoDB *db0, QObject *parent):
+  QThread(parent), db0(db0) {
   db.clone(*db0);
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");
   worker = new IF_Worker(this);
@@ -45,9 +45,10 @@ void Exporter::setup(ExportSettings const &s) {
 
 void Exporter::addSelection() {
   QSet<quint64> vsns;
-  QSqlQuery q(db.query("select version from selection"));
+  QSqlQuery q(db0->query("select version from selection"));
   while (q.next())
     vsns << q.value(0).toULongLong();
+  q.finish();
   if (!vsns.isEmpty())
     add(vsns);
 }
