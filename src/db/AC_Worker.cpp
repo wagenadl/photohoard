@@ -280,7 +280,7 @@ void AC_Worker::sendToBank(quint64 vsn) {
   QSqlQuery q = db.query("select k, v from adjustments where version==:a",
                          vsn);
   while (q.next())
-    adjs.set(q.value(0).toString(), q.value(0).toDouble());
+    adjs.set(q.value(0).toString(), q.value(1).toDouble());
 
   q = db.query("select folder, filename, filetype, width, height, orient "
                 " from photos where id==:a limit 1", photo);
