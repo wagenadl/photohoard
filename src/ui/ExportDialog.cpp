@@ -95,7 +95,8 @@ ExportSettings ExportDialog::settings() const {
     : ui->rHeight->isChecked() ? ExportSettings::ResolutionMode::LimitHeight
     : ui->rMaxDim->isChecked() ? ExportSettings::ResolutionMode::LimitMaxDim
     : ExportSettings::ResolutionMode::Scale;
-
+  
+  s.jpegQuality = ui->quality->value();
   s.maxdim = ui->maxdim->value();
   s.scalePercent = ui->scale->value();
   s.namingScheme = ExportSettings::NamingScheme(ui->scheme->currentIndex());
