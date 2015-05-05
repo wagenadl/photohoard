@@ -82,12 +82,18 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
     = db.query("insert into photos(folder, filename, filetype) "
 	       " values (:a,:b,:c)",
 	       parentid, leaf, exts.contains(ext) ? exts[ext]: QVariant());
-  quint64 id = q.lastInsertId().toULongLong();
+  quint64 photo = q.lastInsertId().toULongLong();
 
   // Create first version - this is preliminary code
-  q = db.query("insert into versions(photo) values(:i)", id);
+  q = db.query("insert into versions(photo) values(:a)", photo);
+  quint64 vsn = q.lastInsertId().toULongLong();
 
-  return id;
+  // we should attach defaulttags!
+  db.query("insert into appliedtags(tag, version)"
+           " select tag, :a from defaulttags where folder==:b",
+           vsn, parentid);
+  
+  return photo;
 }
 
 quint64 Scanner::addFolder(PhotoDB *db,
