@@ -14,6 +14,12 @@ public:
   DialogCode exec();
   QString path() const;
   QString defaultCollection() const;
+  bool validate(bool interactive=false) const;
+  /* Validate returns true if (1) a folder has been selected, (2) that
+     folder exists, and (3) a collection has been selected. The interactive
+     flag determines whether warning boxes are displayed to the user if
+     validation fails.
+   */
 protected:
   void keyPressEvent(QKeyEvent *) override;
 protected slots:
