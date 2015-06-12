@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
  <qresource>
+<!-- SLIDERS -->
+  <file alias="sliders.txt">../res/sliders.txt</file>
 <!-- STYLE -->
   <file alias="style.css">../res/style.css</file>
 
