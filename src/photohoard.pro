@@ -165,3 +165,5 @@ HEADERS += ui/AppliedTagList.h   ui/AppliedTagWidget.h   ui/AppliedTagEditor.h
 SOURCES += ui/AppliedTagList.cpp ui/AppliedTagWidget.cpp ui/AppliedTagEditor.cpp
 HEADERS += ui/FilterDialog.h   db/Filter.h   ui/AddRootDialog.h
 SOURCES += ui/FilterDialog.cpp db/Filter.cpp ui/AddRootDialog.cpp
+HEADERS += ui/SliderGroups.h
+SOURCES += ui/SliderGroups.cpp
