@@ -1,18 +1,18 @@
-// Controlclipboard.h
+// Sliderclipboard.h
 
-#ifndef CONTROLCLIPBOARD_H
-
-#define CONTROLCLIPBOARD_H
+#ifndef SLIDERCLIPBOARD_H
+#define SLIDERCLIPBOARD_H
 
 #include <QScrollArea>
 #include <QMap>
+#include <QSet>
 #include "Sliders.h"
 
-class Controlclipboard: public QScrollArea {
+class SliderClipboard: public QScrollArea {
   Q_OBJECT;
 public:
-  ControlClipboard(QWidget *parent=0);
-  virtual ~ControlClipboard();
+  SliderClipboard(QWidget *parent=0);
+  virtual ~SliderClipboard();
   Sliders values() const; // ignores mask
   QSet<QString> mask() const;
   void get(Sliders *dest) const;
@@ -30,7 +30,9 @@ protected slots:
   void goNext(QString);
   void goPrevious(QString);
 private:
-  QMap<QString, QCheckBox *> groupControl;
+  void autoResize();
+private:
+  QMap<QString, class QCheckBox *> groupControl;
   QMap<QString, QFrame *> groupFrame;
   QMap<QString, QSet<QString> > groupContents;
   QMap<QString, QString> reverseMap;
@@ -39,3 +41,5 @@ private:
   QMap<QString, QString> previousThing;
   Sliders val;
 };
+
+#endif
