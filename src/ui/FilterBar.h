@@ -16,6 +16,7 @@ public:
       Larger,
       Smaller,
       ClearSelection,
+      SelectAll,
       N
       };
 public:

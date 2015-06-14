@@ -462,13 +462,21 @@ void LightTable::filterAction(FilterBar::Action a) {
   case FilterBar::Action::ClearSelection:
     clearSelection();
     break;
+  case FilterBar::Action::SelectAll:
+    selectAll();
+    break;
   case FilterBar::Action::OpenFilterDialog:
     filterDialog->show();
   default:
     break;
   }
 }
-        
+
+void LightTable::selectAll() {
+  selection->selectAll();
+  film->scene()->update();
+}
+
 void LightTable::clearSelection() {
   quint64 c = db->simpleQuery("select * from current").toULongLong();
   if (c) {
