@@ -9,6 +9,7 @@
 
 StripView::StripView(PhotoDB *db, QWidget *parent):
   QGraphicsView(parent), db(db) {
+  tilesize = 96;
 
   useFolders = false;
 
@@ -16,7 +17,7 @@ StripView::StripView(PhotoDB *db, QWidget *parent):
   setScene(dateScene);
   dateStrip = new Datestrip(db, 0);
   setArrangement(Datestrip::Arrangement::Grid);
-  dateStrip->setTileSize(80);
+  dateStrip->setTileSize(tilesize);
   dateStrip->setTimeRange(QDateTime(), Datestrip::TimeScale::Eternity);
   dateScene->addItem(dateStrip);
   placeAndConnect(dateStrip);
@@ -24,7 +25,7 @@ StripView::StripView(PhotoDB *db, QWidget *parent):
   folderScene = new StripScene(db, this);
   folderStrip = new Datestrip(db, 0);
   setArrangement(Datestrip::Arrangement::Grid);
-  folderStrip->setTileSize(80);
+  folderStrip->setTileSize(tilesize);
   folderStrip->setFolder("/"); /// hmmm.
   folderScene->addItem(folderStrip);
   placeAndConnect(folderStrip);
@@ -137,10 +138,10 @@ void StripView::resizeEvent(QResizeEvent *) {
 void StripView::recalcSizes() {
   switch (strip()->arrangement()) {
   case Datestrip::Arrangement::Horizontal:
-    strip()->setTileSize(viewport()->height());
+    setTileSize(viewport()->height());
     break;
   case Datestrip::Arrangement::Vertical:
-    strip()->setTileSize(viewport()->width());
+    setTileSize(viewport()->width());
     break;
   case Datestrip::Arrangement::Grid:
     strip()->setRowWidth(viewport()->width());
@@ -157,6 +158,11 @@ void StripView::rescan() {
 }
 
 void StripView::setTileSize(int pix) {
+  if (pix<50)
+    pix = 50;
+  else if (pix>1024)
+    pix = 1024;
+  tilesize = pix;
   strip()->setTileSize(pix);
 }
 
@@ -190,8 +196,33 @@ quint64 StripView::current() {
   return db->simpleQuery("select * from current").toULongLong();
 }
 
+int StripView::idealSize() const {
+  return idealSize(strip()->arrangement());
+}
+
+int StripView::idealSize(Strip::Arrangement arr) const {
+  switch (arr) {
+  case Strip::Arrangement::Horizontal:
+    return tilesize + height()-viewport()->height();
+  case Strip::Arrangement::Vertical:
+    return tilesize + width()-viewport()->width();
+  default:
+    break;
+  }
+  return tilesize * 2 + width()-viewport()->width() + 4
+    + 5*Strip::labelHeight(tileSize());
+}
+
 void StripView::keyPressEvent(QKeyEvent *e) {
   switch (e->key()) {
+  case Qt::Key_Minus:
+    setTileSize(tilesize*8/10);
+    emit idealSizeChanged();
+    break;
+  case Qt::Key_Plus: case Qt::Key_Equal:
+    setTileSize(tilesize*10/8);
+    emit idealSizeChanged();
+    break;
   case Qt::Key_Up: {
     quint64 v = strip()->versionAbove(current());
     if (v)
@@ -230,6 +261,10 @@ Datestrip *StripView::strip() {
   return useFolders ? folderStrip : dateStrip;
 }
 
+Datestrip const *StripView::strip() const {
+  return useFolders ? folderStrip : dateStrip;
+}
+
 void StripView::enterEvent(QEvent *) {
   setFocus();
 }
@@ -244,9 +279,13 @@ void StripView::toggleOrganization() {
   useFolders = !useFolders;
   Datestrip *newstrip = strip();
   newstrip->setArrangement(oldstrip->arrangement());
-  newstrip->setTileSize(oldstrip->tileSize());
+  newstrip->setTileSize(tilesize);
   newstrip->setRowWidth(oldstrip->rowWidth());
   setScene(scene());
   rescan();
   scrollToCurrent();
+}
+
+int StripView::tileSize() const {
+  return tilesize;
 }

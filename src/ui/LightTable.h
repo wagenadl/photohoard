@@ -45,6 +45,7 @@ private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);
   void applyFilterFromDialog();
+  void resizeStrip();
 protected:
   void updateSlide(quint64 id);
   void ensureReasonableGridSize();
