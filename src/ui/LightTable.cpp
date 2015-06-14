@@ -17,8 +17,6 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db), adjuster(adj) {
   setObjectName("LightTable");
   curr = 0;
-  tilesize = 96;
-  lastgridsize = 3*tilesize + 4;
   lay=lastlay=LayoutBar::Action::VGrid;
   showmax = false;
   
@@ -41,12 +39,13 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   selection = new Selection(db);
 
   strips = new StripView(db);
+
   addWidget(strips);
 
   slide = new SlideView();
   addWidget(slide);
 
-  lastgridsize = 3*tilesize+strips->verticalScrollBar()->width()+4;
+  lastgridsize = strips->idealSize(Strip::Arrangement::Grid);
   setStretchFactor(0, 0);
   setStretchFactor(1, 100);
   setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
@@ -58,6 +57,7 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
 				 Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this, SLOT(slidePress(quint64,
                                 Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
 
   connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
@@ -94,8 +94,7 @@ LightTable::~LightTable() {
 
 void LightTable::ensureReasonableGridSize() {
   int s0 = sizes()[0];
-  int s1 = 2*tilesize + 5*Strip::labelHeight(tilesize)
-    + strips->verticalScrollBar()->width() + 4;
+  int s1 = strips->idealSize(Strip::Arrangement::Grid);
   if (s0<s1) {
     lastgridsize = s1;
     setSizes(QList<int>() << lastgridsize
@@ -108,13 +107,13 @@ void LightTable::setLayout(LayoutBar::Action act) {
   lastlay = lay;
   switch (act) {
   case LayoutBar::Action::FullGrid:
-    strips->show();
     strips->setArrangement(Strip::Arrangement::Grid);
-    strips->setTileSize(tilesize);
+    strips->show();
     slide->hide();
     lay = act;
     break;
   case LayoutBar::Action::HGrid:
+    strips->setArrangement(Strip::Arrangement::Grid);
     setOrientation(Qt::Vertical);
     if (lay==LayoutBar::Action::HLine
         || lay==LayoutBar::Action::VLine
@@ -122,12 +121,11 @@ void LightTable::setLayout(LayoutBar::Action act) {
       setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
     ensureReasonableGridSize();
     strips->show();
-    strips->setArrangement(Strip::Arrangement::Grid);
-    strips->setTileSize(tilesize);
     slide->show();
     lay = act;
     break;
   case LayoutBar::Action::VGrid:
+    strips->setArrangement(Strip::Arrangement::Grid);
     setOrientation(Qt::Horizontal);
     if (lay==LayoutBar::Action::HLine
         || lay==LayoutBar::Action::VLine
@@ -135,35 +133,37 @@ void LightTable::setLayout(LayoutBar::Action act) {
       setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
     ensureReasonableGridSize();
     strips->show();
-    strips->setArrangement(Strip::Arrangement::Grid);
-    strips->setTileSize(tilesize);
     slide->show();
     lay = act;
     break;
-  case LayoutBar::Action::HLine:
+  case LayoutBar::Action::HLine: {
     if (lay==LayoutBar::Action::HGrid
         || lay==LayoutBar::Action::HGrid)
       lastgridsize = sizes()[0];
-    setSizes(QList<int>() << tilesize + strips->horizontalScrollBar()->height()
-             << height());
+    int ts = strips->tileSize();
     setOrientation(Qt::Vertical);
     strips->show();
     strips->setArrangement(Strip::Arrangement::Horizontal);
+    strips->setTileSize(ts);
+    setSizes(QList<int>() << strips->idealSize(Strip::Arrangement::Horizontal)
+             << height());
     slide->show();
     lay = act;
-    break;
-  case LayoutBar::Action::VLine:
+  } break;
+  case LayoutBar::Action::VLine: {
     if (lay==LayoutBar::Action::HGrid
         || lay==LayoutBar::Action::VGrid)
       lastgridsize = sizes()[0];
-    setSizes(QList<int>() << tilesize + strips->verticalScrollBar()->width()
-             << width());
+    int ts = strips->tileSize();
     setOrientation(Qt::Horizontal);
     strips->show();
     strips->setArrangement(Strip::Arrangement::Vertical);
+    strips->setTileSize(ts);
+    setSizes(QList<int>() << strips->idealSize(Strip::Arrangement::Vertical)
+             << width());
     slide->show();
     lay = act;
-    break;
+  } break;
   case LayoutBar::Action::FullPhoto:
     if (lay==LayoutBar::Action::HGrid
         || lay==LayoutBar::Action::VGrid)
@@ -438,27 +438,18 @@ void LightTable::setColorLabel(ColorLabelBar::Action a) {
   }
 }
 
+void LightTable::resizeStrip() {
+  if (lay==LayoutBar::Action::HLine)
+    setSizes(QList<int>() << strips->idealSize() << height());
+  else if (lay==LayoutBar::Action::VLine) 
+    setSizes(QList<int>() << strips->idealSize() << width());
+  else
+    return;
+  //  scrollToCurrent();
+}  
+
 void LightTable::filterAction(FilterBar::Action a) {
   switch (a) {
-  case FilterBar::Action::Smaller: case FilterBar::Action::Larger:
-    if (a==FilterBar::Action::Smaller) {
-      tilesize = tilesize * 8/10;
-      if (tilesize<50)
-        tilesize = 50;
-    } else {
-      tilesize = tilesize * 10/8;
-      if (tilesize>1024)
-        tilesize = 1024;
-    }
-    strips->setTileSize(tilesize);
-    if (lay==LayoutBar::Action::HLine)
-      setSizes(QList<int>() << tilesize + strips->horizontalScrollBar()->height()
-               << height());
-    else if (lay==LayoutBar::Action::VLine) 
-      setSizes(QList<int>() << tilesize + strips->verticalScrollBar()->width()
-               << width());
-    scrollToCurrent();
-    break;
   case FilterBar::Action::ClearSelection:
     clearSelection();
     break;
@@ -467,6 +458,10 @@ void LightTable::filterAction(FilterBar::Action a) {
     break;
   case FilterBar::Action::OpenFilterDialog:
     filterDialog->show();
+    break;
+  case FilterBar::Action::Larger:
+  case FilterBar::Action::Smaller:
+    // send to either strip or slide view
   default:
     break;
   }
