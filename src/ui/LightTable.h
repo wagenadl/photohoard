@@ -58,7 +58,7 @@ protected:
   PhotoDB *db;
   QPointer<LiveAdjuster> adjuster; // we do not own
   class Selection *selection;
-  class FilmView *film;
+  class StripView *strips;
   class SlideView *slide;
   class FilterDialog *filterDialog;
   bool showmax;
