@@ -20,7 +20,7 @@ public slots:
   void clear();
   void updateImage(Image16 img, bool force=false);
   void setZoom(double zm);
-  void changeZoomLevel(QPoint center, double delta);
+  void changeZoomLevel(QPoint center, double delta, bool roundtodelta=false);
   void scaleToFit();
 signals:
   void needLargerImage();
@@ -35,6 +35,7 @@ protected:
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void paintEvent(QPaintEvent *) override;
   virtual void wheelEvent(QWheelEvent *) override;
+  virtual void enterEvent(QEvent *) override;
 private:
   //  QPointF mapWidgetToImage(QPointF) const;
   //  QPointF mapImageToWidget(QPointF) const;

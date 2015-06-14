@@ -57,8 +57,11 @@ void SlideView::updateImage(Image16 img1, bool force) {
   update();
 }
 
-void SlideView::changeZoomLevel(QPoint, double delta) {
-  setZoom(currentZoom() * pow(2.0, delta));
+void SlideView::changeZoomLevel(QPoint, double delta, bool round) {
+  double zm = currentZoom() * pow(2.0, delta);
+  if (round) 
+    zm = pow(2.0, ::round(log(zm)/log(2) / delta) * delta);
+  setZoom(zm);
 }
 
 void SlideView::setZoom(double z) {
@@ -110,15 +113,17 @@ void SlideView::wheelEvent(QWheelEvent *e) {
 }
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
+  bool alt = e->modifiers() & Qt::AltModifier;
+  bool shift = e->modifiers() & Qt::ShiftModifier;
   switch (e->key()) {
   case Qt::Key_0:
     scaleToFit();
     break;
-  case Qt::Key_Minus:
-    changeZoomLevel(QPoint(), -0.5);
+  case Qt::Key_Minus: case Qt::Key_Underscore:
+    changeZoomLevel(QPoint(), shift ? -1 : alt ? -.125 : -0.5, true);
     break;
   case Qt::Key_Equal: case Qt::Key_Plus:
-    changeZoomLevel(QPoint(), 0.5);
+    changeZoomLevel(QPoint(), shift ? 1 : alt ? .125 : 0.5, true);
     break;
   case Qt::Key_1:
     setZoom(1);
@@ -248,3 +253,6 @@ void SlideView::paintEvent(QPaintEvent *) {
   }
 }
     
+void SlideView::enterEvent(QEvent *) {
+  setFocus();
+}

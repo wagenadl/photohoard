@@ -22,15 +22,11 @@ FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
   actions[Action::Larger]->setIcon(QIcon(":icons/scaleLarger.svg"));
 
   actions[Action::OpenFilterDialog]->setText("Filter (Control-F)");
-  actions[Action::Smaller]->setText("Smaller (Control-Minus)");
-  actions[Action::Larger]->setText("Larger (Control-Plus)");
+  actions[Action::Smaller]->setText("Smaller");
+  actions[Action::Larger]->setText("Larger");
 
   actions[Action::OpenFilterDialog]
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
-  actions[Action::Smaller]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus));
-  actions[Action::Larger]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus));
   actions[Action::ClearSelection]
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A));
   actions[Action::SelectAll]
