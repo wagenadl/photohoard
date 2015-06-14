@@ -33,11 +33,14 @@ FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus));
   actions[Action::ClearSelection]
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A));
+  actions[Action::SelectAll]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+
   addAction(actions[Action::Smaller]);
   addAction(actions[Action::Larger]);
   addAction(actions[Action::OpenFilterDialog]);
-
   addHiddenAction(actions[Action::ClearSelection]);
+  addHiddenAction(actions[Action::SelectAll]);
 }
 
 FilterBar::~FilterBar() {

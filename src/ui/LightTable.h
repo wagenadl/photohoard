@@ -31,6 +31,7 @@ public slots:
   void setColorLabel(ColorLabelBar::Action);
   void filterAction(FilterBar::Action);
   void clearSelection();
+  void selectAll();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
 signals:
