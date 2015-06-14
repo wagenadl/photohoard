@@ -1,35 +1,35 @@
 // FilmScene.cpp
 
-#include "FilmScene.h"
+#include "StripScene.h"
 #include "Slide.h"
 #include "Strip.h"
 #include <QGraphicsSceneMouseEvent>
 
-FilmScene::FilmScene(PhotoDB *db, QObject *parent):
+StripScene::StripScene(PhotoDB *db, QObject *parent):
   QGraphicsScene(parent), db(db) {
   setBackgroundBrush(QColor(160, 160, 160));
 }
 
-FilmScene::~FilmScene() {
+StripScene::~StripScene() {
 }
 
-void FilmScene::markSlideFor(quint64 id, class Slide *s) {
+void StripScene::markSlideFor(quint64 id, class Slide *s) {
   slidemap[id] = s;
 }
 
-void FilmScene::dropSlideFor(quint64 id) {
+void StripScene::dropSlideFor(quint64 id) {
   slidemap.remove(id);
 }
 
-void FilmScene::addHeaderFor(quint64 id, class Strip *s) {
+void StripScene::addHeaderFor(quint64 id, class Strip *s) {
   headermap.insert(id, s);
 }
 
-void FilmScene::dropHeaderFor(quint64 id, class Strip *s) {
+void StripScene::dropHeaderFor(quint64 id, class Strip *s) {
   headermap.remove(id, s);
 }
 
-void FilmScene::updateImage(quint64 id, Image16 img) {
+void StripScene::updateImage(quint64 id, Image16 img) {
   if (slidemap.contains(id))
     slidemap[id]->updateImage(img);
   for (auto s: headermap.values(id))
@@ -37,7 +37,7 @@ void FilmScene::updateImage(quint64 id, Image16 img) {
 }
 
 
-void FilmScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+void StripScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (itemAt(e->scenePos(), QTransform())==0)
     emit pressed(e->button(), e->modifiers());
   else

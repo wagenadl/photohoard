@@ -1,19 +1,19 @@
-// FilmView.h
+// StripView.h
 
-#ifndef FILMVIEW_H
+#ifndef STRIPVIEW_H
 
-#define FILMVIEW_H
+#define STRIPVIEW_H
 
 #include <QGraphicsView>
 #include "Strip.h"
 #include "PhotoDB.h"
 
-class FilmView: public QGraphicsView {
+class StripView: public QGraphicsView {
   Q_OBJECT;
 public:
-  FilmView(PhotoDB *db, QWidget *parent=0);
-  virtual ~FilmView();
-  class FilmScene *scene();
+  StripView(PhotoDB *db, QWidget *parent=0);
+  virtual ~StripView();
+  class StripScene *scene();
   class Datestrip *strip();
   Strip::Organization organization() const;
 signals:
@@ -44,7 +44,7 @@ protected:
 private:
   PhotoDB *db;
   bool useFolders;
-  class FilmScene *dateScene, *folderScene;
+  class StripScene *dateScene, *folderScene;
   class Datestrip *dateStrip, *folderStrip;
 };
 

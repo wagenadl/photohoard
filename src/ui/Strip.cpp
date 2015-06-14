@@ -6,7 +6,7 @@
 #include <QSet>
 #include "PDebug.h"
 #include <QGraphicsSceneMouseEvent>
-#include "FilmScene.h"
+#include "StripScene.h"
 #include "Selection.h"
 
 Strip::Strip(PhotoDB *db, QGraphicsItem *parent):
@@ -36,14 +36,14 @@ void Strip::setHeaderID(quint64 id) {
   if (headerid==id)
     return;
   if (headerid) {
-    FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+    StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->dropHeaderFor(headerid, this);
     else
       qDebug() << "Strip not in a scene - disaster imminent";
   }
   if (id) {
-    FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+    StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
     else
