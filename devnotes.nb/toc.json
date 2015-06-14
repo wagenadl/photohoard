@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-04-10T11:32:44",
-  "mod": "2015-06-11T19:34:23",
+  "mod": "2015-06-13T22:23:26",
   "uuid": "756eee76",
   "cc": [
     { "typ": "entry",
@@ -82,6 +82,14 @@
       "startPage": 17,
       "title": "Maintaining the foldertree again",
       "uuid": "7955b5de"
+    },
+    { "typ": "entry",
+      "cre": "2015-06-13T19:21:33",
+      "mod": "2015-06-13T22:23:26",
+      "sheetCount": 1,
+      "startPage": 19,
+      "title": "Actions and keys",
+      "uuid": "d773dd49"
     }
   ]
 }

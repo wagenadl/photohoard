@@ -1,0 +1,325 @@
+{ "typ": "page",
+  "cre": "2015-06-13T19:21:33",
+  "mod": "2015-06-13T22:23:42",
+  "stampTime": 0,
+  "startPage": 19,
+  "unlocked": false,
+  "uuid": "d773dd49",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-06-13T19:21:33",
+      "mod": "2015-06-13T22:23:26",
+      "uuid": "2309c634",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T19:21:33",
+          "mod": "2015-06-13T22:23:26",
+          "lines": [
+            0
+          ],
+          "text": "Actions and keys",
+          "uuid": "5268119d",
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2015-06-13T22:23:17",
+              "mod": "2015-06-13T22:23:26",
+              "dx": 21.6025,
+              "dy": -12.3443,
+              "sheet": 0,
+              "textWidth": 119.266,
+              "uuid": "bb3bb016",
+              "x": 305.131,
+              "y": 271.609,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-06-13T22:23:17",
+                  "mod": "2015-06-13T22:23:26",
+                  "lines": [
+                    0,
+                    15
+                  ],
+                  "text": "no more; to be reorganized",
+                  "uuid": "6ad9d2cc"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-06-13T19:21:33",
+      "mod": "2015-06-13T19:21:33",
+      "uuid": "81b7ce31"
+    },
+    { "typ": "textblock",
+      "cre": "2015-06-13T19:21:38",
+      "mod": "2015-06-13T19:21:50",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "bec114bf",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T19:21:38",
+          "mod": "2015-06-13T19:21:50",
+          "lines": [
+            0
+          ],
+          "text": "Right now, the following key shortcuts are defined:",
+          "uuid": "a38b2e5c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-06-13T19:21:50",
+      "mod": "2015-06-13T19:21:52",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b12302ad",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T19:21:50",
+          "mod": "2015-06-13T19:21:52",
+          "lines": [
+            0
+          ],
+          "text": "Global",
+          "uuid": "f20e682f",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-06-13T19:21:53",
+              "mod": "2015-06-13T19:21:53",
+              "end": 6,
+              "start": 0,
+              "style": 2,
+              "uuid": "1a96391e"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "tableblock",
+      "cre": "2015-06-13T19:21:53",
+      "mod": "2015-06-13T20:18:59",
+      "h": 224.494,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "10a26c74",
+      "y0": 126.332,
+      "cc": [
+        { "typ": "table",
+          "cre": "2015-06-13T19:21:53",
+          "mod": "2015-06-13T20:18:59",
+          "len": [
+            6,
+            10,
+            9,
+            0,
+            12,
+            15,
+            9,
+            0,
+            12,
+            18,
+            7,
+            0,
+            6,
+            13,
+            7,
+            0,
+            6,
+            18,
+            9,
+            0,
+            6,
+            18,
+            7,
+            0,
+            6,
+            14,
+            7,
+            0,
+            9,
+            17,
+            9,
+            0,
+            10,
+            18,
+            9,
+            0
+          ],
+          "nc": 4,
+          "nr": 9,
+          "text": "\nCtrl-A\nSelect all\nFilterBar\n\nCtrl-Shift-A\nClear selection\nFilterBar\n\nCtrl-Shift-E\nOpen Export dialog\nFileBar\n\nCtrl-E\nExport images\nFileBar\n\nCtrl-F\nOpen Filter dialog\nFilterBar\n\nCtrl-I\nOpen Import dialog\nFileBar\n\nCtrl-R\nRescan folders\nFileBar\n\nCtrl-Plus\nLarger thumbnails\nFilterBar\n\nCtrl-Minus\nSmaller thumbnails\nFilterBar\n\n",
+          "uuid": "648a120c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-06-13T19:50:53",
+      "mod": "2015-06-13T20:01:04",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "fd1957df",
+      "y0": 350.826,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T19:50:53",
+          "mod": "2015-06-13T20:01:04",
+          "lines": [
+            0
+          ],
+          "text": "FilmView (i.e., thumbnail strips)",
+          "uuid": "3da71034",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-06-13T19:51:04",
+              "mod": "2015-06-13T19:51:04",
+              "end": 8,
+              "start": 0,
+              "style": 2,
+              "uuid": "17896352"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "tableblock",
+      "cre": "2015-06-13T19:50:59",
+      "mod": "2015-06-13T22:23:42",
+      "h": 85.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b5d2ec94",
+      "y0": 377.992,
+      "cc": [
+        { "typ": "table",
+          "cre": "2015-06-13T19:50:59",
+          "mod": "2015-06-13T22:23:42",
+          "len": [
+            18,
+            25,
+            5,
+            18,
+            16,
+            17
+          ],
+          "nc": 2,
+          "nr": 3,
+          "text": "\nUp/Down/Left/Right\nMove to neighboring image\nMinus\nSmaller thumbnails\nPlus (or Equals)\nLarger thumbnails\n",
+          "uuid": "e9b53550"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-06-13T20:10:21",
+      "mod": "2015-06-13T20:10:24",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a1e74653",
+      "y0": 463.49,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T20:10:21",
+          "mod": "2015-06-13T20:10:24",
+          "lines": [
+            0
+          ],
+          "text": "SlideView",
+          "uuid": "3a4dd6c0",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-06-13T20:10:25",
+              "mod": "2015-06-13T20:10:25",
+              "end": 9,
+              "start": 0,
+              "style": 2,
+              "uuid": "891d03e2"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "tableblock",
+      "cre": "2015-06-13T20:10:25",
+      "mod": "2015-06-13T20:13:49",
+      "h": 108.664,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "3742557b",
+      "y0": 490.656,
+      "cc": [
+        { "typ": "table",
+          "cre": "2015-06-13T20:10:25",
+          "mod": "2015-06-13T20:13:49",
+          "len": [
+            1,
+            11,
+            1,
+            8,
+            5,
+            8,
+            16,
+            7
+          ],
+          "nc": 2,
+          "nr": 4,
+          "text": "\n0\nZoom to fit\n1\nZoom 1:1\nMinus\nZoom out\nPlus (or Equals)\nZoom in\n",
+          "uuid": "11a55631"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-06-13T20:33:14",
+      "mod": "2015-06-13T20:33:15",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "bc661bdc",
+      "y0": 599.32,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T20:33:14",
+          "mod": "2015-06-13T20:33:15",
+          "text": "I think the thumbnail resizing should move to FilmView. But that is not trivial, since at the moment, LightTable keeps track of the tilesize. It uses that to keep a “lastgridsize”.",
+          "uuid": "17e49e2a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-06-13T22:23:04",
+      "mod": "2015-06-13T22:23:07",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e48ca860",
+      "y0": 672.818,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-06-13T22:23:04",
+          "mod": "2015-06-13T22:23:07",
+          "lines": [
+            0
+          ],
+          "text": "Done.",
+          "uuid": "7710c883"
+        }
+      ]
+    }
+  ]
+}
