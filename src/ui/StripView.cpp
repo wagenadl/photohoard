@@ -1,30 +1,31 @@
-// FilmView.cpp
+// StripView.cpp
 
-#include "FilmView.h"
-#include "FilmScene.h"
+#include "StripView.h"
+#include "StripScene.h"
 #include "Datestrip.h"
 #include "PDebug.h"
 #include "Slide.h"
 #include <QKeyEvent>
 
-FilmView::FilmView(PhotoDB *db, QWidget *parent):
+StripView::StripView(PhotoDB *db, QWidget *parent):
   QGraphicsView(parent), db(db) {
+  tilesize = 96;
 
   useFolders = false;
 
-  dateScene = new FilmScene(db, this);
+  dateScene = new StripScene(db, this);
   setScene(dateScene);
   dateStrip = new Datestrip(db, 0);
   setArrangement(Datestrip::Arrangement::Grid);
-  dateStrip->setTileSize(80);
+  dateStrip->setTileSize(tilesize);
   dateStrip->setTimeRange(QDateTime(), Datestrip::TimeScale::Eternity);
   dateScene->addItem(dateStrip);
   placeAndConnect(dateStrip);
 
-  folderScene = new FilmScene(db, this);
+  folderScene = new StripScene(db, this);
   folderStrip = new Datestrip(db, 0);
   setArrangement(Datestrip::Arrangement::Grid);
-  folderStrip->setTileSize(80);
+  folderStrip->setTileSize(tilesize);
   folderStrip->setFolder("/"); /// hmmm.
   folderScene->addItem(folderStrip);
   placeAndConnect(folderStrip);
@@ -76,7 +77,7 @@ FilmView::FilmView(PhotoDB *db, QWidget *parent):
   stripResized();
 }
 
-void FilmView::placeAndConnect(Strip *strip) {
+void StripView::placeAndConnect(Strip *strip) {
   strip->setPos(0, 0);
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
@@ -98,16 +99,16 @@ void FilmView::placeAndConnect(Strip *strip) {
                                Qt::MouseButton, Qt::KeyboardModifiers)));
 }
 
-FilmView::~FilmView() {
+StripView::~StripView() {
 }
 
-void FilmView::setArrangement(Strip::Arrangement ar) {
+void StripView::setArrangement(Strip::Arrangement ar) {
   strip()->setArrangement(ar);
   setScrollbarPolicies();
   recalcSizes();
 }
 
-void FilmView::setScrollbarPolicies() {
+void StripView::setScrollbarPolicies() {
   switch (strip()->arrangement()) {
   case Datestrip::Arrangement::Horizontal:
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -121,7 +122,7 @@ void FilmView::setScrollbarPolicies() {
   }
 }
 
-void FilmView::stripResized() {
+void StripView::stripResized() {
   QRectF r = strip()->netBoundingRect();
   r |= QRectF(QPointF(0, 0), viewport()->size());
   scene()->setSceneRect(r);
@@ -129,18 +130,18 @@ void FilmView::stripResized() {
   update();
 }
 
-void FilmView::resizeEvent(QResizeEvent *) {
+void StripView::resizeEvent(QResizeEvent *) {
   recalcSizes();
   scrollToCurrent();
 }
 
-void FilmView::recalcSizes() {
+void StripView::recalcSizes() {
   switch (strip()->arrangement()) {
   case Datestrip::Arrangement::Horizontal:
-    strip()->setTileSize(viewport()->height());
+    setTileSize(viewport()->height());
     break;
   case Datestrip::Arrangement::Vertical:
-    strip()->setTileSize(viewport()->width());
+    setTileSize(viewport()->width());
     break;
   case Datestrip::Arrangement::Grid:
     strip()->setRowWidth(viewport()->width());
@@ -148,31 +149,36 @@ void FilmView::recalcSizes() {
   }
 }
 
-void FilmView::updateImage(quint64 id, Image16 img) {
+void StripView::updateImage(quint64 id, Image16 img) {
   scene()->updateImage(id, img);
 }
 
-void FilmView::rescan() {
+void StripView::rescan() {
   dateStrip->rescan();
 }
 
-void FilmView::setTileSize(int pix) {
+void StripView::setTileSize(int pix) {
+  if (pix<50)
+    pix = 50;
+  else if (pix>1024)
+    pix = 1024;
+  tilesize = pix;
   strip()->setTileSize(pix);
 }
 
-void FilmView::scrollTo(quint64 vsn) {
+void StripView::scrollTo(quint64 vsn) {
   Slide *s = strip()->slideByVersion(vsn);
   if (s)
     centerOn(s->sceneBoundingRect().center());
 }
 
-void FilmView::scrollToCurrent() {
+void StripView::scrollToCurrent() {
   quint64 c = current();
   if (c)
     scrollTo(c);
 }
 
-void FilmView::scrollIfNeeded() {
+void StripView::scrollIfNeeded() {
   quint64 c = current();
   if (!c)
     return;
@@ -186,12 +192,37 @@ void FilmView::scrollIfNeeded() {
     scrollTo(c);
 }
 
-quint64 FilmView::current() {
+quint64 StripView::current() {
   return db->simpleQuery("select * from current").toULongLong();
 }
 
-void FilmView::keyPressEvent(QKeyEvent *e) {
+int StripView::idealSize() const {
+  return idealSize(strip()->arrangement());
+}
+
+int StripView::idealSize(Strip::Arrangement arr) const {
+  switch (arr) {
+  case Strip::Arrangement::Horizontal:
+    return tilesize + height()-viewport()->height();
+  case Strip::Arrangement::Vertical:
+    return tilesize + width()-viewport()->width();
+  default:
+    break;
+  }
+  return tilesize * 2 + width()-viewport()->width() + 4
+    + 5*Strip::labelHeight(tileSize());
+}
+
+void StripView::keyPressEvent(QKeyEvent *e) {
   switch (e->key()) {
+  case Qt::Key_Minus:
+    setTileSize(tilesize*8/10);
+    emit idealSizeChanged();
+    break;
+  case Qt::Key_Plus: case Qt::Key_Equal:
+    setTileSize(tilesize*10/8);
+    emit idealSizeChanged();
+    break;
   case Qt::Key_Up: {
     quint64 v = strip()->versionAbove(current());
     if (v)
@@ -222,31 +253,39 @@ void FilmView::keyPressEvent(QKeyEvent *e) {
   }
 }
 
-FilmScene *FilmView::scene() {
+StripScene *StripView::scene() {
   return useFolders ? folderScene : dateScene;
 }
 
-Datestrip *FilmView::strip() {
+Datestrip *StripView::strip() {
   return useFolders ? folderStrip : dateStrip;
 }
 
-void FilmView::enterEvent(QEvent *) {
+Datestrip const *StripView::strip() const {
+  return useFolders ? folderStrip : dateStrip;
+}
+
+void StripView::enterEvent(QEvent *) {
   setFocus();
 }
 
-Strip::Organization FilmView::organization() const {
+Strip::Organization StripView::organization() const {
   return useFolders ? Strip::Organization::ByFolder
     : Strip::Organization::ByDate;
 }
 
-void FilmView::toggleOrganization() {
+void StripView::toggleOrganization() {
   Datestrip *oldstrip = strip();
   useFolders = !useFolders;
   Datestrip *newstrip = strip();
   newstrip->setArrangement(oldstrip->arrangement());
-  newstrip->setTileSize(oldstrip->tileSize());
+  newstrip->setTileSize(tilesize);
   newstrip->setRowWidth(oldstrip->rowWidth());
   setScene(scene());
   rescan();
   scrollToCurrent();
+}
+
+int StripView::tileSize() const {
+  return tilesize;
 }

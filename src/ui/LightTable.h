@@ -31,6 +31,7 @@ public slots:
   void setColorLabel(ColorLabelBar::Action);
   void filterAction(FilterBar::Action);
   void clearSelection();
+  void selectAll();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
 signals:
@@ -44,6 +45,7 @@ private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);
   void applyFilterFromDialog();
+  void resizeStrip();
 protected:
   void updateSlide(quint64 id);
   void ensureReasonableGridSize();
@@ -57,7 +59,7 @@ protected:
   PhotoDB *db;
   QPointer<LiveAdjuster> adjuster; // we do not own
   class Selection *selection;
-  class FilmView *film;
+  class StripView *strips;
   class SlideView *slide;
   class FilterDialog *filterDialog;
   bool showmax;

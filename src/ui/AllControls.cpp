@@ -11,6 +11,7 @@
 #include "Sliders.h"
 #include <limits>
 #include <QScrollBar>
+#include "SliderGroups.h"
 
 AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
@@ -19,87 +20,55 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   connect(nextmapper, SIGNAL(mapped(QString)), SLOT(goNext(QString)));
   QSignalMapper *prevmapper = new QSignalMapper(this);
   connect(prevmapper, SIGNAL(mapped(QString)), SLOT(goPrevious(QString)));
-  
-  QFile src("/home/wagenaar/progs/photohoard/photohoard/res/sliders.txt");
-  if (!src.open(QFile::ReadOnly)) {
-    pDebug() << "Cannot open control defs";
-    return;
-  }
+
+  SliderGroups sg;
+
   QWidget *w = new QWidget(this);
   setWidget(w);
 
   QVBoxLayout *vl = new QVBoxLayout;
 
-  ControlGroup *currentgroup = 0;
-  GentleJog *currentjog = 0;
-  QString first = "";
-  QString last = "";
-  QTextStream ts(&src);
-  while (!ts.atEnd()) {
-    QString line = ts.readLine().simplified();
-    line.replace(QRegExp("#.*"),"");
-    if (line=="")
-      continue;
-    if (line.contains("::")) {
-      int idx = line.indexOf("::");
-      QString name = line.left(idx).simplified();
-      QString label = line.mid(idx+2).simplified();
-      currentgroup = new ControlGroup(label);
-      vl->addWidget(currentgroup);
-      groups[name] = currentgroup;
-    } else if (line.contains(":")) {
-      Q_ASSERT(currentgroup);
-      int idx = line.indexOf(":");
-      QString name = line.left(idx).simplified();
-      Q_ASSERT(Sliders::defaults().contains(name));
-      QString label = line.mid(idx+1).simplified();
-      label.replace("~", " ");
-      currentjog = new GentleJog(label);
-      double v = Sliders::defaultFor(name);
-      currentjog->setDefault(v);
-      currentjog->setValue(v);
-      connect(currentjog, SIGNAL(valueChanged(double)),
-              mapper, SLOT(map()));
-      connect(currentjog, SIGNAL(goPrevious()),
-              prevmapper, SLOT(map()));
-      connect(currentjog, SIGNAL(goNext()),
-              nextmapper, SLOT(map()));
-      mapper->setMapping(currentjog, name);
-      prevmapper->setMapping(currentjog, name);
-      nextmapper->setMapping(currentjog, name);
-      previous[name] = last;
-      next[last] = name;
-      if (first.isEmpty())
-        first = name;
-      last = name;
-      currentgroup->addWidget(currentjog);
-      jogs[name] = currentjog;
-    } else if (line.contains("/")) {
-      Q_ASSERT(currentjog);
-      // set min max and steps
-      QStringList lst = line.split(" ");
-      if (lst.size()==6 && lst[2]=="/") {
-        currentjog->setMinimum(lst[0].toDouble());
-        currentjog->setMaximum(lst[1].toDouble());
-        currentjog->setMicroStep(lst[3].toDouble());
-        currentjog->setSingleStep(lst[4].toDouble());
-        currentjog->setPageStep(lst[5].toDouble());
-        currentjog->setMaxDelta(2*lst[5].toDouble());
-        currentjog->setValue(currentjog->defaultValue());
-        if (currentjog->microStep()>=1)
-          currentjog->setDecimals(0);
-        else
-          currentjog->setDecimals(-floor(log10(currentjog->microStep())));
-      } else {
-        pDebug() << "Syntax error:" << line;
-      }
-    } else if (line.contains(" ")) {
-      Q_ASSERT(currentjog);
-      // set balloon
-      currentjog->setToolTip(line);
-    } else {
-      pDebug() << "Syntax error:" << line;
+  foreach (QString grp, sg.groups()) {
+    ControlGroup *g = new ControlGroup(sg.groupLabel(grp));
+    vl->addWidget(g);
+    groups[grp] = g;
+
+    foreach (QString sli, sg.sliders(grp)) {
+      SliderGroups::SliderInfo const &info = sg.sliderInfo(sli);
+      GentleJog *jog = new GentleJog(info.label);
+      jog->setDefault(info.dflt);
+      jog->setValue(info.dflt);
+      jog->setMinimum(info.min);
+      jog->setMaximum(info.max);
+      jog->setMicroStep(info.mustep);
+      jog->setSingleStep(info.step);
+      jog->setPageStep(info.pgstep);
+      jog->setMaxDelta(2*info.pgstep);
+      if (info.mustep>=1)
+	jog->setDecimals(0);
+      else
+	jog->setDecimals(-floor(log10(info.mustep)));
+      jog->setToolTip(info.tip);
+
+      connect(jog, SIGNAL(valueChanged(double)), mapper, SLOT(map()));
+      connect(jog, SIGNAL(goPrevious()), prevmapper, SLOT(map()));
+      connect(jog, SIGNAL(goNext()), nextmapper, SLOT(map()));
+      mapper->setMapping(jog, sli);
+      prevmapper->setMapping(jog, sli);
+      nextmapper->setMapping(jog, sli);
+      g->addWidget(jog);
+      jogs[sli] = jog;
     }       
+  }
+
+  QString first, last;
+  foreach (QString sli, sg.allSliders()) {
+    previous[sli] = last;
+    if (!last.isEmpty())
+      next[last] = sli;
+    if (first.isEmpty())
+      first = sli;
+    last = sli;
   }
   next[last] = first;
   previous[first] = last;

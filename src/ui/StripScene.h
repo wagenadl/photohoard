@@ -1,8 +1,8 @@
-// FilmScene.h
+// StripScene.h
 
-#ifndef FILMSCENE_H
+#ifndef STRIPSCENE_H
 
-#define FILMSCENE_H
+#define STRIPSCENE_H
 
 #include <QGraphicsScene>
 #include <QMap>
@@ -10,11 +10,11 @@
 #include "PhotoDB.h"
 #include "Image16.h"
 
-class FilmScene: public QGraphicsScene {
+class StripScene: public QGraphicsScene {
   Q_OBJECT;
 public:
-  FilmScene(PhotoDB *db, QObject *parent=0);
-  virtual ~FilmScene();
+  StripScene(PhotoDB *db, QObject *parent=0);
+  virtual ~StripScene();
   void markSlideFor(quint64, class Slide *);
   void dropSlideFor(quint64);
   void addHeaderFor(quint64, class Strip *);
