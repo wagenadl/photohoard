@@ -8,6 +8,7 @@
 #include "PDebug.h"
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QMessageBox>
 
 AddRootDialog::AddRootDialog(PhotoDB *db, QWidget *parent):
   QDialog(parent), db(db) {
@@ -110,3 +111,37 @@ QStringList AddRootDialog::exclusions() const {
   return ee;
 }
     
+bool AddRootDialog::validate(bool interactive) const {
+  if (path().isEmpty()) {
+    if (interactive)
+      QMessageBox::warning(0, "Photohoard",
+			   "To add a new folder tree,"
+			   " you must specify its path.",
+			   QMessageBox::Ok);
+    return false;
+  }
+
+  QDir root(path());
+  if (!root.exists()) {
+    if (interactive)
+      QMessageBox::warning(0, "Photohoard",
+			   "The specified path could not be found. Please"
+			   " check your typing.",
+			   QMessageBox::Ok);
+    return false;
+  }
+  
+  if (defaultCollection().isEmpty()) {
+    if (interactive)
+      QMessageBox::warning(0, "Photohoard", QString::fromUtf8(
+	    "Every image in Photohoard should be part of at"
+	    " least one “collection.” Please select a"
+	    " default collection for your new folder tree."
+	    " You may also type the name of a new collection."),
+	    QMessageBox::Ok);
+    return false;
+  }
+
+  return true;
+}
+

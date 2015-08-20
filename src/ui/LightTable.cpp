@@ -2,14 +2,14 @@
 
 #include "LightTable.h"
 #include "NoResult.h"
-#include "FilmView.h"
+#include "StripView.h"
 #include "SlideView.h"
 #include "Datestrip.h"
 #include "PDebug.h"
 #include <QScrollBar>
 #include "Selection.h"
 #include "Slide.h"
-#include "FilmScene.h"
+#include "StripScene.h"
 #include "Exif.h"
 #include "FilterDialog.h"
 
@@ -17,8 +17,6 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db), adjuster(adj) {
   setObjectName("LightTable");
   curr = 0;
-  tilesize = 96;
-  lastgridsize = 3*tilesize + 4;
   lay=lastlay=LayoutBar::Action::VGrid;
   showmax = false;
   
@@ -40,26 +38,28 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   
   selection = new Selection(db);
 
-  film = new FilmView(db);
-  addWidget(film);
+  strips = new StripView(db);
+
+  addWidget(strips);
 
   slide = new SlideView();
   addWidget(slide);
 
-  lastgridsize = 3*tilesize+film->verticalScrollBar()->width()+4;
+  lastgridsize = strips->idealSize(Strip::Arrangement::Grid);
   setStretchFactor(0, 0);
   setStretchFactor(1, 100);
   setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
   setLayout(lay);
 
-  connect(film, SIGNAL(needImage(quint64, QSize)),
+  connect(strips, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
-  connect(film, SIGNAL(pressed(quint64,
-                               Qt::MouseButton, Qt::KeyboardModifiers)),
+  connect(strips, SIGNAL(pressed(quint64,
+				 Qt::MouseButton, Qt::KeyboardModifiers)),
 	  this, SLOT(slidePress(quint64,
                                 Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
 
-  connect(film->scene(),
+  connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
@@ -94,8 +94,7 @@ LightTable::~LightTable() {
 
 void LightTable::ensureReasonableGridSize() {
   int s0 = sizes()[0];
-  int s1 = 2*tilesize + 5*Strip::labelHeight(tilesize)
-    + film->verticalScrollBar()->width() + 4;
+  int s1 = strips->idealSize(Strip::Arrangement::Grid);
   if (s0<s1) {
     lastgridsize = s1;
     setSizes(QList<int>() << lastgridsize
@@ -108,67 +107,68 @@ void LightTable::setLayout(LayoutBar::Action act) {
   lastlay = lay;
   switch (act) {
   case LayoutBar::Action::FullGrid:
-    film->show();
-    film->setArrangement(Strip::Arrangement::Grid);
-    film->setTileSize(tilesize);
+    strips->setArrangement(Strip::Arrangement::Grid);
+    strips->show();
     slide->hide();
     lay = act;
     break;
   case LayoutBar::Action::HGrid:
+    strips->setArrangement(Strip::Arrangement::Grid);
     setOrientation(Qt::Vertical);
     if (lay==LayoutBar::Action::HLine
         || lay==LayoutBar::Action::VLine
         || lay==LayoutBar::Action::FullPhoto)
       setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
     ensureReasonableGridSize();
-    film->show();
-    film->setArrangement(Strip::Arrangement::Grid);
-    film->setTileSize(tilesize);
+    strips->show();
     slide->show();
     lay = act;
     break;
   case LayoutBar::Action::VGrid:
+    strips->setArrangement(Strip::Arrangement::Grid);
     setOrientation(Qt::Horizontal);
     if (lay==LayoutBar::Action::HLine
         || lay==LayoutBar::Action::VLine
         || lay==LayoutBar::Action::FullPhoto)
       setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
     ensureReasonableGridSize();
-    film->show();
-    film->setArrangement(Strip::Arrangement::Grid);
-    film->setTileSize(tilesize);
+    strips->show();
     slide->show();
     lay = act;
     break;
-  case LayoutBar::Action::HLine:
+  case LayoutBar::Action::HLine: {
     if (lay==LayoutBar::Action::HGrid
         || lay==LayoutBar::Action::HGrid)
       lastgridsize = sizes()[0];
-    setSizes(QList<int>() << tilesize + film->horizontalScrollBar()->height()
-             << height());
+    int ts = strips->tileSize();
     setOrientation(Qt::Vertical);
-    film->show();
-    film->setArrangement(Strip::Arrangement::Horizontal);
+    strips->show();
+    strips->setArrangement(Strip::Arrangement::Horizontal);
+    strips->setTileSize(ts);
+    setSizes(QList<int>() << strips->idealSize(Strip::Arrangement::Horizontal)
+             << height());
     slide->show();
     lay = act;
-    break;
-  case LayoutBar::Action::VLine:
+  } break;
+  case LayoutBar::Action::VLine: {
     if (lay==LayoutBar::Action::HGrid
         || lay==LayoutBar::Action::VGrid)
       lastgridsize = sizes()[0];
-    setSizes(QList<int>() << tilesize + film->verticalScrollBar()->width()
-             << width());
+    int ts = strips->tileSize();
     setOrientation(Qt::Horizontal);
-    film->show();
-    film->setArrangement(Strip::Arrangement::Vertical);
+    strips->show();
+    strips->setArrangement(Strip::Arrangement::Vertical);
+    strips->setTileSize(ts);
+    setSizes(QList<int>() << strips->idealSize(Strip::Arrangement::Vertical)
+             << width());
     slide->show();
     lay = act;
-    break;
+  } break;
   case LayoutBar::Action::FullPhoto:
     if (lay==LayoutBar::Action::HGrid
         || lay==LayoutBar::Action::VGrid)
       lastgridsize = sizes()[0];
-    film->hide();
+    strips->hide();
     slide->show();
     lay = act;
     break;
@@ -194,7 +194,7 @@ void LightTable::setLayout(LayoutBar::Action act) {
     pDebug() << "ToggleFullScreen NYI";
     break;
   case LayoutBar::Action::ToggleOrg:
-    film->toggleOrganization();
+    strips->toggleOrganization();
     break;
   case LayoutBar::Action::N:
     break;
@@ -243,9 +243,9 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 
   if (curr==0)
     makeCurrent(i);
-  pDebug() << "extendorshrink" << i << int(film->organization());
+  pDebug() << "extendorshrink" << i << int(strips->organization());
 
-  switch (film->organization()) {
+  switch (strips->organization()) {
   case Strip::Organization::ByDate: {
     QDateTime a = db->captureDate(db->photoFromVersion(curr));
     QDateTime b = db->captureDate(db->photoFromVersion(i));
@@ -278,7 +278,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   } break;
   }
   emit newSelection();
-  film->scene()->update();
+  strips->scene()->update();
 }  
 
 void LightTable::simpleSelection(quint64 i) {
@@ -293,7 +293,7 @@ void LightTable::simpleSelection(quint64 i) {
       QSet<quint64> ss = selection->current();
       selection->clear();
       for (auto i: ss) {
-        Slide *s = film->strip()->slideByVersion(i);
+        Slide *s = strips->strip()->slideByVersion(i);
         if (s)
           s->update();
       }
@@ -304,7 +304,7 @@ void LightTable::simpleSelection(quint64 i) {
     selection->add(i);
     emit newSelection();
     if (!localupdate)
-      film->scene()->update();
+      strips->scene()->update();
   }
 
   makeCurrent(i);
@@ -351,7 +351,7 @@ void LightTable::makeCurrent(quint64 i) {
     requestLargerImage();
   }
 
-  film->scrollIfNeeded();
+  strips->scrollIfNeeded();
 }
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
@@ -368,7 +368,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
 }    
 
 void LightTable::updateSlide(quint64 i) {
-  Slide *s = film->strip()->slideByVersion(i);
+  Slide *s = strips->strip()->slideByVersion(i);
   if (s)
     s->update();
 }
@@ -377,7 +377,7 @@ PSize LightTable::displaySize() const {
   if (slide->isVisible())
     return slide->desiredSize();
   else
-    return PSize::square(film->strip()->tileSize());
+    return PSize::square(strips->strip()->tileSize());
 }
 
 void LightTable::requestLargerImage() {
@@ -394,7 +394,7 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
     pDebug() << "LightTable::updateAdjusted current" << i << img.size();
   if (img.isNull())
     return;
-  film->updateImage(i, img);
+  strips->updateImage(i, img);
 
   if (i==curr)
     slide->updateImage(img, true);
@@ -403,7 +403,7 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
 void LightTable::updateImage(quint64 i, Image16 img) {
   if (i==curr)
     pDebug() << "LightTable::updateImage current" << i << img.size();
-  film->updateImage(i, img);
+  strips->updateImage(i, img);
 
   if (i!=curr)
     return;
@@ -419,7 +419,7 @@ void LightTable::updateImage(quint64 i, Image16 img) {
 void LightTable::rescan(bool rebuildFilter) {
   if (rebuildFilter)
     populateFilterFromDialog();
-  film->rescan();
+  strips->rescan();
 }
 
 void LightTable::setColorLabel(ColorLabelBar::Action a) {
@@ -427,48 +427,51 @@ void LightTable::setColorLabel(ColorLabelBar::Action a) {
   db->query("update versions set colorlabel=:a where id in "
            " (select version from selection)", color);
   if (selection->count() > 10) {
-    film->scene()->update();
+    strips->scene()->update();
   } else {
     QSet<quint64> cc = selection->current();
     for (auto vsn: cc) {
-      Slide *s = film->strip()->slideByVersion(vsn);
+      Slide *s = strips->strip()->slideByVersion(vsn);
       if (s)
         s->update();
     }
   }
 }
 
+void LightTable::resizeStrip() {
+  if (lay==LayoutBar::Action::HLine)
+    setSizes(QList<int>() << strips->idealSize() << height());
+  else if (lay==LayoutBar::Action::VLine) 
+    setSizes(QList<int>() << strips->idealSize() << width());
+  else
+    return;
+  //  scrollToCurrent();
+}  
+
 void LightTable::filterAction(FilterBar::Action a) {
   switch (a) {
-  case FilterBar::Action::Smaller: case FilterBar::Action::Larger:
-    if (a==FilterBar::Action::Smaller) {
-      tilesize = tilesize * 8/10;
-      if (tilesize<50)
-        tilesize = 50;
-    } else {
-      tilesize = tilesize * 10/8;
-      if (tilesize>1024)
-        tilesize = 1024;
-    }
-    film->setTileSize(tilesize);
-    if (lay==LayoutBar::Action::HLine)
-      setSizes(QList<int>() << tilesize + film->horizontalScrollBar()->height()
-               << height());
-    else if (lay==LayoutBar::Action::VLine) 
-      setSizes(QList<int>() << tilesize + film->verticalScrollBar()->width()
-               << width());
-    scrollToCurrent();
-    break;
   case FilterBar::Action::ClearSelection:
     clearSelection();
     break;
+  case FilterBar::Action::SelectAll:
+    selectAll();
+    break;
   case FilterBar::Action::OpenFilterDialog:
     filterDialog->show();
+    break;
+  case FilterBar::Action::Larger:
+  case FilterBar::Action::Smaller:
+    // send to either strip or slide view
   default:
     break;
   }
 }
-        
+
+void LightTable::selectAll() {
+  selection->selectAll();
+  strips->scene()->update();
+}
+
 void LightTable::clearSelection() {
   quint64 c = db->simpleQuery("select * from current").toULongLong();
   if (c) {
@@ -478,13 +481,13 @@ void LightTable::clearSelection() {
       QSet<quint64> ss = selection->current();
       selection->clear();
       for (auto i: ss) {
-        Slide *s = film->strip()->slideByVersion(i);
+        Slide *s = strips->strip()->slideByVersion(i);
         if (s)
           s->update();
       }
     } else {
       selection->clear();
-      film->scene()->update();
+      strips->scene()->update();
     }
   }
 }  
@@ -501,7 +504,7 @@ void LightTable::bgPress(Qt::MouseButton b, Qt::KeyboardModifiers m) {
 }
 
 void LightTable::scrollToCurrent() {
-  film->scrollToCurrent();
+  strips->scrollToCurrent();
 }
 
 void LightTable::applyFilterFromDialog() {

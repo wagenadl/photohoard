@@ -1,26 +1,31 @@
-// FilmView.h
+// StripView.h
 
-#ifndef FILMVIEW_H
+#ifndef STRIPVIEW_H
 
-#define FILMVIEW_H
+#define STRIPVIEW_H
 
 #include <QGraphicsView>
 #include "Strip.h"
 #include "PhotoDB.h"
 
-class FilmView: public QGraphicsView {
+class StripView: public QGraphicsView {
   Q_OBJECT;
 public:
-  FilmView(PhotoDB *db, QWidget *parent=0);
-  virtual ~FilmView();
-  class FilmScene *scene();
+  StripView(PhotoDB *db, QWidget *parent=0);
+  virtual ~StripView();
+  class StripScene *scene();
+  class Datestrip const *strip() const;
   class Datestrip *strip();
   Strip::Organization organization() const;
+  int tileSize() const;
+  int idealSize() const;
+  int idealSize(Strip::Arrangement) const;
 signals:
   void needImage(quint64, QSize);
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void idealSizeChanged(); // only emitted if caused by key press
 public slots:
   void toggleOrganization();
   void scrollTo(quint64);
@@ -44,8 +49,9 @@ protected:
 private:
   PhotoDB *db;
   bool useFolders;
-  class FilmScene *dateScene, *folderScene;
+  class StripScene *dateScene, *folderScene;
   class Datestrip *dateStrip, *folderStrip;
+  int tilesize;
 };
 
 #endif

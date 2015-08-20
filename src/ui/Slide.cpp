@@ -5,14 +5,14 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QStyleOptionGraphicsItem>
 #include "PDebug.h"
-#include "FilmScene.h"
+#include "StripScene.h"
 #include "CMS.h"
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
   tilesize = 128;
   setPos(1e6, 1e6);
-  FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+  StripScene *fs = dynamic_cast<StripScene *>(scene());
   if (fs)
     fs->markSlideFor(id, this);
   else
@@ -20,7 +20,7 @@ Slide::Slide(quint64 id, Slidestrip *parent):
 }
 
 Slide::~Slide() {
-  FilmScene *fs = dynamic_cast<FilmScene *>(scene());
+  StripScene *fs = dynamic_cast<StripScene *>(scene());
   if (fs)
     fs->dropSlideFor(id);
   else
