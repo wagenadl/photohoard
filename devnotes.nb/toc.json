@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-04-10T11:32:44",
-  "mod": "2015-04-18T22:47:36",
+  "mod": "2015-08-20T14:36:06",
   "uuid": "756eee76",
   "cc": [
     { "typ": "entry",
@@ -37,7 +37,7 @@
     },
     { "typ": "entry",
       "cre": "2015-04-05T10:28:00",
-      "mod": "2015-04-17T19:54:32",
+      "mod": "2015-08-20T14:35:22",
       "sheetCount": 1,
       "startPage": 12,
       "title": "Photohoard: next steps (a month later)",
@@ -69,7 +69,7 @@
     },
     { "typ": "entry",
       "cre": "2015-04-17T19:54:32",
-      "mod": "2015-04-17T19:54:54",
+      "mod": "2015-08-20T14:35:19",
       "sheetCount": 1,
       "startPage": 16,
       "title": "Automatic collection assignment",
@@ -82,6 +82,14 @@
       "startPage": 17,
       "title": "Maintaining the foldertree again",
       "uuid": "7955b5de"
+    },
+    { "typ": "entry",
+      "cre": "2015-05-04T22:33:48",
+      "mod": "2015-05-04T22:33:56",
+      "sheetCount": 1,
+      "startPage": 19,
+      "title": "Exclusionary paths",
+      "uuid": "7a4a2fa1"
     }
   ]
 }

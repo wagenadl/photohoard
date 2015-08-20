@@ -10,6 +10,7 @@
 #include <QSet>
 #include "Image16.h"
 #include "PhotoDB.h"
+#include <QStringList>
 
 class Scanner: public BasicThread {
   Q_OBJECT;
@@ -17,7 +18,9 @@ public:
   Scanner(PhotoDB *);
   virtual ~Scanner();
 public slots:
-  void addTree(QString path, QString defaultCollection="");
+  void addTree(QString path, QString defaultCollection="",
+               QStringList excluded=QStringList());
+  void excludeTree(QString path);
   void removeTree(QString path);
   void rescanAll();
   void rescan(QString root);
