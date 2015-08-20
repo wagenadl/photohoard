@@ -9,6 +9,7 @@
 #include "Exif.h"
 #include "Scanner.h"
 #include "PhotoDB.h"
+#include "PurgeCache.h"
 #include "Exporter.h"
 #include "AutoCache.h"
 #include "ExceptionReporter.h"
@@ -131,6 +132,8 @@ int main(int argc, char **argv) {
     delete expo;
     pDebug() << "Done";
 
+    PurgeCache::purge(db, cachefn);
+    
     db.close();
 
     return res;
