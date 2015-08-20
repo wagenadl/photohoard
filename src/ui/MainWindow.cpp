@@ -110,10 +110,12 @@ void MainWindow::fileAction(FileBar::Action a) {
   case FileBar::Action::AddFolder: {
     AddRootDialog dlg(db);
     if (dlg.exec()) {
-      if (!dlg.path().isEmpty() && !dlg.defaultCollection().isEmpty()) {
+      if (!dlg.path().isEmpty() && !dlg.defaultCollection().isEmpty()
+          && !dlg.exclusions().contains(dlg.path())) {
         QDir root(dlg.path());
         if (root.exists())
-          scanner->addTree(root.absolutePath(), dlg.defaultCollection());
+          scanner->addTree(root.absolutePath(), dlg.defaultCollection(),
+                           dlg.exclusions());
       }
     }
   } break;

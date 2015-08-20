@@ -23,8 +23,12 @@ Scanner::~Scanner() {
   db.close();
 }
 
-void Scanner::addTree(QString path, QString defaultCollection) {
+void Scanner::addTree(QString path, QString defaultCollection,
+                      QStringList excluded) {
   // This is called from outside of thread!
+  foreach (QString e, excluded)
+    excludeTree(e);
+  
   if (!db0->findFolder(path)) {
     QDir parent(path);
     parent.cdUp();
@@ -124,10 +128,19 @@ quint64 Scanner::addFolder(PhotoDB *db,
   return id;
 }
 
+void Scanner::excludeTree(QString path) {
+  removeTree(path);
+  Untransaction t(db0);
+  db0->query("insert into excludedtrees values (:a)", path);
+}
+
 void Scanner::removeTree(QString path) {
   // called from caller, not our thread
   Untransaction t(db0);
   db0->query("delete from folders where pathname==:a", path);
+  db0->query("delete from excludedtrees where pathname like :a", path + "/%");
+
+  // should clean the cache as well
 }
 
 void Scanner::run() {
@@ -251,18 +264,25 @@ void Scanner::scanFolder(quint64 id) {
   QString p = db.folder(id);
   QDir dir(p);
 
+  QSet<QString> excludedtrees;
   QSet<QString> newsubdirs;
   QSet<QString> newphotos;
   QMap<QString, quint64> oldsubdirs;
   QMap<QString, quint64> oldphotos;
   QMap<QString, QDateTime> photodate;
 
+  // Collect exclusions
+  QSqlQuery q = db.query("select pathname from excludedtrees");
+  while (q.next())
+    excludedtrees.insert(q.value(0).toString());
+  
   // Collect new subdirs and photos
   QFileInfoList infos(dir.entryInfoList(QDir::Dirs | QDir::Files
                                         | QDir::NoDotAndDotDot));
   for (auto i: infos) {
     if (i.isDir()) {
-      newsubdirs << i.fileName();
+      if (!excludedtrees.contains(i.fileName()))
+        newsubdirs << i.fileName();
     } else if (exts.contains(i.suffix().toLower())) {
       newphotos << i.fileName();
       photodate[i.fileName()] = i.lastModified();
@@ -270,8 +290,7 @@ void Scanner::scanFolder(quint64 id) {
   }
 
   // Collect old subdirs
-  QSqlQuery q
-    = db.query("select id, leafname from folders where parentfolder==:a", id);
+  q = db.query("select id, leafname from folders where parentfolder==:a", id);
   while (q.next())
     oldsubdirs[q.value(1).toString()] = q.value(0).toULongLong();
 
@@ -280,7 +299,7 @@ void Scanner::scanFolder(quint64 id) {
   while (q.next())
     oldphotos[q.value(1).toString()] = q.value(0).toULongLong();
   q.finish();
-
+  
   // let's update the database
 
   while (db.transactionsWaiting()) {

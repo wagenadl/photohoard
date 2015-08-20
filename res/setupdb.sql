@@ -36,6 +36,10 @@ create table foldertree (
                on delete cascade on update cascade 
        unique(ancestor, descendant) on conflict ignore );
 
+create table excludedtrees (
+       pathname text unique
+                on conflict ignore );
+
 create table tags (
        id integer primary key,
        tag text,

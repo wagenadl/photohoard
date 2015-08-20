@@ -5,6 +5,7 @@
 #define ADDROOTDIALOG_H
 
 #include <QDialog>
+#include <QModelIndex>
 
 class AddRootDialog: public QDialog {
   Q_OBJECT;
@@ -14,10 +15,14 @@ public:
   DialogCode exec();
   QString path() const;
   QString defaultCollection() const;
+  QStringList exclusions() const;
 protected:
   void keyPressEvent(QKeyEvent *) override;
 protected slots:
   void browse();
+  void addExclusion();
+  void removeExclusion();
+  void editExclusion(QModelIndex);
 private:
   void prepCollections();
 private:
