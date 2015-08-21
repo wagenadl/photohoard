@@ -180,9 +180,6 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
-    // pDebug() << "SlideView::paintEvent av=" << img.size()
-    //          << "space=" << r.size()
-    //          << "nat=" << naturalSize;
     Image16 i1 = img.scaledToFitIn(r.size(),
                                    img.size().scaleFactorToFitIn(r.size())>1
                                    ? Image16::Interpolation::NearestNeighbor
@@ -229,12 +226,12 @@ void SlideView::paintEvent(QPaintEvent *) {
       sourceRect.setWidth(availSize.width()/effZoom);
     }
     if (showSize.height()<=availSize.height()) {
-      sourceRect.setTop(r.top());
+      sourceRect.setTop(0);
       sourceRect.setHeight(img.height());
       destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
       destRect.setHeight(img.height()*effZoom);
     } else {
-      destRect.setTop(0);
+      destRect.setTop(r.top());
       destRect.setHeight(availSize.height());
       sourceRect.setTop(rely * (1-availSize.height()/double(showSize.height()))
 			* img.height());
@@ -248,3 +245,6 @@ void SlideView::paintEvent(QPaintEvent *) {
   }
 }
     
+void SlideView::enterEvent(QEvent *) {
+  setFocus();
+}
