@@ -460,8 +460,10 @@ void LightTable::filterAction(FilterBar::Action a) {
     filterDialog->show();
     break;
   case FilterBar::Action::Larger:
+    strips->setTileSize(strips->tileSize()*10./8);
+    break;
   case FilterBar::Action::Smaller:
-    // send to either strip or slide view
+    strips->setTileSize(strips->tileSize()*8./10);
   default:
     break;
   }
