@@ -20,7 +20,7 @@ public slots:
   void clear();
   void updateImage(Image16 img, bool force=false);
   void setZoom(double zm);
-  void changeZoomLevel(QPoint center, double delta);
+  void changeZoomLevel(QPoint center, double delta, bool round=false);
   void scaleToFit();
 signals:
   void needLargerImage();
