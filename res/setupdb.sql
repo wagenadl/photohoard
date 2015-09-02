@@ -106,6 +106,18 @@ create table adjustments (
                on delete cascade
                on update cascade );
 
+create table undo (
+-- Table of undo steps
+       stepid integer primary key,
+       version integer,
+       oldvalue,
+       newvalue,
+       undone integer default 0,
+       created date,
+       foreign key(version) references versions(id)
+               on delete cascade
+               on update cascade );
+
 create table appliedtags (
 -- Table of tags applied to versions
        tag integer,
@@ -179,6 +191,7 @@ create index if not exists parentfolderidx on folders(parentfolder);
 create index if not exists versionidx on versions(photo);
 create index if not exists tagidx on tags(tag);
 create index if not exists tagtreeidx on tags(parent);
+create index if not exists undoidx on undo(version);
 
 -- Not creating an index on photos(folder), becase that wouldn't optimize
 -- the very common LIKE query, only the == query. (See PhotoDB::countInTree

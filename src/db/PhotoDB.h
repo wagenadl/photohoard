@@ -62,6 +62,8 @@ public: // information about photos and versions
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
   void setAcceptReject(quint64 versionid, AcceptReject label);
+  void addUndoStep(quint64 versionid, QString key,
+                   QVariant oldvalue, QVariant newvalue);
 public: // exploration functions
   QString folder(quint64 folderid) const; // returns full pathname
   quint64 root(quint64 folderid) const; // returns id of root folder
