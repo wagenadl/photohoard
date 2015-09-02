@@ -185,19 +185,62 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
   return pr;
 }
 
-
+void PhotoDB::addUndoStep(quint64 versionid, QString key,
+                          QVariant oldvalue, QVariant newvalue) {
+  QDateTime now = QDateTime::currentDateTime();
+  query("delete from undo where version==:a and undone==1", versionid);
+  QSqlQuery q = query("select stepid, version, key, oldvalue, newvalue, created"
+                      " from undo"
+                      " order by stepid desc limit 1");
+  if (q.next()) {
+    quint64 stepid = q.value(0).toULongLong();
+    quint64 v = q.value(1).toULongLong();
+    QString k = q.value(2).toString();
+    QVariant ov = q.value(3);
+    QVariant nv = q.value(4);
+    QDateTime dt = q.value(5).toDateTime();
+    if (v==versionid && k==key && dt.msecsTo(now)<2000) {
+      // probably overwrite or cancel
+      if (k==".tag") {
+        if (newvalue==ov && oldvalue==nv) {
+          query("delete from undo where stepid==:a", stepid);
+          return;
+        }
+      } else {
+        if (newvalue==ov) // cancel
+          query("delete from undo where stepid==:a", stepid);
+        else // overwrite
+          query("update undo set newvalue=:a, created=:b"
+                " where stepid==:c", newvalue, now, stepid);
+        return;
+      }
+    }
+  }
+  query("insert into undo (version, key, oldvalue, newvalue, created)"
+        " values (:a, :b, :c, :d, :e)",
+        versionid, key, oldvalue, newvalue, now);
+}
 
 void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
+  QVariant old = simpleQuery("select colorlabel from versions where id==:a",
+                             versionid);
+  addUndoStep(versionid, ".colorlabel", old, int(label));
   query("update versions set colorlabel=:a where id==:b",
         int(label), versionid);
 }
 
 void PhotoDB::setStarRating(quint64 versionid, int stars) {
+  QVariant old = simpleQuery("select starrating from versions where id==:a",
+                             versionid);
+  addUndoStep(versionid, ".starrating", old, stars);
   query("update versions set starrating=:a where id==:b",
         stars, versionid);
 }
   
 void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
+  QVariant old = simpleQuery("select acceptreject from versions where id==:a",
+                             versionid);
+  addUndoStep(versionid, ".acceptreject", old, int(label));
   query("update versions set acceptreject=:a where id==:b",
         int(label), versionid);
 }

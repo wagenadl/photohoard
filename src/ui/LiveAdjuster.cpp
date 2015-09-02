@@ -108,6 +108,12 @@ void LiveAdjuster::setSlider(QString k, double v) {
   }
 
   Untransaction t(db);
+  QSqlQuery q = db->query("select v from adjustments"
+                          " where version==:a and k==:b", version, k);
+  if (q.next()) 
+    db->addUndoStep(version, k, q.value(0), v);
+  else
+    db->addUndoStep(version, k, QVariant(), v);
   db->query("insert or replace into adjustments (version, k, v)"
             " values (:a, :b, :c)", version, k, v);
 }

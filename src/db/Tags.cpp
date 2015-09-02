@@ -70,12 +70,22 @@ QSet<int> Tags::applied(quint64 versionid) {
 
 void Tags::apply(quint64 versionid, int tagid) {
   Untransaction t(db);
+  QSqlQuery q = db->query("select 1 from appliedtags"
+                          " where version==:a and tag==:b", versionid, tagid);
+  if (q.next())
+    return;
+  db->addUndoStep(versionid, ".tag", 0, tagid);
   db->query("insert into appliedtags(version, tag) values(:a,:b)",
 	   versionid, tagid);
 }
 
 void Tags::remove(quint64 versionid, int tagid) {
   Untransaction t(db);
+  QSqlQuery q = db->query("select 1 from appliedtags"
+                          " where version==:a and tag==:b", versionid, tagid);
+  if (!q.next())
+    return;
+  db->addUndoStep(versionid, ".tag", tagid, 0);
   db->query("delete from appliedtags where version==:a and tag==:b",
 	   versionid, tagid);
 }
