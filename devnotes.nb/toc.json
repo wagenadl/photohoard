@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-08-20T19:53:02",
-  "mod": "2015-08-20T19:53:02",
+  "mod": "2015-09-02T09:01:35",
   "uuid": "b7dd37c0",
   "cc": [
     { "typ": "entry",
@@ -98,6 +98,14 @@
       "startPage": 20,
       "title": "Actions and keys",
       "uuid": "d773dd49"
+    },
+    { "typ": "entry",
+      "cre": "2015-09-02T08:51:32",
+      "mod": "2015-09-02T09:01:35",
+      "sheetCount": 2,
+      "startPage": 21,
+      "title": "Undo mechanism",
+      "uuid": "60ed6451"
     }
   ]
 }

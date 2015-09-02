@@ -1,0 +1,325 @@
+{ "typ": "page",
+  "cre": "2015-09-02T08:51:32",
+  "mod": "2015-09-02T09:09:35",
+  "stampTime": 0,
+  "startPage": 21,
+  "unlocked": false,
+  "uuid": "60ed6451",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-09-02T08:51:32",
+      "mod": "2015-09-02T08:51:35",
+      "uuid": "953b86b3",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:51:32",
+          "mod": "2015-09-02T08:51:35",
+          "lines": [
+            0
+          ],
+          "text": "Undo mechanism",
+          "uuid": "cb7ee677"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-09-02T08:51:32",
+      "mod": "2015-09-02T08:51:32",
+      "uuid": "8823dabe"
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:51:36",
+      "mod": "2015-09-02T08:51:45",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4c9f74b4",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:51:36",
+          "mod": "2015-09-02T08:51:45",
+          "lines": [
+            0
+          ],
+          "text": "I would like to have a comprehensive Undo mechanism.",
+          "uuid": "3296192e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:51:47",
+      "mod": "2015-09-02T08:53:44",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "2cf147ff",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:51:47",
+          "mod": "2015-09-02T08:53:44",
+          "lines": [
+            0,
+            58,
+            116
+          ],
+          "text": "This should work on adjustments, appliedtags, starrating, colorlabel, acceptreject. And also on rot90, once that is implemented. I think that I’ll create a table with fields",
+          "uuid": "884516e7"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:53:46",
+      "mod": "2015-09-02T08:54:39",
+      "h": 108.247,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "5c7478a2",
+      "y0": 172.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:53:46",
+          "mod": "2015-09-02T08:54:39",
+          "lines": [
+            0,
+            6,
+            14,
+            18,
+            27,
+            36
+          ],
+          "text": "order\nversion\nkey\noldvalue\nnewvalue\nundone",
+          "uuid": "10b41911"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:54:43",
+      "mod": "2015-09-02T08:56:05",
+      "h": 119.83,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c6905589",
+      "y0": 280.911,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:54:43",
+          "mod": "2015-09-02T08:56:05",
+          "lines": [
+            0,
+            61,
+            121,
+            184,
+            242
+          ],
+          "text": "Here “order” is just the primary key, to make sure that undo steps remain ordered. “newvalue” is stored so that I do not have to maintain a separate “redo” table, although, in fact, a “redo” table may be easier. (In a “redo” table, I’d store “newvalue” instead of “oldvalue.”)",
+          "uuid": "aaf9a219"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:56:05",
+      "mod": "2015-09-02T08:58:31",
+      "h": 166.162,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "85caa7e2",
+      "y0": 400.741,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:56:05",
+          "mod": "2015-09-02T08:58:31",
+          "lines": [
+            0,
+            60,
+            124,
+            193,
+            257,
+            311,
+            373
+          ],
+          "text": "This works very easily for the adjustments. For starrating, colorlabel, acceptreject, and rot90, I would create pseudo keys (“.stars”, “.color”, “.accept”, “.rot90”). For tags, I would do that too: for an added tag, “key” would be “.tag.add” and “oldvalue” would be the tagid; for a removed tag, “key” would be “.tag.rm” and “oldvalue” would again be the tagid. I will not delete tags that are orphaned.",
+          "uuid": "e6f0ec76",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-09-02T08:58:23",
+              "mod": "2015-09-02T08:58:23",
+              "end": 372,
+              "start": 369,
+              "style": 1,
+              "uuid": "7756a616"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:58:46",
+      "mod": "2015-09-02T09:01:27",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e289b2a8",
+      "y0": 566.903,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:58:46",
+          "mod": "2015-09-02T09:01:27",
+          "lines": [
+            0,
+            53,
+            118,
+            176,
+            240
+          ],
+          "text": "Rows are written to the undo table whenever anything changes, but not if the last-changed adjustment (or color label, etc.) is changed again within T=5 seconds. If a change is reverted within T seconds other than by Ctrl-Z, the last row is removed. ",
+          "uuid": "50da941f",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-09-02T08:59:23",
+              "mod": "2015-09-02T08:59:23",
+              "end": 149,
+              "start": 148,
+              "style": 1,
+              "uuid": "3a65e259"
+            },
+            { "typ": "markup",
+              "cre": "2015-09-02T09:00:11",
+              "mod": "2015-09-02T09:00:11",
+              "end": 193,
+              "start": 192,
+              "style": 1,
+              "uuid": "3599b7e4"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:58:46",
+      "mod": "2015-09-02T09:02:33",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "e289b2a8",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:58:46",
+          "mod": "2015-09-02T09:02:33",
+          "lines": [
+            0,
+            56,
+            119,
+            181
+          ],
+          "text": "I think a redo table is the way to go. I will not store “newvalue” in the undo table. Rather, at undo time, I will get the current value from the adjustments (or appliedtags, etc.) table and use that to create a “newvalue” for the redo table.",
+          "uuid": "50da941f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T08:58:46",
+      "mod": "2015-09-02T09:09:35",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "e289b2a8",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T08:58:46",
+          "mod": "2015-09-02T09:09:35",
+          "lines": [
+            0,
+            63,
+            118,
+            177,
+            231
+          ],
+          "text": "Ordinarily, the undo table functions as a stack (per version), with Ctrl-Z generating a pop from the undo table and a corresponding push to the redo table. Ctrl-Y reverses that operation. Any new change causes the redo table to be emptied (for the associated version, of course).",
+          "uuid": "50da941f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T09:03:28",
+      "mod": "2015-09-02T09:09:02",
+      "h": 374.656,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "9744f02b",
+      "y0": 288.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T09:03:28",
+          "mod": "2015-09-02T09:09:02",
+          "lines": [
+            0,
+            57,
+            122,
+            182,
+            240,
+            304,
+            369,
+            437,
+            500,
+            566,
+            629,
+            689,
+            757,
+            813,
+            876,
+            932
+          ],
+          "text": "On occasion, it might be nice to present the entire undo stack as a list and allow the user to undo non-terminal changes. That would not work with a separate redo table. Rather, the row should then be marked as “undone,” and the “oldvalue” restored, unless a later undo step overwrote the value. In that case, it would be easiest to do nothing. But it may be better to partially undo. E.g., if in one step I changed “cropleft” from 0 to 50 and in another from 50 to 120, then undoing that first step should perhaps leave the “cropleft” at 70. That is, perhaps it is best to store relative changes in the undo table, at least for adjustments. (And perhaps rot90.) Of course, for colorlabel etc., I’d still like to use absolute changes, so the “oldvalue” and “newvalue” columns are important. Perhaps I should just calculate the relative change at undo time from those columns. And for ordinary popping undo, I could use the absolute “oldvalue” to prevent rounding errors.",
+          "uuid": "a3ed45b5",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-09-02T09:04:08",
+              "mod": "2015-09-02T09:04:08",
+              "end": 136,
+              "start": 133,
+              "style": 1,
+              "uuid": "4620a194"
+            },
+            { "typ": "markup",
+              "cre": "2015-09-02T09:05:13",
+              "mod": "2015-09-02T09:05:13",
+              "end": 294,
+              "start": 250,
+              "style": 1,
+              "uuid": "7b0d3623"
+            },
+            { "typ": "markup",
+              "cre": "2015-09-02T09:05:33",
+              "mod": "2015-09-02T09:05:33",
+              "end": 365,
+              "start": 359,
+              "style": 1,
+              "uuid": "da2f50aa"
+            },
+            { "typ": "markup",
+              "cre": "2015-09-02T09:07:06",
+              "mod": "2015-09-02T09:07:06",
+              "end": 588,
+              "start": 580,
+              "style": 1,
+              "uuid": "fc723b89"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
