@@ -120,7 +120,7 @@ int Tags::define(QString tag, int parent) {
   Untransaction t(db);
   QSqlQuery q = parent ?
     db->query("insert into tags(tag, parent) values(:a,:b)", tag, parent)
-    : db->query("insert into tags(tag) values(:a,:b)", tag);
+    : db->query("insert into tags(tag) values(:a)", tag);
   int tagid = q.lastInsertId().toInt();
   return tagid;
 }
