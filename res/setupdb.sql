@@ -110,6 +110,7 @@ create table undo (
 -- Table of undo steps
        stepid integer primary key,
        version integer,
+       item,
        oldvalue,
        newvalue,
        undone integer default 0,

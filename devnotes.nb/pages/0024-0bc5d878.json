@@ -1,0 +1,53 @@
+{ "typ": "page",
+  "cre": "2015-09-26T08:53:44",
+  "mod": "2015-09-26T08:54:21",
+  "stampTime": 0,
+  "startPage": 24,
+  "unlocked": false,
+  "uuid": "0bc5d878",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-09-26T08:53:44",
+      "mod": "2015-09-26T08:53:50",
+      "uuid": "680d714c",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-26T08:53:44",
+          "mod": "2015-09-26T08:53:50",
+          "lines": [
+            0
+          ],
+          "text": "SQLite in Perl",
+          "uuid": "2e460404"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-09-26T08:53:44",
+      "mod": "2015-09-26T08:53:44",
+      "uuid": "92ee51a2"
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-26T08:53:50",
+      "mod": "2015-09-26T08:54:21",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "ef194804",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-26T08:53:50",
+          "mod": "2015-09-26T08:54:21",
+          "lines": [
+            0,
+            64
+          ],
+          "text": "I just installed libclass-dbi-sqlite-perl to gain SQLite access from perl.",
+          "uuid": "38a88437"
+        }
+      ]
+    }
+  ]
+}

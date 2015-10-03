@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-08-20T19:53:02",
-  "mod": "2015-09-02T09:01:35",
+  "mod": "2015-09-26T08:53:50",
   "uuid": "b7dd37c0",
   "cc": [
     { "typ": "entry",
@@ -101,11 +101,19 @@
     },
     { "typ": "entry",
       "cre": "2015-09-02T08:51:32",
-      "mod": "2015-09-02T09:01:35",
-      "sheetCount": 2,
+      "mod": "2015-09-02T19:24:58",
+      "sheetCount": 3,
       "startPage": 21,
       "title": "Undo mechanism",
       "uuid": "60ed6451"
+    },
+    { "typ": "entry",
+      "cre": "2015-09-26T08:53:44",
+      "mod": "2015-09-26T08:53:50",
+      "sheetCount": 1,
+      "startPage": 24,
+      "title": "SQLite in Perl",
+      "uuid": "0bc5d878"
     }
   ]
 }
