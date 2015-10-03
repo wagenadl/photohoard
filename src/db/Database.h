@@ -88,6 +88,7 @@ private:
 };
 
 class Untransaction {
+  // Not a transaction, but causes waiting transactions to wake up when done
 public:
   Untransaction(Database *db);
   ~Untransaction();

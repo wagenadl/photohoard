@@ -1,0 +1,96 @@
+{ "typ": "page",
+  "cre": "2015-05-04T22:33:48",
+  "mod": "2015-05-04T22:36:30",
+  "stampTime": 0,
+  "startPage": 19,
+  "unlocked": false,
+  "uuid": "7a4a2fa1",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-05-04T22:33:48",
+      "mod": "2015-05-04T22:33:56",
+      "uuid": "0b6e30a5",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-05-04T22:33:48",
+          "mod": "2015-05-04T22:33:56",
+          "text": "Exclusionary paths",
+          "uuid": "0f9a63a7",
+          "cc": [
+            { "typ": "latenote",
+              "cre": "2015-08-20T15:33:47",
+              "mod": "2015-08-20T15:35:10",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 423.0,
+              "uuid": "5659f88f",
+              "x": 23.0,
+              "y": 283.81,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-08-20T15:33:47",
+                  "mod": "2015-08-20T15:35:10",
+                  "lines": [
+                    0,
+                    67,
+                    139,
+                    204,
+                    275
+                  ],
+                  "text": "I implemented an “excludedtrees” table, and added support for this into Scanner::addTree. I also added support in the Add New Root dialog. But I have not yet implemented a way to exclude a tree post-hoc.\nNote: When a folder gets dropped, the cache should be updated. This is not yet implemented.",
+                  "uuid": "666fee4a"
+                }
+              ]
+            },
+            { "typ": "latenote",
+              "cre": "2015-08-20T19:46:59",
+              "mod": "2015-08-20T19:47:01",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 383.25,
+              "uuid": "de2e21e8",
+              "x": 62.75,
+              "y": 391.06,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2015-08-20T19:46:59",
+                  "mod": "2015-08-20T19:47:01",
+                  "lines": [
+                    0
+                  ],
+                  "text": "Now it is.",
+                  "uuid": "2a27e5d2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-05-04T22:33:48",
+      "mod": "2015-05-04T22:33:48",
+      "uuid": "73beb2dd"
+    },
+    { "typ": "textblock",
+      "cre": "2015-05-04T22:33:56",
+      "mod": "2015-05-04T22:36:30",
+      "h": 228.938,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "029b63e3",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-05-04T22:33:56",
+          "mod": "2015-05-04T22:36:30",
+          "text": "I would like to exclude website/ from the jennifer-art/ tree. Right now, that is not possible. Even if I delete it by hand from the database, it would be scanned right back in the next time around. So there should be a place to maintain roots and set exclusions. I don’t know quite how to do this. I could possibly add an “exclude subtree” list to the “add root” dialog. Or I could have a separate option to do it post-hoc. Of course, post-hoc exclusion would mean dropping versions. There should be a warning if that involves modified versions or versions with non-default tags.",
+          "uuid": "1174cea5"
+        }
+      ]
+    }
+  ]
+}

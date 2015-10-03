@@ -5,6 +5,7 @@
 #define ADDROOTDIALOG_H
 
 #include <QDialog>
+#include <QModelIndex>
 
 class AddRootDialog: public QDialog {
   Q_OBJECT;
@@ -14,6 +15,7 @@ public:
   DialogCode exec();
   QString path() const;
   QString defaultCollection() const;
+  QStringList exclusions() const;
   bool validate(bool interactive=false) const;
   /* Validate returns true if (1) a folder has been selected, (2) that
      folder exists, and (3) a collection has been selected. The interactive
@@ -24,6 +26,9 @@ protected:
   void keyPressEvent(QKeyEvent *) override;
 protected slots:
   void browse();
+  void addExclusion();
+  void removeExclusion();
+  void editExclusion(QModelIndex);
 private:
   void prepCollections();
 private:
