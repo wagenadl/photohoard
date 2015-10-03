@@ -33,6 +33,7 @@ private:
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
   class ExportDialog *exportDialog;
+  class SliderClipboard *clipboardDialog;
   class AllControls *allControls;
   class HistoWidget *histogram;
   class LiveAdjuster *adjuster;

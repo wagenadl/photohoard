@@ -29,6 +29,7 @@ public slots:
 protected slots:
   void goNext(QString);
   void goPrevious(QString);
+  void groupStateChange(QString);
 private:
   void autoResize();
 private:

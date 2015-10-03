@@ -15,6 +15,7 @@ public:
       ImportFromCamera,
       OpenExportDialog,
       ExportSelected,
+      OpenClipboardDialog,
       N
       };
 public:
