@@ -461,11 +461,9 @@ void LightTable::filterAction(FilterBar::Action a) {
     break;
   case FilterBar::Action::Larger:
     strips->setTileSize(10*strips->tileSize()/8);
-    resizeStrip();
     break;
   case FilterBar::Action::Smaller:
     strips->setTileSize(8*strips->tileSize()/10);
-    resizeStrip();
     break;
   default:
     break;
