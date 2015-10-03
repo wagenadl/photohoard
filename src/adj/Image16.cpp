@@ -67,10 +67,15 @@ Image16 &Image16::operator=(Image16 const &image) {
 }
 
 QImage Image16::toQImage() const {
-  if (format()==Format::sRGB8)
-    return d->image;
-  else
+  if (format()==Format::sRGB8) {
+    if (d->width==d->image.width() && d->height==d->image.height())
+      return d->image;
+    Image16 a = *this;
+    a.applyROI();
+    return a.toQImage();
+  } else {
     return convertedTo(Format::sRGB8).toQImage();
+  }
 }
 
 Image16::Image16(QImage const &image): d(new Image16Data(image)) {
@@ -179,8 +184,9 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
 
   if (i!=Interpolation::NearestNeighbor) {
     Format f = format();
-    if (f==Format::Lab16 || f==Format::IPT16)
+    if (f==Format::Lab16 || f==Format::IPT16) {
       return scaleSigned(s, i);
+    }     
   }
 
   // So now we _know_ that we have unsigned data, or that it doesn't matter
@@ -196,7 +202,7 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
                          Interpolation::Linear);
     return img.scaled(s, i);
   }
-  
+
   int cvfmt = cvFormat(format());
   cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());
   Image16 res(s, format());
@@ -228,10 +234,8 @@ void Image16::rotate90CCW() {
                    (void*)bytes(), bytesPerLine());
   cv::Mat out(dst.height(), dst.width(), cvFormat(format()),
               (void*)dst.bytes(), dst.bytesPerLine());
-  pDebug() << "Rotate90CCW with opencv";
   cv::transpose(in, out);
   cv::flip(out, out, 1);
-  pDebug() << "Done with opencv";
   *this = dst;
 }
 
@@ -241,10 +245,8 @@ void Image16::rotate90CW() {
                    (void*)bytes(), bytesPerLine());
   cv::Mat out(dst.height(), dst.width(), cvFormat(format()),
               (void*)dst.bytes(), dst.bytesPerLine());
-  pDebug() << "Rotate90CCW with opencv";
   cv::transpose(in, out);
   cv::flip(out, out, 0);
-  pDebug() << "Done with opencv";
   *this = dst;
 }
 

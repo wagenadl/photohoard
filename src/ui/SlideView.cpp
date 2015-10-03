@@ -62,6 +62,17 @@ void SlideView::changeZoomLevel(QPoint, double delta, bool round) {
   if (round) 
     zm = pow(2.0, ::round(log(zm)/log(2) / delta) * delta);
   setZoom(zm);
+  //  double z0 = currentZoom() * pow(2.0, delta);
+  //  if (round) {
+  //    double b = log(pow(2.0, fabs(delta)));
+  //    double lz = log(z0) / b;
+  //    lz = floor(lz + 0.5);
+  //    pDebug() << z0 << b << lz << exp(lz*b);
+  //    z0 = exp(lz * b);
+  //    if (z0>2)
+  //      z0 = floor(z0 + 0.5);
+  //  }
+  //  setZoom(z0);
 }
 
 void SlideView::setZoom(double z) {
@@ -185,9 +196,6 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
-    // pDebug() << "SlideView::paintEvent av=" << img.size()
-    //          << "space=" << r.size()
-    //          << "nat=" << naturalSize;
     Image16 i1 = img.scaledToFitIn(r.size(),
                                    img.size().scaleFactorToFitIn(r.size())>1
                                    ? Image16::Interpolation::NearestNeighbor
@@ -234,12 +242,12 @@ void SlideView::paintEvent(QPaintEvent *) {
       sourceRect.setWidth(availSize.width()/effZoom);
     }
     if (showSize.height()<=availSize.height()) {
-      sourceRect.setTop(r.top());
+      sourceRect.setTop(0);
       sourceRect.setHeight(img.height());
       destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
       destRect.setHeight(img.height()*effZoom);
     } else {
-      destRect.setTop(0);
+      destRect.setTop(r.top());
       destRect.setHeight(availSize.height());
       sourceRect.setTop(rely * (1-availSize.height()/double(showSize.height()))
 			* img.height());
