@@ -1,6 +1,6 @@
 { "typ": "page",
   "cre": "2015-09-02T08:51:32",
-  "mod": "2015-09-02T09:09:35",
+  "mod": "2015-09-02T19:29:49",
   "stampTime": 0,
   "startPage": 21,
   "unlocked": false,
@@ -316,6 +316,74 @@
               "start": 580,
               "style": 1,
               "uuid": "fc723b89"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T19:24:43",
+      "mod": "2015-09-02T19:26:35",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [
+        23.166
+      ],
+      "uuid": "b5ae08df",
+      "y0": 663.15,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T19:24:43",
+          "mod": "2015-09-02T19:26:35",
+          "lines": [
+            0,
+            56,
+            113,
+            168,
+            230
+          ],
+          "text": "I implemented the storage part of the undo system, in a rather rudimentary fashion: I simply created a method in PhotoDB that adds to the undo stack. Its only claim to sophistication is that it compresses like changes. I slightly changed the “.names” from p. 21; see the code.",
+          "uuid": "4b01d07e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-09-02T19:26:35",
+      "mod": "2015-09-02T19:29:49",
+      "h": 258.826,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "b7c2b294",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-09-02T19:26:35",
+          "mod": "2015-09-02T19:29:49",
+          "lines": [
+            0,
+            58,
+            123,
+            186,
+            239,
+            303,
+            365,
+            424,
+            490,
+            548,
+            609
+          ],
+          "text": "In the long run, this is not adequate: I’ll need a proper ActionStack system that is its own QObject so that it can signal to the rest of the software that changes happened. At least, I think that will be the best way to implement “redo.” Alternatively, Redo could be its own thing, quite separate from the storage system. That doesn’t feel quite OO-kosher, but it might in fact be the best thing. Redo is much more complex than undo, since it can trigger recaching etc. I am currently not familiar enough with the code base to know how to do that most conveniently, but LiveAdjuster should be able to inform me.",
+          "uuid": "f1bed048",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-09-02T19:27:31",
+              "mod": "2015-09-02T19:27:31",
+              "end": 191,
+              "start": 186,
+              "style": 1,
+              "uuid": "f8f2a7cb"
             }
           ]
         }
