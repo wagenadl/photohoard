@@ -189,7 +189,8 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
                           QVariant oldvalue, QVariant newvalue) {
   QDateTime now = QDateTime::currentDateTime();
   query("delete from undo where version==:a and undone==1", versionid);
-  QSqlQuery q = query("select stepid, version, item, oldvalue, newvalue, created"
+  QSqlQuery q = query("select stepid, version,"
+                      " item, oldvalue, newvalue, created"
                       " from undo"
                       " order by stepid desc limit 1");
   if (q.next()) {
