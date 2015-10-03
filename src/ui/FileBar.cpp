@@ -34,13 +34,15 @@ FileBar::FileBar(QWidget *parent): ActionBar(parent) {
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E));
   actions[Action::ExportSelected]
     ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
+  actions[Action::OpenClipboardDialog]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
 
   addAction(actions[Action::ImportFromCamera]);
   addAction(actions[Action::AddFolder]);
   addAction(actions[Action::RescanFolders]);
   addAction(actions[Action::OpenExportDialog]);
-
   addHiddenAction(actions[Action::ExportSelected]);
+  addHiddenAction(actions[Action::OpenClipboardDialog]);
 }
 
 FileBar::~FileBar() {
