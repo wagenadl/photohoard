@@ -53,7 +53,7 @@ protected:
   void selectNearestInFilter(quint64 vsn);
   void toggleSelection(quint64 i);
   void extendOrShrinkSelection(quint64 i);
-  void simpleSelection(quint64 i);
+  void simpleSelection(quint64 i, bool keepIfContained);
   void makeCurrent(quint64 i);
 protected:
   PhotoDB *db;

@@ -284,12 +284,12 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   strips->scene()->update();
 }  
 
-void LightTable::simpleSelection(quint64 i) {
+void LightTable::simpleSelection(quint64 i, bool keep) {
   // Ignore other modifiers for the moment
-  if (i==curr)
+  if (keep && i==curr)
     return;
 
-  if (i>0 && !selection->contains(i)) {
+  if (i>0 && (!selection->contains(i) || !keep)) {
     bool localupdate = true; // if we have just a few in selection, we'll
     // repaint just those slides, otherwise the whole view
     if (selection->count()<=10) {
@@ -365,7 +365,7 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
    } else if (m & Qt::ShiftModifier) {
     extendOrShrinkSelection(i);
   } else {
-    simpleSelection(i);
+    simpleSelection(i, true);
   }
   pDebug() << "select done" << i;
 }    
@@ -481,9 +481,8 @@ void LightTable::selectAll() {
 }
 
 void LightTable::clearSelection() {
-  quint64 c = db->simpleQuery("select * from current").toULongLong();
-  if (c) {
-    select(c);
+  if (curr) {
+    simpleSelection(curr, false);
   } else {
     if (selection->count()<=10) {
       QSet<quint64> ss = selection->current();
