@@ -1,0 +1,59 @@
+Events:  111016              13
+Us: Alexander           53
+People:Others: Amy                 1
+Authors: Author|Elizabeth    16
+Authors: Author|Erin         39
+Authors: Author|Lucas        118
+Authors: Author|Sam          55
+Authors: Author|Steve Potter  3
+Authors: Author|Waldorf      2
+Places: Beach               57
+Alexander:4e Books|Alexander4    119
+Alexander:4e Books|Alexnader4    1
+Alexander:1e Book|Alexander1     159
+Alexander:2e Book|Alexander2     246
+Sam:4e Book|Sam4           153
+Sam:Kleu Book|Samkleuter     240
+* Book|Samkleuternot  1
+Events: Boxes               5
+Places: Central Park        53
+Projects: Chartres            4
+Places: Cottage             118
+Events: Egg hunt            6
+Places: Eiffel tower        6
+People:Others: Elina               1
+Authors:Elizabeth Elizabeth camera    7
+People:Others: Emily               1
+Places: France              63
+Events: Halloween           6
+Places: Home                15
+Places: Hospital            39
+Places: Jardin du Luxembourg  26
+Authors:Jennifer Jennifer camera     74
+Authors:Jennifer Jennifer's camera   48
+People:Others: Joanna              1
+People:Others: Jordan Lopez        1
+People:Others: Jprdan Fleischman   1
+Events: Late 2008           1
+People:Others: Leah                1
+Projects: Local history       8
+People:Others: Logan               1
+People:Others: Madeline            1
+People:Others: Miss Lindsay        1
+Events: Newborn             55
+Places: Notre dame          4
+Events: Perinatal           43
+Places:Pinelab Places|Specific|Us|California|Pasadena|Caltech|Lab  4
+Places:Pasadena Places|Specific|Us|California|Pasadena|Pleasant st|Garden  4
+Sam:2e Projects|Sam 2nd    1
+Events: Raccoon             5
+Us: Sam                 53
+Places: San Pedro           57
+Places: San Rafael          55
+Places: Seven Hills         1
+Places: Tournament Park     1
+* Treatment|Sepia     1
+Places: Waal                694
+Places: Waldorf             13
+Places: Yale                10
+Events: Zomer               59
