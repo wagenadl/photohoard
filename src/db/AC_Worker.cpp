@@ -194,17 +194,17 @@ void AC_Worker::cacheModified(quint64 vsn) {
 }
 
 void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
-  quint64 photo
-    = db.simpleQuery("select photo from versions where id==:a", vsn)
-    .toULongLong();
-
-  QSqlQuery q = db.query("select width, height, orient "
-                          "from photos where id=:a", photo);
+  // siz must be the orientation-corrected size for the given version
+  QSqlQuery q = db.query("select width, height, orient, photos.id"
+			 " from versions"
+			 " inner join photos on versions.photo==photos.id"
+			 " where versions.id==:a", vsn);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   int wid = q.value(0).toInt();
   int hei = q.value(1).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(2).toInt());
+  qulonglong photo = q.value(3).toULongLong();
   PSize fs = Exif::fixOrientation(siz, orient);
   q.finish();
 
@@ -274,8 +274,6 @@ void AC_Worker::processLoaded() {
 }   
 
 void AC_Worker::sendToBank(quint64 vsn) {
-  quint64 photo = db.simpleQuery("select photo from versions"
-                                 " where id==:a", vsn).toULongLong();
   Sliders adjs;
   QSqlQuery q = db.query("select k, v from adjustments where version==:a",
                          vsn);
@@ -283,7 +281,9 @@ void AC_Worker::sendToBank(quint64 vsn) {
     adjs.set(q.value(0).toString(), q.value(1).toDouble());
 
   q = db.query("select folder, filename, filetype, width, height, orient "
-                " from photos where id==:a limit 1", photo);
+	       " from versions"
+	       " inner join photos on versions.photo==photos.id"
+	       " where versions.id==:a limit 1", vsn);
   if (!q.next())
     throw NoResult(__FILE__, __LINE__);
   quint64 folder = q.value(0).toULongLong();

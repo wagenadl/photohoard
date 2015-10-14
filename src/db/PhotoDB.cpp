@@ -5,6 +5,7 @@
 #include "PDebug.h"
 #include "SqlFile.h"
 #include <QFile>
+#include <QDir>
 #include "NoResult.h"
 
 void PhotoDB::open(QString fn) {
@@ -48,6 +49,15 @@ void PhotoDB::create(QString fn) {
   if (f.exists()) {
     pDebug() << "Could not create new PhotoDB: File exists: " << fn;
     throw std::system_error(std::make_error_code(std::errc::file_exists));
+  }
+
+  if (fn.contains("/")) {
+    QString parent = fn.left(fn.lastIndexOf("/"));
+    QDir pdir(parent);
+    if (!pdir.exists()) {
+      pDebug() << "Making path in " << pdir.absolutePath();
+      pdir.mkpath(".");
+    }
   }
 
   Database db;
@@ -105,15 +115,12 @@ QDateTime PhotoDB::captureDate(quint64 p) const {
     .toDateTime();
 }
 
-PhotoDB::PhotoSize PhotoDB::photoSize(quint64 p) const {
+PSize PhotoDB::photoSize(quint64 p) const {
   QSqlQuery q
-    = constQuery("select width, height, orient from photos where id==:a", p);
+    = constQuery("select width, height from photos where id==:a", p);
   if (!q.next())
     throw NoResult();
-  PhotoSize ps;
-  ps.filesize = PSize(q.value(0).toInt(), q.value(1).toInt());
-  ps.orient = Exif::Orientation(q.value(2).toInt());
-  return ps;
+  return PSize(q.value(0).toInt(), q.value(1).toInt());
 }
 
 QString PhotoDB::camera(int id) const {
@@ -147,9 +154,9 @@ QString PhotoDB::lens(int id) const {
 
 PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   VersionRecord vr;
-  QSqlQuery q = constQuery("select photo, "
-                           "starrating, colorlabel, acceptreject "
-                           "from versions where id==:a", id);
+  QSqlQuery q = constQuery("select photo,"
+                           " starrating, colorlabel, acceptreject orient"
+                           " from versions where id==:a", id);
   if (!q.next())
     throw NoResult();
   vr.id = id;
@@ -157,6 +164,7 @@ PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   vr.starrating = q.value(1).toInt();
   vr.colorlabel = ColorLabel(q.value(2).toInt());
   vr.acceptreject = AcceptReject(q.value(3).toInt());
+  vr.orient = Exif::Orientation(q.value(4).toInt());
   return vr;
 }
 
@@ -164,7 +172,7 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
   PhotoRecord pr;
   QSqlQuery q = constQuery("select folder, filename, filetype, width, height,"
                            " camera, lens, exposetime, fnumber, focallength,"
-                           " distance, iso, orient, capturedate"
+                           " distance, iso, capturedate"
                            " from photos where id==:a", id);
   if (!q.next())
     throw NoResult();
@@ -180,8 +188,7 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
   pr.focallength_mm = q.value(9).toDouble();
   pr.distance_m = q.value(10).toDouble();
   pr.iso = q.value(11).toDouble();
-  pr.orient = Exif::Orientation(q.value(12).toInt());
-  pr.capturedate = q.value(13).toDateTime();
+  pr.capturedate = q.value(12).toDateTime();
   return pr;
 }
 

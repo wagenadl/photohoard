@@ -326,10 +326,10 @@ void LightTable::makeCurrent(quint64 i) {
   updateSlide(i);
 
   if (i>0) {
-    QSqlQuery q = db->query("select photos.width, photos.height, photos.orient"
-                           " from photos inner join versions"
-                           " on photos.id=versions.photo"
-                           " where versions.id==:a", i);
+    QSqlQuery q = db->query("select width, height, orient"
+			    " from versions"
+			    " inner join photos on versions.photo==photos.id"
+			    " where versions.id==:a", i);
     if (!q.next()) 
       throw NoResult(__FILE__, __LINE__);
     int w = q.value(0).toInt();

@@ -79,6 +79,7 @@ void Scanner::rescan(QString path) {
 quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   // This is called from inside of thread!
   // Insert into photo table
+  // Many details about the photo will be updated after scanning
   int idx = leaf.lastIndexOf(".");
   QString ext = leaf.mid(idx+1).toLower();
 
@@ -88,11 +89,11 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
 	       parentid, leaf, exts.contains(ext) ? exts[ext]: QVariant());
   quint64 photo = q.lastInsertId().toULongLong();
 
-  // Create first version - this is preliminary code
+  // Create first version
   q = db.query("insert into versions(photo) values(:a)", photo);
   quint64 vsn = q.lastInsertId().toULongLong();
 
-  // we should attach defaulttags!
+  // Attach default tags
   db.query("insert into appliedtags(tag, version)"
            " select tag, :a from defaulttags where folder==:b",
            vsn, parentid);
@@ -421,7 +422,7 @@ void Scanner::scanPhoto(quint64 id) {
   // Now lensid is valid unless lens is empty
 
   q.prepare("update photos set "
-            " width=:w, height=:h, camera=:c, lens=:l, orient=:or, "
+            " width=:w, height=:h, camera=:c, lens=:l, "
             " exposetime=:e, fnumber=:f, focallength=:fl, "
             " distance=:d, iso=:iso, capturedate=:cd, "
             " lastscan=:ls where id==:id");
@@ -429,7 +430,7 @@ void Scanner::scanPhoto(quint64 id) {
   q.bindValue(":h", exif.height());
   q.bindValue(":c", model.isEmpty() ? QVariant() : QVariant(camid));
   q.bindValue(":l", lens.isEmpty() ? QVariant() : QVariant(lensid));
-  q.bindValue(":or", int(exif.orientation()));
+  //  q.bindValue(":or", int(exif.orientation()));
   q.bindValue(":e", exif.exposureTime_s());
   q.bindValue(":f", exif.fNumber());
   q.bindValue(":fl", exif.focalLength_mm());
@@ -440,6 +441,9 @@ void Scanner::scanPhoto(quint64 id) {
   q.bindValue(":id", id);
   if (!q.exec())
     throw q;
+
+  db.query("update versions set orient=:a where photo==:b",
+	   int(exif.orientation()), id);
 
 #if 0
   QList<PSize> pvsiz = exif.previewSizes();

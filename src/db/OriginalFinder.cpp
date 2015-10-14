@@ -27,10 +27,10 @@ void OriginalFinder::requestOriginal(quint64 version) {
 
 PSize OriginalFinder::originalSize(quint64 vsn) {
   try {
-    quint64 photo = db->simpleQuery("select photo from versions"
-				   " where id=:a limit 1", vsn).toULongLong();
-    QSqlQuery q = db->query("select width, height, orient "
-               " from photos where id=:a limit 1", photo);
+    QSqlQuery q = db->query("select width, height, orient"
+			    " from versions"
+			    " inner join photos on versions.photo==photos.id"
+			    " where versions.id==:a limit 1", vsn);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
     PSize s(q.value(0).toInt(), q.value(1).toInt());
@@ -45,11 +45,11 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   pDebug() << "requestScaledOriginal " << vsn << ds;
   try {
-    quint64 photo = db->simpleQuery("select photo from versions"
-				   " where id=:a limit 1", vsn).toULongLong();
     QSqlQuery q
       = db->query("select folder, filename, filetype, width, height, orient "
-		 " from photos where id=:a limit 1", photo);
+		  " from versions"
+		  " inner join photos on versions.photo==photos.id"
+		  " where versions.id=:a limit 1", vsn);
     if (!q.next())
       throw NoResult(__FILE__, __LINE__);
     quint64 folder = q.value(0).toULongLong();
