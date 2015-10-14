@@ -22,6 +22,7 @@ public:
     int starrating;
     ColorLabel colorlabel;
     AcceptReject acceptreject;
+    Exif::Orientation orient;
   };
   struct PhotoRecord {
     quint64 id;
@@ -36,12 +37,7 @@ public:
     double focallength_mm;
     double distance_m;
     double iso;
-    Exif::Orientation orient;
     QDateTime capturedate;
-  };
-  struct PhotoSize {
-    PSize filesize;
-    Exif::Orientation orient;
   };
 public:
   PhotoDB(QString id=""): Database(id) { }
@@ -53,7 +49,7 @@ public: // information about photos and versions
   QDateTime captureDate(quint64 photoid) const;
   QString ftype(int filetypeid) const;
   PhotoRecord photoRecord(quint64 photoid) const;
-  PhotoSize photoSize(quint64 photoid) const;
+  PSize photoSize(quint64 photoid) const; // size from file, not orientation corrected
   VersionRecord versionRecord(quint64 versionid) const;
   QString make(int cameraid) const;
   QString camera(int cameraid) const; // i.e., make and model

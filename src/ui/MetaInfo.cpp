@@ -73,7 +73,7 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
       camlens += " at " + len + " mm";
   }
   txt += QString("%1<br>").arg(camlens);
-  PSize photosize = Exif::fixOrientation(prec.filesize, prec.orient);
+  PSize photosize = Exif::fixOrientation(prec.filesize, vrec.orient);
   QString rat = ratio(photosize.width(), photosize.height());
   if (!rat.isEmpty())
     rat = ", " + rat;

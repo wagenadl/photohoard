@@ -73,7 +73,6 @@ create table photos (
        focallength real,
        distance real,
        iso real,
-       orient integer,
        capturedate date,
        lastscan date,
        -- what else from exif?
@@ -89,6 +88,7 @@ create table versions (
 -- Table of derived versions of photographs
        id integer primary key,
        photo integer,
+       orient integer,
        starrating integer default 0,
        colorlabel integer default 0,
        acceptreject integer default 0,
