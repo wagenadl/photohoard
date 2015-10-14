@@ -27,7 +27,6 @@ signals:
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void idealSizeChanged(); // only emitted if caused by key press
-  void typedColorLabel(ColorLabelBar::Action);
 public slots:
   void toggleOrganization();
   void scrollTo(quint64);

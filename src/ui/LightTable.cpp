@@ -58,14 +58,10 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
 	  this, SLOT(slidePress(quint64,
                                 Qt::MouseButton, Qt::KeyboardModifiers)));
   connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
-  connect(strips, SIGNAL(typedColorLabel(ColorLabelBar::Action)),
-          SLOT(setColorLabel(ColorLabelBar::Action)));
   connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
-  connect(slide, SIGNAL(typedColorLabel(ColorLabelBar::Action)),
-          SLOT(setColorLabel(ColorLabelBar::Action)));
   connect(slide, SIGNAL(needLargerImage()),
 	  this, SLOT(requestLargerImage()));
   connect(slide, SIGNAL(newSize(QSize)),
