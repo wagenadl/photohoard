@@ -126,9 +126,13 @@ void SlideView::wheelEvent(QWheelEvent *e) {
 void SlideView::keyPressEvent(QKeyEvent *e) {
   bool alt = e->modifiers() & Qt::AltModifier;
   bool shift = e->modifiers() & Qt::ShiftModifier;
+  bool ctrl = e->modifiers() & Qt::ControlModifier;
   switch (e->key()) {
   case Qt::Key_0:
-    scaleToFit();
+    if (ctrl)
+      emit typedColorLabel(ColorLabelBar::Action::SetNone);
+    else
+      scaleToFit();
     break;
   case Qt::Key_Minus: case Qt::Key_Underscore:
     changeZoomLevel(QPoint(), shift ? -1 : alt ? -.125 : -0.5, true);
@@ -137,7 +141,26 @@ void SlideView::keyPressEvent(QKeyEvent *e) {
     changeZoomLevel(QPoint(), shift ? 1 : alt ? .125 : 0.5, true);
     break;
   case Qt::Key_1:
-    setZoom(1);
+    if (ctrl)
+      emit typedColorLabel(ColorLabelBar::Action::SetRed);
+    else
+      setZoom(1);
+  case Qt::Key_2:
+    if (ctrl)
+      emit typedColorLabel(ColorLabelBar::Action::SetYellow);
+    break;
+  case Qt::Key_3:
+    if (ctrl)
+      emit typedColorLabel(ColorLabelBar::Action::SetGreen);
+    break;
+  case Qt::Key_4:
+    if (ctrl)
+      emit typedColorLabel(ColorLabelBar::Action::SetBlue);
+    break;
+  case Qt::Key_5:
+    if (ctrl)
+      emit typedColorLabel(ColorLabelBar::Action::SetPurple);
+    break;
     break;
   }
 }

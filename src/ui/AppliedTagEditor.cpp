@@ -17,6 +17,7 @@ AppliedTagEditor::AppliedTagEditor(PhotoDB *db, QWidget *parent):
   cursorpos = 0;
   selend = -1;
   setAutoFillBackground(true);
+  setToolTip("Type a tag to apply.\nHierarchical tags can be specified with min:uniq:abbrev, or even min::abbr.\nTag is shown green if it exists and is uniquely defined; black if it exists but is not unique; red if it does not exist.");
 }
 
 QString AppliedTagEditor::text() const {
