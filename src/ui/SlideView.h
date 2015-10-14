@@ -28,7 +28,6 @@ signals:
   void doubleClicked();
   void newSize(QSize);
   void newZoom(double);
-  void typedColorLabel(ColorLabelBar::Action);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;
