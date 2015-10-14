@@ -6,34 +6,32 @@
 #include <QLabel>
 #include <QRadioButton>
 #include <QPainter>
+#include <QDebug>
 
 ControlGroup::ControlGroup(QString l, QWidget *p): QFrame(p) {
-  my_lay = new QVBoxLayout(this);
+  my_lay = new QVBoxLayout;
   my_lay->setContentsMargins(7, 0, 7, 0);
 
-  exp_w = new QWidget();
-  exp_lay = new QVBoxLayout(exp_w);
+  exp_w = new QWidget;
+  exp_lay = new QVBoxLayout;
   exp_lay->setContentsMargins(0, 1, 0, 1);
+  exp_w->setLayout(exp_lay);
   my_lay->addWidget(exp_w);
 
-  col_w = new QWidget();
-  col_lay = new QHBoxLayout(col_w);
+  col_w = new QWidget;
+  col_lay = new QHBoxLayout;
   col_lay->setContentsMargins(0, 0, 0, 0);
-  my_lay->addWidget(col_w);
 
-  hdr = new QLabel();
+  hdr = new QLabel;
   col_lay->addStretch(1);
   col_lay->addWidget(hdr);
   col_lay->addStretch(1);
-  //  expander = new QRadioButton("");
-  //  expander->setFocusPolicy(Qt::NoFocus);
-  //  col_lay->addWidget(expander);
+  col_w->setLayout(col_lay);
+  my_lay->addWidget(col_w);
+  setLayout(my_lay);
 
   setLabel(l);
   collapse();
-
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-  //  connect(expander, SIGNAL(clicked()), SLOT(expand()));
 }
 
 ControlGroup::~ControlGroup() {
@@ -47,11 +45,21 @@ void ControlGroup::expand() {
   //  expander->setChecked(false);
   exp_w->show();
   col_w->hide();
+  /* Somehow, this doesn't work
+  updateGeometry();
+  if (parentWidget())
+    parentWidget()->updateGeometry();
+  */
 }
 
 void ControlGroup::collapse() {
   exp_w->hide();
   col_w->show();
+  /* Somehow, this doesn't work
+  updateGeometry();
+  if (parentWidget())
+    parentWidget()->updateGeometry();
+  */
 }
 
 void ControlGroup::paintEvent(QPaintEvent *) {
@@ -97,3 +105,4 @@ void ControlGroup::addWidget(QWidget *w) {
 void ControlGroup::addLayout(QLayout *w) {
   exp_lay->addLayout(w);
 }
+

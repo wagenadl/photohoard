@@ -11,7 +11,32 @@
 #include "Sliders.h"
 #include <limits>
 #include <QScrollBar>
+#include <QEvent>
 #include "SliderGroups.h"
+
+//////////////////////////////////////////////////////////////////////
+class OneWayScroll: public QWidget {
+public:
+  OneWayScroll(QWidget *parent=0): QWidget(parent) {}
+  virtual ~OneWayScroll() {}
+  virtual QSize sizeHint() const {
+    QSize s = QWidget::sizeHint();
+    qDebug() << "OWS: s0=" << s;
+    if (parentWidget())
+      s.setWidth(parentWidget()->width());
+    qDebug() << "     s=" << s << size() << pos() << isVisible();
+    return s;
+  }
+protected:
+  virtual bool event(QEvent *e) {
+    bool r = QWidget::event(e);
+    if (e->type()==QEvent::LayoutRequest) {
+      resize(sizeHint());
+    }
+    return r;
+  }
+};
+//////////////////////////////////////////////////////////////////////
 
 AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
@@ -23,7 +48,7 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
 
   SliderGroups sg;
 
-  QWidget *w = new QWidget(this);
+  QWidget *w = new OneWayScroll;
   setWidget(w);
 
   QVBoxLayout *vl = new QVBoxLayout;
@@ -76,11 +101,13 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   w->setLayout(vl);
   w->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
+  /*
   for (auto cg: groups)
     cg->expand();
+  */
 
-  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  w->resize(w->sizeHint());
 }
 
 AllControls::~AllControls() {
@@ -136,17 +163,17 @@ void AllControls::valueChange(QString name) {
 
 void AllControls::resizeEvent(QResizeEvent *e) {
   QScrollArea::resizeEvent(e);
-  QWidget *vp = viewport();
-  QWidget *wdg = widget();
-  if (vp && wdg) {
-    int h = wdg->sizeHint().height();
-    int w = vp->width(); // - verticalScrollBar()->width();
-    wdg->resize(w, h);
-  }
+///  QWidget *vp = viewport();
+///  QWidget *wdg = widget();
+///  if (vp && wdg) {
+///    int h = wdg->sizeHint().height();
+///    qDebug() << "AC:" << h;
+///    int w = vp->width(); // - verticalScrollBar()->width();
+///    wdg->resize(w, h);
+///  }
 }
 
 QSize AllControls::sizeHint() const {
-  pDebug() << "AC::sizeHint" << (void*)this;
   QWidget *vp = viewport();
   QWidget *wdg = widget();
   if (vp && wdg)
