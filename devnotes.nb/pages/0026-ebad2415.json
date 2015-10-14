@@ -1,0 +1,94 @@
+{ "typ": "page",
+  "cre": "2015-10-14T18:38:32",
+  "mod": "2015-10-14T18:39:54",
+  "stampTime": 0,
+  "startPage": 26,
+  "unlocked": false,
+  "uuid": "ebad2415",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-10-14T18:38:32",
+      "mod": "2015-10-14T18:38:38",
+      "uuid": "a1423051",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-14T18:38:32",
+          "mod": "2015-10-14T18:38:38",
+          "lines": [
+            0
+          ],
+          "text": "Orientations",
+          "uuid": "042831b5"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-10-14T18:38:32",
+      "mod": "2015-10-14T18:38:32",
+      "uuid": "738d2f7c"
+    },
+    { "typ": "textblock",
+      "cre": "2015-10-14T18:38:38",
+      "mod": "2015-10-14T18:39:36",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e16d7946",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-14T18:38:38",
+          "mod": "2015-10-14T18:39:36",
+          "lines": [
+            0,
+            61,
+            123
+          ],
+          "text": "I’d like to make Ctrl+< and Ctrl+> change image orientation. But I found that “orient” was a field of “photos” rather than “versions”. Fortunately, changing that was surprisingly easy. ",
+          "uuid": "4242f9a4"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-10-14T18:38:38",
+      "mod": "2015-10-14T18:39:52",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e16d7946",
+      "y0": 145.498,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-14T18:38:38",
+          "mod": "2015-10-14T18:39:52",
+          "lines": [
+            0,
+            58
+          ],
+          "text": "Of course now I have to alter my tables on my db at home, which is a pain, since sqlite does not support “drop column”.",
+          "uuid": "4242f9a4"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-10-14T18:39:54",
+      "mod": "2015-10-14T18:39:54",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "24b74798",
+      "y0": 195.83,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-14T18:39:54",
+          "mod": "2015-10-14T18:39:54",
+          "text": "",
+          "uuid": "a4b89414"
+        }
+      ]
+    }
+  ]
+}

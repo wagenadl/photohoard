@@ -1,0 +1,54 @@
+{ "typ": "page",
+  "cre": "2015-10-14T18:37:24",
+  "mod": "2015-10-14T18:38:23",
+  "stampTime": 0,
+  "startPage": 25,
+  "unlocked": false,
+  "uuid": "16f7c1e7",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-10-14T18:37:24",
+      "mod": "2015-10-14T18:37:46",
+      "uuid": "556e5825",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-14T18:37:24",
+          "mod": "2015-10-14T18:37:46",
+          "lines": [
+            0
+          ],
+          "text": "Keyboard shortcuts",
+          "uuid": "9b1f0a50"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-10-14T18:37:24",
+      "mod": "2015-10-14T18:37:24",
+      "uuid": "dc84cc2e"
+    },
+    { "typ": "textblock",
+      "cre": "2015-10-14T18:37:29",
+      "mod": "2015-10-14T18:38:23",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c53ef5ac",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-14T18:37:29",
+          "mod": "2015-10-14T18:38:23",
+          "lines": [
+            0,
+            64,
+            127
+          ],
+          "text": "I changed the keys for setting color labels to Ctrl+0 to Ctrl+5 rather than plain 0 through 5. The issue is that QActions grab keys even when an input widget would like them.",
+          "uuid": "77051329"
+        }
+      ]
+    }
+  ]
+}
