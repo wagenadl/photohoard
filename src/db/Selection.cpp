@@ -48,7 +48,7 @@ void Selection::clear() {
 
 void Selection::selectAll() {
   Untransaction t(db);
-  db->query("insert into M.selection (select version from filter)");
+  db->query("insert into M.selection select version from filter");
 }
 
 bool Selection::contains(quint64 vsn) {

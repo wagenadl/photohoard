@@ -6,6 +6,7 @@
 
 #include <QLabel>
 #include "Image16.h"
+#include "ColorLabelBar.h"
 
 class SlideView: public QFrame {
   Q_OBJECT;
@@ -27,6 +28,7 @@ signals:
   void doubleClicked();
   void newSize(QSize);
   void newZoom(double);
+  void typedColorLabel(ColorLabelBar::Action);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

@@ -247,6 +247,24 @@ void StripView::keyPressEvent(QKeyEvent *e) {
       emit pressed(v, Qt::LeftButton, 0); // bit of a hack
     e->accept();
   } break;
+  case Qt::Key_0: 
+    emit typedColorLabel(ColorLabelBar::Action::SetNone);
+    break;
+  case Qt::Key_1:
+    emit typedColorLabel(ColorLabelBar::Action::SetRed);
+    break;
+  case Qt::Key_2:
+    emit typedColorLabel(ColorLabelBar::Action::SetYellow);
+    break;
+  case Qt::Key_3:
+    emit typedColorLabel(ColorLabelBar::Action::SetGreen);
+    break;
+  case Qt::Key_4:
+    emit typedColorLabel(ColorLabelBar::Action::SetBlue);
+    break;
+  case Qt::Key_5:
+    emit typedColorLabel(ColorLabelBar::Action::SetPurple);
+    break;
   default:
     QGraphicsView::keyPressEvent(e);
     break;
