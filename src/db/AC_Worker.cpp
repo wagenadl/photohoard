@@ -294,6 +294,7 @@ void AC_Worker::sendToBank(quint64 vsn) {
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
+  qDebug() << "AC_Worker" << vsn << fn << wid << hei << orient << osize;
   QString path = db.folder(folder) + "/" + fn;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(vsn,
