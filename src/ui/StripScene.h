@@ -21,6 +21,7 @@ public:
   void dropHeaderFor(quint64, class Strip *);
 public slots:
   void updateImage(quint64, Image16);
+  void quickRotate(quint64, int dphi);
 signals:
   void pressed(Qt::MouseButton, Qt::KeyboardModifiers);
 protected:

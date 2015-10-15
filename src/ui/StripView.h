@@ -35,6 +35,7 @@ public slots:
   void setTileSize(int pix);
   void setArrangement(Strip::Arrangement);
   void updateImage(quint64, Image16);
+  void quickRotate(quint64, int dphi);
   void rescan();
 protected:
   virtual void resizeEvent(QResizeEvent *) override;

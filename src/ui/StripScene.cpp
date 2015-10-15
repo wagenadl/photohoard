@@ -36,6 +36,13 @@ void StripScene::updateImage(quint64 id, Image16 img) {
     s->updateHeader(img);
 }
 
+void StripScene::quickRotate(quint64 id, int dphi) {
+  if (slidemap.contains(id))
+    slidemap[id]->quickRotate(dphi);
+  for (auto s: headermap.values(id))
+    s->updateHeaderRotation(dphi);
+}
+
 
 void StripScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (itemAt(e->scenePos(), QTransform())==0)

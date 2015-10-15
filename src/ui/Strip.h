@@ -62,6 +62,7 @@ public slots:
   void rescan();
   void updateImage(quint64, Image16);
   void updateHeader(Image16);
+  void updateHeaderRotation(int dphi);
   void setTimeRange(QDateTime t0, TimeScale scl);
   void setFolder(QString pathname);
   void setDisplayName(QString leaf);
