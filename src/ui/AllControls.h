@@ -28,8 +28,6 @@ public slots:
 protected slots:
   void goNext(QString);
   void goPrevious(QString);
-protected:
-  virtual void resizeEvent(QResizeEvent *) override;
 private slots:
   void valueChange(QString name);
 private:
