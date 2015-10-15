@@ -51,10 +51,8 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_Escape:
     clearFocus();
     reset();
-    pDebug() << "ATE: Escape";
     break;
   case Qt::Key_Return: case Qt::Key_Enter:
-    pDebug() << "ATE: Return" << text();
     emit returnPressed();
     break;
   case Qt::Key_Left:
@@ -161,7 +159,6 @@ void AppliedTagEditor::keyPressEvent(QKeyEvent *e) {
     break;
   }
 
-  pDebug() << "ATE: " << take << t;
   if (!take && !t.isEmpty()) {
     deleteSelection();
     txt = txt.left(cursorpos) + t + txt.mid(cursorpos);
