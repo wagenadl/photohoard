@@ -34,9 +34,37 @@ void Slide::updateImage(Image16 const &img1) {
       img = CMS::monitorTransform.apply(img1);
     else
       img = img1;
+    pDebug() << "updated strip slide" << id << img.size();
     update();
+  } else {
+    img = Image16(); // Isn't that right?
   }
 }
+
+void Slide::quickRotate(int dphi) {
+  dphi = dphi & 3;
+  qDebug() << "slide::quickrotate" << id << dphi << pm.size();
+  if (dphi==0 || pm.isNull())
+    return;
+  
+  Image16 im = Image16(pm.toImage());
+  switch (dphi) {
+  case 0:
+    break;
+  case 1:
+    im.rotate90CW();
+    break;
+  case 2:
+    im.rotate180();
+    break;
+  case 3:
+    im.rotate90CCW();
+  }
+  pm = QPixmap::fromImage(im.toQImage());
+  pDebug() << "rotated strip slide" << id << pm.size();
+  update();
+}
+      
 
 void Slide::setTileSize(int pix) {
   tilesize = pix;
@@ -85,6 +113,7 @@ void Slide::paint(QPainter *painter,
   
   int ims = tilesize - 8;
   if (!(pm.width()==ims || pm.height()==ims)) {
+    qDebug() << "slide: cannot use pm" << id << pm.size();
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
       painter->setBrush(QBrush(QColor(0, 0, 0)));

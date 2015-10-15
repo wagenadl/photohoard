@@ -691,6 +691,24 @@ void Strip::updateHeader(Image16 img) {
   update();
 }
 
+void Strip::updateHeaderRotation(int dphi) {
+  dphi = dphi & 3;
+  switch (dphi) {
+  case 0:
+    break;
+  case 1:
+    headerimg.rotate90CCW();
+    break;
+  case 2:
+    headerimg.rotate180();
+    break;
+  case 3:
+    headerimg.rotate90CW();
+    break;
+  }
+  update();
+}
+
 void Strip::requestImage(quint64 id) {
   emit needImage(id, PSize(tilesize, tilesize));
 }

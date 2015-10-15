@@ -68,6 +68,8 @@ MainWindow::MainWindow(PhotoDB *db,
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));
+  connect(lightTable, SIGNAL(recacheReoriented(QSet<quint64>)),
+	  autocache, SLOT(recache(QSet<quint64>)));
   connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
           SLOT(updateImage(quint64, QSize, Image16)));
   connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
@@ -78,7 +80,7 @@ MainWindow::MainWindow(PhotoDB *db,
   connect(fileBar, SIGNAL(triggered(FileBar::Action)),
 	  SLOT(fileAction(FileBar::Action)));
   connect(colorLabelBar, SIGNAL(triggered(ColorLabelBar::Action)),
-	  lightTable, SLOT(setColorLabel(ColorLabelBar::Action)));
+	  lightTable, SLOT(setColorLabelEtc(ColorLabelBar::Action)));
   connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
 	  lightTable, SLOT(filterAction(FilterBar::Action)));
   autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));

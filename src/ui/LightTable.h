@@ -28,12 +28,13 @@ public slots:
   void select(quint64 id, Qt::KeyboardModifiers=Qt::NoModifier);
   void updateImage(quint64, Image16);
   void rescan(bool rebuildFilter=true);
-  void setColorLabel(ColorLabelBar::Action);
+  void setColorLabelEtc(ColorLabelBar::Action);
   void filterAction(FilterBar::Action);
   void clearSelection();
   void selectAll();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
+  void rotateSelected(int); // in steps of 90 degrees
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);
@@ -41,6 +42,7 @@ signals:
   void newZoom(double);
   void newSelection();
   void newCollection(QString);
+  void recacheReoriented(QSet<quint64>);
 private slots:
   void requestLargerImage();
   void updateAdjusted(Image16, quint64);

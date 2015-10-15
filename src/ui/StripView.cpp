@@ -153,6 +153,10 @@ void StripView::updateImage(quint64 id, Image16 img) {
   scene()->updateImage(id, img);
 }
 
+void StripView::quickRotate(quint64 id, int dphi) {
+  scene()->quickRotate(id, dphi);
+}
+
 void StripView::rescan() {
   dateStrip->rescan();
 }

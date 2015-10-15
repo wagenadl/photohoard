@@ -8,6 +8,7 @@
 #include "PSize.h"
 #include "PDebug.h"
 #include "CMS.h"
+#include "Exif.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
@@ -267,3 +268,4 @@ void SlideView::paintEvent(QPaintEvent *) {
 void SlideView::enterEvent(QEvent *) {
   setFocus();
 }
+

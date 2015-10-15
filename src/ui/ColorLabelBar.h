@@ -10,12 +10,23 @@ class ColorLabelBar: public ActionBar {
   Q_OBJECT;
 public:
   enum class Action {
-    SetNone=0,
+    SetNoColor=0, // order must match PhotoDB::ColorLabel
       SetRed,
       SetYellow,
       SetGreen,
       SetBlue,
       SetPurple,
+      Set0Stars, // order must be 0..5
+      Set1Star,
+      Set2Stars,
+      Set3Stars,
+      Set4Stars,
+      Set5Stars,
+      SetUndecided, // order must match PhotoDB::AcceptReject
+      SetAccept,
+      SetReject,
+      RotateLeft,
+      RotateRight,
       N
       };
 public:
