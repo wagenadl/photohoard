@@ -9,6 +9,7 @@
 #include "Exif.h"
 #include "NoResult.h"
 #include "Tags.h"
+#include "Here.h"
 
 Scanner::Scanner(PhotoDB *db0): db0(db0) {
   setObjectName("Scanner");
@@ -183,27 +184,27 @@ void Scanner::run() {
       }
     }
   } catch (QSqlQuery &q) {
-    qDebug() << "Scanner: SqlError: " << q.lastError().text();
+    qDebug() << HERE + "SqlError: " << q.lastError().text();
     qDebug() << "  from " << q.lastQuery();
     QMap<QString,QVariant> vv = q.boundValues();
     for (auto it=vv.begin(); it!=vv.end(); ++it) 
       qDebug() << "    " << it.key() << ": " << it.value();
     qDebug() << "  Thread terminating";
-    emit exception("Scanner: SqlError: " + q.lastError().text()
+    emit exception(HERE + "SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
   } catch (std::system_error &e) {
-    qDebug() << "Scanner: System error: "
+    qDebug() << HERE + "System error: "
 	     << e.code().value() << e.code().message().c_str();
     qDebug() << "  Thread terminating";
-    emit exception("Scanner: System error");
+    emit exception(HERE + "System error");
   } catch (NoResult) {
-    qDebug() << "Scanner: Expected object not found in table.";
+    qDebug() << HERE + "Expected object not found in table.";
     qDebug() << "  Thread terminating";
-    emit exception("Scanner: No result");
+    emit exception(HERE + "No result");
   } catch (...) {
-    qDebug() << "Scanner: Unknown exception";
+    qDebug() << HERE + "Unknown exception";
     qDebug() << "  Thread terminating";
-    emit exception("Scanner: Unknown exception");
+    emit exception(HERE + "Unknown exception");
   }
   pDebug() << "Scanner end of run";
 }
