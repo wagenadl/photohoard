@@ -1,0 +1,477 @@
+{ "typ": "page",
+  "cre": "2015-11-21T07:00:07",
+  "mod": "2015-11-21T07:23:24",
+  "cui": "ab033d674f267988",
+  "stampTime": 0,
+  "startPage": 29,
+  "unlocked": false,
+  "uuid": "8996173b",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-11-21T07:00:07",
+      "mod": "2015-11-21T07:00:14",
+      "uuid": "4afe5b88",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:00:07",
+          "mod": "2015-11-21T07:00:14",
+          "lines": [
+            0
+          ],
+          "text": "Rethinking Photohoard’s information flow",
+          "uuid": "340a6ad7"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-11-21T07:00:07",
+      "mod": "2015-11-21T07:00:07",
+      "uuid": "8d5410f6"
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:00:14",
+      "mod": "2015-11-21T07:01:44",
+      "h": 142.996,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "eb9fb9d4",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:00:14",
+          "mod": "2015-11-21T07:01:44",
+          "lines": [
+            0,
+            61,
+            123,
+            182,
+            235,
+            292
+          ],
+          "text": "I have noticed many times that Photohoard (and ELN, for that matter) is often very slow because updates (of various kinds) get done more than once. Likely because updating one thing triggers an update of another thing, and this causes avalanches. Rethinking information flow in Photohoard is urgently needed. (And perhaps later on in ELN as well.)",
+          "uuid": "14dd1fbc"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:01:44",
+      "mod": "2015-11-21T07:03:32",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "1a3e0678",
+      "y0": 214.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:01:44",
+          "mod": "2015-11-21T07:03:32",
+          "lines": [
+            0,
+            64,
+            123,
+            187,
+            246
+          ],
+          "text": "The first step is to come up with a good list of all the things that the user interface may want to do, and that therefore need to be supported efficiently by the infrastructure. Really, information is the critical notion, I think. I may have to reconceptualize this a little bit more, but let’s just start:",
+          "uuid": "0b6b95b6",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-11-21T07:03:06",
+              "mod": "2015-11-21T07:03:06",
+              "end": 198,
+              "start": 187,
+              "style": 1,
+              "uuid": "f0c03123"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:03:32",
+      "mod": "2015-11-21T07:05:07",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e67d8977",
+      "y0": 334.826,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:03:32",
+          "mod": "2015-11-21T07:03:43",
+          "lines": [
+            0
+          ],
+          "text": "– Scanner discovers a new photo",
+          "uuid": "3a9093f4"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:03:56",
+      "mod": "2015-11-21T07:05:12",
+      "h": 19.147,
+      "ind": 2,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a1acd74b",
+      "y0": 361.992,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:03:56",
+          "mod": "2015-11-21T07:04:36",
+          "lines": [
+            0
+          ],
+          "text": "Immediate response: It creates a photo entry and a version entry.",
+          "uuid": "9d3858fd",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-11-21T07:04:14",
+              "mod": "2015-11-21T07:04:14",
+              "end": 38,
+              "start": 33,
+              "style": 1,
+              "uuid": "73165715"
+            },
+            { "typ": "markup",
+              "cre": "2015-11-21T07:04:18",
+              "mod": "2015-11-21T07:04:18",
+              "end": 58,
+              "start": 51,
+              "style": 1,
+              "uuid": "ef8446c5"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:04:38",
+      "mod": "2015-11-21T07:09:23",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f714bee9",
+      "y0": 381.139,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:04:38",
+          "mod": "2015-11-21T07:09:23",
+          "lines": [
+            0,
+            65
+          ],
+          "text": "Who needs to know: AutoCache needs to (eventually) store the new version; StripView may need to create a new thumbnail for it.",
+          "uuid": "ae97c32f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:06:11",
+      "mod": "2015-11-21T07:06:27",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "1f7627ee",
+      "y0": 418.106,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:06:11",
+          "mod": "2015-11-21T07:06:27",
+          "lines": [
+            0
+          ],
+          "text": "– StripView or SlideView wants to display a version",
+          "uuid": "f6b6473d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:06:32",
+      "mod": "2015-11-21T07:08:24",
+      "h": 54.787,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0b3d3a56",
+      "y0": 445.272,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:06:32",
+          "mod": "2015-11-21T07:08:24",
+          "lines": [
+            0,
+            63,
+            89
+          ],
+          "text": "Immediate response: They will ask the AutoCache to signal when the version is available.\nEventually, the AutoCache will send out a signal.",
+          "uuid": "091d2348"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:07:35",
+      "mod": "2015-11-21T07:07:47",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a8bf7c7c",
+      "y0": 500.059,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:07:35",
+          "mod": "2015-11-21T07:07:47",
+          "lines": [
+            0
+          ],
+          "text": "– SlideView has modified a version",
+          "uuid": "174d5e63"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:07:53",
+      "mod": "2015-11-21T07:09:18",
+      "h": 72.607,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "95b63364",
+      "y0": 527.225,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:07:53",
+          "mod": "2015-11-21T07:09:18",
+          "lines": [
+            0,
+            65,
+            74,
+            127
+          ],
+          "text": "Immediate response: It will offer the new image to AutoCache for storage.\nWho needs to know: StripView may need to refresh the corresponding thumbnail.",
+          "uuid": "01f09811"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:09:32",
+      "mod": "2015-11-21T07:09:58",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d09567f4",
+      "y0": 599.832,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:09:32",
+          "mod": "2015-11-21T07:09:58",
+          "lines": [
+            0
+          ],
+          "text": "– Exporter wants to export a version",
+          "uuid": "7bba4a78"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:10:23",
+      "mod": "2015-11-21T07:11:22",
+      "h": 72.607,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "48524316",
+      "y0": 626.998,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:10:23",
+          "mod": "2015-11-21T07:11:22",
+          "lines": [
+            0,
+            67,
+            78,
+            142
+          ],
+          "text": "Immediate response: The original image should be loaded, adjusted, and saved.\nWho needs to know: Nobody. Exporter does not typically interact with the cache, because it usually needs top quality images.",
+          "uuid": "f2e62119"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:11:30",
+      "mod": "2015-11-21T07:11:49",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "f1dffccd",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:11:30",
+          "mod": "2015-11-21T07:11:49",
+          "lines": [
+            0,
+            57
+          ],
+          "text": "It really sounds rather straightforward. But it does not appear to work out that way.",
+          "uuid": "5b3c5852"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:12:36",
+      "mod": "2015-11-21T07:13:35",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "5145bc2d",
+      "y0": 122.332,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:12:36",
+          "mod": "2015-11-21T07:13:35",
+          "lines": [
+            0,
+            64
+          ],
+          "text": "I think it could be simplified, though. First of all, I need to get rid of the “needLargerImage” phenomenon.",
+          "uuid": "da0d9c46",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-11-21T07:12:39",
+              "mod": "2015-11-21T07:12:39",
+              "end": 16,
+              "start": 11,
+              "style": 1,
+              "uuid": "58e8ee8c"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:13:39",
+      "mod": "2015-11-21T07:17:35",
+      "h": 212.494,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "8149acbf",
+      "y0": 172.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:13:39",
+          "mod": "2015-11-21T07:17:35",
+          "lines": [
+            0,
+            60,
+            118,
+            179,
+            238,
+            300,
+            355,
+            411,
+            473
+          ],
+          "text": "At AutoCache level, all requests for a given version should be collapsed to the largest size. AutoCache should have a single “available” signal that sends out an image and a this-represents-a-change flag. The SlideView can then choose to use the offered image if t doesn’t currently have anything to show. The offered image being new is not an excuse for SlideView to update it, because it probably caused that renewal. To be sure, instead of a flag, each renewal could be given a positive ID.",
+          "uuid": "c40792f9",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-11-21T07:16:38",
+              "mod": "2015-11-21T07:16:38",
+              "end": 340,
+              "start": 337,
+              "style": 1,
+              "uuid": "5c4d65e5"
+            },
+            { "typ": "markup",
+              "cre": "2015-11-21T07:16:52",
+              "mod": "2015-11-21T07:16:52",
+              "end": 405,
+              "start": 399,
+              "style": 1,
+              "uuid": "b98d93b4"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:17:58",
+      "mod": "2015-11-21T07:18:24",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "94452a14",
+      "y0": 385.158,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:17:58",
+          "mod": "2015-11-21T07:18:24",
+          "lines": [
+            0,
+            58,
+            123
+          ],
+          "text": "The SlideView should not try to get a larger image out of the cache than what is being offered. Instead, it should rely on its LiveAdjuster for that.",
+          "uuid": "7492b0bb",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-11-21T07:18:02",
+              "mod": "2015-11-21T07:18:02",
+              "end": 24,
+              "start": 21,
+              "style": 1,
+              "uuid": "fa7ce83c"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-11-21T07:22:45",
+      "mod": "2015-11-21T07:23:24",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "ed9e2e19",
+      "y0": 458.656,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-11-21T07:22:45",
+          "mod": "2015-11-21T07:23:24",
+          "lines": [
+            0,
+            58,
+            121,
+            180
+          ],
+          "text": "I just discovered that I don’t have the latest version of AutoCache here; it must be at home. I need to ask Jennifer for help, because I am pretty sure I made some bugfixes when I documented it.",
+          "uuid": "ee5e8aeb",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-11-21T07:22:59",
+              "mod": "2015-11-21T07:22:59",
+              "end": 67,
+              "start": 58,
+              "style": 1,
+              "uuid": "d765a3c0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

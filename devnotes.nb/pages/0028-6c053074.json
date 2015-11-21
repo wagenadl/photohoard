@@ -1,0 +1,58 @@
+{ "typ": "page",
+  "cre": "2015-10-15T00:04:11",
+  "mod": "2015-10-15T00:05:32",
+  "stampTime": 0,
+  "startPage": 28,
+  "unlocked": false,
+  "uuid": "6c053074",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-10-15T00:04:11",
+      "mod": "2015-10-15T00:04:15",
+      "uuid": "84b74687",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-15T00:04:11",
+          "mod": "2015-10-15T00:04:15",
+          "lines": [
+            0
+          ],
+          "text": "Software engineering",
+          "uuid": "262d651c"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-10-15T00:04:11",
+      "mod": "2015-10-15T00:04:11",
+      "uuid": "be2c2f75"
+    },
+    { "typ": "textblock",
+      "cre": "2015-10-15T00:04:16",
+      "mod": "2015-10-15T00:05:32",
+      "h": 166.162,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "11251d77",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-15T00:04:16",
+          "mod": "2015-10-15T00:05:32",
+          "lines": [
+            0,
+            64,
+            123,
+            181,
+            242,
+            293,
+            352
+          ],
+          "text": "The program is a bit too messy. I need to create an overview of what the main components do and how they interact. Case in point: I don’t know right now how to reduce the number of refreshes triggered when I rotate an image by 90 degrees. Of course, there should be only one, and it should be instantaneous. (We ought not have to wait for the cache to catch up.)",
+          "uuid": "6a767ce8"
+        }
+      ]
+    }
+  ]
+}

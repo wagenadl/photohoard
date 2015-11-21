@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-08-20T19:53:02",
-  "mod": "2015-10-14T18:38:38",
+  "mod": "2015-11-21T07:11:30",
   "uuid": "b7dd37c0",
   "cc": [
     { "typ": "entry",
@@ -130,6 +130,30 @@
       "startPage": 26,
       "title": "Orientations",
       "uuid": "ebad2415"
+    },
+    { "typ": "entry",
+      "cre": "2015-10-15T00:02:56",
+      "mod": "2015-10-15T00:03:01",
+      "sheetCount": 1,
+      "startPage": 27,
+      "title": "Sliders",
+      "uuid": "f6d5de58"
+    },
+    { "typ": "entry",
+      "cre": "2015-10-15T00:04:11",
+      "mod": "2015-10-15T00:04:15",
+      "sheetCount": 1,
+      "startPage": 28,
+      "title": "Software engineering",
+      "uuid": "6c053074"
+    },
+    { "typ": "entry",
+      "cre": "2015-11-21T07:00:07",
+      "mod": "2015-11-21T07:11:30",
+      "sheetCount": 2,
+      "startPage": 29,
+      "title": "Rethinking Photohoard’s information flow",
+      "uuid": "8996173b"
     }
   ]
 }
