@@ -50,7 +50,7 @@ int AC_Worker::queueLength() {
   return cache->database()->simpleQuery("select count(*) from queue").toInt();
 }
 
-void AC_Worker::recache(QSet<quint64> versions) {
+void AC_Worker::recache(QSet<quint64> versions, bool ischg) {
   //  pDebug() << "recache " << versions.size();
   try {
     addToDBQueue(versions);
@@ -93,7 +93,7 @@ QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
   return ids;
 }
  
-void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
+void AC_Worker::markReadyToLoad(QSet<quint64> versions, bool ischg) {
   for (auto v: versions) {
     if (beingLoaded.contains(v)) 
       invalidatedWhileLoading << v;
@@ -176,7 +176,6 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 
 void AC_Worker::cacheModified(quint64 vsn) {
   Image16 img = holder->getImage(vsn);
-  //  pDebug() << "cacheModified" << vsn << img.size() << cache->maxSize();
   if (img.isNull())
     return;
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
@@ -188,9 +187,10 @@ void AC_Worker::cacheModified(quint64 vsn) {
     loaded[vsn] = img.scaledToFitIn(cache->maxSize());
     processLoaded();
   } else {
+    hushup << vsn;
     QSet<quint64> vsns;
     vsns << vsn;
-    recache(vsns);
+    recache(vsns, false);
   }
 }
 
@@ -225,8 +225,8 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   try {
     if (!fullSize.isEmpty())
       ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
-    if (requests.contains(id)) 
-      respondToRequest(id, img);
+    if (!hushup.contains(id)) 
+      makeAvailable(id, img);
     beingLoaded.remove(id);
     outdatedLoaded.remove(id);
 
@@ -326,7 +326,8 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
   try {
     if (loaded.contains(version)) {
       Image16 res = loaded[version].scaledDownToFitIn(desired);
-      emit available(version, desired, res);
+      emit available(version, res, chgids[version]);
+      chgids[version] = 0;
       return;
     }
     PSize best=cache->bestSize(version, desired);
@@ -334,8 +335,8 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
       return;
     bool od;
     Image16 img = cache->get(version, best, &od).scaledDownToFitIn(desired);
-    if (!img.isNull() && !od) // can this happen?
-      emit available(version, desired, img);
+    if (!img.isNull() && !od)
+      emit available(version, img, 0);
   } catch (QSqlQuery &q) {
     emit exception(HERE + "SqlError: " + q.lastError().text()
 		   + " from " + q.lastQuery());
@@ -360,7 +361,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       Image16 res = loaded[version].scaledDownToFitIn(desired);
       if (dbg)
         pDebug() << "  AC_worker::emitting available" << version;
-      emit available(version, desired, res);
+      emit available(version, res, false);
       actual = res.size();
     } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
       if (dbg)
@@ -375,7 +376,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       } else {
         if (dbg)
           pDebug() << "  AC_Worker::emitting available" << version;
-        emit available(version, desired, img);
+        emit available(version, img, false);
       }
       if (od)
 	actual = PSize();
@@ -390,7 +391,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
       // We're getting it already
         if (dbg)
           pDebug() << "  AC_Worker::being loaded" << version;
-      requests[version] << desired;
+      requests[version] |= desired;
     } else {
       if (dbg)
         pDebug() << "  AC_Worker::adding to load list" << version;
@@ -417,7 +418,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
   }
 }
 
-void AC_Worker::respondToRequest(quint64 version, Image16 img) {
+void AC_Worker::makeAvailable(quint64 version, Image16 img) {
   if (img.isNull()) 
     img = Image16(PSize(1, 1));
   PSize s0;

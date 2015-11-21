@@ -20,7 +20,19 @@ public:
 public slots:
   void recache(QSet<quint64> versions);
   void recache(quint64 version);
-  void cacheModified(quint64 version, Image16 img);
+  void cacheModified(quint64 version, Image16 img, quint64 chgid=1);
+  /* CACHEMODIFIED - Store a modified version of an image
+     If you have changed a version's settings, it suffices to ask the
+     AUTOCACHE to RECACHE it at its leisure, but if you have already
+     painstakingly calculated the new image, you can also offer it
+     directly to AUTOCACHE through CACHEMODIFIED(version, img). This
+     will cause the IMG to be stored in the cache as the new image for
+     VERSION. (If IMG is not large enough for AUTOCACHE's taste, it
+     might still calculate a larger version later.)
+     This causes an AVAILABLE signal to be emitted. By calling
+     CACHEMODIFIED(version, img, chgid), you can directly specify the
+     CHGID for the AVAILABLE signal. (It defaults to 1.)
+   */
   void request(quint64 version, QSize desired);
   /* The request will be answered through the progressed() signal. If the
      version exists in the cache, the request is answered very quickly, even
@@ -32,12 +44,18 @@ public slots:
 signals: // public
   void progressed(int n, int N);
   void doneCaching();
-  void available(quint64 version, QSize requested, Image16 img);
-  /* Emitted in response to a specific request. Note that the image provided
-     may not be authoritative: it may be (much) smaller than requested or
-     it may even be outdated. As a consequence, AutoCache should not be
-     used to obtain images for export.
-     The image provided will never exceed the requested size.
+  void available(quint64 version, Image16 image, quint64 chgid);
+  /* AVAILABLE - Emitted whenever a version is newly available
+     AVAILABLE(version, image, chgid) is emitted to report that the given
+     VERSION has just been added to the cache, or has been successfully
+     retrieved from the cache.
+     The IMAGE may be full size or smaller,
+     depending on whether it was retrieved from the cache, newly generated,
+     or just offered through CACHEMODIFIED. Normally, only one AVAILABLE
+     signal is emitted per cache event for the image, even if several REQUESTs
+     had been made (e.g., for different sizes).
+     The CHGID is positive if this signals a new or modified version
+     of the image, or zero if it is just a cache retrieval.
    */
   void exception(QString);
 signals: // private
