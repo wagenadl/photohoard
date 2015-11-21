@@ -46,12 +46,11 @@ void AC_Worker::countQueue() {
   N = n + queueLength();
 }
 
-int AC_Worker::queueLength() {
+int AC_Worker::queueLength() const {
   return cache->database()->simpleQuery("select count(*) from queue").toInt();
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
-  //  pDebug() << "recache " << versions.size();
   try {
     addToDBQueue(versions);
     markReadyToLoad(versions);
@@ -170,7 +169,7 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
     return;
   loaded[id] = img;
   loadedmemsize += img.byteCount();
-  outdatedLoaded << id;
+  onlyPreviewLoaded << id;
   processLoaded();
 }
 
@@ -184,6 +183,8 @@ void AC_Worker::cacheModified(quint64 vsn) {
       invalidatedWhileLoading << vsn;
     else
       N++;
+    if (requests.contains(vsn))
+      respondToRequest(vsn, img);
     
     loaded[vsn] = img.scaledToFitIn(cache->maxSize());
     processLoaded();
@@ -226,17 +227,15 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
     if (!fullSize.isEmpty())
       ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
     if (requests.contains(id)) 
-      respondToRequest(id, img);
+      respondToRequest(id, img); // *even* if invalidated
     beingLoaded.remove(id);
-    outdatedLoaded.remove(id);
+    onlyPreviewLoaded.remove(id);
 
     if (invalidatedWhileLoading.contains(id)) {
       invalidatedWhileLoading.remove(id);
     } else if (mustCache.contains(id)) {
       loaded[id] = img;
       loadedmemsize += img.byteCount();
-      pDebug() << "loadedmemsize now" << loadedmemsize
-               << (loadedmemsize*100.0/bytethreshold);
     }
 
     processLoaded();
@@ -310,9 +309,9 @@ void AC_Worker::storeLoadedInDB() {
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
     quint64 version = it.key();
     Image16 img = it.value();
-    bool outd =  outdatedLoaded.contains(version);
-    cache->add(version, img, outd);
-    if (outd)
+    bool outdated = onlyPreviewLoaded.contains(version);
+    cache->add(version, img, outdated);
+    if (outdated)
       noutdated++;
     cache->database()->query("delete from queue where version==:a", version);
   }
@@ -347,38 +346,30 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
-  bool dbg = desired.width()>200;
   if (version==0)
     return;
-  if (dbg)
-    pDebug() << "AC_Worker::requestImage" << version << desired;
+
   PSize actual;
   try {
     if (loaded.contains(version)) {
-      if (dbg)
-        pDebug() << "  AC_Worker::already loaded" << version;
       Image16 res = loaded[version].scaledDownToFitIn(desired);
-      if (dbg)
-        pDebug() << "  AC_worker::emitting available" << version;
       emit available(version, desired, res);
       actual = res.size();
-    } else if (!(actual=cache->bestSize(version, desired)).isEmpty()) {
-      if (dbg)
-        pDebug() << "  AC_Worker::exists in cache" << version;
-      bool od;
-      Image16 img = cache->get(version, actual, &od).scaledDownToFitIn(desired);
-      if (dbg)
-        pDebug() << "  AC_Worker::got from cache" << version << img.size();
-      if (img.isNull()) {
-        // can this happen?
-	actual = PSize();
-      } else {
-        if (dbg)
-          pDebug() << "  AC_Worker::emitting available" << version;
-        emit available(version, desired, img);
+    } else {
+      actual=cache->bestSize(version, desired);
+      if (!actual.isEmpty()) {
+        bool outdated;
+        Image16 img = cache->get(version, actual, &outdated)
+          .scaledDownToFitIn(desired);
+        if (img.isNull()) {
+          // can this happen?
+          actual = PSize();
+        } else {
+          emit available(version, desired, img);
+        }
+        if (outdated)
+          actual = PSize();
       }
-      if (od)
-	actual = PSize();
     }
     if (actual.isLargeEnoughFor(desired)
         || actual.isLargeEnoughFor(cache->maxSize()))
@@ -388,18 +379,15 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     // We will request it
     if (beingLoaded.contains(version)) {
       // We're getting it already
-        if (dbg)
-          pDebug() << "  AC_Worker::being loaded" << version;
       requests[version] << desired;
     } else {
-      if (dbg)
-        pDebug() << "  AC_Worker::adding to load list" << version;
+      // We must get it
       if (!mustCache.contains(version))
-	N++; /* This is not actually formally correct, because
-		it may be that version is in the dbqueue. Worse, by not
-		adding this version to the dbqueue, we risk losing count
-		later. But adding it to the dbqueue one-by-one is rather
-		inefficient.
+	N++; /* This is not actually formally correct, because it may
+		be that version is already in the dbqueue. Worse, by
+		not adding this version to the dbqueue, we risk losing
+		count later. But adding it to the dbqueue one-by-one
+		is rather inefficient.
 	     */
       mustCache << version;
       requests[version] << desired;
@@ -423,9 +411,8 @@ void AC_Worker::respondToRequest(quint64 version, Image16 img) {
   PSize s0;
   for (PSize s: requests[version])
     s0 |= s;
-  if (img.size().exceeds(s0))
-    img = img.scaledToFitIn(s0);
+  img = img.scaledDownToFitIn(s0);
   for (PSize s: requests[version])
-    emit available(version, s, img);
+    emit available(version, s, img.scaledDownToFitIn(s));
   requests.remove(version);
 }
