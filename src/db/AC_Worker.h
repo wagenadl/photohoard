@@ -20,7 +20,7 @@ public:
   virtual ~AC_Worker();
 public slots:
   void boot(); // get initial list of cachable items from db
-  void recache(QSet<quint64> versions);
+  void recache(QSet<quint64> versions, bool ischg=true);
   void requestImage(quint64 version, QSize desired);
   void requestIfEasy(quint64 version, QSize desired);
   void cachePreview(quint64 vsn, Image16 img);
@@ -30,10 +30,10 @@ private slots:
 signals:
   void cacheProgress(int n, int N);
   void doneCaching();
-  void available(quint64 version, QSize requested, Image16 img);
+  void available(quint64 version, Image16 img, bool changed);
   void exception(QString);
 private:
-  void respondToRequest(quint64 version, Image16 img);
+  void makeAvailable(quint64 version, Image16 img);
   QSet<quint64> getSomeFromDBQueue(int maxres=100);
   void markReadyToLoad(QSet<quint64> versions);  
   void addToDBQueue(QSet<quint64> versions);
@@ -59,7 +59,8 @@ private:
   QMap<quint64, Image16> loaded;
   int loadedmemsize;
   QSet<quint64> outdatedLoaded;
-  QMap<quint64, QSet<PSize> > requests;
+  QMap<quint64, PSize> requests;
+  QSet<quint64> hushup;
   class AC_ImageHolder *holder;
 };
 
