@@ -13,6 +13,8 @@
 #include <QStringList>
 
 class Scanner: public BasicThread {
+  /* SCANNER - Scan folders for photo files
+   */
   Q_OBJECT;
 public:
   Scanner(PhotoDB *);

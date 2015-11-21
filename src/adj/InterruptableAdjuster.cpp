@@ -86,7 +86,11 @@ bool InterruptableAdjuster::isEmpty() {
   return empty;
 }
 
-void InterruptableAdjuster::setOriginal(Image16 img, PSize siz) {
+void InterruptableAdjuster::setOriginal(Image16 img) {
+  setReduced(img, PSize());
+}
+
+void InterruptableAdjuster::setReduced(Image16 img, PSize siz) {
   QMutexLocker l(&mutex);
   newOriginal = img;
   scaledOSize = img.size();
