@@ -50,13 +50,16 @@ void AutoCache::cachePreview(quint64 id, Image16 img) {
 }
           
 void AutoCache::recache(QSet<quint64> ids) {
+  for (auto id: ids)
+    holder->dropImage(id);
+  
   emit forwardRecache(ids);
 }
 
 void AutoCache::recache(quint64 id) {
   QSet<quint64> ids;
   ids << id;
-  emit forwardRecache(ids);
+  recache(ids);
 }
 
 void AutoCache::cacheModified(quint64 id, Image16 img) {
