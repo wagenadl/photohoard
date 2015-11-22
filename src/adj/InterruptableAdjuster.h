@@ -30,9 +30,9 @@ public:
   void requestReduced(Sliders const &settings, PSize maxSize);
   // REQUESTREDUCED - See Adjuster's RETRIEVEREDUCED
   void requestROI(Sliders const &settings, QRect roi);
-  // REQUESTROI - See Adjuster's RETRIEVEROI
+  // REQUESTROI - See ADJUSTER's RETRIEVEROI
   void requestReducedROI(Sliders const &settings, QRect roi, PSize maxSize);
-  // REQUESTREDUCEDROI - See Adjuster's RETRIEVEREDUCEDROI
+  // REQUESTREDUCEDROI - See ADJUSTER's RETRIEVEREDUCEDROI
   void cancelRequest();
   /* CANCELREQUEST - Cancel outstanding request
      No READY signal will be emitted after CANCELREQUEST
@@ -64,7 +64,7 @@ signals:
   void ready(Image16 img);
   /* READY - Emitted once retrieval has finished
      READY(img) is emitted when calculation of the final
-     image has been completed.   
+     image has been completed.
      READY() is /not/ emitted if the request was canceled.
      Note that "ready" does not imply success: IMG can be null.
      This happens, e.g., if a full size version is requested
@@ -73,11 +73,11 @@ signals:
      Due to the nature of mutexes, it is possible that READY() is
      emitted before /requestXXX/ returns. Using a queued connection
      prevents this. (Or at least ensures that the signal is not
-     /received/ before /requestXXX/ returns.)  It is even possible,
-     though unlikely, that READY() is emitted after CANCEL() has been
+     /received/ before /requestXXX/ returns.) It is even possible,
+     though unlikely, that READY() is emitted after CANCELREQUEST() has been
      called, though not after it returns. This cannot be
      prevented. Connection queueing can even cause this signal to be
-     /received/ after CANCEL() returns.
+     /received/ after CANCELREQUEST() returns.
 
      The important thing to note is that if you use queued
      connections, you can never be quite sure that the READY() signal
