@@ -213,7 +213,7 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
 
   
 Image16 Image16::scaledToFitIn(PSize s, Image16::Interpolation i) const {
-  return scaled(size().scaledToFitIn(s), i);
+  return scaled(size().scaledToFitSnuglyIn(s), i);
 }
 
 Image16 Image16::scaledDownToFitIn(PSize s, Image16::Interpolation i) const {

@@ -27,7 +27,12 @@ Slide::~Slide() {
     pDebug() << "Slide not in a scene - disaster imminent";
 }
 
-void Slide::updateImage(Image16 const &img1) {
+void Slide::updateImage(Image16 const &img1, bool chgd) {
+  if (!chgd) {
+    if (img1.size().isContainedIn(pm.size())
+	|| img1.size().isContainedIn(img.size()))
+      return;
+  }
   pm = QPixmap();
   if (isVisible()) {
     if (CMS::monitorTransform.isValid())

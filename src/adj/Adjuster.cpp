@@ -104,13 +104,11 @@ void Adjuster::applyNeedBasedScaling(Sliders const &settings,
     k++;
   }
 
-  double fac = stages[k].image.size().scaleFactorToFitIn(needed);
+  double fac = stages[k].image.size().scaleFactorToSnuglyFitIn(needed);
   if (fac<0.8) {
     // It's worth scaling
     // Should we reduce excessive scale stacks? Probably. Later.
     dropFrom(k+1);
-    pDebug() << "Adjuster: scaling" << stages[k].osize << " to "
-             << stages[k].image.size().scaledToFitIn(needed);
     stages << AdjusterTile(stages[k].image.scaledToFitIn(needed),
 			   stages[k].osize);
     stages.last().stage = Stage_Reduced;
@@ -314,7 +312,7 @@ PSize Adjuster::neededScaledOriginalSize(PSize osize, Sliders const &settings,
      OSIZE.
   */
   PSize final = mapCropSize(osize, settings, osize);
-  double fac = final.scaleFactorToFitIn(desired);
+  double fac = final.scaleFactorToSnuglyFitIn(desired);
   if (fac>1)
     fac = 1; // we won't scale up
   //  pDebug() << "neededScaledOriginalSize" << osize << settings.cropl << settings.cropr << settings.cropt << settings.cropb << desired << " -> " << fac << osize*fac;

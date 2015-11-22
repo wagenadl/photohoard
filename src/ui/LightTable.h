@@ -24,9 +24,9 @@ public:
   PSize displaySize() const;
 public slots:
   void setLayout(LayoutBar::Action ar);
-  void slidePress(quint64 id, Qt::MouseButton, Qt::KeyboardModifiers);
-  void select(quint64 id, Qt::KeyboardModifiers=Qt::NoModifier);
-  void updateImage(quint64, Image16);
+  void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);
+  void select(quint64 vsn, Qt::KeyboardModifiers=Qt::NoModifier);
+  void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void rescan(bool rebuildFilter=true);
   void setColorLabelEtc(ColorLabelBar::Action);
   void filterAction(FilterBar::Action);

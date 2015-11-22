@@ -11,6 +11,12 @@
 #include <QObject>
 #include "AdjusterTile.h"
 
+/* Class: Adjuster
+
+   Adjuster is a simple factory that can apply adjustments to an image.
+   It is meant to be used in a synchronous fashion and does not use signals
+   to return results.
+*/
 class Adjuster: public QObject {
   /* ADJUSTER - Workhorse for applying adjustments to an image
      ADJUSTER is a simple, nonthreaded factory for calculating adjusted
@@ -18,8 +24,10 @@ class Adjuster: public QObject {
    */
   Q_OBJECT;
 public:
+  // Constructor: Adjuster
   Adjuster(QObject *parent=0);
   virtual ~Adjuster();
+
   void clear();
   // CLEAR - Drop entire stack
   bool isEmpty() const;
@@ -57,6 +65,7 @@ public:
      Note that a larger than requested image may be returned if that is
      quicker. RETRIEVEREDUCED will never upscale an image.
   */
+
   PSize maxAvailableSize(Sliders const &settings) const;
   /* MAXAVAILABLESIZE - Maximum size of an image that we can offer
      MAXAVAILABLESIZE(settings) returns the maximum size of an image
@@ -114,6 +123,7 @@ public:
      This always succeeds, even if we don't have sufficient resolution
      to fill MAXSIZE. (Notes for RETRIEVEREDUCED apply.)
   */
+
   void enableCaching(bool ec=true);
   /* ENABLECACHING - Enable storing intermediate stages.
      ENABLECACHING() enables storing intermediate stages.
