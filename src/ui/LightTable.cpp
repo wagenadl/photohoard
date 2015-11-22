@@ -393,22 +393,22 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
     pDebug() << "LightTable::updateAdjusted current" << i << img.size();
   if (img.isNull())
     return;
-  strips->updateImage(i, img);
+  strips->updateImage(i, img, true);
 
   if (i==curr)
     slide->updateImage(img, true);
 }
 
-void LightTable::updateImage(quint64 i, Image16 img) {
+void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {
   if (i==curr)
     pDebug() << "LightTable::updateImage current" << i << img.size();
-  strips->updateImage(i, img);
+  strips->updateImage(i, img, chgid>0);
 
   if (i!=curr)
     return;
 
   pDebug() << "LightTable::updateImage current slide" << i << img.size();
-  slide->updateImage(img);
+  slide->updateImage(img, chgid>0);
   if (i==curr) {
     pDebug() << "LightTable::updateImage current done" << i << img.size();
     Database::disableDebug();
@@ -583,7 +583,7 @@ void LightTable::rotateSelected(int dphi) {
   for (auto id: vsns)
     strips->quickRotate(id, dphi);
 
-  int oldcurr = curr;
+  quint64 oldcurr = curr;
   if (vsns.contains(curr)) {
     /* Somehow update the slideview, which involves updating the
        liveadjuster, which is not trivial, at least not when I am

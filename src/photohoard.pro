@@ -11,6 +11,7 @@ QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3 -ffast-math -march=native
 #QMAKE_CXXFLAGS_DEBUG -= -O2
 #QMAKE_CXXFLAGS_DEBUG += -O0
+#QMAKE_CXXFLAGS += -fdiagnostics-color=never
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 

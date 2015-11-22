@@ -27,8 +27,8 @@ AutoCache::AutoCache(PhotoDB *db, QString rootdir, QObject *parent):
 	  this, SIGNAL(progressed(int,int)));
   connect(worker, SIGNAL(doneCaching()),
 	  this, SIGNAL(doneCaching()));
-  connect(worker, SIGNAL(available(quint64, Image16, bool)),
-	  this, SIGNAL(available(quint64, Image16, bool)));
+  connect(worker, SIGNAL(available(quint64, Image16, quint64)),
+	  this, SIGNAL(available(quint64, Image16, quint64)));
   connect(worker, SIGNAL(exception(QString)),
 	  this, SIGNAL(exception(QString)));
   connect(this, SIGNAL(forwardCachePreview(quint64, Image16)),
@@ -51,13 +51,16 @@ void AutoCache::cachePreview(quint64 id, Image16 img) {
 }
           
 void AutoCache::recache(QSet<quint64> ids) {
+  for (auto id: ids)
+    holder->dropImage(id);
+  
   emit forwardRecache(ids);
 }
 
 void AutoCache::recache(quint64 id) {
   QSet<quint64> ids;
   ids << id;
-  emit forwardRecache(ids);
+  recache(ids);
 }
 
 void AutoCache::cacheModified(quint64 id, Image16 img, quint64 chgid) {
