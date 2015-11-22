@@ -127,7 +127,7 @@ public:
   void enableCaching(bool ec=true);
   /* ENABLECACHING - Enable storing intermediate stages.
      ENABLECACHING() enables storing intermediate stages.
-     ENABLECACHAING(ec) enables (if EC is true) or disables caching.
+     ENABLECACHING(ec) enables (if EC is true) or disables caching.
      When caching is enabled,
      it is much faster to reprocess images after some parameter changes,
      but it obviously takes more memory, so should be avoided during export.

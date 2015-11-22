@@ -1,0 +1,23 @@
+\documentclass{article} %%%% -*- latex -*-
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{helvet}
+\usepackage{newcent}
+\frenchspacing
+
+\setcounter{secnumdepth}{0}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\class#1{{\sf #1}}
+\def\func#1{{\sf\sl #1}}
+\def\photohoard{{\it PhotoHoard}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+* Purpose
+
+This document serves to document the infrastructure of \photohoard.
+
+\end{document}
