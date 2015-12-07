@@ -60,8 +60,8 @@ public:
 public slots:
   void makeHeaderless();
   void rescan();
-  void updateImage(quint64, Image16);
-  void updateHeader(Image16);
+  void updateImage(quint64 id, Image16 img, bool chgd);
+  void updateHeader(Image16 img, bool chgd);
   void updateHeaderRotation(int dphi);
   void setTimeRange(QDateTime t0, TimeScale scl);
   void setFolder(QString pathname);

@@ -117,7 +117,7 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
   PSize s0 = maxSize();
   bool done = false;
 
-  if (img.size().containedIn(s0)) {
+  if (img.size().isContainedIn(s0)) {
     // cache image directly: it is no larger than our largest desired size
     addToCache(vsn, img, instantlyOutdated);
     done = instantlyOutdated;
@@ -305,8 +305,13 @@ PSize BasicCache::bestSize(quint64 vsn, PSize desired) {
   return sbest;  
 }
 
+bool BasicCache::isOutdated(quint64 vsn) {
+  return db.simpleQuery("select count(*) from cache where version==:a"
+			" and outdated==1", vsn).toInt() > 0;
+}
+
 bool BasicCache::contains(quint64 vsn, bool outdatedOK) {
-  QString query = "select count(*) from cache where version==:v";
+  QString query = "select count(*) from cache where version==:a";
   if (!outdatedOK)
     query += " and outdated==0";
   query += " limit 1";

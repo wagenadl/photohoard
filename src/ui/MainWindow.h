@@ -20,7 +20,7 @@ public:
 public slots:
   void fileAction(FileBar::Action);
   void scrollToCurrent();
-  void updateImage(quint64, QSize, Image16);
+  void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void setLayout(LayoutBar::Action);
 private:
   class PhotoDB *db;

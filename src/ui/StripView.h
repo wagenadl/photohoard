@@ -34,7 +34,7 @@ public slots:
   void scrollIfNeeded();
   void setTileSize(int pix);
   void setArrangement(Strip::Arrangement);
-  void updateImage(quint64, Image16);
+  void updateImage(quint64 vsn, Image16 img, bool chgd);
   void quickRotate(quint64, int dphi);
   void rescan();
 protected:

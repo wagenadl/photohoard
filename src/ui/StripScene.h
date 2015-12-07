@@ -20,7 +20,7 @@ public:
   void addHeaderFor(quint64, class Strip *);
   void dropHeaderFor(quint64, class Strip *);
 public slots:
-  void updateImage(quint64, Image16);
+  void updateImage(quint64 vsn, Image16 img, bool chgd);
   void quickRotate(quint64, int dphi);
 signals:
   void pressed(Qt::MouseButton, Qt::KeyboardModifiers);

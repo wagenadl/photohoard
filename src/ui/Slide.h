@@ -15,7 +15,7 @@ public:
   virtual ~Slide();
   quint64 version() const { return id; }
   void makeReady();
-  void updateImage(Image16 const &img);
+  void updateImage(Image16 const &img, bool chgd);
   void quickRotate(int dphi);
   void setTileSize(int pix);
   virtual QRectF boundingRect() const override {

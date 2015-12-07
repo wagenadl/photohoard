@@ -11,6 +11,12 @@ void AC_ImageHolder::setImage(quint64 id, Image16 img) {
   hold[id] = img;
 }
 
+void AC_ImageHolder::dropImage(quint64 id) {
+  QMutexLocker m(&mutex);
+  if (hold.contains(id))
+    hold.remove(id);
+}
+
 Image16 AC_ImageHolder::getImage(quint64 id) {
   QMutexLocker m(&mutex);
   if (hold.contains(id)) {
