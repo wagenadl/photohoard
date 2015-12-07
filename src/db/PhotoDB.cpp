@@ -151,6 +151,33 @@ QString PhotoDB::lens(int id) const {
   return lenses[id];
 }
 
+QString PhotoDB::cameraAlias(int id) const {
+  if (!cameraAliases.contains(id)) {
+    QString alias = simpleQuery("select alias from cameras where id==:a", id)
+      .toString();
+    cameraAliases[id] = alias.isEmpty() ? camera(id) : alias;
+  }
+  return cameraAliases[id];
+}
+
+QString PhotoDB::lensAlias(int id) const {
+  if (!lensAliases.contains(id)) {
+    QString alias = simpleQuery("select alias from lenses where id==:a", id)
+      .toString();
+    lensAliases[id] = alias.isEmpty() ? lens(id) : alias;
+  }
+  return lensAliases[id];
+}
+
+void PhotoDB::setCameraAlias(int id, QString alias) {
+  cameraAliases[id] = alias;
+  query("update cameras set alias=:a where id==:b", alias, id);
+}
+
+void PhotoDB::setLensAlias(int id, QString alias) {
+  lensAliases[id] = alias;
+  query("update lenses set alias=:a where id==:b", alias, id);
+}
 
 PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   VersionRecord vr;

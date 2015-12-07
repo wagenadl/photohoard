@@ -48,8 +48,16 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   QString folder = db->folder(prec.folderid);
   folder = folder.replace("/", QString("/") + QChar(0x200b));
   txt += QString("<i>%1</i><br>").arg(folder);
-  txt += "<b>"
-    + prec.capturedate.toString("ddd MMM d, yyyy, hh:mm:ss") + "</b><br>";
+  txt += "<b>" + prec.capturedate.toString("ddd") + " ";
+  QString yr = prec.capturedate.toString("yyyy");
+  QString md = prec.capturedate.toString("MMdd");
+  txt += "<a href=\"date:" + yr + md + "\">"
+    + prec.capturedate.toString("MMM d") + "</a>";
+  txt += ", ";
+  txt += "<a href=\"year:" + yr + "\">"
+    + prec.capturedate.toString("yyyy") + "</a>";
+  txt += ", ";
+  txt += prec.capturedate.toString("hh:mm:ss") + "</b><br>";
   QStringList bits;
   if (prec.exposetime_s>0)
     bits << (prec.exposetime_s > .125
@@ -61,15 +69,26 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
     bits << QString("ISO %1").arg(prec.iso);
   if (!bits.isEmpty())
     txt += bits.join(" &nbsp; ") + "<br>";
-  QString cam = prec.cameraid ? db->camera(prec.cameraid)
-    : QString("<i>unknown camera</i>");
-  QString lens = prec.lensid ? db->lens(prec.lensid)
-    : QString("<i>unknown lens</i>");
-  QString camlens = (prec.cameraid && prec.lensid) ? cam + ", " + lens : cam;
+  QString camlens = "";
+  if (prec.cameraid) {
+    QString cam = db->camera(prec.cameraid);
+    camlens = ("<a href=\"camera:%1\">" + cam + "</a>").arg(prec.cameraid);
+  }
+  QString lens = "";
+  if (prec.lensid) {
+    if (!camlens.isEmpty())
+      camlens += ", ";
+    lens = db->lensAlias(prec.lensid);
+    camlens += ("<a href=\"lens:%1\">" + lens + "</a>").arg(prec.lensid);
+  }
+  if (camlens.isEmpty()) 
+    camlens = "<i>unknown camera</i>";
   if (prec.focallength_mm>0) {
+    // Add focal lens to description, unless lens is fixed length and
+    // already contains focal length in its name or alias
     QString len = QString("%1").arg(prec.focallength_mm);
-    if (!(camlens.contains(len) && !camlens.contains(len+"-") 
-	  && !camlens.contains("-"+len)))
+    if (!(lens.contains(len) && !lens.contains(len + "-") 
+	  && !lens.contains("-" + len)))
       camlens += " at " + len + " mm";
   }
   txt += QString("%1<br>").arg(camlens);

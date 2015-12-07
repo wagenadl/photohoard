@@ -53,13 +53,18 @@ public: // information about photos and versions
   VersionRecord versionRecord(quint64 versionid) const;
   QString make(int cameraid) const;
   QString camera(int cameraid) const; // i.e., make and model
+  QString cameraAlias(int cameraid) const;
   QString model(int cameraid) const;
   QString lens(int lensid) const;
+  QString lensAlias(int lensid) const;
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
   void setAcceptReject(quint64 versionid, AcceptReject label);
   void addUndoStep(quint64 versionid, QString key,
                    QVariant oldvalue, QVariant newvalue);
+public: // information about cameras and lenses
+  void setLensAlias(int lensid, QString alias);
+  void setCameraAlias(int cameraid, QString alias);
 public: // exploration functions
   QString folder(quint64 folderid) const; // returns full pathname
   quint64 root(quint64 folderid) const; // returns id of root folder
@@ -81,7 +86,7 @@ private:
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;
   mutable QMap<int, QString> ftypes;
-  mutable QMap<int, QString> makes, models, lenses;
+  mutable QMap<int, QString> makes, models, lenses, cameraAliases, lensAliases;
 };
 
 #endif

@@ -4,16 +4,17 @@
 
 #define METAVIEWER_H
 
-#include <QTextEdit>
+#include <QTextBrowser>
 #include "PhotoDB.h"
 
-class MetaViewer: public QTextEdit {
+class MetaViewer: public QTextBrowser {
   Q_OBJECT;
 public:
   MetaViewer(PhotoDB *, QWidget *parent=0);
   virtual ~MetaViewer() { }
 public slots:
   void setVersion(quint64 version);
+  void handleClick(QUrl const &);
 private:
   PhotoDB *db;
 };
