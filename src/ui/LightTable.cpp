@@ -583,7 +583,7 @@ void LightTable::rotateSelected(int dphi) {
   for (auto id: vsns)
     strips->quickRotate(id, dphi);
 
-  int oldcurr = curr;
+  quint64 oldcurr = curr;
   if (vsns.contains(curr)) {
     /* Somehow update the slideview, which involves updating the
        liveadjuster, which is not trivial, at least not when I am

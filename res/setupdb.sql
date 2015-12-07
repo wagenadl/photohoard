@@ -51,11 +51,13 @@ create table tags (
 create table cameras (
        id integer primary key,
        make text,
-       camera text );
+       camera text,
+       alias text );
 
 create table lenses (
        id integer primary key,
-       lens text );
+       lens text,
+       alias text );
 
 create table photos (
 -- Table of photographs as taken by a camera

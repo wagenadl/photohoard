@@ -2,20 +2,30 @@
 
 #include "MetaViewer.h"
 #include "MetaInfo.h"
+#include <QDebug>
+#include <QUrl>
 
 MetaViewer::MetaViewer(PhotoDB *db, QWidget *parent):
-  QTextEdit(parent), db(db) {
+  QTextBrowser(parent), db(db) {
   setReadOnly(true);
-  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
+  setFocusPolicy(Qt::NoFocus);
+  setOpenLinks(false);
+  setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+  document()->setDefaultStyleSheet("a { color: 'white'; }\n");
+  connect(this, SIGNAL(anchorClicked(QUrl const &)),
+	  SLOT(handleClick(QUrl const &)));
 }
 
 void MetaViewer::setVersion(quint64 version) {
   if (version==0) {
-    setHtml("");
+    document()->setHtml("");
     setEnabled(false);
     return;
   }
   setEnabled(true);
-  setHtml(MetaInfo(db, version).html());
+  document()->setHtml(MetaInfo(db, version).html());
 }
 
+void MetaViewer::handleClick(QUrl const &url) {
+  qDebug() << "MetaViewer: click: " << url;
+}
