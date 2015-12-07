@@ -524,10 +524,10 @@ Slide *Strip::slideByVersion(quint64) {
   return NULL;
 }
 
-void Strip::updateImage(quint64 v, Image16 img) {
+void Strip::updateImage(quint64 v, Image16 img, bool chgd) {
   Slide *s = slideByVersion(v);
   if (s)
-    s->updateImage(img);  
+    s->updateImage(img, chgd);  
 }
 
 void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
@@ -686,8 +686,9 @@ void Strip::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void Strip::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 }
 
-void Strip::updateHeader(Image16 img) {
-  headerimg = img;
+void Strip::updateHeader(Image16 img, bool chgd) {
+  if (chgd || img.size()>headerimg.size())
+    headerimg = img;
   update();
 }
 

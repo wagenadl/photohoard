@@ -149,8 +149,8 @@ void StripView::recalcSizes() {
   }
 }
 
-void StripView::updateImage(quint64 id, Image16 img) {
-  scene()->updateImage(id, img);
+void StripView::updateImage(quint64 id, Image16 img, bool chgd) {
+  scene()->updateImage(id, img, chgd);
 }
 
 void StripView::quickRotate(quint64 id, int dphi) {

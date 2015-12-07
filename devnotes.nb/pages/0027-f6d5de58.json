@@ -1,0 +1,54 @@
+{ "typ": "page",
+  "cre": "2015-10-15T00:02:56",
+  "mod": "2015-10-15T00:03:47",
+  "stampTime": 0,
+  "startPage": 27,
+  "unlocked": false,
+  "uuid": "f6d5de58",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-10-15T00:02:56",
+      "mod": "2015-10-15T00:03:01",
+      "uuid": "e2fb9018",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-15T00:02:56",
+          "mod": "2015-10-15T00:03:01",
+          "lines": [
+            0
+          ],
+          "text": "Sliders",
+          "uuid": "67d15195"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-10-15T00:02:56",
+      "mod": "2015-10-15T00:02:56",
+      "uuid": "d426f676"
+    },
+    { "typ": "textblock",
+      "cre": "2015-10-15T00:03:02",
+      "mod": "2015-10-15T00:03:47",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d00db398",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-10-15T00:03:02",
+          "mod": "2015-10-15T00:03:47",
+          "lines": [
+            0,
+            67,
+            129
+          ],
+          "text": "It is a pain to have a scroll bar on the sliders. Perhaps it would be better to automatically minimize groups that have not been used for a while when running out of space.",
+          "uuid": "707da1cf"
+        }
+      ]
+    }
+  ]
+}

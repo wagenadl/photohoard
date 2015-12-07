@@ -7,3 +7,6 @@ photohoard_debug
 qexif
 ui_*.h
 build
+
+ndoc
+.ndocproject

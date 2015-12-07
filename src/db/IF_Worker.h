@@ -8,10 +8,25 @@
 #include "Exif.h"
 #include "Sliders.h"
 
+/* Class: IF_Worker
+
+   Worker thread for <ImageFinder>
+*/
 class IF_Worker: public QObject {
   Q_OBJECT;
 public:
+  // Constructor: IF_Worker
   IF_Worker(QObject *parent=0);
+
+  /* Function: findImageNow
+     Implementation of <ImageFinder::findImage>.
+
+     This function actually
+     loads the image file and applies the needed adjustments.
+
+     Arguments:
+     urgent - True to avoid renicing dcraw subprocess
+   */
   Image16 findImageNow(QString path, QString ext,
 		       Exif::Orientation orient, PSize ns,
 		       class Sliders const &mods,
@@ -29,12 +44,34 @@ public:
    */
                                              
 public slots:
+  /* Function: findImage (slot)
+     Implementation of <ImageFinder::findImage>.
+
+     This loads the image, applies adjustments, and emits the <foundImage>
+     signal.
+   */
   void findImage(quint64 id, QString path, QString ext,
 		 Exif::Orientation orient, QSize ns,
 		 Sliders mods,
 		 int maxdim, bool urgent);
+  
 signals:
+  /* Function: foundImage (signal)
+
+     Emitted in response to <findImage> once the image has been loaded
+     and adjusted as requested.
+  */
   void foundImage(quint64 id, Image16 img, QSize originalSize);
+
+  /* Function: exception (signal)
+     Emitted when the worker thread catches an exception.
+
+     At the moment, all exceptions are fatal. This mechanism is used because
+     in Qt, subthreads and slots are not allowed to throw exceptions.
+
+     Arguments:
+     msg - Error message associated with the exception.
+  */
   void exception(QString);
 private:
   class Adjuster *adjuster;

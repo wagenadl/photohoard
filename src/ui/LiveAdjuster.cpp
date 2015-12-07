@@ -152,7 +152,7 @@ void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
   if (v!=version)
     return;
   originalSize = osize;
-  adjuster->setOriginal(img, osize);
+  adjuster->setReduced(img, osize);
 
   if (targetsize.isEmpty())
     adjuster->requestReduced(sliders, img.size());

@@ -21,7 +21,7 @@ PSize PSize::scaledDownToFitIn(QSize const &s) const {
   }  
 }
 
-PSize PSize::scaledToFitIn(QSize const &s) const {
+PSize PSize::scaledToFitSnuglyIn(QSize const &s) const {
   if (isEmpty() || s.isEmpty())
     return *this;
   double xf = s.width() / double(width());
@@ -32,7 +32,7 @@ PSize PSize::scaledToFitIn(QSize const &s) const {
     return PSize(int(width()*yf + 0.5), s.height());
 }
   
-PSize PSize::scaledToContain(QSize const &s) const {
+PSize PSize::scaledToSnuglyContain(QSize const &s) const {
   if (isEmpty() || s.isEmpty())
     return *this;
   double xf = s.width() / double(width());
@@ -61,7 +61,7 @@ PSize PSize::scaledUpToContain(QSize const &s) const {
     return PSize(int(width()*yf + 0.5), s.height());
 }
 
-double PSize::scaleFactorToFitIn(QSize const &s) const {
+double PSize::scaleFactorToSnuglyFitIn(QSize const &s) const {
   if (isEmpty())
     return 1;
   else if (s.isEmpty())
@@ -72,11 +72,11 @@ double PSize::scaleFactorToFitIn(QSize const &s) const {
 }
   
 double PSize::scaleDownFactorToFitIn(QSize const &s) const {
-  double f = scaleFactorToFitIn(s);
+  double f = scaleFactorToSnuglyFitIn(s);
   return f<1 ? f : 1;
 }
 
-double PSize::scaleFactorToContain(QSize const &s) const {
+double PSize::scaleFactorToSnuglyContain(QSize const &s) const {
   if (s.isEmpty())
     return isEmpty() ? 1 : 0;
   else if (isEmpty())
@@ -87,7 +87,7 @@ double PSize::scaleFactorToContain(QSize const &s) const {
 }
 
 double PSize::scaleUpFactorToContain(QSize const &s) const {
-  double f = scaleFactorToContain(s);
+  double f = scaleFactorToSnuglyContain(s);
   return f>1 ? f : 1;
 }
 

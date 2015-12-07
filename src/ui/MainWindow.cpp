@@ -70,8 +70,8 @@ MainWindow::MainWindow(PhotoDB *db,
           autocache, SLOT(request(quint64, QSize)));
   connect(lightTable, SIGNAL(recacheReoriented(QSet<quint64>)),
 	  autocache, SLOT(recache(QSet<quint64>)));
-  connect(autocache, SIGNAL(available(quint64, QSize, Image16)),
-          SLOT(updateImage(quint64, QSize, Image16)));
+  connect(autocache, SIGNAL(available(quint64, Image16, quint64)),
+          SLOT(updateImage(quint64, Image16, quint64)));
   connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
           lightTable, SLOT(rescan()));
 
@@ -147,10 +147,10 @@ void MainWindow::scrollToCurrent() {
   lightTable->scrollToCurrent();
 }
 
-void MainWindow::updateImage(quint64 i, QSize, Image16 img) {
-  lightTable->updateImage(i, img);
+void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
+  lightTable->updateImage(i, img, chgid);
   if (i==lightTable->current())
-    histogram->setImage(img);
+    histogram->setImage(img); // this is *bad*
 }
 
 void MainWindow::setLayout(LayoutBar::Action a) {

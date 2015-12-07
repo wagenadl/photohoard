@@ -200,8 +200,9 @@ void SlideView::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   
   if (fit) {
+    bool scaleup = img.size().scaleFactorToSnuglyFitIn(r.size())>1;
     Image16 i1 = img.scaledToFitIn(r.size(),
-                                   img.size().scaleFactorToFitIn(r.size())>1
+                                   scaleup
                                    ? Image16::Interpolation::NearestNeighbor
                                    : Image16::Interpolation::Linear);
     if (img.width()<naturalSize.width()
@@ -222,7 +223,7 @@ void SlideView::paintEvent(QPaintEvent *) {
   } else {
     PSize showSize = naturalSize*zoom;
     PSize availSize = r.size();
-    double effZoom = img.size().scaleFactorToFitIn(showSize);
+    double effZoom = img.size().scaleFactorToSnuglyFitIn(showSize);
     QRectF sourceRect;
     QRectF destRect;
     if (!img.size().isLargeEnoughFor(showSize)

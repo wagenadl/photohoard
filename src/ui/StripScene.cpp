@@ -29,11 +29,11 @@ void StripScene::dropHeaderFor(quint64 id, class Strip *s) {
   headermap.remove(id, s);
 }
 
-void StripScene::updateImage(quint64 id, Image16 img) {
+void StripScene::updateImage(quint64 id, Image16 img, bool chgd) {
   if (slidemap.contains(id))
-    slidemap[id]->updateImage(img);
+    slidemap[id]->updateImage(img, chgd);
   for (auto s: headermap.values(id))
-    s->updateHeader(img);
+    s->updateHeader(img, chgd);
 }
 
 void StripScene::quickRotate(quint64 id, int dphi) {

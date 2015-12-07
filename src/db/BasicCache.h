@@ -56,6 +56,9 @@ public:
    *:N By default, only non-outdated images are considered. This can be
    changed by passing true for outdatedOK.
   */
+  bool isOutdated(quint64 vsn);
+  /* ISOUTDATED - Report whether any outdated sizes exist for VSN
+   */
   void markOutdated(quint64 vsn);
   QList<PSize> sizes(quint64 vsn, bool outdatedOK=false);
   /*:F sizes

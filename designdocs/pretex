@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+while (<>) {
+  s/([A-Z][A-Za-z0-9_]*)::([a-z][A-Za-z0-9_]*)/\\class{$1}'s \\func{$2}/g;
+  s/([A-Z][A-Za-z0-9_]*)::([A-Z][A-Za-z0-9_]*)/\\class{$1}'s \\class{$2}/g;
+  s/([A-Z][A-Za-z0-9_]*)::/\\class{$1}/g;
+  s/^\*\s+(.*)$/\\section{$1}/;
+  print $_;
+}
