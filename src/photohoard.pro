@@ -170,3 +170,5 @@ HEADERS += db/PurgeCache.h
 SOURCES += db/PurgeCache.cpp
 HEADERS += ui/SliderGroups.h   SliderClipboard.h
 SOURCES += ui/SliderGroups.cpp SliderClipboard.cpp
+HEADERS += ui/Action.h
+SOURCES += ui/Action.cpp

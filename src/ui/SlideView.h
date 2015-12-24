@@ -7,6 +7,7 @@
 #include <QLabel>
 #include "Image16.h"
 #include "ColorLabelBar.h"
+#include "Action.h"
 
 class SlideView: public QFrame {
   Q_OBJECT;
@@ -41,6 +42,7 @@ private:
   //  QPointF mapWidgetToImage(QPointF) const;
   //  QPointF mapImageToWidget(QPointF) const;
   void updateRelXY(QPoint);
+  void makeActions();
 private:
   PSize naturalSize;
   Image16 img;
@@ -52,6 +54,7 @@ private:
   QPoint presspoint;
   double pressrelx, pressrely;
   bool dragging;
+  Actions actions;
 };
 
 #endif
