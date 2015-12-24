@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "StripScene.h"
 #include "CMS.h"
+#include "NoResult.h"
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
@@ -91,9 +92,16 @@ void Slide::paint(QPainter *painter,
     pDebug() << "Slide::paint current" << id;
   }
 
-  int colorLabel
-    = parent->database()->simpleQuery("select colorlabel from versions"
-                                     " where id==:a", id).toInt();
+  QSqlQuery q = parent->database()
+    ->query("select colorlabel, starrating, acceptreject"
+            " from versions where id==:a", id);
+  if (!q.next())
+    throw NoResult();
+  int colorLabel = q.value(0).toInt();
+  int starRating = q.value(1).toInt();
+  PhotoDB::AcceptReject acceptReject
+    = PhotoDB::AcceptReject(q.value(2).toInt());
+
   painter->setPen(QPen(Qt::NoPen));
 
   QColor b0 = colorLabelColor(colorLabel);
@@ -115,6 +123,47 @@ void Slide::paint(QPainter *painter,
   }
   painter->setBrush(b0);
   painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
+
+  if (starRating>0) {
+    // draw a few stars
+    QString star = QString::fromUtf8("★");
+    QString txt = "";
+    for (int n=0; n<starRating; n++)
+      txt += star;
+    painter->setPen(QColor("#ffee00"));
+    painter->drawText(r.adjusted(dx, 0, 0, -dx),
+                      Qt::AlignLeft | Qt::AlignBottom,
+                      txt);
+  }
+
+  if (acceptReject != PhotoDB::AcceptReject::Undecided) {
+    QString acc = QString::fromUtf8("√");
+    QString rej = QString::fromUtf8("×");
+    QString txt = "";
+    QColor clr;
+    switch (acceptReject) {
+    case PhotoDB::AcceptReject::Accept:
+      txt = acc;
+      clr = QColor("#00ff00");
+      break;
+    case PhotoDB::AcceptReject::Reject:
+      txt = rej;
+      clr = QColor("red");
+      break;
+    default:
+      break;
+    }
+    QFont f0 = painter->font();
+    QFont f = f0;
+    f.setPixelSize(16); // hmm.
+    f.setWeight(QFont::Bold);
+    painter->setPen(clr);
+    painter->setFont(f);
+    painter->drawText(r.adjusted(0, 0, -2*dx, 0),
+                      Qt::AlignRight | Qt::AlignTop,
+                      txt);
+    painter->setFont(f0);
+  }
   
   int ims = tilesize - 8;
   if (!(pm.width()==ims || pm.height()==ims)) {

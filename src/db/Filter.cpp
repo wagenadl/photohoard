@@ -11,8 +11,9 @@ Filter::Filter(PhotoDB *db): db(db) {
   hasstarrating = false;
   minstars = 0;
   maxstars = 5;
-  hasstatus = false;
-  statusaccepted = statusrejected = statusunset = false;
+  hasstatus = true;
+  statusaccepted = statusunset = true;
+  statusrejected = false;
   hascamera = false;
   hasdaterange = false;
   startdate = QDate(1980, 1, 1);

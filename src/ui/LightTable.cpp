@@ -444,12 +444,20 @@ void LightTable::setColorLabelEtc(ColorLabelBar::Action a) {
 	      " (select version from selection)", starr);
   } break;
   case ColorLabelBar::Action::SetUndecided:
-  case ColorLabelBar::Action::SetAccept:
-  case ColorLabelBar::Action::SetReject: {
-    int accrej = int(a) - int(ColorLabelBar::Action::SetUndecided);
     db->query("update versions set acceptreject=:a where id in "
-	      " (select version from selection)", accrej);
-  } break;
+	      " (select version from selection)",
+              int(PhotoDB::AcceptReject::Undecided));
+    break;
+  case ColorLabelBar::Action::SetAccept:
+    db->query("update versions set acceptreject=:a where id in "
+	      " (select version from selection)",
+              int(PhotoDB::AcceptReject::Accept));
+    break;
+  case ColorLabelBar::Action::SetReject: 
+    db->query("update versions set acceptreject=:a where id in "
+	      " (select version from selection)",
+              int(PhotoDB::AcceptReject::Reject));
+    break;
   case ColorLabelBar::Action::RotateLeft:
     rotateSelected(-1);
     break;

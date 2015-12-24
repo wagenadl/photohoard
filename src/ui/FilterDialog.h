@@ -27,6 +27,7 @@ private slots:
   void browseTags();
   void browseFolders();
   void buttonClick(class QAbstractButton *);
+  void selectAllLabels();
 protected:
   virtual void showEvent(QShowEvent *) override;
 private:
