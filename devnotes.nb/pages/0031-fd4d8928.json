@@ -1,0 +1,103 @@
+{ "typ": "page",
+  "cre": "2015-12-23T09:13:58",
+  "mod": "2015-12-23T09:33:04",
+  "cui": "c2b89698947f0e5e",
+  "stampTime": 0,
+  "startPage": 31,
+  "unlocked": false,
+  "uuid": "fd4d8928",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-12-23T09:13:58",
+      "mod": "2015-12-23T09:22:04",
+      "uuid": "8d912b22",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T09:13:58",
+          "mod": "2015-12-23T09:22:04",
+          "lines": [
+            0
+          ],
+          "text": "Fairly simple next steps",
+          "uuid": "017cc5c2"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-12-23T09:13:58",
+      "mod": "2015-12-23T09:13:58",
+      "uuid": "65148306"
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T09:14:05",
+      "mod": "2015-12-23T09:33:04",
+      "h": 722.146,
+      "ind": 4,
+      "sheet": 0,
+      "split": [
+        625.482
+      ],
+      "uuid": "6a0e1fcc",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T09:14:05",
+          "mod": "2015-12-23T09:33:04",
+          "lines": [
+            0,
+            60,
+            115,
+            176,
+            191,
+            251,
+            279,
+            338,
+            392,
+            446,
+            508,
+            566,
+            623,
+            683,
+            742,
+            794,
+            850,
+            905,
+            963,
+            1004,
+            1060,
+            1118,
+            1176,
+            1236,
+            1287,
+            1324,
+            1368,
+            1408,
+            1439,
+            1499,
+            1559
+          ],
+          "text": "* Discovery of missing files: AutoCache/? could detect, and once per session pop up a box to suggest Control-R. Of course, Control-R should actually purge them. (I think there may be a bug.)\n* Use Control-X to mark as Reject. Update the filter box to exclude rejects by default.\n* Implement automatic duplicate detection. At import time, check a new photo’s CAPTUREDATE against the db. If it matches anything, calculate for all of the matches an md5sum over the first 4k of the image file, and store that as 8 chars or so in the PHOTOS table (SHORTMD5). (So that it remains available for future ref; scanned photos may all share a capture date, after all.) If matches remain at that level, md5sum the entire files, and store all chars in the PHOTOS table (FULLMD5). If matches remain, mark the versions of the new photo as DUPLICATE, which will be a new enum tag in the ACCEPT/REJECT field. Also mark the photo itself as DUPLICATE in a new field? Duplicates will also be hidden by the filter by default.\n* Create a mechanism to automatically document keyboard shortcuts. That is, wherever a shortcut is defined in the program, somehow use that spot in the source to include a description that can then be used in a popup dialog. Tricky within a switch statement. Needs to be solved. Are anonymous functions a good solution?\n* More keyboard shortcuts. Esp., rotate 90.\n* Better discoverability through icons?\n* Autoscroll the slider panel?\n* Delete deletes a version, Ctrl-Delete deletes photo file?\n* Keys for prev/next version that work when focus is not on the strip.",
+          "uuid": "c706cd1c",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2015-12-23T09:14:25",
+              "mod": "2015-12-23T09:14:25",
+              "end": 64,
+              "start": 60,
+              "style": 1,
+              "uuid": "824f8c26"
+            },
+            { "typ": "markup",
+              "cre": "2015-12-23T09:17:05",
+              "mod": "2015-12-23T09:17:05",
+              "end": 499,
+              "start": 494,
+              "style": 1,
+              "uuid": "b4a4cc93"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

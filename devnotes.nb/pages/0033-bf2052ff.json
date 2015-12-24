@@ -1,0 +1,203 @@
+{ "typ": "page",
+  "cre": "2015-12-23T21:00:13",
+  "mod": "2015-12-23T21:05:18",
+  "cui": "c2b89698c8bb8c3c",
+  "stampTime": 0,
+  "startPage": 33,
+  "unlocked": false,
+  "uuid": "bf2052ff",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-12-23T21:00:13",
+      "mod": "2015-12-23T21:00:20",
+      "uuid": "7110b038",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:00:13",
+          "mod": "2015-12-23T21:00:20",
+          "lines": [
+            0
+          ],
+          "text": "Key shortcut lists",
+          "uuid": "ddecfd8c"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-12-23T21:00:13",
+      "mod": "2015-12-23T21:00:13",
+      "uuid": "371d6769"
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:00:20",
+      "mod": "2015-12-23T21:00:50",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "cdbfeba7",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:00:20",
+          "mod": "2015-12-23T21:00:50",
+          "lines": [
+            0,
+            60
+          ],
+          "text": "With C++ 2011 lambdas, I can possibly combine a key code, a help text, and an action in one struct.",
+          "uuid": "15b1123a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:00:50",
+      "mod": "2015-12-23T21:01:42",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "8dd1c06c",
+      "y0": 122.332,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:00:50",
+          "mod": "2015-12-23T21:01:42",
+          "lines": [
+            0
+          ],
+          "text": "std::function<void ()> xxx = [] () { function_body; }",
+          "uuid": "c0c7fc2c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:01:44",
+      "mod": "2015-12-23T21:02:11",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d8a3c804",
+      "y0": 141.479,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:01:44",
+          "mod": "2015-12-23T21:02:11",
+          "lines": [
+            0,
+            55
+          ],
+          "text": "Within the [], you can place any &var to make that var available within the function body.",
+          "uuid": "6ee7b5fa"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:03:37",
+      "mod": "2015-12-23T21:03:44",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "ed19b37f",
+      "y0": 191.811,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:03:37",
+          "mod": "2015-12-23T21:03:44",
+          "lines": [
+            0
+          ],
+          "text": "And with uniform assignment, if I have",
+          "uuid": "632168cb"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:03:44",
+      "mod": "2015-12-23T21:04:37",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "3ecc15f3",
+      "y0": 218.977,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:03:44",
+          "mod": "2015-12-23T21:04:37",
+          "lines": [
+            0
+          ],
+          "text": "struct Act { int key, QString doc, std::function<void ()> foo },",
+          "uuid": "505f5890"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:04:08",
+      "mod": "2015-12-23T21:04:21",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "bc6ed174",
+      "y0": 238.124,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:04:08",
+          "mod": "2015-12-23T21:04:21",
+          "lines": [
+            0
+          ],
+          "text": "I can say stuff like",
+          "uuid": "aef23966"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:04:21",
+      "mod": "2015-12-23T21:05:00",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "246a0825",
+      "y0": 265.29,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:04:21",
+          "mod": "2015-12-23T21:05:00",
+          "lines": [
+            0
+          ],
+          "text": "Act a{Qt::Key_A, “Select all”, [] () { blabla; }};",
+          "uuid": "b5b2b0be"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-23T21:05:00",
+      "mod": "2015-12-23T21:05:18",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f03276e8",
+      "y0": 284.437,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-23T21:05:00",
+          "mod": "2015-12-23T21:05:18",
+          "lines": [
+            0,
+            69
+          ],
+          "text": "Or at least, I think I can. And of course, all of that can be put in a list as well.",
+          "uuid": "ec83fabb"
+        }
+      ]
+    }
+  ]
+}

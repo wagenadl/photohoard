@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-08-20T19:53:02",
-  "mod": "2015-11-21T07:11:30",
+  "mod": "2015-12-23T21:00:20",
   "uuid": "b7dd37c0",
   "cc": [
     { "typ": "entry",
@@ -154,6 +154,22 @@
       "startPage": 29,
       "title": "Rethinking Photohoard’s information flow",
       "uuid": "8996173b"
+    },
+    { "typ": "entry",
+      "cre": "2015-12-23T09:13:58",
+      "mod": "2015-12-23T09:23:05",
+      "sheetCount": 2,
+      "startPage": 31,
+      "title": "Fairly simple next steps",
+      "uuid": "fd4d8928"
+    },
+    { "typ": "entry",
+      "cre": "2015-12-23T21:00:13",
+      "mod": "2015-12-23T21:00:20",
+      "sheetCount": 1,
+      "startPage": 33,
+      "title": "Key shortcut lists",
+      "uuid": "bf2052ff"
     }
   ]
 }
