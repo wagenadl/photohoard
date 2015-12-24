@@ -35,18 +35,18 @@ ColorLabelBar::ColorLabelBar(QWidget *parent): ActionBar(parent) {
   addAction(actions[Action::SetBlue]);
   addAction(actions[Action::SetPurple]);
 
-  actions[Action::Set0Stars]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT
-							+ Qt::Key_0));
-  actions[Action::Set1Star]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT
-						       + Qt::Key_1));
-  actions[Action::Set2Stars]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT
-							+ Qt::Key_2));
-  actions[Action::Set3Stars]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT
-							+ Qt::Key_3));
-  actions[Action::Set4Stars]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT
-							+ Qt::Key_4));
-  actions[Action::Set5Stars]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT
-							+ Qt::Key_5));
+  actions[Action::Set0Stars]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_0));
+  actions[Action::Set1Star]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_1));
+  actions[Action::Set2Stars]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_2));
+  actions[Action::Set3Stars]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_3));
+  actions[Action::Set4Stars]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_4));
+  actions[Action::Set5Stars]
+    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_5));
 
   addHiddenAction(actions[Action::Set0Stars]);
   addHiddenAction(actions[Action::Set1Star]);
@@ -54,6 +54,10 @@ ColorLabelBar::ColorLabelBar(QWidget *parent): ActionBar(parent) {
   addHiddenAction(actions[Action::Set3Stars]);
   addHiddenAction(actions[Action::Set4Stars]);
   addHiddenAction(actions[Action::Set5Stars]);
+
+  actions[Action::SetUndecided]->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_U));
+  actions[Action::SetAccept]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+  actions[Action::SetReject]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
 
   addHiddenAction(actions[Action::SetUndecided]);
   addHiddenAction(actions[Action::SetAccept]);
