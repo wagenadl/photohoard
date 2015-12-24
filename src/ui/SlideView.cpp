@@ -14,6 +14,7 @@ SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
   fit = true;
   zoom = 1;
+  makeActions();
 }
   
 SlideView::~SlideView() {
@@ -124,25 +125,34 @@ void SlideView::wheelEvent(QWheelEvent *e) {
   changeZoomLevel(e->pos(), e->delta()/1000.0);
 }
 
+void SlideView::makeActions() {
+  actions
+    << Action{ Qt::Key_0, "Scale to fit",
+      [&]() { scaleToFit(); }}
+  << Action{ { Qt::Key_Minus, Qt::Key_Underscore }, "Zoom out",
+      [&]() { changeZoomLevel(QPoint(), -0.5, true); }}
+  << Action{ { Qt::Key_Minus | Qt::ShiftModifier,
+           Qt::Key_Underscore | Qt::ShiftModifier}, "",
+      [&]() { changeZoomLevel(QPoint(), -1, true); }}
+  << Action{ { Qt::Key_Minus | Qt::AltModifier,
+           Qt::Key_Underscore | Qt::AltModifier}, "",
+      [&]() { changeZoomLevel(QPoint(), -0.125, true); }}
+  << Action{ { Qt::Key_Plus, Qt::Key_Equal }, "Zoom in",
+      [&]() { changeZoomLevel(QPoint(), 0.5, true); }}
+  << Action{ { Qt::Key_Plus | Qt::ShiftModifier,
+           Qt::Key_Equal | Qt::ShiftModifier}, "",
+      [&]() { changeZoomLevel(QPoint(), 1, true); }}
+  << Action{ { Qt::Key_Plus | Qt::AltModifier,
+           Qt::Key_Equal | Qt::AltModifier}, "",
+      [&]() { changeZoomLevel(QPoint(), 0.125, true); }}
+  << Action{ Qt::Key_1, "Zoom 1:1",
+      [&]() { setZoom(1); }};
+}
+
 void SlideView::keyPressEvent(QKeyEvent *e) {
-  bool alt = e->modifiers() & Qt::AltModifier;
-  bool shift = e->modifiers() & Qt::ShiftModifier;
-  //  bool ctrl = e->modifiers() & Qt::ControlModifier;
-  switch (e->key()) {
-  case Qt::Key_0:
-      scaleToFit();
-    break;
-  case Qt::Key_Minus: case Qt::Key_Underscore:
-    changeZoomLevel(QPoint(), shift ? -1 : alt ? -.125 : -0.5, true);
-    break;
-  case Qt::Key_Equal: case Qt::Key_Plus:
-    changeZoomLevel(QPoint(), shift ? 1 : alt ? .125 : 0.5, true);
-    break;
-  case Qt::Key_1:
-    setZoom(1);
-    break;
-  default:
-    break;
+  if (actions.activateIf(e)) {
+    e->accept();
+    return;
   }
 }
 

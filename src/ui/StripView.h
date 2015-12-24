@@ -8,6 +8,7 @@
 #include "Strip.h"
 #include "PhotoDB.h"
 #include "ColorLabelBar.h"
+#include "Action.h"
 
 class StripView: public QGraphicsView {
   Q_OBJECT;
@@ -48,12 +49,14 @@ protected:
   void recalcSizes();
   quint64 current();
   void placeAndConnect(class Strip *strip);
+  void makeActions();
 private:
   PhotoDB *db;
   bool useFolders;
   class StripScene *dateScene, *folderScene;
   class Datestrip *dateStrip, *folderStrip;
   int tilesize;
+  Actions actions;
 };
 
 #endif

@@ -75,6 +75,8 @@ StripView::StripView(PhotoDB *db, QWidget *parent):
   folderStrip->unblock();
   
   stripResized();
+
+  makeActions();
 }
 
 void StripView::placeAndConnect(Strip *strip) {
@@ -217,44 +219,55 @@ int StripView::idealSize(Strip::Arrangement arr) const {
     + 5*Strip::labelHeight(tileSize());
 }
 
+void StripView::makeActions() {
+  actions
+    << Action{Qt::Key_Minus, "Reduce tile size",
+      [&]() {
+      setTileSize(tilesize*8/10);
+      emit idealSizeChanged();
+    }}
+  << Action{ {Qt::Key_Plus,
+        Qt::Key_Equal,
+        Qt::Key_Plus | Qt::ShiftModifier },
+      "Increase tile size",
+      [&]() {
+      setTileSize(tilesize*10/8);
+      emit idealSizeChanged();
+    }}
+  << Action{ "Arrows", "Navigate" }
+  << Action{ Qt::Key_Up, "",
+      [&]() {
+      quint64 v = strip()->versionAbove(current());
+      if (v)
+        emit pressed(v, Qt::LeftButton, 0);
+    }}
+  << Action{ Qt::Key_Down, "",
+      [&]() {
+      quint64 v = strip()->versionBelow(current());
+      if (v)
+        emit pressed(v, Qt::LeftButton, 0);
+    }}
+  << Action{ Qt::Key_Left, "",
+      [&]() {
+      quint64 v = strip()->versionLeftOf(current());
+      if (v)
+        emit pressed(v, Qt::LeftButton, 0);
+    }}
+  << Action{ Qt::Key_Right, "",
+      [&]() {
+      quint64 v = strip()->versionRightOf(current());
+      if (v)
+        emit pressed(v, Qt::LeftButton, 0);
+    }};
+}
+
 void StripView::keyPressEvent(QKeyEvent *e) {
-  switch (e->key()) {
-  case Qt::Key_Minus:
-    setTileSize(tilesize*8/10);
-    emit idealSizeChanged();
-    break;
-  case Qt::Key_Plus: case Qt::Key_Equal:
-    setTileSize(tilesize*10/8);
-    emit idealSizeChanged();
-    break;
-  case Qt::Key_Up: {
-    quint64 v = strip()->versionAbove(current());
-    if (v)
-      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
+  if (actions.activateIf(e)) {
     e->accept();
-  } break;
-  case Qt::Key_Down: {
-    quint64 v = strip()->versionBelow(current());
-    if (v)
-      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
-    e->accept();
-  } break;
-  case Qt::Key_Left: {
-    quint64 v = strip()->versionLeftOf(current());
-    if (v)
-      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
-    e->accept();
-  } break;
-  case Qt::Key_Right: {
-    quint64 v = strip()->versionRightOf(current());
-    if (v)
-      emit pressed(v, Qt::LeftButton, 0); // bit of a hack
-    e->accept();
-  } break;
-  default:
-    QGraphicsView::keyPressEvent(e);
-    break;
+    return;
   }
+  
+  QGraphicsView::keyPressEvent(e);
 }
 
 StripScene *StripView::scene() {
