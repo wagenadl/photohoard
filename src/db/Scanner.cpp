@@ -52,15 +52,19 @@ void Scanner::addTree(QString path, QString defaultCollection,
   rescan(path);
 }
 
-void Scanner::rescanAll() {
-  // This is called from outside of thread!
+QStringList Scanner::allRoots() {
   QSqlQuery q = db0->query("select pathname from folders"
                            " where parentfolder is null");
   QStringList roots;
   while (q.next())
     roots << q.value(0).toString();
-  q.finish();
+  
+  return roots;
+}
 
+void Scanner::rescanAll() {
+  // This is called from outside of thread!
+  QStringList roots = allRoots();
   for (QString r: roots)
     rescan(r);
 }
@@ -72,7 +76,7 @@ void Scanner::rescan(QString path) {
   db0->query("insert into folderstoscan select id from folders"
              " where pathname==:a", path);
   pDebug() << "rescan" << path << "inserted";
-  
+
   QMutexLocker l(&mutex);
   waiter.wakeOne();
 }
