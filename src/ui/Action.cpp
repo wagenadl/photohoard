@@ -13,7 +13,13 @@ Action::Action(int key, QString doc, QAction *act):
   doc(doc), act(act) {
   keys << QKeySequence(key);
   act->setShortcut(keys.first());
-  act->setText(doc + "(" + keys.first().toString() + ")");
+  int idx = doc.indexOf("\n");
+  if (idx>=0) {
+    act->setText(doc.left(idx) + " (" + keys.first().toString() + ")");
+    act->setToolTip(doc + " (" + keys.first().toString() + ")");
+  } else {
+    act->setText(doc + " (" + keys.first().toString() + ")");
+  }
 }
 
 Action::Action(std::vector<int> const &kk,
@@ -28,7 +34,7 @@ Action::Action(QString pseudokey, QString doc):
   pseudokey(pseudokey), doc(doc), act(0) {
 }
 
-QKeySequence Action::key() const {
+QKeySequence Action::shortcut() const {
   return keys.isEmpty() ? QKeySequence(): keys.first();
 }
 
@@ -36,7 +42,7 @@ QString Action::keyName() const {
   if (keys.isEmpty())
     return pseudokey;
   else
-    return key().toString();
+    return shortcut().toString();
 }
 
 QString Action::documentation() const {
@@ -46,7 +52,7 @@ QString Action::documentation() const {
 void Action::activate() const {
   if (act) 
     act->activate(QAction::Trigger);
-  else 
+  else if (foo)
     foo();
 }
 
@@ -59,6 +65,18 @@ bool Action::activateIf(QKeySequence const &key) const {
   }
 
   return false;
+}
+
+
+PQAction::PQAction(std::function<void()> foo, QObject *parent):
+  QAction(parent), foo(foo) {
+  connect(this, SIGNAL(triggered()),
+          this, SLOT(activ8()));
+}
+
+void PQAction::activ8() {
+  if (foo)
+    foo();
 }
 
 Actions &Actions::operator<<(Action const &a) {
