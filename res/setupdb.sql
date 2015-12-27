@@ -90,7 +90,7 @@ create table versions (
 -- Table of derived versions of photographs
        id integer primary key,
        photo integer,
-       orient integer,
+       orient integer default 0,
        starrating integer default 0,
        colorlabel integer default 0,
        acceptreject integer default 0,
