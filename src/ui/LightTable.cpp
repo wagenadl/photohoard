@@ -487,28 +487,14 @@ void LightTable::resizeStrip() {
   else
     return;
   //  scrollToCurrent();
-}  
+}
 
-void LightTable::filterAction(FilterBar::Action a) {
-  switch (a) {
-  case FilterBar::Action::ClearSelection:
-    clearSelection();
-    break;
-  case FilterBar::Action::SelectAll:
-    selectAll();
-    break;
-  case FilterBar::Action::OpenFilterDialog:
-    filterDialog->show();
-    break;
-  case FilterBar::Action::Larger:
-    strips->setTileSize(10*strips->tileSize()/8);
-    break;
-  case FilterBar::Action::Smaller:
-    strips->setTileSize(8*strips->tileSize()/10);
-    break;
-  default:
-    break;
-  }
+void LightTable::increaseTileSize(double factor) {
+  strips->setTileSize(factor*strips->tileSize());
+}
+
+void LightTable::openFilterDialog() {
+  filterDialog->show();
 }
 
 void LightTable::selectAll() {

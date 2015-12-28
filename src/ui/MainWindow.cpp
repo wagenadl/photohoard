@@ -60,7 +60,7 @@ MainWindow::MainWindow(PhotoDB *db,
   addToolBar(area, fileBar = new FileBar(this));
   addToolBar(area, layoutBar = new LayoutBar(this));
   addToolBar(area, colorLabelBar = new ColorLabelBar(this));
-  addToolBar(area, filterBar = new FilterBar(this));
+  addToolBar(area, filterBar = new FilterBar(this, lightTable));
   // etc.
   
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
@@ -81,8 +81,7 @@ MainWindow::MainWindow(PhotoDB *db,
 	  SLOT(fileAction(FileBar::Action)));
   connect(colorLabelBar, SIGNAL(triggered(ColorLabelBar::Action)),
 	  lightTable, SLOT(setColorLabelEtc(ColorLabelBar::Action)));
-  connect(filterBar, SIGNAL(triggered(FilterBar::Action)),
-	  lightTable, SLOT(filterAction(FilterBar::Action)));
+
   autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),

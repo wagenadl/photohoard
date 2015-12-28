@@ -3,6 +3,7 @@
 #include "Action.h"
 #include <QKeyEvent>
 #include <QAction>
+#include <QDebug>
 
 Action::Action(int key, QString doc, std::function<void()> foo):
   doc(doc), foo(foo), act(0) {
@@ -74,9 +75,20 @@ PQAction::PQAction(std::function<void()> foo, QObject *parent):
           this, SLOT(activ8()));
 }
 
+PQAction::PQAction(QIcon const &icon, std::function<void()> foo, QObject *par):
+  QAction(icon, "", par), foo(foo) {
+  connect(this, SIGNAL(triggered()),
+          this, SLOT(activ8()));
+}
+
 void PQAction::activ8() {
-  if (foo)
+  qDebug() << "PQAction::Activ8";
+  if (foo) {
+    qDebug() << "got foo";
     foo();
+  } else {
+    qDebug() << "no foo";
+  }
 }
 
 Actions &Actions::operator<<(Action const &a) {

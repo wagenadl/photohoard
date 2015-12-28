@@ -29,12 +29,13 @@ public slots:
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void rescan(bool rebuildFilter=true);
   void setColorLabelEtc(ColorLabelBar::Action);
-  void filterAction(FilterBar::Action);
   void clearSelection();
   void selectAll();
   void bgPress(Qt::MouseButton, Qt::KeyboardModifiers);
   void scrollToCurrent();
   void rotateSelected(int); // in steps of 90 degrees
+  void openFilterDialog();
+  void increaseTileSize(double factor);
 signals:
   void needImage(quint64, QSize);
   void newCurrent(quint64);
