@@ -56,7 +56,7 @@ MainWindow::MainWindow(PhotoDB *db,
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
   addToolBar(area, fileBar = new FileBar(db, exporter, scanner, this));
   addToolBar(area, layoutBar = new LayoutBar(this));
-  addToolBar(area, colorLabelBar = new ColorLabelBar(this));
+  addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
   addToolBar(area, filterBar = new FilterBar(lightTable, this));
   // etc.
   
@@ -74,8 +74,6 @@ MainWindow::MainWindow(PhotoDB *db,
 
   connect(layoutBar, SIGNAL(triggered(LayoutBar::Action)),
           this, SLOT(setLayout(LayoutBar::Action)));
-  connect(colorLabelBar, SIGNAL(triggered(ColorLabelBar::Action)),
-	  lightTable, SLOT(setColorLabelEtc(ColorLabelBar::Action)));
 
   autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
 

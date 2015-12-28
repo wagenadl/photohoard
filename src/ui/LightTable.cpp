@@ -421,52 +421,7 @@ void LightTable::rescan(bool rebuildFilter) {
   strips->rescan();
 }
 
-void LightTable::setColorLabelEtc(ColorLabelBar::Action a) {
-  switch (a) {
-  case ColorLabelBar::Action::SetNoColor:
-  case ColorLabelBar::Action::SetRed:
-  case ColorLabelBar::Action::SetYellow:
-  case ColorLabelBar::Action::SetGreen:
-  case ColorLabelBar::Action::SetBlue:
-  case ColorLabelBar::Action::SetPurple: {
-    int color = int(a) - int(ColorLabelBar::Action::SetNoColor);
-    db->query("update versions set colorlabel=:a where id in "
-	      " (select version from selection)", color);
-  } break;
-  case ColorLabelBar::Action::Set0Stars:
-  case ColorLabelBar::Action::Set1Star:
-  case ColorLabelBar::Action::Set2Stars:
-  case ColorLabelBar::Action::Set3Stars:
-  case ColorLabelBar::Action::Set4Stars:
-  case ColorLabelBar::Action::Set5Stars: {
-    int starr = int(a) - int(ColorLabelBar::Action::Set0Stars);
-    db->query("update versions set starrating=:a where id in "
-	      " (select version from selection)", starr);
-  } break;
-  case ColorLabelBar::Action::SetUndecided:
-    db->query("update versions set acceptreject=:a where id in "
-	      " (select version from selection)",
-              int(PhotoDB::AcceptReject::Undecided));
-    break;
-  case ColorLabelBar::Action::SetAccept:
-    db->query("update versions set acceptreject=:a where id in "
-	      " (select version from selection)",
-              int(PhotoDB::AcceptReject::Accept));
-    break;
-  case ColorLabelBar::Action::SetReject: 
-    db->query("update versions set acceptreject=:a where id in "
-	      " (select version from selection)",
-              int(PhotoDB::AcceptReject::Reject));
-    break;
-  case ColorLabelBar::Action::RotateLeft:
-    rotateSelected(-1);
-    break;
-  case ColorLabelBar::Action::RotateRight:
-    rotateSelected(1);
-    break;
-  default:
-    break;
-  }
+void LightTable::updateSelectedTiles() {
   if (selection->count() > 10) {
     strips->scene()->update();
   } else {
@@ -568,11 +523,7 @@ void LightTable::populateFilterFromDialog() {
 }
 
 void LightTable::rotateSelected(int dphi) {
-  QSet<quint64> vsns;
-  QSqlQuery q = db->query("select version from selection");
-  while (q.next()) 
-    vsns << q.value(0).toULongLong();
-  q.finish();
+  QSet<quint64> vsns = selection->current();
 
   for (auto id: vsns)
     strips->quickRotate(id, dphi);
@@ -592,8 +543,8 @@ void LightTable::rotateSelected(int dphi) {
   
   Transaction t(db);
   for (auto id: vsns) {
-    int orient = db->simpleQuery("select orient from versions where id==:a",
-				 id).toInt();
+    int orient
+      = db->simpleQuery("select orient from versions where id==:a", id).toInt();
     orient = (orient + dphi) & 3;
     db->query("update versions set orient=:a where id==:b", orient, id);
   }

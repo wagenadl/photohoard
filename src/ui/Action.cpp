@@ -5,12 +5,12 @@
 #include <QAction>
 #include <QDebug>
 
-Action::Action(int key, QString doc, std::function<void()> foo):
+Action::Action(unsigned int key, QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
   keys << QKeySequence(key);
 }
 
-Action::Action(std::vector<int> const &kk,
+Action::Action(std::vector<unsigned int> const &kk,
                QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
   for (auto k: kk) 
