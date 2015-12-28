@@ -8,9 +8,10 @@
 #include "ExportDialog.h"
 #include "AddRootDialog.h"
 #include <QDir>
+#include "MainWindow.h"
 
 FileBar::FileBar(PhotoDB *db, Exporter *exporter,
-                 Scanner *scanner, QWidget *parent): ActionBar(parent) {
+                 Scanner *scanner, MainWindow *parent): ActionBar(parent) {
   exportdialog = 0;
   setWindowTitle("File");
 
@@ -64,6 +65,11 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
       []() { qDebug() << "Not yet implemented"; }};
+  parent->addAction(new PAction(acts.last(), this));
+
+  acts << Action{Qt::CTRL + Qt::Key_H, "Shortcut help",
+      [this]() { auto w = dynamic_cast<MainWindow*>(this->parent());
+      Q_ASSERT(w); w->showShortcutHelp(); }};
   parent->addAction(new PAction(acts.last(), this));
 }
 

@@ -10,7 +10,7 @@ class FileBar: public ActionBar {
 public:
   FileBar(class PhotoDB *db,
           class Exporter *exporter, class Scanner *scanner,
-          QWidget *parent);
+          class MainWindow *parent);
 private:
   class ExportDialog *exportdialog;
 };
