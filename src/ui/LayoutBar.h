@@ -4,12 +4,12 @@
 
 #define LAYOUTBAR_H
 
-#include "ActionBar.h"
+#include <QToolBar>
+#include "Action.h"
 
-class LayoutBar: public ActionBar {
-  Q_OBJECT;
+class LayoutBar: public QToolBar {
 public:
-  enum class Action {
+  enum class Layout {
     FullGrid=0,
       HGrid,
       VGrid,
@@ -21,21 +21,11 @@ public:
       ToggleFullPhoto, // not a layout: selects FullPhoto or previous layout
       ToggleFullScreen, // not a layout: toggles full screen display
       ToggleOrg,
-      N
       };
 public:
-  LayoutBar(QWidget *parent);
-  virtual ~LayoutBar();
-signals:
-  void triggered(LayoutBar::Action a);
-private slots:
-  void trigger(QAction *);
+  LayoutBar(class LightTable *lighttable, QWidget *parent);
 private:
-  Action currentLayout;
-  Action previousLayout;
-private:
-  QMap<Action, QAction *> actions;
-  QMap<QAction *, Action> revmap;
+  Actions actions;
 };
 
 #endif

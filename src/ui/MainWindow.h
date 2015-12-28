@@ -20,7 +20,6 @@ public:
 public slots:
   void scrollToCurrent();
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
-  void setLayout(LayoutBar::Action);
 private:
   class PhotoDB *db;
   class Scanner *scanner;

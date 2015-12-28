@@ -23,7 +23,7 @@ public:
   quint64 current() const { return curr; }
   PSize displaySize() const;
 public slots:
-  void setLayout(LayoutBar::Action ar);
+  void setLayout(LayoutBar::Layout ar);
   void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);
   void select(quint64 vsn, Qt::KeyboardModifiers=Qt::NoModifier);
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
@@ -66,7 +66,7 @@ protected:
   class SlideView *slide;
   class FilterDialog *filterDialog;
   bool showmax;
-  LayoutBar::Action lastlay, lay;
+  LayoutBar::Layout lastlay, lay;
   quint64 curr;
   int tilesize;
   int lastgridsize;

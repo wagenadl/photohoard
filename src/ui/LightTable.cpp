@@ -17,7 +17,7 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db), adjuster(adj) {
   setObjectName("LightTable");
   curr = 0;
-  lay=lastlay=LayoutBar::Action::VGrid;
+  lay=lastlay=LayoutBar::Layout::VGrid;
   showmax = false;
   
   bool oldcrash = db->simpleQuery("select count(*) from starting").toInt()>0;
@@ -102,42 +102,42 @@ void LightTable::ensureReasonableGridSize() {
 }
 
 
-void LightTable::setLayout(LayoutBar::Action act) {
+void LightTable::setLayout(LayoutBar::Layout act) {
   lastlay = lay;
   switch (act) {
-  case LayoutBar::Action::FullGrid:
+  case LayoutBar::Layout::FullGrid:
     strips->setArrangement(Strip::Arrangement::Grid);
     strips->show();
     slide->hide();
     lay = act;
     break;
-  case LayoutBar::Action::HGrid:
+  case LayoutBar::Layout::HGrid:
     strips->setArrangement(Strip::Arrangement::Grid);
     setOrientation(Qt::Vertical);
-    if (lay==LayoutBar::Action::HLine
-        || lay==LayoutBar::Action::VLine
-        || lay==LayoutBar::Action::FullPhoto)
+    if (lay==LayoutBar::Layout::HLine
+        || lay==LayoutBar::Layout::VLine
+        || lay==LayoutBar::Layout::FullPhoto)
       setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
     ensureReasonableGridSize();
     strips->show();
     slide->show();
     lay = act;
     break;
-  case LayoutBar::Action::VGrid:
+  case LayoutBar::Layout::VGrid:
     strips->setArrangement(Strip::Arrangement::Grid);
     setOrientation(Qt::Horizontal);
-    if (lay==LayoutBar::Action::HLine
-        || lay==LayoutBar::Action::VLine
-        || lay==LayoutBar::Action::FullPhoto)
+    if (lay==LayoutBar::Layout::HLine
+        || lay==LayoutBar::Layout::VLine
+        || lay==LayoutBar::Layout::FullPhoto)
       setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
     ensureReasonableGridSize();
     strips->show();
     slide->show();
     lay = act;
     break;
-  case LayoutBar::Action::HLine: {
-    if (lay==LayoutBar::Action::HGrid
-        || lay==LayoutBar::Action::HGrid)
+  case LayoutBar::Layout::HLine: {
+    if (lay==LayoutBar::Layout::HGrid
+        || lay==LayoutBar::Layout::HGrid)
       lastgridsize = sizes()[0];
     int ts = strips->tileSize();
     setOrientation(Qt::Vertical);
@@ -149,9 +149,9 @@ void LightTable::setLayout(LayoutBar::Action act) {
     slide->show();
     lay = act;
   } break;
-  case LayoutBar::Action::VLine: {
-    if (lay==LayoutBar::Action::HGrid
-        || lay==LayoutBar::Action::VGrid)
+  case LayoutBar::Layout::VLine: {
+    if (lay==LayoutBar::Layout::HGrid
+        || lay==LayoutBar::Layout::VGrid)
       lastgridsize = sizes()[0];
     int ts = strips->tileSize();
     setOrientation(Qt::Horizontal);
@@ -163,46 +163,44 @@ void LightTable::setLayout(LayoutBar::Action act) {
     slide->show();
     lay = act;
   } break;
-  case LayoutBar::Action::FullPhoto:
-    if (lay==LayoutBar::Action::HGrid
-        || lay==LayoutBar::Action::VGrid)
+  case LayoutBar::Layout::FullPhoto:
+    if (lay==LayoutBar::Layout::HGrid
+        || lay==LayoutBar::Layout::VGrid)
       lastgridsize = sizes()[0];
     strips->hide();
     slide->show();
     lay = act;
     break;
-  case LayoutBar::Action::Line:
+  case LayoutBar::Layout::Line:
     if (orientation()==Qt::Vertical)
-      setLayout(LayoutBar::Action::VLine);
+      setLayout(LayoutBar::Layout::VLine);
     else
-      setLayout(LayoutBar::Action::HLine);
+      setLayout(LayoutBar::Layout::HLine);
     return;
-  case LayoutBar::Action::HalfGrid:
+  case LayoutBar::Layout::HalfGrid:
     if (orientation()==Qt::Vertical)
-      setLayout(LayoutBar::Action::VGrid);
+      setLayout(LayoutBar::Layout::VGrid);
     else
-      setLayout(LayoutBar::Action::HGrid);
+      setLayout(LayoutBar::Layout::HGrid);
     return;
-  case LayoutBar::Action::ToggleFullPhoto:
-    if (lay==LayoutBar::Action::FullPhoto)
+  case LayoutBar::Layout::ToggleFullPhoto:
+    if (lay==LayoutBar::Layout::FullPhoto)
       setLayout(lastlay);
     else
-      setLayout(LayoutBar::Action::FullPhoto);
+      setLayout(LayoutBar::Layout::FullPhoto);
     return;
-  case LayoutBar::Action::ToggleFullScreen:
+  case LayoutBar::Layout::ToggleFullScreen:
     pDebug() << "ToggleFullScreen NYI";
     break;
-  case LayoutBar::Action::ToggleOrg:
+  case LayoutBar::Layout::ToggleOrg:
     strips->toggleOrganization();
     break;
-  case LayoutBar::Action::N:
-    break;
   }
-  if (lastlay==LayoutBar::Action::FullGrid && lay!=lastlay) {
+  if (lastlay==LayoutBar::Layout::FullGrid && lay!=lastlay) {
     emit needImage(curr, displaySize());
     requestLargerImage();
   }
-  if (lay!=LayoutBar::Action::FullPhoto)
+  if (lay!=LayoutBar::Layout::FullPhoto)
     scrollToCurrent();
 }
 
@@ -342,7 +340,7 @@ void LightTable::makeCurrent(quint64 i) {
   curr = i;
   emit newCurrent(curr);
   emit newZoom(slide->currentZoom());
-  if (curr>0 && lay!=LayoutBar::Action::FullGrid) {
+  if (curr>0 && lay!=LayoutBar::Layout::FullGrid) {
     pDebug() << "emitting needimage " << curr;
     emit needImage(curr, displaySize());
     pDebug() << "emitted needimage " << curr;
@@ -435,9 +433,9 @@ void LightTable::updateSelectedTiles() {
 }
 
 void LightTable::resizeStrip() {
-  if (lay==LayoutBar::Action::HLine)
+  if (lay==LayoutBar::Layout::HLine)
     setSizes(QList<int>() << strips->idealSize() << height());
-  else if (lay==LayoutBar::Action::VLine) 
+  else if (lay==LayoutBar::Layout::VLine) 
     setSizes(QList<int>() << strips->idealSize() << width());
   else
     return;
