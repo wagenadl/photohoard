@@ -4,15 +4,12 @@
 
 #define COLORLABELBAR_H
 
-#include <QToolBar>
-#include "Action.h"
+#include "ActionBar.h"
 
-class ColorLabelBar: public QToolBar {
+class ColorLabelBar: public ActionBar {
 public:
   ColorLabelBar(class PhotoDB *db, class LightTable *lighttable,
                 QWidget *parent);
-private:
-  Actions actions;
 };
 
 #endif

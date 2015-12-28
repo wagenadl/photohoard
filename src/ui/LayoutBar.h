@@ -4,10 +4,9 @@
 
 #define LAYOUTBAR_H
 
-#include <QToolBar>
-#include "Action.h"
+#include "ActionBar.h"
 
-class LayoutBar: public QToolBar {
+class LayoutBar: public ActionBar {
 public:
   enum class Layout {
     FullGrid=0,
@@ -24,8 +23,6 @@ public:
       };
 public:
   LayoutBar(class LightTable *lighttable, QWidget *parent);
-private:
-  Actions actions;
 };
 
 #endif

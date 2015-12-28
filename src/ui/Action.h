@@ -111,7 +111,7 @@ class Actions {
 public:
   Actions &operator<<(Action const &);
   /* OPERATOR<< - Add an ACTION to the collection */
-  bool activateIf(class QKeyEvent *);
+  bool activateIf(class QKeyEvent *) const;
   /* ACTIVATEIF - Execute the payload of an appropriate action
      ACTIVATEIF(event) iterates through the ACTION objects in the collection
      until one is found that has a shortcut matching the KEY and MODIFIERS
@@ -119,7 +119,8 @@ public:
      If one is found, it is executed, and ACTIVATEIF returns TRUE. Otherwise,
      it returns FALSE.
    */
-  Action const &last();
+  Action const &last() const;
+  QList<Action> const &all() const;
 private:
   QList<Action> acts;
 };

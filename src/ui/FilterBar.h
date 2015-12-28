@@ -4,15 +4,11 @@
 
 #define FILTERBAR_H
 
-//#include "ActionBar.h"
-#include <QToolBar>
-#include "Action.h"
+#include "ActionBar.h"
 
-class FilterBar: public QToolBar {
+class FilterBar: public ActionBar {
 public:
   FilterBar(class LightTable *lighttable, QWidget *parent);
-private:
-  Actions actions;
 };
 
 #endif
