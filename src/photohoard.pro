@@ -172,3 +172,5 @@ HEADERS += ui/SliderGroups.h   SliderClipboard.h
 SOURCES += ui/SliderGroups.cpp SliderClipboard.cpp
 HEADERS += ui/Action.h
 SOURCES += ui/Action.cpp
+HEADERS += ui/ShortcutHelp.h
+SOURCES += ui/ShortcutHelp.cpp

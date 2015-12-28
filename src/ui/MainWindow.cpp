@@ -19,6 +19,7 @@
 #include "AddRootDialog.h"
 #include <QDir>
 #include "PDebug.h"
+#include "ShortcutHelp.h"
 
 MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -51,6 +52,8 @@ MainWindow::MainWindow(PhotoDB *db,
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
   adjuster = new LiveAdjuster(db, allControls, autocache, this);
+
+  shortcutHelp = new ShortcutHelp();
   
   setCentralWidget(lightTable = new LightTable(db, adjuster, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
@@ -59,6 +62,11 @@ MainWindow::MainWindow(PhotoDB *db,
   addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
   addToolBar(area, filterBar = new FilterBar(lightTable, this));
   // etc.
+
+  shortcutHelp->addSection("General", fileBar->actions());
+  shortcutHelp->addSection("Layout", layoutBar->actions());
+  shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
+  shortcutHelp->addSection("General", filterBar->actions());
   
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           histogram, SLOT(setImage(Image16))); // is this ok?
@@ -104,4 +112,8 @@ void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
   lightTable->updateImage(i, img, chgid);
   if (i==lightTable->current())
     histogram->setImage(img); // this is *bad*
+}
+
+void MainWindow::showShortcutHelp() {
+  shortcutHelp->show();
 }

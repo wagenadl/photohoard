@@ -20,6 +20,7 @@ public:
 public slots:
   void scrollToCurrent();
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
+  void showShortcutHelp();
 private:
   class PhotoDB *db;
   class Scanner *scanner;
@@ -37,6 +38,7 @@ private:
   class MetaViewer *metaViewer;
   class AppliedTagList *tagList;
   class StatusBar *statusBar;
+  class ShortcutHelp *shortcutHelp;
 };
 
 
