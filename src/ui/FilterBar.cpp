@@ -10,30 +10,26 @@ FilterBar::FilterBar(QWidget *parent, LightTable *lt):
   QToolBar(parent), lighttable(lt) {
   setWindowTitle("Filter");
 
-  PQAction *act;
+  actions << Action{Qt::CTRL + Qt::Key_F, "Filter",
+                    [&]() { lighttable->openFilterDialog(); }};
+  new PAction{actions.last(), QIcon(":icons/search.svg"), this};
 
-  act = new PQAction{QIcon(":icons/search.svg"),
-                     [&]() { lighttable->openFilterDialog(); }};
-  actions << Action{Qt::CTRL + Qt::Key_F, "Filter", act};
-  addAction(act);
+  actions << Action{Qt::CTRL + Qt::Key_Minus, "Smaller", 
+                     [&]() { lighttable->increaseTileSize(1/1.25); }};
+  new PAction{actions.last(), QIcon(":icons/scaleSmaller.svg"), this};
 
-  act = new PQAction{QIcon(":icons/scaleSmaller.svg"),
-                     [&]() { qDebug() << "smaller" << lighttable; lighttable->increaseTileSize(1/1.25); }};
-  actions << Action{Qt::CTRL + Qt::Key_Minus, "Smaller", act};
-  addAction(act);
+  actions << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
+                    "Larger", 
+                    [&]() { lighttable->increaseTileSize(1.25); }};
+  new PAction{actions.last(), QIcon(":icons/scaleLarger.svg"), this};
 
-  act = new PQAction{QIcon(":icons/scaleLarger.svg"),
-                     [&]() { lighttable->increaseTileSize(1.25); }};
-  actions << Action{Qt::CTRL + Qt::Key_Plus, "Larger", act};
-  addAction(act);
+  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", 
+                    [&]() { lighttable->clearSelection(); }};
+  parent->addAction(new PAction{actions.last(), this});
 
-  act = new PQAction{[&]() { lighttable->clearSelection(); }};
-  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", act};
-  parent->addAction(act);
-
-  act = new PQAction{[&]() { lighttable->selectAll(); }};
-  actions << Action{Qt::CTRL + Qt::Key_A, "Select all", act};
-  parent->addAction(act);
+  actions << Action{Qt::CTRL + Qt::Key_A, "Select all", 
+                    [&]() { lighttable->selectAll(); }};
+  parent->addAction(new PAction{actions.last(), this});
 }
 
 FilterBar::~FilterBar() {

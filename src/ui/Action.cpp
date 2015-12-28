@@ -39,11 +39,19 @@ QKeySequence Action::shortcut() const {
   return keys.isEmpty() ? QKeySequence(): keys.first();
 }
 
+QList<QKeySequence> const &Action::shortcuts() const {
+  return keys;
+}
+
 QString Action::keyName() const {
   if (keys.isEmpty())
     return pseudokey;
   else
     return shortcut().toString();
+}
+
+std::function<void()> Action::payload() const {
+  return foo;
 }
 
 QString Action::documentation() const {
@@ -69,19 +77,28 @@ bool Action::activateIf(QKeySequence const &key) const {
 }
 
 
-PQAction::PQAction(std::function<void()> foo, QObject *parent):
-  QAction(parent), foo(foo) {
-  connect(this, SIGNAL(triggered()),
-          this, SLOT(activ8()));
+PAction::PAction(Action const &a, QObject *parent):
+  QAction(parent), foo(a.payload()) {
+  connect(this, SIGNAL(triggered()), this, SLOT(activ8()));
+  setShortcuts(a.shortcuts());
+  QString doc = a.documentation();
+  QString key = " (" + a.keyName() + ")";
+  int idx = doc.indexOf("\n");
+  if (idx>=0) {
+    setText(doc.left(idx) + key);
+    setToolTip(doc + key);
+  } else {
+    setText(doc + key);
+  }
 }
 
-PQAction::PQAction(QIcon const &icon, std::function<void()> foo, QObject *par):
-  QAction(icon, "", par), foo(foo) {
-  connect(this, SIGNAL(triggered()),
-          this, SLOT(activ8()));
-}
+PAction::PAction(Action const &a, QIcon const &icon, QWidget *parent):
+  PAction(a, parent) {
+  setIcon(icon);
+  parent->addAction(this);
+}  
 
-void PQAction::activ8() {
+void PAction::activ8() {
   qDebug() << "PQAction::Activ8";
   if (foo) {
     qDebug() << "got foo";
@@ -111,4 +128,9 @@ bool Actions::activateIf(QKeyEvent *e) {
       return true;
 
   return false;
+}
+
+Action const &Actions::last() {
+  Q_ASSERT(!acts.isEmpty());
+  return acts.last();
 }
