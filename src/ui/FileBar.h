@@ -4,30 +4,21 @@
 
 #define FILEBAR_H
 
-#include "ActionBar.h"
+#include <QToolBar>
+#include "Action.h"
 
-class FileBar: public ActionBar {
+class FileBar: public QToolBar {
   Q_OBJECT;
 public:
-  enum class Action {
-    AddFolder,
-      RescanFolders,
-      ImportFromCamera,
-      OpenExportDialog,
-      ExportSelected,
-      OpenClipboardDialog,
-      N
-      };
-public:
-  FileBar(QWidget *parent);
-  virtual ~FileBar();
-signals:
-  void triggered(FileBar::Action a);
-private slots:
-  void trigger(QAction *);
+  FileBar(class PhotoDB *db,
+          class Exporter *exporter, class Scanner *scanner,
+          QWidget *parent);
 private:
-  QMap<Action, QAction *> actions;
-  QMap<QAction *, Action> revmap;
+  class PhotoDB *db;
+  class Exporter *exporter;
+  class Scanner *scanner;
+  class ExportDialog *exportdialog;
+  Actions actions;
 };
 
 #endif

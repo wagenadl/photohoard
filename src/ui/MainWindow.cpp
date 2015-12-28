@@ -9,8 +9,6 @@
 #include "Scanner.h"
 #include "AutoCache.h"
 #include "PhotoDB.h"
-#include "ExportDialog.h"
-#include "Exporter.h"
 #include "AllControls.h"
 #include "HistoWidget.h"
 #include <QDockWidget>
@@ -26,7 +24,6 @@ MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter):
   db(db), scanner(scanner), exporter(exporter) {
-  exportDialog = 0;
 
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setWidget(histogram = new HistoWidget(this));
@@ -57,10 +54,10 @@ MainWindow::MainWindow(PhotoDB *db,
   
   setCentralWidget(lightTable = new LightTable(db, adjuster, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
-  addToolBar(area, fileBar = new FileBar(this));
+  addToolBar(area, fileBar = new FileBar(db, exporter, scanner, this));
   addToolBar(area, layoutBar = new LayoutBar(this));
   addToolBar(area, colorLabelBar = new ColorLabelBar(this));
-  addToolBar(area, filterBar = new FilterBar(this, lightTable));
+  addToolBar(area, filterBar = new FilterBar(lightTable, this));
   // etc.
   
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
@@ -77,8 +74,6 @@ MainWindow::MainWindow(PhotoDB *db,
 
   connect(layoutBar, SIGNAL(triggered(LayoutBar::Action)),
           this, SLOT(setLayout(LayoutBar::Action)));
-  connect(fileBar, SIGNAL(triggered(FileBar::Action)),
-	  SLOT(fileAction(FileBar::Action)));
   connect(colorLabelBar, SIGNAL(triggered(ColorLabelBar::Action)),
 	  lightTable, SLOT(setColorLabelEtc(ColorLabelBar::Action)));
 
@@ -104,42 +99,6 @@ MainWindow::MainWindow(PhotoDB *db,
 }
 
 MainWindow::~MainWindow() {
-}
-
-void MainWindow::fileAction(FileBar::Action a) {
-  switch (a) {
-  case FileBar::Action::AddFolder: {
-    AddRootDialog dlg(db);
-    while (dlg.exec()) {
-      if (dlg.validate(true)) {
-        if (!dlg.path().isEmpty() && !dlg.defaultCollection().isEmpty()
-            && !dlg.exclusions().contains(dlg.path())) {
-          QDir root(dlg.path());
-          if (root.exists())
-            scanner->addTree(root.absolutePath(), dlg.defaultCollection(),
-                             dlg.exclusions());
-        }
-        break;
-      }
-    }
-  } break;
-  case FileBar::Action::RescanFolders:
-    scanner->rescanAll();
-    break;
-  case FileBar::Action::OpenExportDialog:
-    if (!exportDialog)
-      exportDialog = new ExportDialog();
-    if (exportDialog->exec() == ExportDialog::Accepted)
-      fileAction(FileBar::Action::ExportSelected);
-    break;
-  case FileBar::Action::ExportSelected:
-    pDebug() << "Export selected";
-    exporter->setup(exportDialog ? exportDialog->settings() : ExportSettings());
-    exporter->addSelection();
-    break;
-  default:
-    break;
-  }
 }
 
 void MainWindow::scrollToCurrent() {

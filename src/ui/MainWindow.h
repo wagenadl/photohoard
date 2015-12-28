@@ -18,7 +18,6 @@ public:
              class Exporter *);
   virtual ~MainWindow();
 public slots:
-  void fileAction(FileBar::Action);
   void scrollToCurrent();
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void setLayout(LayoutBar::Action);
@@ -32,7 +31,6 @@ private:
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
-  class ExportDialog *exportDialog;
   class SliderClipboard *clipboardDialog;
   class AllControls *allControls;
   class HistoWidget *histogram;

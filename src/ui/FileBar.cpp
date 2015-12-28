@@ -2,58 +2,68 @@
 
 #include "FileBar.h"
 
-#include <QMetaType>
+#include "Exporter.h"
+#include "Scanner.h"
 #include "PDebug.h"
+#include "ExportDialog.h"
+#include "AddRootDialog.h"
+#include <QDir>
 
-FileBar::FileBar(QWidget *parent): ActionBar(parent) {
-  qRegisterMetaType<FileBar::Action>("FileBar::Action");
-
+FileBar::FileBar(PhotoDB *db0, Exporter *expo, Scanner *scn, QWidget *parent):
+  QToolBar(parent), db(db0), exporter(expo), scanner(scn) {
+  exportdialog = 0;
   setWindowTitle("File");
-  
-  for (int i=0; i<int(Action::N); i++) {
-    Action ii = Action(i);
-    QAction *a = new QAction(parent);
-    actions[ii] = a;
-    revmap[a] = ii;
-  }
 
-  actions[Action::AddFolder]->setIcon(QIcon(":icons/folderAdd.svg"));
-  actions[Action::RescanFolders]->setIcon(QIcon(":icons/rescan.svg"));
-  actions[Action::ImportFromCamera]->setIcon(QIcon(":icons/cameraImport.svg"));
-  actions[Action::OpenExportDialog]->setIcon(QIcon(":icons/export.svg"));
+  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
+      [&]() {
+      AddRootDialog dlg(db);
+      while (dlg.exec()) {
+        if (dlg.validate(true)) {
+          if (!dlg.path().isEmpty() && !dlg.defaultCollection().isEmpty()
+              && !dlg.exclusions().contains(dlg.path())) {
+            QDir root(dlg.path());
+            if (root.exists())
+              scanner->addTree(root.absolutePath(), dlg.defaultCollection(),
+                               dlg.exclusions());
+          }
+          break;
+      }
+      }
+    }};
+  new PAction(actions.last(), QIcon(":icons/folderAdd.svg"), this);
 
-  actions[Action::AddFolder]->setText("Add new folder tree");
-  actions[Action::RescanFolders]->setText("Rescan folders (Control-R)");
-  actions[Action::ImportFromCamera]
-    ->setText("Import from camera or card (Control-I)");
-  actions[Action::OpenExportDialog]->setText("Export image(s) (Control-Shift-E)");
+  actions << Action{Qt::CTRL + Qt::Key_R, "Rescan folders",
+      [&]() { scanner->rescanAll(); }};
+  new PAction(actions.last(), QIcon(":icons/rescan.svg"), this);
 
-  actions[Action::RescanFolders]->setShortcut(QString("Ctrl+R"));
-  actions[Action::ImportFromCamera]->setShortcut(QString("Ctrl+I"));
-  actions[Action::OpenExportDialog]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E));
-  actions[Action::ExportSelected]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
-  actions[Action::OpenClipboardDialog]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+  actions << Action{Qt::CTRL + Qt::Key_I, "Import from camera or card",
+      [&]() { qDebug() << "Not yet implemented"; }};
+  new PAction(actions.last(), QIcon(":icons/cameraImport.svg"), this);
 
-  addAction(actions[Action::ImportFromCamera]);
-  addAction(actions[Action::AddFolder]);
-  addAction(actions[Action::RescanFolders]);
-  addAction(actions[Action::OpenExportDialog]);
-  addHiddenAction(actions[Action::ExportSelected]);
-  addHiddenAction(actions[Action::OpenClipboardDialog]);
+  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
+      [&]() {
+      if (!exportdialog)
+        exportdialog = new ExportDialog();
+      if (exportdialog->exec() == ExportDialog::Accepted) {
+        exporter->setup(exportdialog
+                        ? exportdialog->settings()
+                        : ExportSettings());
+        exporter->addSelection();
+      }
+    }};
+  new PAction(actions.last(), QIcon(":icons/export.svg"), this);
+
+  actions << Action{Qt::CTRL + Qt::Key_E, "Export more images",
+      [&]() {
+      exporter->setup(exportdialog
+                      ? exportdialog->settings()
+                      : ExportSettings());
+      exporter->addSelection();
+    }};
+  parent->addAction(new PAction(actions.last(), this));
+
+  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
+      [&]() { qDebug() << "Not yet implemented"; }};
+  parent->addAction(new PAction(actions.last(), this));
 }
-
-FileBar::~FileBar() {
-}
-
-
-
-void FileBar::trigger(QAction *a) {
-  pDebug() << "FileBar::trigger" << a << revmap.contains(a);
-  if (revmap.contains(a))
-    emit triggered(revmap[a]);
-}
-
 
