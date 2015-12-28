@@ -4,31 +4,18 @@
 
 #define FILTERBAR_H
 
-#include "ActionBar.h"
+//#include "ActionBar.h"
+#include <QToolBar>
+#include "Action.h"
 
-class FilterBar: public ActionBar {
+class FilterBar: public QToolBar {
   Q_OBJECT;
 public:
-  enum class Action {
-    OpenFilterDialog,
-      ApplyFilter,
-      ResetFilter,
-      Larger,
-      Smaller,
-      ClearSelection,
-      SelectAll,
-      N
-      };
-public:
-  FilterBar(QWidget *parent);
+  FilterBar(QWidget *parent, class LightTable *lighttable);
   virtual ~FilterBar();
-signals:
-  void triggered(FilterBar::Action a);
-private slots:
-  void trigger(QAction *);
 private:
-  QMap<Action, QAction *> actions;
-  QMap<QAction *, Action> revmap;
+  Actions actions;
+  class LightTable *lighttable;
 };
 
 #endif

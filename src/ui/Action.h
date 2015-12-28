@@ -107,6 +107,7 @@ public:
      Technical note: This is implemented by connecting to the action's
      TRIGGERED signal, so DISCONNECT()ing all signals disables its function.
    */
+  PQAction(QIcon const &icon, std::function<void()> foo, QObject *parent=0);
 private slots:
   void activ8();
 private:

@@ -4,48 +4,37 @@
 
 #include <QMetaType>
 #include "PDebug.h"
+#include "LightTable.h"
 
-FilterBar::FilterBar(QWidget *parent): ActionBar(parent) {
-  qRegisterMetaType<FilterBar::Action>("FilterBar::Action");
-
+FilterBar::FilterBar(QWidget *parent, LightTable *lt):
+  QToolBar(parent), lighttable(lt) {
   setWindowTitle("Filter");
-  
-  for (int i=0; i<int(Action::N); i++) {
-    Action ii = Action(i);
-    QAction *a = new QAction(parent);
-    actions[ii] = a;
-    revmap[a] = ii;
-  }
 
-  actions[Action::OpenFilterDialog]->setIcon(QIcon(":icons/search.svg"));
-  actions[Action::Smaller]->setIcon(QIcon(":icons/scaleSmaller.svg"));
-  actions[Action::Larger]->setIcon(QIcon(":icons/scaleLarger.svg"));
+  PQAction *act;
 
-  actions[Action::OpenFilterDialog]->setText("Filter (Control-F)");
-  actions[Action::Smaller]->setText("Smaller");
-  actions[Action::Larger]->setText("Larger");
+  act = new PQAction{QIcon(":icons/search.svg"),
+                     [&]() { lighttable->openFilterDialog(); }};
+  actions << Action{Qt::CTRL + Qt::Key_F, "Filter", act};
+  addAction(act);
 
-  actions[Action::OpenFilterDialog]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
-  actions[Action::ClearSelection]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A));
-  actions[Action::SelectAll]
-    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+  act = new PQAction{QIcon(":icons/scaleSmaller.svg"),
+                     [&]() { qDebug() << "smaller" << lighttable; lighttable->increaseTileSize(1/1.25); }};
+  actions << Action{Qt::CTRL + Qt::Key_Minus, "Smaller", act};
+  addAction(act);
 
-  addAction(actions[Action::Smaller]);
-  addAction(actions[Action::Larger]);
-  addAction(actions[Action::OpenFilterDialog]);
-  addHiddenAction(actions[Action::ClearSelection]);
-  addHiddenAction(actions[Action::SelectAll]);
+  act = new PQAction{QIcon(":icons/scaleLarger.svg"),
+                     [&]() { lighttable->increaseTileSize(1.25); }};
+  actions << Action{Qt::CTRL + Qt::Key_Plus, "Larger", act};
+  addAction(act);
+
+  act = new PQAction{[&]() { lighttable->clearSelection(); }};
+  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", act};
+  parent->addAction(act);
+
+  act = new PQAction{[&]() { lighttable->selectAll(); }};
+  actions << Action{Qt::CTRL + Qt::Key_A, "Select all", act};
+  parent->addAction(act);
 }
 
 FilterBar::~FilterBar() {
 }
-
-
-void FilterBar::trigger(QAction *a) {
-  pDebug() << "FilterBar::trigger" << a << revmap.contains(a);
-  if (revmap.contains(a))
-    emit triggered(revmap[a]);
-}
-
