@@ -6,7 +6,7 @@
 #include "PDebug.h"
 #include "LightTable.h"
 
-FilterBar::FilterBar(QWidget *parent, LightTable *lt):
+FilterBar::FilterBar(LightTable *lt, QWidget *parent):
   QToolBar(parent), lighttable(lt) {
   setWindowTitle("Filter");
 

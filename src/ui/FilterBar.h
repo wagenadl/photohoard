@@ -11,7 +11,7 @@
 class FilterBar: public QToolBar {
   Q_OBJECT;
 public:
-  FilterBar(QWidget *parent, class LightTable *lighttable);
+  FilterBar(class LightTable *lighttable, QWidget *parent);
   virtual ~FilterBar();
 private:
   Actions actions;
