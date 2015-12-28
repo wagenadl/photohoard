@@ -4,17 +4,15 @@
 
 #define FILEBAR_H
 
-#include <QToolBar>
-#include "Action.h"
+#include "ActionBar.h"
 
-class FileBar: public QToolBar {
+class FileBar: public ActionBar {
 public:
   FileBar(class PhotoDB *db,
           class Exporter *exporter, class Scanner *scanner,
           QWidget *parent);
 private:
   class ExportDialog *exportdialog;
-  Actions actions;
 };
 
 #endif

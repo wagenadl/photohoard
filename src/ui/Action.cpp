@@ -95,7 +95,7 @@ Actions &Actions::operator<<(Action const &a) {
   return *this;
 }
 
-bool Actions::activateIf(QKeyEvent *e) {
+bool Actions::activateIf(QKeyEvent *e) const {
   int k = e->key();
   if (e->modifiers() & Qt::ControlModifier)
     k |= Qt::ControlModifier;
@@ -112,7 +112,11 @@ bool Actions::activateIf(QKeyEvent *e) {
   return false;
 }
 
-Action const &Actions::last() {
+Action const &Actions::last() const {
   Q_ASSERT(!acts.isEmpty());
   return acts.last();
+}
+
+QList<Action> const &Actions::all() const {
+  return acts;
 }

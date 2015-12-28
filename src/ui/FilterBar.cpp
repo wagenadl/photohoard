@@ -7,28 +7,28 @@
 #include "LightTable.h"
 
 FilterBar::FilterBar(LightTable *lighttable, QWidget *parent):
-  QToolBar(parent) {
+  ActionBar(parent) {
   setWindowTitle("Filter");
 
-  actions << Action{Qt::CTRL + Qt::Key_F, "Filter",
+  acts << Action{Qt::CTRL + Qt::Key_F, "Filter",
                     [=]() { lighttable->openFilterDialog(); }};
-  new PAction{actions.last(), QIcon(":icons/search.svg"), this};
+  new PAction{acts.last(), QIcon(":icons/search.svg"), this};
 
-  actions << Action{Qt::CTRL + Qt::Key_Minus, "Smaller", 
+  acts << Action{Qt::CTRL + Qt::Key_Minus, "Smaller", 
                      [=]() { lighttable->increaseTileSize(1/1.25); }};
-  new PAction{actions.last(), QIcon(":icons/scaleSmaller.svg"), this};
+  new PAction{acts.last(), QIcon(":icons/scaleSmaller.svg"), this};
 
-  actions << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
+  acts << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
                     "Larger", 
                     [=]() { lighttable->increaseTileSize(1.25); }};
-  new PAction{actions.last(), QIcon(":icons/scaleLarger.svg"), this};
+  new PAction{acts.last(), QIcon(":icons/scaleLarger.svg"), this};
 
-  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", 
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", 
                     [=]() { lighttable->clearSelection(); }};
-  parent->addAction(new PAction{actions.last(), this});
+  parent->addAction(new PAction{acts.last(), this});
 
-  actions << Action{Qt::CTRL + Qt::Key_A, "Select all", 
+  acts << Action{Qt::CTRL + Qt::Key_A, "Select all", 
                     [=]() { lighttable->selectAll(); }};
-  parent->addAction(new PAction{actions.last(), this});
+  parent->addAction(new PAction{acts.last(), this});
 }
 

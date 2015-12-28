@@ -10,11 +10,11 @@
 #include <QDir>
 
 FileBar::FileBar(PhotoDB *db, Exporter *exporter,
-                 Scanner *scanner, QWidget *parent): QToolBar(parent) {
+                 Scanner *scanner, QWidget *parent): ActionBar(parent) {
   exportdialog = 0;
   setWindowTitle("File");
 
-  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
       [=]() {
       AddRootDialog dlg(db);
       while (dlg.exec()) {
@@ -30,17 +30,17 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
       }
       }
     }};
-  new PAction(actions.last(), QIcon(":icons/folderAdd.svg"), this);
+  new PAction(acts.last(), QIcon(":icons/folderAdd.svg"), this);
 
-  actions << Action{Qt::CTRL + Qt::Key_R, "Rescan folders",
+  acts << Action{Qt::CTRL + Qt::Key_R, "Rescan folders",
       [=]() { scanner->rescanAll(); }};
-  new PAction(actions.last(), QIcon(":icons/rescan.svg"), this);
+  new PAction(acts.last(), QIcon(":icons/rescan.svg"), this);
 
-  actions << Action{Qt::CTRL + Qt::Key_I, "Import from camera or card",
+  acts << Action{Qt::CTRL + Qt::Key_I, "Import from camera or card",
       []() { qDebug() << "Not yet implemented"; }};
-  new PAction(actions.last(), QIcon(":icons/cameraImport.svg"), this);
+  new PAction(acts.last(), QIcon(":icons/cameraImport.svg"), this);
 
-  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
       [exporter,this]() {
       if (!exportdialog)
         exportdialog = new ExportDialog();
@@ -51,19 +51,19 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
         exporter->addSelection();
       }
     }};
-  new PAction(actions.last(), QIcon(":icons/export.svg"), this);
+  new PAction(acts.last(), QIcon(":icons/export.svg"), this);
 
-  actions << Action{Qt::CTRL + Qt::Key_E, "Export more images",
+  acts << Action{Qt::CTRL + Qt::Key_E, "Export more images",
       [exporter,this]() {
       exporter->setup(exportdialog
                       ? exportdialog->settings()
                       : ExportSettings());
       exporter->addSelection();
     }};
-  parent->addAction(new PAction(actions.last(), this));
+  parent->addAction(new PAction(acts.last(), this));
 
-  actions << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
       []() { qDebug() << "Not yet implemented"; }};
-  parent->addAction(new PAction(actions.last(), this));
+  parent->addAction(new PAction(acts.last(), this));
 }
 
