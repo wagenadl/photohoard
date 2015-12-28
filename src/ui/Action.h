@@ -68,6 +68,11 @@ public:
      SHORTCUT() returns the key sequence of the shortcut for this action.
      If multiple shortcuts are defined, the first one is used.
   */
+  QList<QKeySequence> const &shortcuts() const;
+  /* SHORTCUTS - Keyboard shortcuts for this action
+     SHORTCUTS() returns all the key sequence that are set as shortcuts
+     for this action.
+  */
   QString keyName() const;
   /* KEYNAME - Text representation of keyboard shortcut
      KEYNAME() returns a textual representation (e.g. “Control+A”) for the
@@ -80,6 +85,8 @@ public:
      DOCUMENTATION() returns the documentation string set for this action
      at construction time.
   */
+  std::function<void()> payload() const;
+  /* PAYLOAD - Return the payload */
 public:
   QList<QKeySequence> keys;
   QString pseudokey;
@@ -88,32 +95,28 @@ public:
   class QAction *act;
 };
 
-class PQAction: public QAction {
-  /* PQAction - Self-sufficient QAction
-     A PQAction is a QAction with a payload that gets executed when the
-     action is triggered.
-  */
+class PAction: public QAction {
+  /* PAction - QAction that activates an Action.
+     A PAction is just like a QAction, except that when the QAction is
+     triggered, the payload of the Action is activated. */
   Q_OBJECT;
 public:
-  PQAction(std::function<void()> foo, QObject *parent=0);
+  PAction(Action const &a, QObject *parent=0);
   /* - Constructor
-     PQAction(foo) constructs a new PQAction with payload FOO, which may
-     be any functor. The PQAction behaves exactly like a regular QAction,
-     except that it additionally calls the payload when the action is
-     triggered.
-     PQAction(foo, parent) is the same but with a PARENT object.
-     A PQACTION may be conveniently documented through the ACTION/ACTIONS
-     system.
-     Technical note: This is implemented by connecting to the action's
-     TRIGGERED signal, so DISCONNECT()ing all signals disables its function.
+     PAction(act) constructs a new PAction based on the Action ACT.
+     PAction(act, parent) specifies a parent object.
    */
-  PQAction(QIcon const &icon, std::function<void()> foo, QObject *parent=0);
+  PAction(Action const &a, QIcon const &icon, QWidget *parent);
+  /* - Constructor
+     PAction(act, icon, parent) constructs a new PAction based on the
+     Action ACT and adds it to the given PARENT widget with the given ICON.
+   */
 private slots:
   void activ8();
 private:
   std::function<void()> foo;
 };
-  
+
 class Actions {
   /* ACTIONS - A collection of individual ACTION objects */     
 public:
@@ -127,6 +130,7 @@ public:
      If one is found, it is executed, and ACTIVATEIF returns TRUE. Otherwise,
      it returns FALSE.
    */
+  Action const &last();
 private:
   QList<Action> acts;
 };
