@@ -6,33 +6,19 @@
 #include <QDebug>
 
 Action::Action(int key, QString doc, std::function<void()> foo):
-  doc(doc), foo(foo), act(0) {
+  doc(doc), foo(foo) {
   keys << QKeySequence(key);
-}
-
-Action::Action(int key, QString doc, QAction *act):
-  doc(doc), act(act) {
-  keys << QKeySequence(key);
-  act->setShortcut(keys.first());
-  int idx = doc.indexOf("\n");
-  if (idx>=0) {
-    act->setText(doc.left(idx) + " (" + keys.first().toString() + ")");
-    act->setToolTip(doc + " (" + keys.first().toString() + ")");
-  } else {
-    act->setText(doc + " (" + keys.first().toString() + ")");
-  }
 }
 
 Action::Action(std::vector<int> const &kk,
                QString doc, std::function<void()> foo):
-  doc(doc), foo(foo), act(0) {
+  doc(doc), foo(foo) {
   for (auto k: kk) 
     keys << QKeySequence(k);
 }
 
-
 Action::Action(QString pseudokey, QString doc):
-  pseudokey(pseudokey), doc(doc), act(0) {
+  pseudokey(pseudokey), doc(doc) {
 }
 
 QKeySequence Action::shortcut() const {
@@ -59,9 +45,7 @@ QString Action::documentation() const {
 }
 
 void Action::activate() const {
-  if (act) 
-    act->activate(QAction::Trigger);
-  else if (foo)
+  if (foo)
     foo();
 }
 
@@ -76,6 +60,7 @@ bool Action::activateIf(QKeySequence const &key) const {
   return false;
 }
 
+//////////////////////////////////////////////////////////////////////
 
 PAction::PAction(Action const &a, QObject *parent):
   QAction(parent), foo(a.payload()) {
@@ -99,14 +84,11 @@ PAction::PAction(Action const &a, QIcon const &icon, QWidget *parent):
 }  
 
 void PAction::activ8() {
-  qDebug() << "PQAction::Activ8";
-  if (foo) {
-    qDebug() << "got foo";
+  if (foo) 
     foo();
-  } else {
-    qDebug() << "no foo";
-  }
 }
+
+//////////////////////////////////////////////////////////////////////
 
 Actions &Actions::operator<<(Action const &a) {
   acts << a;

@@ -27,17 +27,6 @@ public:
      Example:
          Action{Qt::Key_F1, "Quit", []() { QApplication::quit(); }}
   */
-  Action(int key, QString doc, class QAction *act);
-  /* - Constructor with a single key shortcut and a QAction
-     ACTION(key, doc, act) constructs a  new ACTION with shortcut KEY,
-     documentation text DOC, and payload ACT. When the action is activated
-     (through ACTIVATE or ACTIVATEIF), the QAction is triggered.
-     The payload is automatically modified to be activated by the shortcut
-     and DOC is set as its TEXT. (If DOC contains newlines, the part before
-     the first newline is used for its TEXT, and the whole DOC is set as
-     its tooltip.) In addition, a text represention of the KEY is added
-     to the text and tooltip.
-  */
   Action(std::vector<int> const &keys, QString doc, std::function<void()> foo);
   /* - Constructor with a set of key shortcuts and a functor
      ACTION(keys, doc, foo) constructs a new ACTION with multiple shortcuts,
@@ -92,7 +81,6 @@ public:
   QString pseudokey;
   QString doc;
   std::function<void()> foo;
-  class QAction *act;
 };
 
 class PAction: public QAction {
