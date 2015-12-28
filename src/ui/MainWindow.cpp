@@ -55,7 +55,7 @@ MainWindow::MainWindow(PhotoDB *db,
   setCentralWidget(lightTable = new LightTable(db, adjuster, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
   addToolBar(area, fileBar = new FileBar(db, exporter, scanner, this));
-  addToolBar(area, layoutBar = new LayoutBar(this));
+  addToolBar(area, layoutBar = new LayoutBar(lightTable, this));
   addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
   addToolBar(area, filterBar = new FilterBar(lightTable, this));
   // etc.
@@ -71,9 +71,6 @@ MainWindow::MainWindow(PhotoDB *db,
           SLOT(updateImage(quint64, Image16, quint64)));
   connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
           lightTable, SLOT(rescan()));
-
-  connect(layoutBar, SIGNAL(triggered(LayoutBar::Action)),
-          this, SLOT(setLayout(LayoutBar::Action)));
 
   autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
 
@@ -107,8 +104,4 @@ void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
   lightTable->updateImage(i, img, chgid);
   if (i==lightTable->current())
     histogram->setImage(img); // this is *bad*
-}
-
-void MainWindow::setLayout(LayoutBar::Action a) {
-  lightTable->setLayout(a);
 }

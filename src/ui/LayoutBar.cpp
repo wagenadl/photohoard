@@ -1,66 +1,42 @@
 // LayoutBar.cpp
 
 #include "LayoutBar.h"
-#include <QMetaType>
 #include "PDebug.h"
-#include <QSignalMapper>
+#include "LightTable.h"
 
-LayoutBar::LayoutBar(QWidget *parent): ActionBar(parent) {
-  qRegisterMetaType<LayoutBar::Action>("LayoutBar::Action");
-
+LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
+  QToolBar(parent) {
   setWindowTitle("Layout");
-  
-  for (int i=0; i<int(Action::N); i++) {
-    Action ii = Action(i);
-    QAction *a = new QAction(parent);
-    actions[ii] = a;
-    revmap[a] = ii;
-  }
 
-  actions[Action::FullGrid]->setIcon(QIcon(":icons/layoutGrid.svg"));
-  actions[Action::HGrid]->setIcon(QIcon(":icons/layoutHGrid.svg"));
-  actions[Action::VGrid]->setIcon(QIcon(":icons/layoutVGrid.svg"));
-  actions[Action::HLine]->setIcon(QIcon(":icons/layoutHLine.svg"));
-  actions[Action::VLine]->setIcon(QIcon(":icons/layoutVLine.svg"));
-  actions[Action::FullPhoto]->setIcon(QIcon(":icons/layoutFull.svg"));
-  actions[Action::ToggleOrg]->setIcon(QIcon(":icons/toggleOrg.svg"));
-  // etcetera
+  actions << Action{Qt::Key_F1, "Full grid",
+      [=]() { lighttable->setLayout(Layout::FullGrid); }};
+  new PAction(actions.last(), QIcon(":icons/layoutGrid.svg"), this);
 
-  actions[Action::FullGrid]->setText("Full grid (F1)");
-  actions[Action::HGrid]->setText("Horizontal grid plus photo (Shift-F2)");
-  actions[Action::VGrid]->setText("Vertical grid plus photo (F2)");
-  actions[Action::HLine]->setText("Horizontal line plus photo (Shift-F3)");
-  actions[Action::VLine]->setText("Vertical line plus photo (F3)");
-  actions[Action::FullPhoto]->setText("Photo only (F4)");
-  actions[Action::ToggleOrg]->setText("Toggle date/folder view (F6)");
-  // etcetera
+  actions << Action{Qt::SHIFT + Qt::Key_F2, "Horizontal grid plus photo",
+      [=]() { lighttable->setLayout(Layout::HGrid); }};
+  new PAction(actions.last(), QIcon(":icons/layoutHGrid.svg"), this);
 
-  actions[Action::FullGrid]->setShortcut(QString("F1"));
-  actions[Action::HGrid]->setShortcut(QString("Shift+F2"));
-  actions[Action::VGrid]->setShortcut(QString("F2"));
-  actions[Action::HLine]->setShortcut(QString("Shift+F3"));
-  actions[Action::VLine]->setShortcut(QString("F3"));
-  actions[Action::FullPhoto]->setShortcut(QString("F4"));
+  actions << Action{Qt::Key_F2, "Vertical grid plus photo",
+      [=]() { lighttable->setLayout(Layout::VGrid); }};
+  new PAction(actions.last(), QIcon(":icons/layoutVGrid.svg"), this);
 
-  actions[Action::ToggleFullScreen]->setShortcut(QString("F5"));
-  actions[Action::ToggleOrg]->setShortcut(QString("F6"));
-  // etcetera
-  
-  addAction(actions[Action::FullGrid]);
-  addAction(actions[Action::HGrid]);
-  addAction(actions[Action::VGrid]);
-  addAction(actions[Action::HLine]);
-  addAction(actions[Action::VLine]);
-  addAction(actions[Action::FullPhoto]);
-  addHiddenAction(actions[Action::ToggleFullScreen]);
-  addAction(actions[Action::ToggleOrg]);
-}
+  actions << Action{Qt::SHIFT + Qt::Key_F3, "Horizontal line plus photo",
+      [=]() { lighttable->setLayout(Layout::HLine); }};
+  new PAction(actions.last(), QIcon(":icons/layoutHLine.svg"), this);
 
-LayoutBar::~LayoutBar() {
-}
+  actions << Action{Qt::Key_F3, "Vertical line plus photo",
+      [=]() { lighttable->setLayout(Layout::VLine); }};
+  new PAction(actions.last(), QIcon(":icons/layoutVLine.svg"), this);
 
-void LayoutBar::trigger(QAction *a) {
-  pDebug() << "LayoutBar::trigger" << a << revmap.contains(a);
-  if (revmap.contains(a))
-    emit triggered(revmap[a]);
+  actions << Action{Qt::Key_F4, "Photo only",
+      [=]() { lighttable->setLayout(Layout::FullPhoto); }};
+  new PAction(actions.last(), QIcon(":icons/layoutFull.svg"), this);
+
+  actions << Action{Qt::Key_F5, "Full screen",
+      [=]() { lighttable->setLayout(Layout::ToggleFullScreen); }};
+  parent->addAction(new PAction(actions.last(), this));
+                    
+  actions << Action{Qt::Key_F6, "Toggle date/folder view",
+      [=]() { lighttable->setLayout(Layout::ToggleOrg); }};
+  new PAction(actions.last(), QIcon(":icons/toggleOrg.svg"), this);
 }
