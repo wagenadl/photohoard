@@ -9,13 +9,10 @@
 #include "Action.h"
 
 class FilterBar: public QToolBar {
-  Q_OBJECT;
 public:
   FilterBar(class LightTable *lighttable, QWidget *parent);
-  virtual ~FilterBar();
 private:
   Actions actions;
-  class LightTable *lighttable;
 };
 
 #endif

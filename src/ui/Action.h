@@ -17,7 +17,7 @@ class Action {
      shortcuts) and a documentation string.
    */
 public:
-  Action(int key, QString doc, std::function<void()> foo);
+  Action(unsigned int key, QString doc, std::function<void()> foo);
   /* - Constructor with a single key shortcut and a functor
      ACTION(key, doc, foo) constructs a new ACTION with shortcut KEY,
      documentation text DOC, and payload FOO. KEY can be any Qt::Key_XXX
@@ -27,7 +27,8 @@ public:
      Example:
          Action{Qt::Key_F1, "Quit", []() { QApplication::quit(); }}
   */
-  Action(std::vector<int> const &keys, QString doc, std::function<void()> foo);
+  Action(std::vector<unsigned int> const &keys, QString doc,
+         std::function<void()> foo);
   /* - Constructor with a set of key shortcuts and a functor
      ACTION(keys, doc, foo) constructs a new ACTION with multiple shortcuts,
      listed in KEYS, documentation text DOC, and payload FOO.
