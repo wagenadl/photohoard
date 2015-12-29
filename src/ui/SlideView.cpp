@@ -126,10 +126,8 @@ void SlideView::wheelEvent(QWheelEvent *e) {
 }
 
 void SlideView::makeActions() {
-  actions
-    << Action{ Qt::Key_0, "Scale to fit",
-      [&]() { scaleToFit(); }}
-  << Action{ { Qt::Key_Minus, Qt::Key_Underscore }, "Zoom out",
+  acts
+  << Action{ { Qt::Key_Minus, Qt::Key_Underscore }, "Zoom out (try Shift, Alt)",
       [&]() { changeZoomLevel(QPoint(), -0.5, true); }}
   << Action{ { Qt::Key_Minus | Qt::ShiftModifier,
            Qt::Key_Underscore | Qt::ShiftModifier}, "",
@@ -137,7 +135,7 @@ void SlideView::makeActions() {
   << Action{ { Qt::Key_Minus | Qt::AltModifier,
            Qt::Key_Underscore | Qt::AltModifier}, "",
       [&]() { changeZoomLevel(QPoint(), -0.125, true); }}
-  << Action{ { Qt::Key_Plus, Qt::Key_Equal }, "Zoom in",
+  << Action{ { Qt::Key_Plus, Qt::Key_Equal }, "Zoom in (try Shift, Alt)",
       [&]() { changeZoomLevel(QPoint(), 0.5, true); }}
   << Action{ { Qt::Key_Plus | Qt::ShiftModifier,
            Qt::Key_Equal | Qt::ShiftModifier}, "",
@@ -146,11 +144,14 @@ void SlideView::makeActions() {
            Qt::Key_Equal | Qt::AltModifier}, "",
       [&]() { changeZoomLevel(QPoint(), 0.125, true); }}
   << Action{ Qt::Key_1, "Zoom 1:1",
-      [&]() { setZoom(1); }};
+         [&]() { setZoom(1); }}
+  << Action{ Qt::Key_0, "Scale to fit",
+         [&]() { scaleToFit(); }}
+  ;
 }
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
-  if (actions.activateIf(e)) {
+  if (acts.activateIf(e)) {
     e->accept();
     return;
   }
@@ -280,3 +281,6 @@ void SlideView::enterEvent(QEvent *) {
   setFocus();
 }
 
+Actions const &SlideView::actions() const {
+  return acts;
+}

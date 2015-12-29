@@ -287,6 +287,7 @@ void GentleJog::wheelEvent(QWheelEvent *e) {
 }
 
 void GentleJog::keyPressEvent(QKeyEvent *e) {
+  /* Make sure these keys match the Actions reported by AllControls. */
   switch (e->key()) {
   case Qt::Key_Left: 
     setValueVisually(val - stepFor(e->modifiers()));

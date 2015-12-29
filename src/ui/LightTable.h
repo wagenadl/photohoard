@@ -22,6 +22,8 @@ public:
   virtual ~LightTable();
   quint64 current() const { return curr; }
   PSize displaySize() const;
+  class Actions const &stripActions() const;
+  class Actions const &slideActions() const;
 public slots:
   void setLayout(LayoutBar::Layout ar);
   void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);

@@ -27,6 +27,14 @@ SHPrivate::SHPrivate(ShortcutHelp *parent): parent(parent) {
   rebuild();
 }
 
+static QString htmlify(QString x) {
+  x.replace("&", "&amp;");
+  x.replace("<", "&lt;");
+  x.replace(">", "&gt;");
+  x.replace("-", "&minus;");
+  return x;
+}
+
 void SHPrivate::rebuild() {
   html = "<html><head><style>";
   html += "";
@@ -34,23 +42,54 @@ void SHPrivate::rebuild() {
   
   html += "<body>";
 
-  html += "<h1>Keyboard shortcuts</h1>\n";
+  html += "<h2>Keyboard shortcuts</h2>\n";
+
+  int N = sectionNames.size();
   
-  for (int n=0; n<sectionNames.size(); n++) {
-    html += "<h2>" + sectionNames[n] + "</h2>";
-    html += "<table>";
+  QStringList sectionCores;
+  QList<int> sectionCounts;
+  for (int n=0; n<N; n++) {
+    int count = 0;
+    QString html;
     QList<Action> const &acts(sectionContents[n]->all());
     for (auto a: acts) {
-      QString doc = a.documentation();
+      QString doc = htmlify(a.documentation());
       if (doc.isEmpty())
         continue;
+      QString kn = htmlify(a.keyName());
       html += "<tr>";
-      html += "<td>" + a.keyName() + "</td>";
-      html += "<td>" + doc + "</td>";
+      html += "<td width=\"120\">" + kn + "</td>";
+      html += "<td width=\"250\">" + doc + "</td>";
       html += "</tr>";
+      count ++;
     }
-    html += "</table>\n";
+    sectionCores << html;
+    sectionCounts << count;
   }
+  QList<int> cumsum;
+  int cs=0;
+  for (int n=0; n<N; n++) {
+    cs += sectionCounts[n];
+    cumsum << cs;
+  }
+
+  html += "<table><tr><td width=\"400\">";
+  html += "<table>";
+  int col = 0;
+  for (int n=0; n<N; n++) {
+    if (n==0 || sectionNames[n]!=sectionNames[n-1])
+      html += "<tr><td colspan=\"2\"><b>" + sectionNames[n] + "</b></td></tr>";
+    html += sectionCores[n];
+    if (cumsum[n]>cs*(col+1)/3) {
+      col++;
+      html += "</table>";
+      html += "</td><td width=\"400\">";
+      html += "<table>";
+    }
+  }
+  html += "</table>";
+  html += "</td></tr></table>";
+
   html += "</body></html>\n";
 
   editor->document()->setHtml(html);
@@ -60,6 +99,7 @@ void SHPrivate::rebuild() {
 
 ShortcutHelp::ShortcutHelp(QWidget *parent): QWidget(parent) {
   d = new SHPrivate(this);
+  resize(420*3, 550);
 }
 
 ShortcutHelp::~ShortcutHelp() {

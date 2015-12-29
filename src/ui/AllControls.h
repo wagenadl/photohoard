@@ -17,6 +17,7 @@ public:
   double get(QString name) const; // nan if nonexistent
   bool contains(QString name) const { return jogs.contains(name); }
   virtual QSize sizeHint() const override;
+  static class Actions const &actions();
 signals:
   void valueChanged(QString name, double value);
   /* Emitted when the user changes the value and also when changed

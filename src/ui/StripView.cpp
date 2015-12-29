@@ -220,20 +220,7 @@ int StripView::idealSize(Strip::Arrangement arr) const {
 }
 
 void StripView::makeActions() {
-  actions
-    << Action{Qt::Key_Minus, "Reduce tile size",
-      [&]() {
-      setTileSize(tilesize*8/10);
-      emit idealSizeChanged();
-    }}
-  << Action{ {Qt::Key_Plus,
-        Qt::Key_Equal,
-        Qt::Key_Plus | Qt::ShiftModifier },
-      "Increase tile size",
-      [&]() {
-      setTileSize(tilesize*10/8);
-      emit idealSizeChanged();
-    }}
+  acts
   << Action{ "Arrows", "Navigate" }
   << Action{ Qt::Key_Up, "",
       [&]() {
@@ -258,11 +245,25 @@ void StripView::makeActions() {
       quint64 v = strip()->versionRightOf(current());
       if (v)
         emit pressed(v, Qt::LeftButton, 0);
-    }};
+    }}
+  << Action{Qt::Key_Minus, "Reduce tile size",
+      [&]() {
+      setTileSize(tilesize*8/10);
+      emit idealSizeChanged();
+    }}
+  << Action{ {Qt::Key_Plus,
+        Qt::Key_Equal,
+        Qt::Key_Plus | Qt::ShiftModifier },
+      "Increase tile size",
+      [&]() {
+      setTileSize(tilesize*10/8);
+      emit idealSizeChanged();
+    }}
+  ;
 }
 
 void StripView::keyPressEvent(QKeyEvent *e) {
-  if (actions.activateIf(e)) {
+  if (acts.activateIf(e)) {
     e->accept();
     return;
   }
@@ -305,4 +306,8 @@ void StripView::toggleOrganization() {
 
 int StripView::tileSize() const {
   return tilesize;
+}
+
+Actions const &StripView::actions() const {
+  return acts;
 }
