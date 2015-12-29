@@ -13,7 +13,7 @@
 #include <QScrollBar>
 #include <QEvent>
 #include "SliderGroups.h"
-
+#include "Action.h"
 
 AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
@@ -169,4 +169,19 @@ void AllControls::goPrevious(QString src) {
       dst = previous[dst];
     }
   }
+}
+
+Actions const &AllControls::actions() {
+  static Actions acts;
+  if (acts.all().isEmpty()) {
+    /* Make sure these Actions match the reality in GentleJog::keyPressEvent */
+    acts
+    << Action{"Left", "Decrease value (try Alt, Shift)"}
+    << Action{"Right", "Increase value (try Alt, Shift)"}
+    << Action{"Page Down", "Decrease value greatly"}
+    << Action{"Page Up", "Increase value greatly"}
+    << Action{"Up", "Move focus to slider above"}
+    << Action{"Down", "Move focus to slider below"};
+  }
+  return acts;
 }

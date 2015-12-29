@@ -17,6 +17,7 @@ public:
   PSize desiredSize() const;
   double currentZoom() const;
   double fittingZoom() const;
+  Actions const &actions() const;
 public slots:
   void newImage(QSize natSize);
   void clear();
@@ -54,7 +55,7 @@ private:
   QPoint presspoint;
   double pressrelx, pressrely;
   bool dragging;
-  Actions actions;
+  Actions acts;
 };
 
 #endif

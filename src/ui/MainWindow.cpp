@@ -64,9 +64,12 @@ MainWindow::MainWindow(PhotoDB *db,
   // etc.
 
   shortcutHelp->addSection("General", fileBar->actions());
+  shortcutHelp->addSection("General", filterBar->actions());
   shortcutHelp->addSection("Layout", layoutBar->actions());
   shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
-  shortcutHelp->addSection("General", filterBar->actions());
+  shortcutHelp->addSection("Image strip", lightTable->stripActions());
+  shortcutHelp->addSection("Photo editor", lightTable->slideActions());
+  shortcutHelp->addSection("Slider panel", allControls->actions());
   
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
           histogram, SLOT(setImage(Image16))); // is this ok?

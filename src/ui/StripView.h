@@ -22,6 +22,7 @@ public:
   int tileSize() const;
   int idealSize() const;
   int idealSize(Strip::Arrangement) const;
+  Actions const &actions() const;
 signals:
   void needImage(quint64, QSize);
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
@@ -56,7 +57,7 @@ private:
   class StripScene *dateScene, *folderScene;
   class Datestrip *dateStrip, *folderStrip;
   int tilesize;
-  Actions actions;
+  Actions acts;
 };
 
 #endif

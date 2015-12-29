@@ -14,12 +14,12 @@ FilterBar::FilterBar(LightTable *lighttable, QWidget *parent):
                     [=]() { lighttable->openFilterDialog(); }};
   new PAction{acts.last(), QIcon(":icons/search.svg"), this};
 
-  acts << Action{Qt::CTRL + Qt::Key_Minus, "Smaller", 
+  acts << Action{Qt::CTRL + Qt::Key_Minus, "Reduce tile size", 
                      [=]() { lighttable->increaseTileSize(1/1.25); }};
   new PAction{acts.last(), QIcon(":icons/scaleSmaller.svg"), this};
 
   acts << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
-                    "Larger", 
+                    "Increase tile size", 
                     [=]() { lighttable->increaseTileSize(1.25); }};
   new PAction{acts.last(), QIcon(":icons/scaleLarger.svg"), this};
 

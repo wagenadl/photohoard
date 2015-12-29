@@ -555,3 +555,12 @@ void LightTable::rotateSelected(int dphi) {
     makeCurrent(oldcurr);
 
 }
+
+Actions const &LightTable::stripActions() const {
+  return strips->actions();
+}
+
+Actions const &LightTable::slideActions() const {
+  return slide->actions();
+}
+
