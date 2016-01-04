@@ -220,55 +220,24 @@ int StripView::idealSize(Strip::Arrangement arr) const {
 }
 
 void StripView::makeActions() {
-  acts
-  << Action{ "Arrows", "Navigate" }
-  << Action{ Qt::Key_Up, "",
-      [&]() {
-      quint64 v = strip()->versionAbove(current());
-      if (v)
-        emit pressed(v, Qt::LeftButton, 0);
-    }}
-  << Action{ Qt::Key_Down, "",
-      [&]() {
-      quint64 v = strip()->versionBelow(current());
-      if (v)
-        emit pressed(v, Qt::LeftButton, 0);
-    }}
-  << Action{ Qt::Key_Left, "",
-      [&]() {
-      quint64 v = strip()->versionLeftOf(current());
-      if (v)
-        emit pressed(v, Qt::LeftButton, 0);
-    }}
-  << Action{ Qt::Key_Right, "",
-      [&]() {
-      quint64 v = strip()->versionRightOf(current());
-      if (v)
-        emit pressed(v, Qt::LeftButton, 0);
-    }}
-  << Action{Qt::Key_Minus, "Reduce tile size",
-      [&]() {
-      setTileSize(tilesize*8/10);
-      emit idealSizeChanged();
-    }}
-  << Action{ {Qt::Key_Plus,
-        Qt::Key_Equal,
-        Qt::Key_Plus | Qt::ShiftModifier },
-      "Increase tile size",
-      [&]() {
-      setTileSize(tilesize*10/8);
-      emit idealSizeChanged();
-    }}
-  ;
 }
 
 void StripView::keyPressEvent(QKeyEvent *e) {
   if (acts.activateIf(e)) {
     e->accept();
     return;
+  } else {
+    switch (e->key()) {
+    case Qt::Key_Left: case Qt::Key_Right:
+    case Qt::Key_Up: case Qt::Key_Down:
+      e->ignore(); // let LightTable handle these
+      return;
+    default:
+      break;
+    }
   }
   
-  QGraphicsView::keyPressEvent(e);
+  QGraphicsView::keyPressEvent(e); // handles scrolling with PgUp/PgDn
 }
 
 StripScene *StripView::scene() {

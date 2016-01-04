@@ -13,6 +13,7 @@
 #include "ColorLabelBar.h"
 #include "FilterBar.h"
 #include "LiveAdjuster.h"
+#include "Action.h"
 
 class LightTable: public QSplitter {
   Q_OBJECT;
@@ -22,8 +23,7 @@ public:
   virtual ~LightTable();
   quint64 current() const { return curr; }
   PSize displaySize() const;
-  class Actions const &stripActions() const;
-  class Actions const &slideActions() const;
+  class Actions const &actions() const;
 public slots:
   void setLayout(LayoutBar::Layout ar);
   void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);
@@ -51,7 +51,10 @@ private slots:
   void updateAdjusted(Image16, quint64);
   void applyFilterFromDialog();
   void resizeStrip();
+private:
+  void makeActions();
 protected:
+  virtual void keyPressEvent(QKeyEvent *) override;
   void updateSlide(quint64 id);
   void ensureReasonableGridSize();
   void populateFilterFromDialog();
@@ -72,6 +75,7 @@ protected:
   quint64 curr;
   int tilesize;
   int lastgridsize;
+  Actions acts;
 };
 
 #endif

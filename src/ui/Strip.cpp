@@ -743,3 +743,25 @@ quint64 Strip::versionAbove(quint64 vsn) {
 quint64 Strip::versionBelow(quint64 vsn) {
   return versionAt(vsn, QPoint(0, 1));
 }
+
+quint64 Strip::versionBefore(quint64 vsn) {
+  switch (arrangement()) {
+  case Arrangement::Horizontal:
+  case Arrangement::Grid:
+    return versionLeftOf(vsn);
+  case Arrangement::Vertical:
+    return versionAbove(vsn);
+  }
+  return 0; // not executed
+}
+
+quint64 Strip::versionAfter(quint64 vsn) {
+  switch (arrangement()) {
+  case Arrangement::Horizontal:
+  case Arrangement::Grid:
+    return versionRightOf(vsn);
+  case Arrangement::Vertical:
+    return versionBelow(vsn);
+  }
+  return 0; // not executed
+}

@@ -67,8 +67,8 @@ MainWindow::MainWindow(PhotoDB *db,
   shortcutHelp->addSection("General", filterBar->actions());
   shortcutHelp->addSection("Layout", layoutBar->actions());
   shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
-  shortcutHelp->addSection("Image strip", lightTable->stripActions());
-  shortcutHelp->addSection("Photo editor", lightTable->slideActions());
+  shortcutHelp->addSection("Image strip and photo editor",
+                           lightTable->actions());
   shortcutHelp->addSection("Slider panel", allControls->actions());
   
   connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),

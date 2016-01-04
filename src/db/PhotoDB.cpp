@@ -437,3 +437,27 @@ quint64 PhotoDB::firstVersionInTree(QString folder) const {
 
   return 0;
 }
+
+quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
+  VersionRecord vr = versionRecord(vsn);
+  Transaction t(this);
+  quint64 v1 = query("insert into versions(photo, orient, starrating,"
+                     " colorlabel, acceptreject) values(:a,:b,:c,:d,:e)",
+                     vr.photo, int(vr.orient), int(vr.starrating),
+                     int(vr.colorlabel), int(vr.acceptreject))
+    .lastInsertId().toULongLong();
+  if (clone) {
+    QVariantMap kv;
+    {
+      QSqlQuery q = query("select k, v from adjustments"
+                          " where version==:a", vsn);
+      while (q.next()) 
+        kv[q.value(0).toString()] = q.value(1);
+    }
+    for (auto k: kv.keys()) 
+      query("insert into adjustments(version, k, v)"
+            " values(:a,:b,:c)", v1, k, kv[k]);
+  }
+  t.commit();
+  return v1;
+}

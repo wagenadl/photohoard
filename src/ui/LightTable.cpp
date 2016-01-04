@@ -12,6 +12,7 @@
 #include "StripScene.h"
 #include "Exif.h"
 #include "FilterDialog.h"
+#include <QKeyEvent>
 
 LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db), adjuster(adj) {
@@ -53,10 +54,6 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
 
   connect(strips, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
-  connect(strips, SIGNAL(pressed(quint64,
-				 Qt::MouseButton, Qt::KeyboardModifiers)),
-	  this, SLOT(slidePress(quint64,
-                                Qt::MouseButton, Qt::KeyboardModifiers)));
   connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
   connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
@@ -84,6 +81,8 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   { Untransaction t(db);
     db->query("delete from starting");
   }
+
+  makeActions();
 }
 
 LightTable::~LightTable() {
@@ -556,11 +555,87 @@ void LightTable::rotateSelected(int dphi) {
 
 }
 
-Actions const &LightTable::stripActions() const {
-  return strips->actions();
+Actions const &LightTable::actions() const {
+  return acts;
 }
 
-Actions const &LightTable::slideActions() const {
-  return slide->actions();
+void LightTable::makeActions() {
+  acts
+  << Action{ { Qt::Key_Minus, Qt::Key_Underscore }, "Zoom out (try Shift, Alt)",
+      [&]() { slide->changeZoomLevel(QPoint(), -0.5, true); }}
+  << Action{ { Qt::Key_Minus | Qt::ShiftModifier,
+           Qt::Key_Underscore | Qt::ShiftModifier}, "",
+      [&]() { slide->changeZoomLevel(QPoint(), -1, true); }}
+  << Action{ { Qt::Key_Minus | Qt::AltModifier,
+           Qt::Key_Underscore | Qt::AltModifier}, "",
+      [&]() { slide->changeZoomLevel(QPoint(), -0.125, true); }}
+  << Action{ { Qt::Key_Plus, Qt::Key_Equal }, "Zoom in (try Shift, Alt)",
+      [&]() { slide->changeZoomLevel(QPoint(), 0.5, true); }}
+  << Action{ { Qt::Key_Plus | Qt::ShiftModifier,
+           Qt::Key_Equal | Qt::ShiftModifier}, "",
+      [&]() { slide->changeZoomLevel(QPoint(), 1, true); }}
+  << Action{ { Qt::Key_Plus | Qt::AltModifier,
+           Qt::Key_Equal | Qt::AltModifier}, "",
+      [&]() { slide->changeZoomLevel(QPoint(), 0.125, true); }}
+  << Action{ Qt::Key_1, "Zoom 1:1",
+         [&]() { slide->setZoom(1); }}
+  << Action{ Qt::Key_0, "Scale to fit",
+         [&]() { slide->scaleToFit(); }}
+  << Action{ "Arrows", "Navigate between images" }
+  << Action{ Qt::Key_Up, "",
+      [&]() {
+      quint64 v = strips->strip()->versionAbove(current());
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}
+  << Action{ Qt::Key_Down, "",
+      [&]() {
+      quint64 v = strips->strip()->versionBelow(current());
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}
+  << Action{ Qt::Key_Left, "",
+      [&]() {
+      quint64 v = strips->strip()->versionLeftOf(current());
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}
+  << Action{ Qt::Key_Right, "",
+      [&]() {
+      quint64 v = strips->strip()->versionRightOf(current());
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}
+  << Action { Qt::Key_BracketLeft, "Select previous image",
+      [&]() {
+      quint64 v = strips->strip()->versionBefore(current());
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}
+  << Action { Qt::Key_BracketRight, "Select next image",
+      [&]() {
+      quint64 v = strips->strip()->versionAfter(current());
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}
+  << Action { Qt::CTRL + Qt::Key_N, "New version from photo",
+         [&]() {
+      db->newVersion(current(), false);
+      rescan();
+    }}
+  << Action { Qt::CTRL + Qt::Key_D, "New version from current (duplicate)",
+         [&]() {
+      db->newVersion(current(), true);
+      rescan();
+    }}
+  ;
+}
+
+void LightTable::keyPressEvent(QKeyEvent *e) {
+  qDebug() << "lighttable:: keypressevent";
+  if (acts.activateIf(e)) {
+    e->accept();
+    return;
+  }
 }
 
