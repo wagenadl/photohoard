@@ -1,0 +1,53 @@
+{ "typ": "page",
+  "cre": "2015-12-29T09:22:36",
+  "mod": "2015-12-29T09:23:01",
+  "cui": "23414ba10a9a2131",
+  "stampTime": 0,
+  "startPage": 34,
+  "unlocked": false,
+  "uuid": "2ab1cf1e",
+  "cc": [
+    { "typ": "title",
+      "cre": "2015-12-29T09:22:36",
+      "mod": "2015-12-29T09:22:41",
+      "uuid": "6bb39590",
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-29T09:22:36",
+          "mod": "2015-12-29T09:22:41",
+          "lines": [
+            0
+          ],
+          "text": "Bug: rotation",
+          "uuid": "803deb8d"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2015-12-29T09:22:36",
+      "mod": "2015-12-29T09:22:36",
+      "uuid": "d45abd7d"
+    },
+    { "typ": "textblock",
+      "cre": "2015-12-29T09:22:41",
+      "mod": "2015-12-29T09:23:01",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "6347b90e",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2015-12-29T09:22:41",
+          "mod": "2015-12-29T09:23:01",
+          "lines": [
+            0
+          ],
+          "text": "Look at DSC_2085 (2015-01-01). Its rotation is messed up.",
+          "uuid": "f444d5a0"
+        }
+      ]
+    }
+  ]
+}

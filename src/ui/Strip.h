@@ -53,6 +53,8 @@ public:
   virtual quint64 versionBelow(quint64 vsn);
   virtual quint64 versionAt(quint64 vsn, QPoint dcr)=0;
   // dcr must be one of (±1,0) or (0,±1).
+  virtual quint64 versionBefore(quint64 vsn);
+  virtual quint64 versionAfter(quint64 vsn);
   virtual quint64 firstExpandedVersion()=0;
   virtual quint64 lastExpandedVersion()=0;
   virtual Strip *firstExpandedStrip()=0;

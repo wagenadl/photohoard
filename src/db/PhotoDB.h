@@ -1,3 +1,4 @@
+
 // PhotoDB.h
 
 #ifndef PHOTODB_H
@@ -82,6 +83,14 @@ public: // exploration functions
   QList<QString> rootFolders() const;
   quint64 firstVersionInTree(QString folder) const;
   // all of the above look at the filter
+public: // manipulating the database
+  quint64 newVersion(quint64 versionid, bool clone=true);
+  /* NEWVERSION - Create a new version of an existing photo
+     v1 = NEWVERSION(vsn) creates an exact clone of the version VSN.
+     v1 = NEWVERSION(vsn, false) creates a new version of the photo that VSN
+     refers to, but with default rather than copied sliders.
+     This function does *not* notify the cache or the GUI.
+   */
 private:
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;

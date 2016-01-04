@@ -1,0 +1,28 @@
+{ "typ": "latenote",
+  "cre": "2015-12-29T11:01:32",
+  "mod": "2015-12-29T11:02:19",
+  "dx": 0.0,
+  "dy": 0.0,
+  "sheet": 0,
+  "textWidth": 397.5,
+  "uuid": "857a8720",
+  "x": 142.5,
+  "y": 123.75,
+  "cc": [
+    { "typ": "text",
+      "cre": "2015-12-29T11:01:32",
+      "mod": "2015-12-29T11:02:19",
+      "lines": [
+        0,
+        67
+      ],
+      "text": "It’s not a bug. Rather, I screwed up the db. Recovery will involve reading all the rotations using exiftool. Ouch.",
+      "uuid": "ee29c148"
+    },
+    { "typ": "resources",
+      "cre": "2015-12-29T11:01:32",
+      "mod": "2015-12-29T11:01:32",
+      "uuid": "1b5a3273"
+    }
+  ]
+}
