@@ -6,8 +6,14 @@
 #include "PDebug.h"
 
 Filter::Filter(PhotoDB *db): db(db) {
+  reset();
+}
+
+void Filter::reset() {
   hascollection = false;
+  collection_ = "";
   hascolorlabels = false;
+  colorlabels.clear();
   hasstarrating = false;
   minstars = 0;
   maxstars = 5;
@@ -15,15 +21,14 @@ Filter::Filter(PhotoDB *db): db(db) {
   statusaccepted = statusunset = true;
   statusrejected = false;
   hascamera = false;
+  cameramake = cameramodel = cameralens = "";
   hasdaterange = false;
   startdate = QDate(1980, 1, 1);
   enddate = QDate(QDate::currentDate().year(), 12, 31);
   hasfilelocation = false;
+  filelocation = "";
   hastags = false;
-}
-
-void Filter::reset() {
-  *this = Filter(db);
+  tags_.clear();
 }
 
 void Filter::setCollection(QString s) {
