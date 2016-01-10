@@ -12,8 +12,7 @@ void PhotoDB::open(QString fn) {
   Database::open(fn);
 
   QSqlQuery q = query("select id, version from info limit 1");
-  if (!q.next())
-    throw NoResult();
+  ASSERT(q.next());
   
   pDebug() << "Opened PhotoDB " << fn
 	   << ": " << q.value(0).toString() << q.value(1).toString();
@@ -46,10 +45,8 @@ void PhotoDB::clone(PhotoDB const &src) {
 
 void PhotoDB::create(QString fn) {
   QFile f(fn);
-  if (f.exists()) {
-    pDebug() << "Could not create new PhotoDB: File exists: " << fn;
-    throw std::system_error(std::make_error_code(std::errc::file_exists));
-  }
+  if (f.exists())
+    CRASH("Could not create new PhotoDB: File exists: " + fn);
 
   if (fn.contains("/")) {
     QString parent = fn.left(fn.lastIndexOf("/"));
@@ -63,17 +60,12 @@ void PhotoDB::create(QString fn) {
   Database db;
   db.open(fn);
   SqlFile sql(":/setupdb.sql");
-  QSqlQuery q = db.query();
-  db.begin();
-  for (auto c: sql) {
-    if (!q.exec(c)) {
-      pDebug() << "PhotoDB: Could not setup: " << q.lastError().text();
-      pDebug() << "  at " << c;
-      db.rollback();
-      throw q;
-    }
+  {
+    Transaction t(&db);
+    for (auto c: sql) 
+      db.query(c);
+    t.commit();
   }
-  db.commit();
   db.close();
 }
 
@@ -118,8 +110,7 @@ QDateTime PhotoDB::captureDate(quint64 p) const {
 PSize PhotoDB::photoSize(quint64 p) const {
   QSqlQuery q
     = constQuery("select width, height from photos where id==:a", p);
-  if (!q.next())
-    throw NoResult();
+  ASSERT(q.next());
   return PSize(q.value(0).toInt(), q.value(1).toInt());
 }
 
@@ -184,8 +175,7 @@ PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   QSqlQuery q = constQuery("select photo,"
                            " starrating, colorlabel, acceptreject orient"
                            " from versions where id==:a", id);
-  if (!q.next())
-    throw NoResult();
+  ASSERT(q.next());
   vr.id = id;
   vr.photo = q.value(0).toULongLong();
   vr.starrating = q.value(1).toInt();
@@ -201,8 +191,7 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
                            " camera, lens, exposetime, fnumber, focallength,"
                            " distance, iso, capturedate"
                            " from photos where id==:a", id);
-  if (!q.next())
-    throw NoResult();
+  ASSERT(q.next());
   pr.id = id;
   pr.folderid = q.value(0).toInt();
   pr.filename = q.value(1).toString();

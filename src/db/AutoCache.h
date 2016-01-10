@@ -163,18 +163,6 @@ signals:
      small image. In that case, the second CHGID will be zero.
   */
   
-  /* Function: exception
-     Emitted when the worker thread catches an exception.
-
-     At the moment, all exceptions are fatal. This mechanism is used because
-     in Qt, subthreads are not allowed to throw exceptions.
-
-     Arguments:
-     msg - Error message associated with the exception.
-  */
-  void exception(QString);
-
-
   /* Functions: Private signals
      These signals forward signals connected to our public slots to the
      corresponding slots in the worker thread.

@@ -51,41 +51,20 @@ int AC_Worker::queueLength() const {
 }
 
 void AC_Worker::recache(QSet<quint64> versions) {
-  try {
-    addToDBQueue(versions);
-    markReadyToLoad(versions);
-    countQueue();
-    activateBank();
-  } catch (QSqlQuery &q) {
-    emit exception(HERE + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (NoResult) {
-    emit exception(HERE + "No result");
-  } catch (...) {
-    emit exception(HERE + "Unknown exception");
-  }
+  addToDBQueue(versions);
+  markReadyToLoad(versions);
+  countQueue();
+  activateBank();
 }
 
 void AC_Worker::boot() {
-  try {
-    markReadyToLoad(getSomeFromDBQueue());
-    activateBank();
-  } catch (QSqlQuery &q) {
-    emit exception(HERE + "SqlError: " + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (NoResult) {
-    emit exception(HERE + "No result");
-  } catch (...) {
-    emit exception(HERE + "Unknown exception");
-  }
+  markReadyToLoad(getSomeFromDBQueue());
+  activateBank();
 }
 
 QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
-  QSqlQuery qq(cache->database()->query());
-  qq.prepare("select version from queue limit :m");
-  qq.bindValue(":m", QVariant(maxres));
-  if (!qq.exec())
-    throw qq;
+  QSqlQuery qq = cache->database()->query("select version from queue limit :a",
+                                          maxres);
   QSet<quint64> ids;
   while (qq.next()) 
     ids << qq.value(0).toULongLong();
@@ -200,8 +179,7 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
 			 " from versions"
 			 " inner join photos on versions.photo==photos.id"
 			 " where versions.id==:a", vsn);
-  if (!q.next())
-    throw NoResult(__FILE__, __LINE__);
+  ASSERT(q.next());
   int wid = q.value(0).toInt();
   int hei = q.value(1).toInt();
   Exif::Orientation orient = Exif::Orientation(q.value(2).toInt());
@@ -222,35 +200,24 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // this id.)
   // Reactivate the IF_Bank if it is partially idle and we have more.
 
-  try {
-    if (!fullSize.isEmpty())
-      ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
+  if (!fullSize.isEmpty())
+    ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
+  
+  if (!hushup.contains(id)
+      && (!invalidatedWhileLoading.contains(id) || requests.contains(id))) 
+    makeAvailable(id, img);
 
-    if (!hushup.contains(id)
-	&& (!invalidatedWhileLoading.contains(id) || requests.contains(id))) 
-      makeAvailable(id, img);
+  beingLoaded.remove(id);
+  onlyPreviewLoaded.remove(id);
 
-    beingLoaded.remove(id);
-    onlyPreviewLoaded.remove(id);
-
-    if (invalidatedWhileLoading.contains(id)) {
-      invalidatedWhileLoading.remove(id);
-    } else if (mustCache.contains(id)) {
-      loaded[id] = img;
-      loadedmemsize += img.byteCount();
-    }
-
-    processLoaded();
-  } catch (QSqlQuery &q) {
-    qDebug() << "AC_Worker exception db=" << (void*)&db;
-    emit exception(HERE + "SqlError: "
-                   + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (NoResult) {
-    emit exception(HERE + "No result");
-  } catch (...) {
-    emit exception(HERE + "Unknown exception");
+  if (invalidatedWhileLoading.contains(id)) {
+    invalidatedWhileLoading.remove(id);
+  } else if (mustCache.contains(id)) {
+    loaded[id] = img;
+    loadedmemsize += img.byteCount();
   }
+
+  processLoaded();
 }
 
 void AC_Worker::processLoaded() {
@@ -286,8 +253,7 @@ void AC_Worker::sendToBank(quint64 vsn) {
 	       " from versions"
 	       " inner join photos on versions.photo==photos.id"
 	       " where versions.id==:a limit 1", vsn);
-  if (!q.next())
-    throw NoResult(__FILE__, __LINE__);
+  ASSERT(q.next());
   quint64 folder = q.value(0).toULongLong();
   QString fn = q.value(1).toString();
   int ftype = q.value(2).toInt();
@@ -324,27 +290,18 @@ void AC_Worker::storeLoadedInDB() {
 }
 
 void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
-  try {
-    if (loaded.contains(version)) {
-      Image16 res = loaded[version].scaledDownToFitIn(desired);
-      emit available(version, res, cache->isOutdated(version) ? 1 : 0);
-      return;
-    }
-    PSize best=cache->bestSize(version, desired);
-    if (best.isEmpty())
-      return;
-    bool od;
-    Image16 img = cache->get(version, best, &od).scaledDownToFitIn(desired);
-    if (!img.isNull() && !od)
-      emit available(version, img, 0);
-  } catch (QSqlQuery &q) {
-    emit exception(HERE + "SqlError: " + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (NoResult) {
-    emit exception(HERE + "No result");
-  } catch (...) {
-    emit exception(HERE + "Unknown exception");
+  if (loaded.contains(version)) {
+    Image16 res = loaded[version].scaledDownToFitIn(desired);
+    emit available(version, res, cache->isOutdated(version) ? 1 : 0);
+    return;
   }
+  PSize best=cache->bestSize(version, desired);
+  if (best.isEmpty())
+    return;
+  bool od;
+  Image16 img = cache->get(version, best, &od).scaledDownToFitIn(desired);
+  if (!img.isNull() && !od)
+    emit available(version, img, 0);
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
@@ -352,58 +309,49 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
     return;
 
   PSize actual;
-  try {
-    if (loaded.contains(version)) {
-      Image16 res = loaded[version].scaledDownToFitIn(desired);
-      emit available(version, res, false);
-      actual = res.size();
-    } else {
-      actual=cache->bestSize(version, desired);
-      if (!actual.isEmpty()) {
-        bool outdated;
-        Image16 img = cache->get(version, actual, &outdated)
-          .scaledDownToFitIn(desired);
-        if (img.isNull()) {
-          // can this happen?
-          actual = PSize();
-        } else {
-          emit available(version, img, false);
-        }
-        if (outdated)
-          actual = PSize();
+  if (loaded.contains(version)) {
+    Image16 res = loaded[version].scaledDownToFitIn(desired);
+    emit available(version, res, false);
+    actual = res.size();
+  } else {
+    actual=cache->bestSize(version, desired);
+    if (!actual.isEmpty()) {
+      bool outdated;
+      Image16 img = cache->get(version, actual, &outdated)
+        .scaledDownToFitIn(desired);
+      if (img.isNull()) {
+        // can this happen?
+        actual = PSize();
+      } else {
+        emit available(version, img, false);
       }
+      if (outdated)
+        actual = PSize();
     }
-    if (actual.isLargeEnoughFor(desired)
-        || actual.isLargeEnoughFor(cache->maxSize()))
-      // We cannot do better than that
-      return;
-
-    // We will request it
-    if (beingLoaded.contains(version)) {
-      // We're getting it already
-      requests[version] |= desired;
-    } else {
-      // We must get it
-      if (!mustCache.contains(version))
-	N++; /* This is not actually formally correct, because it may
-		be that version is already in the dbqueue. Worse, by
-		not adding this version to the dbqueue, we risk losing
-		count later. But adding it to the dbqueue one-by-one
-		is rather inefficient.
-	     */
-      mustCache << version;
-      requests[version] |= desired;
-      readyToLoad << version;
-      rtlOrder.push_front(version);
-      activateBank();
-    }
-  } catch (QSqlQuery &q) {
-    emit exception(HERE + "SqlError: " + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (NoResult) {
-    emit exception(HERE + "No result " + QString::number(version));
-  } catch (...) {
-    emit exception(HERE + "Unknown exception");
+  }
+  if (actual.isLargeEnoughFor(desired)
+      || actual.isLargeEnoughFor(cache->maxSize()))
+    // We cannot do better than that
+    return;
+  
+  // We will request it
+  if (beingLoaded.contains(version)) {
+    // We're getting it already
+    requests[version] |= desired;
+  } else {
+    // We must get it
+    if (!mustCache.contains(version))
+      N++; /* This is not actually formally correct, because it may
+              be that version is already in the dbqueue. Worse, by
+              not adding this version to the dbqueue, we risk losing
+              count later. But adding it to the dbqueue one-by-one
+              is rather inefficient.
+           */
+    mustCache << version;
+    requests[version] |= desired;
+    readyToLoad << version;
+    rtlOrder.push_front(version);
+    activateBank();
   }
 }
 

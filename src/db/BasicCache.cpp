@@ -80,36 +80,20 @@ void BasicCache::readConfig() {
 void BasicCache::create(QString rootdir) {
   QDir root(rootdir);
   
-  if (root.exists()) 
-    throw std::system_error(std::make_error_code(std::errc::file_exists));
+  ASSERT(!root.exists());
 
 
-  if (!QDir("/").mkpath(root.absolutePath())) {
-    qDebug() << "BasicCache::create: Could not create directory.";
-    throw std::system_error(std::error_code());
-  }
+  if (!QDir("/").mkpath(root.absolutePath()))
+    CRASH("BasicCache::create: Could not create directory.");
 
-  try {
-    Database db;
-    db.open(rootdir + "/cache.db");
-    Transaction t(&db);
-    SqlFile sql(":/setupcache.sql");
-    for (auto c: sql) {
-      QSqlQuery q = db.query();
-      if (!q.exec(c)) {
-	qDebug() << "BasicCache: Could not setup: " << q.lastError().text();
-	qDebug() << "  at " << c;
-	throw q;
-      }
-    }
-    t.commit();
-    db.close();
-  } catch (...) {
-    qDebug() << "BasicCache caught error while creating. Failure.";
-    root.remove("cache.db");
-    QDir("/").rmdir(root.absolutePath());
-    throw;
-  }
+  Database db;
+  db.open(rootdir + "/cache.db");
+  Transaction t(&db);
+  SqlFile sql(":/setupcache.sql");
+  for (auto c: sql) 
+    db.query(c);
+  t.commit();
+  db.close();
 }
 
 void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
@@ -201,7 +185,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
       if (f.open(QFile::WriteOnly)) 
 	f.write(buf.data());
       else
-	throw std::system_error(std::error_code());
+	CRASH("Cannot write");
     }
   } else {
     // new
@@ -220,7 +204,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
       if (f.open(QFile::WriteOnly)) 
 	f.write(buf.data());
       else
-	throw std::system_error(std::error_code());
+	CRASH("Cannot write");
     }
   }
 }
@@ -246,10 +230,8 @@ Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
   QSqlQuery q = db.query("select id, dbno, outdated from cache"
 			 " where version==:a and maxdim==:b limit 1",
 			 vsn, s.maxDim());
-  if (!q.next()) {
-    qDebug() << "BasicCache: failed to get" << vsn << s;
-    throw q;
-  }
+  ASSERT(q.next());
+
   quint64 cacheid = q.value(0).toInt();
   int k = q.value(1).toInt();
   bool od = q.value(2).toInt()>0;

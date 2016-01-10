@@ -18,11 +18,8 @@ void Database::open(QString filename) {
 
   db = QSqlDatabase::addDatabase("QSQLITE", id);
   db.setDatabaseName(filename);
-  if (!db.open()) {
-    qDebug() << "Could not open database " << filename;
-    throw std::system_error(std::make_error_code
-                            (std::errc::no_such_file_or_directory));
-  }
+  if (!db.open())
+    CRASH("Could not open database " + filename);
 }
 
 void Database::close() {
@@ -41,12 +38,8 @@ void Database::clone(Database const &src) {
   if (db.isOpen())
     close();
   db = QSqlDatabase::cloneDatabase(src.db, id);
-  if (!db.open()) {
-    qDebug() << "Could not open cloned database:"
-             << db.databaseName();      
-    throw std::system_error(std::make_error_code
-                            (std::errc::no_such_file_or_directory));
-  }
+  if (!db.open()) 
+    CRASH("Could not open cloned database:" + db.databaseName());
   transWait = src.transWait;
 }
 
@@ -59,24 +52,18 @@ Database::~Database() {
 }
 
 void Database::begin() {
-  if (!db.transaction()) {
-    qDebug() << "Could not begin transaction";
-    throw db.lastError();
-  }
+  if (!db.transaction()) 
+    CRASHDB("Could not begin transaction");
 }
 
 void Database::commit() {
-  if (!db.commit()) {
-    qDebug() << "Could not commit transaction:" << db.lastError().databaseText() << " / " << db.lastError().driverText();
-    throw db.lastError();
-  }
+  if (!db.commit())
+    CRASHDB("Could not commit transaction");
 }
 
 void Database::rollback() {
-  if (!db.rollback()) {
-    qDebug() << "Could not rollback transaction";
-    throw db.lastError();
-  }
+  if (!db.rollback()) 
+    CRASHDB("Could not rollback transaction");
 }
 
 QVariant Database::defaultQuery(QString s, QVariant dflt) const {
@@ -92,21 +79,21 @@ QVariant Database::defaultQuery(QString s, QVariant a, QVariant dflt) const {
 QVariant Database::simpleQuery(QString s) const {
   QSqlQuery q = constQuery(s);
   if (!q.next())
-    throw NoResult(s);
+    CRASH("No result");
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a) const {
   QSqlQuery q = constQuery(s, a);
   if (!q.next())
-    throw NoResult(s);
+    CRASH("No result");
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) const {
   QSqlQuery q = constQuery(s, a, b);
   if (!q.next())
-    throw NoResult(s);
+    CRASH("No result");
   return q.value(0);
 }
 
@@ -114,7 +101,7 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
   QSqlQuery q = constQuery(s, a, b, c);
   if (!q.next())
-    throw NoResult(s);
+    CRASH("No result");
   return q.value(0);
 }
    
@@ -122,7 +109,7 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c, QVariant d) const {
   QSqlQuery q = constQuery(s, a, b, c, d);
   if (!q.next())
-    throw NoResult(s);
+    CRASH("No result");
   return q.value(0);
 }
    
@@ -137,13 +124,10 @@ QSqlQuery Database::constQuery(QString s) const {
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
   q.prepare(s);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query(QString s, QVariant a) {
@@ -156,13 +140,10 @@ QSqlQuery Database::constQuery(QString s, QVariant a) const {
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
@@ -176,13 +157,10 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
@@ -198,13 +176,10 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
   q.bindValue(":a", a);
   q.bindValue(":b", b);
   q.bindValue(":c", c);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
@@ -222,13 +197,10 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":b", b);
   q.bindValue(":c", c);
   q.bindValue(":d", d);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
@@ -247,13 +219,10 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":c", c);
   q.bindValue(":d", d);
   q.bindValue(":e", e);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
@@ -273,13 +242,10 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":d", d);
   q.bindValue(":e", e);
   q.bindValue(":f", f);
-  if (q.exec()) {
-    if (debugging())
-      pDebug() << "query" << (void*)this << "executed";
-    return q;
-  } else {
-    throw q;
-  }
+  ASSERT(q.exec());
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
 }
 
 QSqlQuery Database::query() {

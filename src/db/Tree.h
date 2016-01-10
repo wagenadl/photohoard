@@ -41,10 +41,8 @@ public:
   }
   Tree<T> &child(T const &key) const {
     auto it = index.find(ckey);
-    if (it==index.end()) 
-      throw NoResult;
-   else 
-     return *children[it.value()];
+    ASSERT(it!=index.end());
+    return *children[it.value()];
   }
   void sort() {
     QList<T> keys = index.keys();

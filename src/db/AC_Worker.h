@@ -164,12 +164,6 @@ signals:
   /* AVAILABLE - Emitted when a requested image is available.
      See AUTOCACHE::AVAILABLE for details.
   */
-  void exception(QString);
-  /* EXCEPTION -  Emitted when this thread catches an exception.
-     EXCEPTION(msg) sends MSG as an exception.
-     At the moment, all exceptions are fatal. This mechanism is used because
-     in Qt, subthreads are not allowed to throw exceptions.
-  */
 private:
   void makeAvailable(quint64 version, Image16 img);
   /* MAKEAVAILABLE - Emit AVAILABLE signals for the given image.

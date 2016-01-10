@@ -20,8 +20,6 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
 				 Sliders, int, bool)));
   connect(worker, SIGNAL(foundImage(quint64, Image16, QSize)),
           this, SLOT(handleFoundImage(quint64, Image16, QSize)));
-  connect(worker, SIGNAL(exception(QString)),
-	  this, SIGNAL(exception(QString)));
   thread.start();
 }
 

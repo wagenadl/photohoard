@@ -41,13 +41,19 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     args << QString("-c -t 0 -w -4 -o 5").split(" ");
     args << path;
     dcraw.start("dcraw", args);
-    if (!dcraw.waitForStarted())
-      throw QString("Could not start DCRaw:" + path);
-    if (!dcraw.waitForFinished(300000))
-      throw QString("Could not complete DCRaw:" + path);
+    if (!dcraw.waitForStarted()) {
+      COMPLAIN("Could not start DCRaw:" + path);
+      return Image16();
+    }
+    if (!dcraw.waitForFinished(300000)) {
+      COMPLAIN("Could not complete DCRaw:" + path);
+      return Image16();
+    }
     img = QImage::fromData(dcraw.readAllStandardOutput());
-    if (img.isNull())
-      throw QString("Could not parse DCRaw output:" + path);
+    if (img.isNull()) {
+      COMPLAIN("Could not parse DCRaw output:" + path);
+      return Image16();
+    }
   } else {
     // Other formats?
   }            
@@ -93,19 +99,10 @@ void IF_Worker::findImage(quint64 id, QString path, QString ext,
 			  Sliders mods,
 			  int maxdim, bool urgent) {
   Q_ASSERT(maxdim>0);
-  try {
-    PSize fullSize;
-    Image16 img = findImageNow(path, ext, orient, ns, mods,
-			       maxdim, urgent,
-			       &fullSize);
-    emit foundImage(id, img, fullSize);
-  } catch (QSqlQuery const &q) {
-    emit exception("IF_Worker: SqlError: " + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (QString const &s) {
-    emit exception("IF_Worker: " + s);
-  } catch (...) {
-    emit exception("IF_Worker: Unknown exception");
-  }
+  PSize fullSize;
+  Image16 img = findImageNow(path, ext, orient, ns, mods,
+                             maxdim, urgent,
+                             &fullSize);
+  emit foundImage(id, img, fullSize);
 }
 
