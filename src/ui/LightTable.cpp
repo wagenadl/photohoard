@@ -52,6 +52,10 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
   setLayout(lay);
 
+  connect(strips, SIGNAL(pressed(quint64,
+                                 Qt::MouseButton, Qt::KeyboardModifiers)),
+          this, SLOT(slidePress(quint64,
+                                Qt::MouseButton, Qt::KeyboardModifiers)));
   connect(strips, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
   connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
