@@ -112,18 +112,18 @@ quint64 Scanner::addFolder(PhotoDB *db,
   // Normally, a transaction should be in progress.
   QSqlQuery q =
     db->query("insert into folders(parentfolder,leafname,pathname) "
-               " values (:a,:b,:c)", parentid?parentid:QVariant(),
-               leaf, path);
+              " values (:a,:b,:c)", parentid?parentid:QVariant(),
+              leaf, path);
   quint64 id = q.lastInsertId().toULongLong();
 
   if (parentid) {
     // update the foldertree
     db->query("insert into foldertree(descendant, ancestor) "
-               " values (:a, :b)", id, parentid);
+              " values (:a, :b)", id, parentid);
     db->query("insert into foldertree(descendant, ancestor) "
-               " select :a, ancestor "
-               " from foldertree where descendant==:b",
-               id, parentid);
+              " select :a, ancestor "
+              " from foldertree where descendant==:b",
+              id, parentid);
 
     // copy the defaulttags from parent
     db->query("insert into defaulttags(tag, folder) "
@@ -150,65 +150,41 @@ void Scanner::removeTree(QString path) {
 }
 
 void Scanner::run() {
-  try {
-    QMutexLocker l(&mutex);
-    n = 0;
-    N = photoQueueLength();
-    m = 0;
-    M = folderQueueLength(); // must actually maintain this
-    while (!stopsoon) {
-      bool sleepok = true;
-      QSet<quint64> ids;
-      if (!(ids=findFoldersToScan()).isEmpty()) {
-	l.unlock();
-        int N0 = N;
-	scanFolders(ids);
-        if (N>N0)
-          emit collecting(N);
-        sleepok = false;
-	l.relock();
-      }
-      if (!(ids=findPhotosToScan()).isEmpty()) {
-	l.unlock();
-	scanPhotos(ids);
-	pDebug() << "Scan progress: " << n << " / " << N;
-	emit progressed(n, N);
-        sleepok = false;
-	l.relock();
-      } else {
-        l.unlock();
-	if (N>0)
-	  emit done();
-	n = 0;
-	N = 0;
-        l.relock();
-      }
-      if (sleepok && !stopsoon) {
-	waiter.wait(&mutex);
-      }
+  QMutexLocker l(&mutex);
+  n = 0;
+  N = photoQueueLength();
+  m = 0;
+  M = folderQueueLength(); // must actually maintain this
+  while (!stopsoon) {
+    bool sleepok = true;
+    QSet<quint64> ids;
+    if (!(ids=findFoldersToScan()).isEmpty()) {
+      l.unlock();
+      int N0 = N;
+      scanFolders(ids);
+      if (N>N0)
+        emit collecting(N);
+      sleepok = false;
+      l.relock();
     }
-  } catch (QSqlQuery &q) {
-    qDebug() << HERE + "SqlError: " << q.lastError().text();
-    qDebug() << "  from " << q.lastQuery();
-    QMap<QString,QVariant> vv = q.boundValues();
-    for (auto it=vv.begin(); it!=vv.end(); ++it) 
-      qDebug() << "    " << it.key() << ": " << it.value();
-    qDebug() << "  Thread terminating";
-    emit exception(HERE + "SqlError: " + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (std::system_error &e) {
-    qDebug() << HERE + "System error: "
-	     << e.code().value() << e.code().message().c_str();
-    qDebug() << "  Thread terminating";
-    emit exception(HERE + "System error");
-  } catch (NoResult) {
-    qDebug() << HERE + "Expected object not found in table.";
-    qDebug() << "  Thread terminating";
-    emit exception(HERE + "No result");
-  } catch (...) {
-    qDebug() << HERE + "Unknown exception";
-    qDebug() << "  Thread terminating";
-    emit exception(HERE + "Unknown exception");
+    if (!(ids=findPhotosToScan()).isEmpty()) {
+      l.unlock();
+      scanPhotos(ids);
+      pDebug() << "Scan progress: " << n << " / " << N;
+      emit progressed(n, N);
+      sleepok = false;
+      l.relock();
+    } else {
+      l.unlock();
+      if (N>0)
+        emit done();
+      n = 0;
+      N = 0;
+      l.relock();
+    }
+    if (sleepok && !stopsoon) {
+      waiter.wait(&mutex);
+    }
   }
   pDebug() << "Scanner end of run";
 }
@@ -371,8 +347,7 @@ void Scanner::scanPhoto(quint64 id) {
 
   // Find the photo's filename on disk
   QSqlQuery q = db.query("select filename,folder from photos where id==:a", id);
-  if (!q.next())
-    throw NoResult();
+  ASSERT(q.next());
   QString filename = q.value(0).toString();
   quint64 folder = q.value(1).toULongLong();
   q.finish();
@@ -444,8 +419,7 @@ void Scanner::scanPhoto(quint64 id) {
   q.bindValue(":cd", captureDate);
   q.bindValue(":ls", QDateTime::currentDateTime());
   q.bindValue(":id", id);
-  if (!q.exec())
-    throw q;
+  ASSERT(q.exec());
 
   db.query("update versions set orient=:a where photo==:b",
 	   int(exif.orientation()), id);

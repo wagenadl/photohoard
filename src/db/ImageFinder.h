@@ -65,17 +65,6 @@ signals:
   */
   void foundImage(quint64 id, Image16 img, QSize fullSize);
 
-  /* Function: exception (signal)
-     Emitted when the worker thread catches an exception.
-
-     At the moment, all exceptions are fatal. This mechanism is used because
-     in Qt, subthreads and slots are not allowed to throw exceptions.
-
-     Arguments:
-     msg - Error message associated with the exception.
-  */
-  void exception(QString);
-
 private slots:
   /* Function: handleFoundImage (slot)
 
@@ -100,8 +89,6 @@ private:
 
   // Variable: queuelength
   // Keeps track of how many requested images have been not yet been found.
-  //
-  // Note that this count gets messed up in case of exceptions.
   int queuelength;
 };
 

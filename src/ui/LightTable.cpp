@@ -327,8 +327,7 @@ void LightTable::makeCurrent(quint64 i) {
 			    " from versions"
 			    " inner join photos on versions.photo==photos.id"
 			    " where versions.id==:a", i);
-    if (!q.next()) 
-      throw NoResult(__FILE__, __LINE__);
+    ASSERT(q.next());
     int w = q.value(0).toInt();
     int h =  q.value(1).toInt();
     Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());

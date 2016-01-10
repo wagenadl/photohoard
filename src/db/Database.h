@@ -30,7 +30,7 @@ public:
 public:
   QSqlQuery query();
   // The following execute the query and return the value(0) from the
-  // first result row. They throw an exception if there is no result.
+  // first result row. They abort the application if there is no result.
   QVariant simpleQuery(QString s) const;
   QVariant simpleQuery(QString s, QVariant a) const;
   QVariant simpleQuery(QString s, QVariant a, QVariant b) const;
@@ -42,7 +42,7 @@ public:
   QVariant defaultQuery(QString s, QVariant dflt) const;
   QVariant defaultQuery(QString s, QVariant a, QVariant dflt) const;
   // The following execute the query. Result rows can be obtained by repeatedly
-  // calling next(). An exception is thrown if the query cannot execute.
+  // calling next(). The application is aborted if the query cannot execute.
   QSqlQuery query(QString s);
   QSqlQuery query(QString s, QVariant a);
   QSqlQuery query(QString s, QVariant a, QVariant b);

@@ -26,64 +26,49 @@ void OriginalFinder::requestOriginal(quint64 version) {
 }
 
 PSize OriginalFinder::originalSize(quint64 vsn) {
-  try {
-    QSqlQuery q = db->query("select width, height, orient"
-			    " from versions"
-			    " inner join photos on versions.photo==photos.id"
-			    " where versions.id==:a limit 1", vsn);
-    if (!q.next())
-      throw NoResult(__FILE__, __LINE__);
-    PSize s(q.value(0).toInt(), q.value(1).toInt());
-    return Exif::fixOrientation(s, Exif::Orientation(q.value(2).toInt()));
-  } catch (...) {
-    pDebug() << "OriginalFinder::originalSize: exception";
-    return PSize();
-  }
-  return PSize(); // not executed
+  QSqlQuery q = db->query("select width, height, orient"
+                          " from versions"
+                          " inner join photos on versions.photo==photos.id"
+                          " where versions.id==:a limit 1", vsn);
+  ASSERT(q.next());
+  PSize s(q.value(0).toInt(), q.value(1).toInt());
+  return Exif::fixOrientation(s, Exif::Orientation(q.value(2).toInt()));
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   pDebug() << "requestScaledOriginal " << vsn << ds;
-  try {
-    QSqlQuery q
-      = db->query("select folder, filename, filetype, width, height, orient "
-		  " from versions"
-		  " inner join photos on versions.photo==photos.id"
-		  " where versions.id=:a limit 1", vsn);
-    if (!q.next())
-      throw NoResult(__FILE__, __LINE__);
-    quint64 folder = q.value(0).toULongLong();
-    QString fn = q.value(1).toString();
-    int ftype = q.value(2).toInt();
-    int wid = q.value(3).toInt();
-    int hei = q.value(4).toInt();
-    orient = Exif::Orientation(q.value(5).toInt());
-    osize = Exif::fixOrientation(PSize(wid, hei), orient);
-    q.finish();
-    
-    QString path = db->folder(folder) + "/" + fn;
-    QString ext = db->ftype(ftype);
-    InterruptableReader *reader = 0;
-    if (ext=="nef" || ext=="cr2")
-      reader = rawreader;
-    else if (ext=="jpeg" || ext=="png" || ext=="tiff")
-      reader = filereader;
-    if (!reader)
-      emit exception("OriginalFinder: Unknown file type");
-    rawreader->cancel();
-    filereader->cancel();
-    desired = ds;
-    version = vsn;
-    filepath = path;
-    reader->request(path, Exif::fixOrientation(desired, orient),
-                    Exif::fixOrientation(osize, orient)); // the reader doesn't
-    // know about orientation, so we need to request in file shape
-  } catch (QSqlQuery &q) {
-    emit exception("OriginalFinder: SqlError: " + q.lastError().text()
-		   + " from " + q.lastQuery());
-  } catch (...) {
-    emit exception("OriginalFinder: Unknown exception");
-  }  
+  QSqlQuery q
+    = db->query("select folder, filename, filetype, width, height, orient "
+                " from versions"
+                " inner join photos on versions.photo==photos.id"
+                " where versions.id=:a limit 1", vsn);
+  ASSERT(q.next());
+  quint64 folder = q.value(0).toULongLong();
+  QString fn = q.value(1).toString();
+  int ftype = q.value(2).toInt();
+  int wid = q.value(3).toInt();
+  int hei = q.value(4).toInt();
+  orient = Exif::Orientation(q.value(5).toInt());
+  osize = Exif::fixOrientation(PSize(wid, hei), orient);
+  q.finish();
+  
+  QString path = db->folder(folder) + "/" + fn;
+  QString ext = db->ftype(ftype);
+  InterruptableReader *reader = 0;
+  if (ext=="nef" || ext=="cr2")
+    reader = rawreader;
+  else if (ext=="jpeg" || ext=="png" || ext=="tiff")
+    reader = filereader;
+  if (!reader)
+    emit exception("OriginalFinder: Unknown file type");
+  rawreader->cancel();
+  filereader->cancel();
+  desired = ds;
+  version = vsn;
+  filepath = path;
+  reader->request(path, Exif::fixOrientation(desired, orient),
+                  Exif::fixOrientation(osize, orient)); // the reader doesn't
+  // know about orientation, so we need to request in file shape
 }
 
 void OriginalFinder::fixOrientation(Image16 &img) {

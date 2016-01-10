@@ -95,8 +95,8 @@ void Slide::paint(QPainter *painter,
   QSqlQuery q = parent->database()
     ->query("select colorlabel, starrating, acceptreject"
             " from versions where id==:a", id);
-  if (!q.next())
-    throw NoResult();
+  ASSERT(q.next());
+
   int colorLabel = q.value(0).toInt();
   int starRating = q.value(1).toInt();
   PhotoDB::AcceptReject acceptReject

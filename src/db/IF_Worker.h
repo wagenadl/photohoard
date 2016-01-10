@@ -62,17 +62,6 @@ signals:
      and adjusted as requested.
   */
   void foundImage(quint64 id, Image16 img, QSize originalSize);
-
-  /* Function: exception (signal)
-     Emitted when the worker thread catches an exception.
-
-     At the moment, all exceptions are fatal. This mechanism is used because
-     in Qt, subthreads and slots are not allowed to throw exceptions.
-
-     Arguments:
-     msg - Error message associated with the exception.
-  */
-  void exception(QString);
 private:
   class Adjuster *adjuster;
 };

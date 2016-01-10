@@ -302,16 +302,7 @@ void FilterDialog::populate(Filter const &f) {
 
 void FilterDialog::recount() {
   Filter f = extract();
-  try {
-    ui->count->setText(QString::number(f.count()));
-  } catch (QSqlQuery const &q) {
-    pDebug() << "recount error: " + q.lastError().text()
-      + " from " + q.lastQuery();
-  } catch (NoResult) {
-    pDebug() << "recount error: no result";
-  } catch (...) {
-    pDebug() << "recount error";
-  }
+  ui->count->setText(QString::number(f.count()));
 }
 
 void FilterDialog::setMaker() {
