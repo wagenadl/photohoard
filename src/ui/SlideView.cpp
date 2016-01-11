@@ -191,7 +191,7 @@ void SlideView::paintEvent(QPaintEvent *) {
   
   if (fit) {
     bool scaleup = img.size().scaleFactorToSnuglyFitIn(r.size())>1;
-    Image16 i1 = img.scaledToFitIn(r.size(),
+    Image16 i1 = img.scaledToFitSnuglyIn(r.size(),
                                    scaleup
                                    ? Image16::Interpolation::NearestNeighbor
                                    : Image16::Interpolation::Linear);
@@ -232,24 +232,24 @@ void SlideView::paintEvent(QPaintEvent *) {
     } else {
       destRect.setLeft(r.left());
       destRect.setWidth(availSize.width());
-      sourceRect.setLeft(relx * (1-availSize.width()/double(showSize.width()))
-			 * img.width());
-      sourceRect.setWidth(availSize.width()/effZoom);
+      sourceRect.setLeft(relx
+			 * (showSize.width() - availSize.width()) / effZoom);
+      sourceRect.setWidth(availSize.width() / effZoom);
     }
     if (showSize.height()<=availSize.height()) {
       sourceRect.setTop(0);
       sourceRect.setHeight(img.height());
       destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
-      destRect.setHeight(img.height()*effZoom);
+      destRect.setHeight(img.height() * effZoom);
     } else {
       destRect.setTop(r.top());
       destRect.setHeight(availSize.height());
-      sourceRect.setTop(rely * (1-availSize.height()/double(showSize.height()))
-			* img.height());
-      sourceRect.setHeight(availSize.height()/effZoom);
+      sourceRect.setTop(rely
+			* (showSize.height() - availSize.height()) / effZoom);
+      sourceRect.setHeight(availSize.height() / effZoom);
     }
     Image16 im1 = img.cropped(sourceRect.toRect());
-    im1 = im1.scaledToFitIn(destRect.size().toSize(), effZoom>1
+    im1 = im1.scaledToFitSnuglyIn(destRect.size().toSize(), effZoom>1
                      ? Image16::Interpolation::NearestNeighbor
                      : Image16::Interpolation::Linear);
     p.drawImage(destRect.topLeft(), im1.toQImage());
@@ -262,4 +262,38 @@ void SlideView::enterEvent(QEvent *) {
 
 Actions const &SlideView::actions() const {
   return acts;
+}
+
+PSize SlideView::currentImageSize() const {
+  return naturalSize;
+}
+
+QTransform SlideView::transformationToImage() const {
+  return transformationFromImage().inverted();
+}
+
+QTransform SlideView::transformationFromImage() const {
+  QTransform xf;
+  QRect av_r = contentsRect();
+  PSize nat_s = currentImageSize();
+  PSize av_s = av_r.size();
+  if (fit) {
+    double scl = nat_s.scaleFactorToSnuglyFitIn(av_s);
+    PSize render_s = nat_s.scaledToFitSnuglyIn(av_s);
+    xf.translate((av_r.left() + av_r.right())/2 - render_s.width()/2,
+		 (av_r.top() + av_r.bottom())/2 - render_s.height()/2);
+    xf.scale(scl, scl);
+  } else {
+    PSize render_s = nat_s * zoom;
+    if (render_s.width() <= av_s.width())
+      xf.translate((av_r.left() + av_r.right())/2 - render_s.width()/2, 0);
+    else
+      xf.translate(av_r.left() - relx * (render_s.width() - av_r.width()), 0);
+    if (render_s.height() <= av_s.height())
+      xf.translate(0, (av_r.top() + av_r.bottom())/2 - render_s.height()/2);
+    else
+      xf.translate(0, av_r.top() - rely * (render_s.height() - av_r.height()));
+    xf.scale(zoom, zoom);
+  }
+  return xf;
 }

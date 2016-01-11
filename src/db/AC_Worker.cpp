@@ -163,7 +163,7 @@ void AC_Worker::cacheModified(quint64 vsn) {
       N++;
     requests.remove(vsn);
     
-    loaded[vsn] = img.scaledToFitIn(cache->maxSize());
+    loaded[vsn] = img.scaledToFitSnuglyIn(cache->maxSize());
     processLoaded();
   } else {
     hushup << vsn;
