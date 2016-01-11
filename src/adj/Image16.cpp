@@ -212,20 +212,20 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
 }
 
   
-Image16 Image16::scaledToFitIn(PSize s, Image16::Interpolation i) const {
+Image16 Image16::scaledToFitSnuglyIn(PSize s, Image16::Interpolation i) const {
   return scaled(size().scaledToFitSnuglyIn(s), i);
 }
 
 Image16 Image16::scaledDownToFitIn(PSize s, Image16::Interpolation i) const {
-  return size().exceeds(s) ? scaledToFitIn(s, i) : *this;
+  return size().exceeds(s) ? scaledToFitSnuglyIn(s, i) : *this;
 }
 
 Image16 Image16::scaledToWidth(int w, Image16::Interpolation i) const {
-  return scaledToFitIn(PSize(w, 65536), i);
+  return scaledToFitSnuglyIn(PSize(w, 65536), i);
 }
 
 Image16 Image16::scaledToHeight(int h, Image16::Interpolation i) const {
-  return scaledToFitIn(PSize(65536, h), i);
+  return scaledToFitSnuglyIn(PSize(65536, h), i);
 }
 
 void Image16::rotate90CCW() {

@@ -187,7 +187,8 @@ void Slide::paint(QPainter *painter,
     }
     if (!img.isNull()) {
       // pDebug() << "Slide " << id << "image was sized" << img.size();
-      pm = QPixmap::fromImage(img.scaledToFitIn(PSize(ims, ims)).toQImage());
+      pm = QPixmap::fromImage(img.scaledToFitSnuglyIn(PSize(ims, ims))
+			      .toQImage());
     }
     img = Image16(); // no need to keep it ad inf
   }

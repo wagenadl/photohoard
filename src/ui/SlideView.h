@@ -18,6 +18,17 @@ public:
   double currentZoom() const;
   double fittingZoom() const;
   Actions const &actions() const;
+  PSize currentImageSize() const;
+  QTransform transformationToImage() const;
+  /* TRANSFORMATIONTOIMAGE - Matrix to map widget coords to image coords
+     t = TRANSFORMATIONFROMIMAGE() returns a transformation matrix that can
+     be used to map widget coordinates to image coordinates.
+  */
+  QTransform transformationFromImage() const;
+  /* TRANSFORMATIONFROMIMAGE - Matrix to map image coords to widget coords
+     t = TRANSFORMATIONFROMIMAGE() returns a transformation matrix that can
+     be used to map image coordinates to widget coordinates.
+  */
 public slots:
   void newImage(QSize natSize);
   void clear();

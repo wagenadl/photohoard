@@ -109,7 +109,7 @@ void Adjuster::applyNeedBasedScaling(Sliders const &settings,
     // It's worth scaling
     // Should we reduce excessive scale stacks? Probably. Later.
     dropFrom(k+1);
-    stages << AdjusterTile(stages[k].image.scaledToFitIn(needed),
+    stages << AdjusterTile(stages[k].image.scaledToFitSnuglyIn(needed),
 			   stages[k].osize);
     stages.last().stage = Stage_Reduced;
   }

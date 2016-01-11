@@ -36,7 +36,8 @@ public:
   void convertFrom(Image16 const &other);
 public:
   Image16 scaled(PSize s, Interpolation i=Interpolation::Linear) const;
-  Image16 scaledToFitIn(PSize s, Interpolation i=Interpolation::Linear) const;
+  Image16 scaledToFitSnuglyIn(PSize s,
+			      Interpolation i=Interpolation::Linear) const;
   Image16 scaledDownToFitIn(PSize s,
                             Interpolation i=Interpolation::Linear) const;
   Image16 scaledToWidth(int w, Interpolation i=Interpolation::Linear) const;
