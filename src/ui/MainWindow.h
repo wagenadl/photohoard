@@ -21,6 +21,8 @@ public slots:
   void scrollToCurrent();
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void showShortcutHelp();
+private slots:
+  void reportExportResults(QString dst, int nOK, int nFail);
 private:
   class PhotoDB *db;
   class Scanner *scanner;

@@ -27,6 +27,7 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
     Untransaction t(db);
     db->query("update current set version=null");
     db->query("delete from expanded");
+    db->query("delete from filtersettings");
   }
   pDebug() << "Starting";
   { Untransaction t(db);

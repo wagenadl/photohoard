@@ -9,25 +9,26 @@
 class ExportSettings {
 public:
   enum class FileFormat { // Keep in order with ExportDialog ui!
-    JPEG,
+    JPEG=0,
       PNG,
       TIFF,
       };
   enum class ResolutionMode {
-    Full,
+    Full=0,
       LimitWidth,
       LimitHeight,
       LimitMaxDim,
       Scale,
       };
   enum class NamingScheme { // Keep in order with ExportDialog ui
-    Original,
+    Original=0,
       DateTime,
       DateTimeDSC,
       };
 public:
-  ExportSettings();
+  ExportSettings(class PhotoDB *db=0);
   QString extension() const;
+  void saveToDB(class PhotoDB *db);
 public:
   FileFormat fileFormat;
   ResolutionMode resolutionMode;

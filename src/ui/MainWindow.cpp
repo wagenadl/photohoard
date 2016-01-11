@@ -20,6 +20,8 @@
 #include <QDir>
 #include "PDebug.h"
 #include "ShortcutHelp.h"
+#include "Exporter.h"
+#include <QMessageBox>
 
 MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -99,6 +101,9 @@ MainWindow::MainWindow(PhotoDB *db,
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
           histogram, SLOT(setVersion(quint64)));
+
+  connect(exporter, SIGNAL(completed(QString, int, int)),
+          SLOT(reportExportResults(QString, int, int)));
   
   tagList->setCurrent(lightTable->current());
   metaViewer->setVersion(lightTable->current());
@@ -119,4 +124,19 @@ void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
 
 void MainWindow::showShortcutHelp() {
   shortcutHelp->show();
+}
+
+void MainWindow::reportExportResults(QString dst, int nOK, int nFail) {
+  if (nFail) {
+    if (nOK==0) 
+      QMessageBox::warning(0, "photohoard", 
+                           QString::fromUtf8("Export to folder “")
+                           + dst + QString::fromUtf8("” failed."));
+    else 
+      QMessageBox::warning(0, "photohoard", 
+                           QString::fromUtf8("Part of export to folder “")
+                           + dst + QString::fromUtf8("” failed:")
+                           + QString(" %1 failures out of %2")
+                           .arg(nFail).arg(nOK+nFail));
+  }
 }

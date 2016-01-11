@@ -124,7 +124,8 @@ QSqlQuery Database::constQuery(QString s) const {
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
   q.prepare(s);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;
@@ -140,7 +141,8 @@ QSqlQuery Database::constQuery(QString s, QVariant a) const {
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;
@@ -157,7 +159,8 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;
@@ -176,7 +179,8 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
   q.bindValue(":a", a);
   q.bindValue(":b", b);
   q.bindValue(":c", c);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;
@@ -197,7 +201,8 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":b", b);
   q.bindValue(":c", c);
   q.bindValue(":d", d);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;
@@ -219,7 +224,8 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":c", c);
   q.bindValue(":d", d);
   q.bindValue(":e", e);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;
@@ -242,7 +248,8 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":d", d);
   q.bindValue(":e", e);
   q.bindValue(":f", f);
-  ASSERT(q.exec());
+  if (!q.exec())
+    CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
   return q;

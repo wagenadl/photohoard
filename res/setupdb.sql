@@ -172,6 +172,14 @@ create table starting (
        -- That way, we can avoid double crashes.
        s integer );
 
+create table filtersettings (
+       k string,
+       v );
+
+create table exportsettings (
+       k string,
+       v );
+
 -- ======================================================================
 
 insert into filetypes(stdext) values ("jpeg");

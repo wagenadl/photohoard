@@ -15,6 +15,7 @@ FilterDialog::FilterDialog(PhotoDB *db, QWidget *parent):
   pDebug() << "FD? " << db->simpleQuery("select count(*) from versions").toInt();
 
   starting = true;
+  f0.loadFromDb();
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
   starting = false;
@@ -345,6 +346,7 @@ void FilterDialog::buttonClick(QAbstractButton *b) {
   case QDialogButtonBox::AcceptRole:
   case QDialogButtonBox::ApplyRole:
     f0 = extract();
+    f0.saveToDb();
     emit apply();
     break;
   case QDialogButtonBox::ResetRole:
