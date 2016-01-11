@@ -161,8 +161,19 @@ void SlideView::updateRelXY(QPoint p) {
   QPoint dp = p - presspoint;
   QRect r = contentsRect();
   PSize availSize = r.size();
-  relx = pressrelx - dp.x()*2./availSize.width();
-  rely = pressrely - dp.y()*2./availSize.height();
+  PSize renderSize = currentImageSize() * zoom;
+  PSize targetSize = renderSize - availSize;
+  double hscale1 = 1./targetSize.width();
+  if (hscale1<1e-4)
+    hscale1 = 1e-4;
+  double hscale2 = 1./availSize.width();
+  double vscale1 = 1./targetSize.height();
+  if (vscale1<1e-4)
+    vscale1 = 1e-4;
+  double vscale2 = 1./availSize.height();
+    
+  relx = pressrelx - dp.x()*(hscale1 + hscale2);
+  rely = pressrely - dp.y()*(vscale1 + vscale2);
   if (relx<0)
     relx = 0;
   else if (relx>1)
