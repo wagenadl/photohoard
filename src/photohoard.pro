@@ -174,3 +174,5 @@ HEADERS += ui/Action.h
 SOURCES += ui/Action.cpp
 HEADERS += ui/ShortcutHelp.h
 SOURCES += ui/ShortcutHelp.cpp
+HEADERS += ui/SlideOverlay.h
+SOURCES += ui/SlideOverlay.cpp
