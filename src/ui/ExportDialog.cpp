@@ -5,11 +5,14 @@
 #include "PhotoDB.h"
 #include "PDebug.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
-ExportDialog::ExportDialog(QWidget *parent): QDialog(parent) {
+ExportDialog::ExportDialog(PhotoDB *db, QWidget *parent):
+  QDialog(parent), db(db) {
+  ever_okd = false;
   ui = new Ui_exportDialog();
   ui->setupUi(this);
-  setup(ExportSettings());
+  setup(ExportSettings(db));
   QPushButton *okb = ui->buttonBox->button(QDialogButtonBox::Ok);
   Q_ASSERT(okb);
   okb->setDefault(true);
@@ -21,10 +24,25 @@ ExportDialog::~ExportDialog() {
 
 QDialog::DialogCode ExportDialog::exec() {
   ExportSettings before = settings();
-  DialogCode res = DialogCode(QDialog::exec());
-  if (res != Accepted)
-    setup(before);
-  return res;
+  while (true) {
+    DialogCode res = DialogCode(QDialog::exec());
+    if (res!=Accepted) {
+      setup(before);
+      return res;
+    }
+
+    QString dir = ui->destination->text();
+    QDir d(dir);
+    if (d.exists()) {
+      ever_okd = true;
+      return res;
+    }
+
+    QMessageBox::warning(0, "photohoard", 
+                         QString::fromUtf8("Folder “")
+                         + dir + QString::fromUtf8("” does not exist.")
+                         + " Please try again.");
+  }
 }
 
 void ExportDialog::setup(ExportSettings const &s) {
@@ -106,10 +124,26 @@ ExportSettings ExportDialog::settings() const {
 
 
 void ExportDialog::browse() {
-  QString dir
-    = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                        QDir::homePath(),
-                                        QFileDialog::ShowDirsOnly);
-  if (!dir.isEmpty())
-    ui->destination->setText(dir);
+  QDir d(ui->destination->text());
+  QString dir = "";
+  while (true) {
+    dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                            d.exists() ? d.absolutePath()
+                                            : QDir::homePath(),
+                                            QFileDialog::ShowDirsOnly);
+    if (dir.isEmpty())
+      return;
+    QDir d(dir);
+    if (d.exists()) {
+      ui->destination->setText(dir);
+      return;
+    }
+    QMessageBox::warning(0, "photohoard", QString::fromUtf8("Folder “")
+                         + dir + QString::fromUtf8("” does not exist.")
+                         + " Please try again.");
+  }
+}
+
+bool ExportDialog::everOKd() const {
+  return ever_okd;
 }

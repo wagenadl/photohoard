@@ -16,6 +16,8 @@ public:
   Filter(PhotoDB *);
   void reset();
   bool isTrivial() const;
+  void saveToDb() const;
+  void loadFromDb();
   // COLLECTION
   void setCollection(QString);
   void unsetCollection();

@@ -325,3 +325,89 @@ bool Filter::isTrivial() const {
   //  return count()==Filter().count();
   return false;
 }
+
+void Filter::saveToDb() const {
+  Transaction t(db);
+  db->query("delete from filtersettings");
+  QString q = "insert into filtersettings values (:a, :b)";
+  db->query(q, "hascol", hascollection);
+  db->query(q, "col", collection_);
+  db->query(q, "hascl", hascolorlabels);
+  for (auto c: colorlabels)
+    db->query(q, "cl", int(c));
+  db->query(q, "hassr", hasstarrating);
+  db->query(q, "minsr", minstars);
+  db->query(q, "maxsr", maxstars);
+  db->query(q, "hasst", hasstatus);
+  db->query(q, "s_acc", statusaccepted);
+  db->query(q, "s_rej", statusrejected);
+  db->query(q, "s_uns", statusunset);
+  db->query(q, "hascam", hascamera);
+  db->query(q, "cammake", cameramake);
+  db->query(q, "cammodel", cameramodel);
+  db->query(q, "camlens", cameralens);
+  db->query(q, "hasdr", hasdaterange);
+  db->query(q, "startdate", startdate);
+  db->query(q, "enddate", enddate);
+  db->query(q, "hasfl", hasfilelocation);
+  db->query(q, "fl", filelocation);
+  db->query(q, "hastags", hastags);
+  for (auto s: tags_)
+    db->query(q, "tag", s);
+  t.commit();
+}
+
+void Filter::loadFromDb() {
+  reset();
+  QSqlQuery q = db->query("select k, v from filtersettings");
+  while (q.next()) {
+    QString k = q.value(0).toString();
+    QVariant v = q.value(1);
+    if (k=="hascol")
+      hascollection = v.toBool();
+    else if (k=="col")
+      collection_ = v.toString();
+    else if (k=="hascl")
+      hascolorlabels = v.toBool();
+    else if (k=="cl")
+      colorlabels.insert(PhotoDB::ColorLabel(v.toInt()));
+    else if (k=="hassr")
+      hasstarrating = v.toBool();
+    else if (k=="minsr")
+      minstars = v.toInt();
+    else if (k=="maxsr")
+      maxstars = v.toInt();
+    else if (k=="hasst")
+      hasstatus = v.toInt();
+    else if (k=="s_acc")
+      statusaccepted = v.toInt();
+    else if (k=="s_uns")
+      statusunset = v.toInt();
+    else if (k=="s_rej")
+      statusrejected = v.toInt();
+    else if (k=="hascam")
+      hascamera = v.toBool();
+    else if (k=="cammake")
+      cameramake = v.toString();
+    else if (k=="cammodel")
+      cameramodel = v.toString();
+    else if (k=="camlens")
+      cameralens = v.toString();
+    else if (k=="hasdr")
+      hasdaterange = v.toBool();
+    else if (k=="startdate")
+      startdate = v.toDate();
+    else if (k=="enddate")
+      enddate = v.toDate();
+    else if (k=="hasfl")
+      hasfilelocation = v.toBool();
+    else if (k=="fl")
+      filelocation = v.toString();
+    else if (k=="hastags")
+      hastags = v.toBool();
+    else if (k=="tag")
+      tags_.append(v.toString());
+    else
+      CRASH("Filter: unknown filter key: " + k);
+  }
+}

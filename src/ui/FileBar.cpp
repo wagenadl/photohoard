@@ -12,7 +12,7 @@
 
 FileBar::FileBar(PhotoDB *db, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
-  exportdialog = 0;
+  exportdialog = new ExportDialog(db, 0);
   setWindowTitle("File");
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
@@ -43,12 +43,8 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
       [exporter,this]() {
-      if (!exportdialog)
-        exportdialog = new ExportDialog();
       if (exportdialog->exec() == ExportDialog::Accepted) {
-        exporter->setup(exportdialog
-                        ? exportdialog->settings()
-                        : ExportSettings());
+        exporter->setup(exportdialog->settings());
         exporter->addSelection();
       }
     }};
@@ -56,10 +52,11 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
 
   acts << Action{Qt::CTRL + Qt::Key_E, "Export more images",
       [exporter,this]() {
-      exporter->setup(exportdialog
-                      ? exportdialog->settings()
-                      : ExportSettings());
-      exporter->addSelection();
+      if (exportdialog->everOKd() ||
+          exportdialog->exec() == ExportDialog::Accepted) {
+        exporter->setup(exportdialog->settings());
+        exporter->addSelection();
+      }
     }};
   parent->addAction(new PAction(acts.last(), this));
 

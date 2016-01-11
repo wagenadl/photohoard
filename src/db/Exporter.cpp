@@ -120,17 +120,18 @@ void Exporter::run() {
 
 bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   QSqlQuery q 
-    = db.constQuery("select photo from versions where id=:a", vsn);
+    = db.constQuery("select photo, orient from versions where id=:a", vsn);
   if (!q.next())
     return false;
   quint64 photo = q.value(0).toULongLong();
+  Exif::Orientation orient = Exif::Orientation(q.value(1).toInt());
   
   Sliders adjs;
   q = db.query("select k, v from adjustments where version==:a", vsn);
   while (q.next())
     adjs.set(q.value(0).toString(), q.value(1).toDouble());
 
-  q = db.query("select folder, filename, filetype, width, height, orient, "
+  q = db.query("select folder, filename, filetype, width, height, "
                " capturedate"
                " from photos where id=:a limit 1", photo);
   if (!q.next())
@@ -141,8 +142,7 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   int ftype = q.value(2).toInt();
   int wid = q.value(3).toInt();
   int hei = q.value(4).toInt();
-  Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
-  QDateTime date = q.value(6).toDateTime();
+  QDateTime date = q.value(5).toDateTime();
   QString path = db.folder(folder) + "/" + fn;
   
   Image16 img = worker
@@ -200,8 +200,6 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   }
 
   QDir root(QDir::root());
-  if (!root.exists(settings.destination)) 
-    root.mkpath(settings.destination);
   
   ofn = settings.destination + "/" + ofn + "." + settings.extension();
 

@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlQuery>
 
 namespace PDebug {
   QTime &time() {
@@ -101,5 +102,8 @@ void crashdb(QSqlDatabase const &db, QString msg, char const *file, int line) {
   crash(msg, file, line);
 }
 
-
-  
+void crashq(QSqlQuery const &q, char const *file, int line) {
+  QString msg = q.lastQuery() + ": " + q.lastError().databaseText()
+    + " (" + q.lastError().driverText() + ")";
+  crash(msg, file, line);
+}
