@@ -224,7 +224,7 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
     QVariant ov = q.value(3);
     QVariant nv = q.value(4);
     QDateTime dt = q.value(5).toDateTime();
-    if (v==versionid && k==key && dt.msecsTo(now)<2000) {
+    if (v==versionid && k==key && dt.msecsTo(now)<5000) {
       // probably overwrite or cancel
       if (k==".tag") {
         if (newvalue==ov && oldvalue==nv) {

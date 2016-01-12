@@ -42,12 +42,7 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   if (newvsn) {
     originalSize = ofinder->originalSize(v);
     //    pDebug() << "LiveAdjuster newvsn size is " << originalSize ;
-    sliders.reset();
-    QSqlQuery q
-      = db->constQuery("select k,v from adjustments where version==:a", v);
-    while (q.next())
-      sliders.set(q.value(0).toString(), q.value(1).toDouble());
-    q.finish();
+    sliders.readFromDB(v, *db);
     controls->setQuietly(sliders);
     controls->setEnabled(true);
   }
@@ -114,8 +109,12 @@ void LiveAdjuster::setSlider(QString k, double v) {
     db->addUndoStep(version, k, q.value(0), v);
   else
     db->addUndoStep(version, k, QVariant(), v);
-  db->query("insert or replace into adjustments (version, k, v)"
-            " values (:a, :b, :c)", version, k, v);
+  if (v==Sliders::defaultFor(k))
+    db->query("delete from adjustments where version==:a and k==:b",
+              version, k);
+  else
+    db->query("insert or replace into adjustments (version, k, v)"
+              " values (:a, :b, :c)", version, k, v);
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img) {
