@@ -5,24 +5,119 @@
 #include "Exif.h"
 #include <QStringList>
 #include "PDebug.h"
+#include "Sliders.h"
+
+inline double inbetween(double a, double b) {
+  return sqrt(a*b);
+}
 
 QString MetaInfo::ratio(int w, int h) {
-  constexpr double marg = 2e-3;
-  double r = double(w)/double(h);
-  if (fabs(r-1)<marg)
-    return "1:1";
-  else if (fabs(r-4/3.)<marg)
-    return "4:3";
-  else if (fabs(r-3/2.)<marg)
-    return "3:2";
-  else if (fabs(r-16/9.)<marg)
-    return "16:9";
-  else if (fabs(r-3/4.)<marg)
-    return "3:4";
-  else if (fabs(r-2/3.)<marg)
-    return "2:3";
-  else
+  if (h<=0 || w<=0)
     return "";
+  double r = double(w)/double(h);
+  if (r<1) {
+    QString rat = ratio(h, w);
+    if (rat.isEmpty()) {
+      return "";
+    } else if (rat.indexOf(":")<0) {
+      return "/" + rat;
+    } else {
+      QStringList bits = rat.split(":");
+      return rat[1] + ":" + rat[0];
+    }
+  } else {
+    double marg = 1./w + 1./h;
+    if (fabs(r-1)<marg)
+      return "1:1";
+    else if (fabs(r-5/4.)<marg)
+      return "5:4";
+    else if (fabs(r-4/3.)<marg)
+      return "4:3";
+    else if (fabs(r-11/8.5)<marg)
+      return "Letter";
+    else if (fabs(r-297/210.)<marg)
+      return "A4";
+    else if (fabs(r-3/2.)<marg)
+      return "3:2";
+    else if (fabs(r-16/10.)<marg)
+      return "16:10";
+    else if (fabs(r-1.618034)<marg)
+      return "Golden";
+    else if (fabs(r-16/9.)<marg)
+      return "16:9";
+    else
+      return "";
+  }
+}
+
+QString MetaInfo::ratio(PSize s) {
+  return ratio(s.width(), s.height());
+}
+
+QString MetaInfo::easyRatio(int w, int h) {
+  if (w<=0 || h<=0)
+    return "";
+
+  QString r0 = ratio(w, h);
+  if (!r0.isEmpty())
+    return r0;
+
+  if (w<h) {
+    QString rat = easyRatio(h, w);
+    if (rat=="1:1+") {
+      return "1:1-";
+    } else if (rat.indexOf(":")<0) {
+      return rat;
+    } else {
+      QStringList bits = rat.split(":");
+      if (bits[1].endsWith("+"))
+        return bits[1].left(bits[1].length()-1) + ":" + bits[0] + "+";
+      else if (bits[1].endsWith("-"))
+        return bits[1].left(bits[1].length()-1) + ":" + bits[0] + "-";
+      else
+        return bits[1] + ":" + bits[0];
+    }
+  } else {
+    double r = double(w)/double(h);
+    if (r<inbetween(1, 5/4.))
+      return "1:1+";
+    else if (r<5/4.)
+      return "5:4-";
+    else if (r<inbetween(5/4., 4/3.))
+      return "5:4+";
+    else if (r<4/3.)
+      return "4:3-";
+    else if (r<inbetween(4/3,11/8.5))
+      return "4:3+";
+    else if (r<11/8.5)
+      return "Letter-";
+    else if (r<inbetween(11/8.5, 297/210.))
+      return "Letter+";
+    else if (r<297/210.)
+      return "A4-";
+    else if (r<inbetween(297/210., 3/2.))
+      return "A4+";
+    else if (r<3/2.)
+      return "3:2-";
+    else if (r<inbetween(3/2., 16/10.))
+      return "3:2+";
+    else if (r<16/10.)
+      return "16:10-";
+    else if (r<inbetween(16/10., 1.618034))
+      return "16:10+";
+    else if (r<1.618034)
+      return "Golden-";
+    else if (r<inbetween(1.618034, 16/9.))
+      return "Golden+";
+    else if (r<16/9.)
+      return "16:9-";
+    else
+      return "16:9+";
+  }
+}
+
+QString MetaInfo::easyRatio(PSize s) {
+  return easyRatio(s.width(), s.height());
 }
 
 QString MetaInfo::mpix(int w, int h) {
@@ -33,6 +128,9 @@ QString MetaInfo::mpix(int w, int h) {
     return QString::number(int(round(mp)));
 }
 
+QString MetaInfo::mpix(PSize s) {
+  return mpix(s.width(), s.height());
+}
 
 MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   if (version==0) {
@@ -42,6 +140,7 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
 
   PhotoDB::VersionRecord vrec = db->versionRecord(version);
   PhotoDB::PhotoRecord prec = db->photoRecord(vrec.photo);
+  Sliders sliders = Sliders::fromDB(version, *db);
 
   // Add filename
   txt = QString("<b>%1</b><br>").arg(prec.filename);
@@ -100,16 +199,17 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   txt += QString("%1<br>").arg(camlens);
 
   // Add size of crop
-  
+  PSize cropsize = sliders.cropSize(prec.filesize, vrec.orient);
+  qDebug() << prec.filesize << int(vrec.orient) << cropsize << version;
+  txt += QString("%1 x %2").arg(cropsize.width()).arg(cropsize.height());
+  txt += QString(" (%1 MPix %2").arg(mpix(cropsize)).arg(easyRatio(cropsize));
 
   // Add size of original
   PSize photosize = Exif::fixOrientation(prec.filesize, vrec.orient);
-  QString rat = ratio(photosize.width(), photosize.height());
-  if (!rat.isEmpty())
-    rat = ", " + rat;
-  txt += QString("%1 x %2 (%3 MPix%4)").arg(photosize.width())
-    .arg(photosize.height())
-    .arg(mpix(photosize.width(), photosize.height()))
-    .arg(rat);
+  if (photosize != cropsize)
+    txt += QString("; cropped from %1 x %2").arg(photosize.width())
+      .arg(photosize.height());
+
+  txt += ")";
 }  
   
