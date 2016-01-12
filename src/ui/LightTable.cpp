@@ -334,7 +334,7 @@ void LightTable::makeCurrent(quint64 i) {
     Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
     q.finish();
     QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
-    slide->newImage(ns);
+    slide->newImage(i, ns);
   } else {
     slide->clear();
     adjuster->clear();
@@ -397,7 +397,7 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
   strips->updateImage(i, img, true);
 
   if (i==curr)
-    slide->updateImage(img, true);
+    slide->updateImage(i, img, true);
 }
 
 void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {
@@ -409,11 +409,8 @@ void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {
     return;
 
   pDebug() << "LightTable::updateImage current slide" << i << img.size();
-  slide->updateImage(img, chgid>0);
-  if (i==curr) {
-    pDebug() << "LightTable::updateImage current done" << i << img.size();
-    Database::disableDebug();
-  }
+  slide->updateImage(i, img, chgid>0);
+  pDebug() << "LightTable::updateImage current done" << i << img.size();
 }
 
 void LightTable::rescan(bool rebuildFilter) {

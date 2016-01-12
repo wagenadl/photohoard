@@ -8,6 +8,7 @@
 #include "Image16.h"
 #include "ColorLabelBar.h"
 #include "Action.h"
+#include <QPointer>
 
 class SlideView: public QFrame {
   Q_OBJECT;
@@ -29,10 +30,12 @@ public:
      t = TRANSFORMATIONFROMIMAGE() returns a transformation matrix that can
      be used to map image coordinates to widget coordinates.
   */
+  void addOverlay(class SlideOverlay *over);
+  void removeOverlay(class SlideOverlay *over);
 public slots:
-  void newImage(QSize natSize);
+  void newImage(quint64 vsn, QSize natSize);
   void clear();
-  void updateImage(Image16 img, bool force=false);
+  void updateImage(quint64 vsn, Image16 img, bool force=false);
   void setZoom(double zm);
   void changeZoomLevel(QPoint center, double delta, bool roundtodelta=false);
   void scaleToFit();
@@ -55,7 +58,9 @@ private:
   //  QPointF mapImageToWidget(QPointF) const;
   void updateRelXY(QPoint);
   void makeActions();
+  QList<class SlideOverlay *> overlays() const;
 private:
+  quint64 vsnid;
   PSize naturalSize;
   Image16 img;
   double zoom;
@@ -67,6 +72,7 @@ private:
   double pressrelx, pressrely;
   bool dragging;
   Actions acts;
+  mutable QList< QPointer<QObject> > overlays_;
 };
 
 #endif
