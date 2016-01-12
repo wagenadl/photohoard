@@ -9,11 +9,13 @@
 #include "PDebug.h"
 #include "CMS.h"
 #include "Exif.h"
+#include "SlideOverlay.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
   fit = true;
   zoom = 1;
+  vsnid = 0;
   makeActions();
 }
   
@@ -40,7 +42,8 @@ double SlideView::fittingZoom() const {
   return rat;
 }
 
-void SlideView::newImage(QSize nat) {
+void SlideView::newImage(quint64 vsn, QSize nat) {
+  vsnid = vsn;
   naturalSize = nat;
   lastSize = PSize();
   img = Image16(); // might invalidate more gently
@@ -48,7 +51,12 @@ void SlideView::newImage(QSize nat) {
   zoom = 1;
 }  
 
-void SlideView::updateImage(Image16 img1, bool force) {
+void SlideView::updateImage(quint64 vsn, Image16 img1, bool force) {
+  if (vsn!=vsnid) {
+    qDebug() << "SlideView::updateImage - got vsn" << vsn
+             << " which is not my current vsn (" << vsnid << ")";
+    return;
+  }
   if (force || img.isNull() || img.width() < img1.width()) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
@@ -307,4 +315,36 @@ QTransform SlideView::transformationFromImage() const {
     xf.scale(zoom, zoom);
   }
   return xf;
+}
+
+void SlideView::addOverlay(SlideOverlay *over) {
+  for (auto ptr: overlays())
+    if (ptr==over)
+      return; // don't add twice
+  overlays_ << over;
+}
+
+void SlideView::removeOverlay(SlideOverlay *over) {
+  auto i = overlays_.begin();
+  while (i!=overlays_.end()) {
+    auto j = i;
+    ++i;
+    if (*j == over)
+      overlays_.erase(j);
+  }
+}
+
+QList<SlideOverlay *> SlideView::overlays() const {
+  QList<SlideOverlay *> out;
+  auto i = overlays_.begin();
+  while (i!=overlays_.end()) {
+    auto j = i;
+    ++i;
+    QObject *obj = *j;
+    if (obj == 0)
+      overlays_.erase(j);
+    else
+      out << dynamic_cast<SlideOverlay *>(obj);
+  }
+  return out;
 }
