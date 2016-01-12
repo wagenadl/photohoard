@@ -15,6 +15,7 @@ ControlGroup::ControlGroup(QString l, QWidget *p): QFrame(p) {
   exp_w = new QWidget;
   exp_lay = new QVBoxLayout;
   exp_lay->setContentsMargins(0, 1, 0, 1);
+  exp_lay->setSpacing(1);
   exp_w->setLayout(exp_lay);
   my_lay->addWidget(exp_w);
 
