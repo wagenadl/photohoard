@@ -174,7 +174,7 @@ void PhotoDB::setLensAlias(int id, QString alias) {
 PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   VersionRecord vr;
   QSqlQuery q = constQuery("select photo,"
-                           " starrating, colorlabel, acceptreject orient"
+                           " starrating, colorlabel, acceptreject, orient"
                            " from versions where id==:a", id);
   ASSERT(q.next());
   vr.id = id;
