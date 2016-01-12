@@ -64,19 +64,10 @@ QString MetaInfo::easyRatio(int w, int h) {
 
   if (w<h) {
     QString rat = easyRatio(h, w);
-    if (rat=="1:1+") {
+    if (rat=="1:1+") 
       return "1:1-";
-    } else if (rat.indexOf(":")<0) {
+    else
       return rat;
-    } else {
-      QStringList bits = rat.split(":");
-      if (bits[1].endsWith("+"))
-        return bits[1].left(bits[1].length()-1) + ":" + bits[0] + "+";
-      else if (bits[1].endsWith("-"))
-        return bits[1].left(bits[1].length()-1) + ":" + bits[0] + "-";
-      else
-        return bits[1] + ":" + bits[0];
-    }
   } else {
     double r = double(w)/double(h);
     if (r<inbetween(1, 5/4.))
