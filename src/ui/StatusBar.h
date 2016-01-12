@@ -16,13 +16,12 @@ public:
 public slots:
   void setZoom(double v);
   void setCollection(QString c);
+  void setMessage(QString msg);
+  void removeMessage();
 protected:
   virtual void paintEvent(QPaintEvent *) override;
 private:
-  PhotoDB *db;
-  class StatusBarUI *ui;
-  double zoom;
-  QString col;
+  class StatusBarD *d;
 };
 
 #endif

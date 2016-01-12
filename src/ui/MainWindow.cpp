@@ -140,3 +140,14 @@ void MainWindow::reportExportResults(QString dst, int nOK, int nFail) {
                            .arg(nFail).arg(nOK+nFail));
   }
 }
+
+void MainWindow::setStatusMessage(QString msg, QWidget *src) {
+  ASSERT(src);
+  MainWindow *mw = dynamic_cast<MainWindow*>(src->window());
+  ASSERT(mw);
+  mw->setStatusMessage(msg);
+}
+
+void MainWindow::setStatusMessage(QString msg) {
+  statusBar->setMessage(msg);
+}

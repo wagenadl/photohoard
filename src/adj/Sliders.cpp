@@ -7,7 +7,7 @@
 #include "PDebug.h"
 #include <QStringList>
 #include <limits>
-
+#include "PhotoDB.h"
 #include <QMetaType>
 
 class SlidersFoo {
@@ -109,4 +109,39 @@ bool Sliders::isDefault() const {
 
 bool Sliders::isDefault(QString k) const {
   return get(k) == defaultFor(k);
+}
+
+Sliders Sliders::fromDB(quint64 vsn, class PhotoDB &db) {
+  Sliders s;
+  s.readFromDB(vsn, db);
+  return s;
+}
+
+void Sliders::readFromDB(quint64 vsn, PhotoDB &db) {
+  reset();
+  QSqlQuery q = db.query("select k, v from adjustments where version==:a",
+                         vsn);
+  while (q.next())
+    set(q.value(0).toString(), q.value(1).toDouble());
+}
+  
+void Sliders::writeToDB(quint64 vsn, PhotoDB &db) const {
+  for (QString k: keys())
+    db.query("insert into adjustments(version, k, v)"
+	     " values(:a,:b,:c)", vsn, k, get(k));
+}  
+
+PSize Sliders::cropSize(PSize filesize, Exif::Orientation orient) {
+  PSize size = filesize;
+  switch (orient) {
+  case Exif::Upright:
+  case Exif::UpsideDown:
+    break;
+  case Exif::CCW:
+  case Exif::CW:
+    size.rotate90();
+    break;
+  }
+  return PSize(size.width() - cropl - cropr,
+	       size.height() - cropt - cropb);
 }

@@ -119,34 +119,14 @@ void Exporter::run() {
 }
 
 bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
-  QSqlQuery q 
-    = db.constQuery("select photo, orient from versions where id=:a", vsn);
-  if (!q.next())
-    return false;
-  quint64 photo = q.value(0).toULongLong();
-  Exif::Orientation orient = Exif::Orientation(q.value(1).toInt());
+  PhotoDB::VersionRecord vrec = db.versionRecord(vsn);
+  PhotoDB::PhotoRecord prec = db.photoRecord(vrec.photo);
+  Sliders adjs = Sliders::fromDB(vsn, db);
+  PSize cropsize = adjs.cropSize(prec.filesize, vrec.orient);
   
-  Sliders adjs;
-  q = db.query("select k, v from adjustments where version==:a", vsn);
-  while (q.next())
-    adjs.set(q.value(0).toString(), q.value(1).toDouble());
-
-  q = db.query("select folder, filename, filetype, width, height, "
-               " capturedate"
-               " from photos where id=:a limit 1", photo);
-  if (!q.next())
-    return false;
-
-  quint64 folder = q.value(0).toULongLong();
-  QString fn = q.value(1).toString();
-  int ftype = q.value(2).toInt();
-  int wid = q.value(3).toInt();
-  int hei = q.value(4).toInt();
-  QDateTime date = q.value(5).toDateTime();
-  QString path = db.folder(folder) + "/" + fn;
-  
+  QString path = db.folder(prec.folderid) + "/" + prec.filename;
   Image16 img = worker
-    ->findImageNow(path, db.ftype(ftype), orient, PSize(wid, hei),
+    ->findImageNow(path, db.ftype(prec.filetype), vrec.orient, prec.filesize,
                    adjs, 0, true);
   if (img.isNull())
     return false;
@@ -165,7 +145,7 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
       img = img.scaledToHeight(settings.maxdim);
     break;
   case ExportSettings::ResolutionMode::LimitMaxDim:
-    if (wid>hei) {
+    if (img.width()>img.height()) {
       if (img.width() > settings.maxdim)
         img = img.scaledToWidth(settings.maxdim);
     } else {
@@ -174,25 +154,25 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
     }      
     break;
   case ExportSettings::ResolutionMode::Scale:
-    if (img.width() > settings.scalePercent*wid/100)
-      img = img.scaledToWidth(settings.scalePercent*wid/100);
+    if (img.width() > settings.scalePercent*cropsize.width()/100)
+      img = img.scaledToWidth(settings.scalePercent*cropsize.width()/100);
     break;
   }
 
   QString ofn;
   switch (settings.namingScheme) {
   case ExportSettings::NamingScheme::Original:
-    ofn = fn;
+    ofn = prec.filename;
     if (ofn.contains("."))
       ofn = ofn.left(ofn.lastIndexOf("."));
     break;
   case ExportSettings::NamingScheme::DateTime:
-    ofn = date.toString("yyMMdd-hhmmss");
+    ofn = prec.capturedate.toString("yyMMdd-hhmmss");
     break;
   case ExportSettings::NamingScheme::DateTimeDSC: {
-    ofn = date.toString("yyMMdd-hhmmss");
+    ofn = prec.capturedate.toString("yyMMdd-hhmmss");
     QRegExp dd("(\\d+)");
-    if (dd.indexIn(fn)>=0)
+    if (dd.indexIn(prec.filename)>=0)
       ofn += "-" + dd.cap(1);
     else
       ofn += "_" + QString::number(vsn);

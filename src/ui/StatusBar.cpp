@@ -3,40 +3,65 @@
 #include "StatusBar.h"
 #include <QPainter>
 #include "PDebug.h"
+#include <QTimer>
 
 constexpr int SB_Height = 20;
 
-class StatusBarUI {
+class StatusBarD: public QObject {
 public:
-  //  class QComboBox *colbox;
-  //  class ZoomSpinBox *zoombox;
-public:
-  void setupUI(QWidget */*owner*/) {
+  StatusBarD(StatusBar *parent): QObject(parent) {
+    db = 0;
+    zoom = 0;
+    timer = new QTimer(this);
+    timer->setInterval(3000);
+    timer->setSingleShot(true);
+    connect(timer, SIGNAL(timeout()), parent, SLOT(removeMessage()));
   }
+public:
+  PhotoDB *db;
+  double zoom;
+  QString col;
+  QString msg;
+  QTimer *timer;
+  int height;
 };
 
-StatusBar::StatusBar(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
+StatusBar::StatusBar(PhotoDB *db, QWidget *parent): QFrame(parent) {
+  d = new StatusBarD(this);
+  d->db = db;
+  d->zoom = 0;
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  zoom = 0;
   setContentsMargins(3, 0, 3, 0);
+  QFontMetrics m(font());
+  d->height = m.boundingRect("(0g)").height();
 }
 
 QSize StatusBar::sizeHint() const {
-  return QSize(200, SB_Height);
+  return QSize(200, d->height);
 }
 
 QSize StatusBar::minimumSizeHint() const {
-  return QSize(40, SB_Height);
+  return QSize(40, d->height);
 }
 
 void StatusBar::setZoom(double v) {
-  pDebug() << "StatusBar::setZoom" << v;
-  zoom = v;
+  d->zoom = v;
   update();
 }
 
 void StatusBar::setCollection(QString c) {
-  col = c;
+  d->col = c;
+  update();
+}
+
+void StatusBar::setMessage(QString m) {
+  d->msg = m;
+  d->timer->start();
+  update();
+}
+
+void StatusBar::removeMessage() {
+  d->msg = "";
   update();
 }
 
@@ -47,9 +72,11 @@ void StatusBar::paintEvent(QPaintEvent *) {
   p.setPen(QPen(Qt::NoPen));
   p.drawRect(r);
   p.setPen(QPen("#000000"));
-  if (zoom>0 && zoom<1e5)
+  if (d->zoom>0 && d->zoom<1e5)
     p.drawText(r, Qt::AlignVCenter | Qt::AlignRight,
-               QString("%1%").arg(round(zoom*100)));
-  if (!col.isEmpty())
-    p.drawText(r, Qt::AlignVCenter | Qt::AlignLeft, col);
+               QString("%1%").arg(round(d->zoom*100)));
+  if (!d->msg.isEmpty())
+    p.drawText(r, Qt::AlignVCenter | Qt::AlignLeft, d->msg);
+  else if (!d->col.isEmpty())
+    p.drawText(r, Qt::AlignVCenter | Qt::AlignLeft, d->col);
 }
