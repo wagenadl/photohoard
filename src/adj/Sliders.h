@@ -6,6 +6,7 @@
 
 #include <QMap>
 #include <QStringList>
+#include "Exif.h"
 
 class Sliders {
 public:
@@ -14,12 +15,16 @@ public:
   void reset();
   void setAll(QString kv);
   void setAll(QMap<QString, double> const &);
+  static Sliders fromDB(quint64 vsn, class PhotoDB &db);
+  void readFromDB(quint64 vsn, class PhotoDB &db);
+  void writeToDB(quint64 vsn, class PhotoDB &db) const;
   QString getAll() const;
   bool set(QString k, double v);
   double get(QString k) const;
   bool operator==(Sliders const &) const;
   bool isDefault() const;
   bool isDefault(QString k) const;
+  PSize cropSize(PSize photoFileSize, Exif::Orientation orient);
 public:
 #define SLIDER(name, dfl) double name;
 #include "sliders.def"

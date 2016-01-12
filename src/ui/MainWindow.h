@@ -17,10 +17,12 @@ public:
              class AutoCache *,
              class Exporter *);
   virtual ~MainWindow();
+  static void setStatusMessage(QString msg, QWidget *src);
 public slots:
   void scrollToCurrent();
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void showShortcutHelp();
+  void setStatusMessage(QString msg);
 private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
 private:

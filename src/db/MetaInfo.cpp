@@ -43,11 +43,13 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   PhotoDB::VersionRecord vrec = db->versionRecord(version);
   PhotoDB::PhotoRecord prec = db->photoRecord(vrec.photo);
 
-
+  // Add filename
   txt = QString("<b>%1</b><br>").arg(prec.filename);
   QString folder = db->folder(prec.folderid);
   folder = folder.replace("/", QString("/") + QChar(0x200b));
   txt += QString("<i>%1</i><br>").arg(folder);
+
+  // Add capture date
   txt += "<b>" + prec.capturedate.toString("ddd") + " ";
   QString yr = prec.capturedate.toString("yyyy");
   QString md = prec.capturedate.toString("MMdd");
@@ -58,6 +60,8 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
     + prec.capturedate.toString("yyyy") + "</a>";
   txt += ", ";
   txt += prec.capturedate.toString("hh:mm:ss") + "</b><br>";
+
+  // Add exposure info
   QStringList bits;
   if (prec.exposetime_s>0)
     bits << (prec.exposetime_s > .125
@@ -69,6 +73,8 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
     bits << QString("ISO %1").arg(prec.iso);
   if (!bits.isEmpty())
     txt += bits.join(" &nbsp; ") + "<br>";
+
+  // Add camera and lens info
   QString camlens = "";
   if (prec.cameraid) {
     QString cam = db->camera(prec.cameraid);
@@ -92,6 +98,11 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
       camlens += " at " + len + " mm";
   }
   txt += QString("%1<br>").arg(camlens);
+
+  // Add size of crop
+  
+
+  // Add size of original
   PSize photosize = Exif::fixOrientation(prec.filesize, vrec.orient);
   QString rat = ratio(photosize.width(), photosize.height());
   if (!rat.isEmpty())
