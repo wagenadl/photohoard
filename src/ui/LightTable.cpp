@@ -504,6 +504,10 @@ void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
   select(0);
 }
 
+Filter const &LightTable::filter() const {
+  return filterDialog->filter();
+}
+
 void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
   Untransaction t(db);

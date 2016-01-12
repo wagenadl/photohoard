@@ -12,7 +12,6 @@
 #include "PurgeCache.h"
 #include "Exporter.h"
 #include "AutoCache.h"
-#include "ExceptionReporter.h"
 #include "MainWindow.h"
 #include "ExifReport.h"
 #include <sqlite3.h>
@@ -87,19 +86,13 @@ int main(int argc, char **argv) {
     BasicCache::create(cachefn);
   }
 
-  ExceptionReporter *excrep = new ExceptionReporter();
-
   AutoCache *ac = new AutoCache(&db, cachefn);
-  QObject::connect(ac, SIGNAL(exception(QString)),
-                   excrep, SLOT(report(QString)));
 
   Scanner *scan = new Scanner(&db);
   QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
                    ac, SLOT(recache(QSet<quint64>)));
   QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
                    ac, SLOT(cachePreview(quint64, Image16)));
-  QObject::connect(scan, SIGNAL(exception(QString)),
-                   excrep, SLOT(report(QString)));
 
   Exporter *expo = new Exporter(&db, 0);
   expo->start();

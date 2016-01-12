@@ -126,9 +126,17 @@ void Sliders::readFromDB(quint64 vsn, PhotoDB &db) {
 }
   
 void Sliders::writeToDB(quint64 vsn, PhotoDB &db) const {
-  for (QString k: keys())
-    db.query("insert into adjustments(version, k, v)"
-	     " values(:a,:b,:c)", vsn, k, get(k));
+  for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
+    QString k = it.key();
+    double v0 = it.value();
+    double v = get(k);
+    if (v==v0)
+      db.query("delete from adjustments where version==:a and k==:b",
+               vsn, k);
+    else
+      db.query("insert or replace into adjustments(version, k, v)"
+               " values(:a,:b,:c)", vsn, k, v);
+  }
 }  
 
 PSize Sliders::cropSize(PSize filesize, Exif::Orientation orient) {

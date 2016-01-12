@@ -59,8 +59,7 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     reader = rawreader;
   else if (ext=="jpeg" || ext=="png" || ext=="tiff")
     reader = filereader;
-  if (!reader)
-    emit exception("OriginalFinder: Unknown file type");
+  ASSERT(reader);
   rawreader->cancel();
   filereader->cancel();
   desired = ds;

@@ -22,6 +22,7 @@
 #include "ShortcutHelp.h"
 #include "Exporter.h"
 #include <QMessageBox>
+#include "Filter.h"
 
 MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -107,6 +108,8 @@ MainWindow::MainWindow(PhotoDB *db,
   
   tagList->setCurrent(lightTable->current());
   metaViewer->setVersion(lightTable->current());
+  if (lightTable->filter().hasCollection())
+    statusBar->setCollection(lightTable->filter().collection());
 }
 
 MainWindow::~MainWindow() {

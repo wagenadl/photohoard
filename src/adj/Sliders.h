@@ -18,6 +18,13 @@ public:
   static Sliders fromDB(quint64 vsn, class PhotoDB &db);
   void readFromDB(quint64 vsn, class PhotoDB &db);
   void writeToDB(quint64 vsn, class PhotoDB &db) const;
+  /* WRITETODB - Write all values to DB
+     WRITETODB(vsn, db) writes all values into the ADJUSTMENTS table of DB,
+     for version VSN.
+     (In fact, only values that differ from the defaults are saved; other
+     rows are deleted from the table.)
+     This function does not create a TRANSACTION. The caller should do that.
+  */
   QString getAll() const;
   bool set(QString k, double v);
   double get(QString k) const;

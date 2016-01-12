@@ -24,6 +24,7 @@ public:
   quint64 current() const { return curr; }
   PSize displaySize() const;
   class Actions const &actions() const;
+  class Filter const &filter() const;
 public slots:
   void setLayout(LayoutBar::Layout ar);
   void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);

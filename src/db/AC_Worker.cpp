@@ -30,8 +30,6 @@ AC_Worker::AC_Worker(PhotoDB const *db0, QString rootdir,
   connect(bank, SIGNAL(foundImage(quint64, Image16, QSize)),
 	  this, SLOT(handleFoundImage(quint64, Image16, QSize)),
           Qt::QueuedConnection);
-  connect(bank, SIGNAL(exception(QString)),
-	  this, SIGNAL(exception(QString)));
   n = 0;
   countQueue();
 }
