@@ -64,12 +64,12 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
 
-  connect(slide, SIGNAL(needLargerImage()),
-	  this, SLOT(requestLargerImage()));
+  connect(slide, SIGNAL(needImage(quint64, QSize)),
+	  this, SIGNAL(wantImage(quint64, QSize)));
+  connect(slide, SIGNAL(needImage(quint64, QSize)),
+          adjuster, SLOT(requestAdjusted(quint64, QSize)));
   connect(slide, SIGNAL(newSize(QSize)),
           this, SIGNAL(newSlideSize(QSize)));
-  connect(slide, SIGNAL(newSize(QSize)),
-          this, SLOT(requestLargerImage()));
   connect(slide, SIGNAL(newZoom(double)),
           this, SIGNAL(newZoom(double)));
 
@@ -200,10 +200,8 @@ void LightTable::setLayout(LayoutBar::Layout act) {
     strips->toggleOrganization();
     break;
   }
-  if (lastlay==LayoutBar::Layout::FullGrid && lay!=lastlay) {
+  if (lastlay==LayoutBar::Layout::FullGrid && lay!=lastlay)
     emit needImage(curr, displaySize());
-    requestLargerImage();
-  }
   if (lay!=LayoutBar::Layout::FullPhoto)
     scrollToCurrent();
 }
@@ -334,21 +332,22 @@ void LightTable::makeCurrent(quint64 i) {
     Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
     q.finish();
     QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
+    adjuster->markVersionAndSize(i, ns);
     slide->newImage(i, ns);
   } else {
-    slide->clear();
     adjuster->clear();
+    slide->clear();
   }
 
   curr = i;
+  
   emit newCurrent(curr);
   emit newZoom(slide->currentZoom());
+
   if (curr>0 && lay!=LayoutBar::Layout::FullGrid) {
     pDebug() << "emitting needimage " << curr;
     emit needImage(curr, displaySize());
     pDebug() << "emitted needimage " << curr;
-    // Check that this works
-    requestLargerImage();
   }
 
   strips->scrollIfNeeded();
@@ -378,15 +377,6 @@ PSize LightTable::displaySize() const {
     return slide->desiredSize();
   else
     return PSize::square(strips->strip()->tileSize());
-}
-
-void LightTable::requestLargerImage() {
-  if (slide->isVisible()) {
-    // also request from cache if helpful and readily available?
-    adjuster->requestAdjusted(curr, slide->desiredSize());
-  } else {
-    adjuster->markVersionAndSize(curr, slide->desiredSize());
-  }
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i) {

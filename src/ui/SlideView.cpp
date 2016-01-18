@@ -49,6 +49,8 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   img = Image16(); // might invalidate more gently
   fit = true;
   zoom = 1;
+  needLargerImage();
+  // we _could_ update() now, which would cause a gray flash
 }  
 
 void SlideView::updateImage(quint64 vsn, Image16 img1, bool force) {
@@ -122,11 +124,12 @@ void SlideView::scaleToFit() {
 }
 
 void SlideView::resizeEvent(QResizeEvent *) {
-  emit newSize(fit ? size() : naturalSize.isEmpty() ? size()
-	       : naturalSize*zoom);
-  if (fit)
+  if (fit) {
+    emit newSize(fit ? size() : naturalSize.isEmpty() ? size()
+                 : naturalSize*zoom);
     update();
-  emit newZoom(currentZoom());
+    emit newZoom(currentZoom());
+  }
 }
 
 void SlideView::wheelEvent(QWheelEvent *e) {
@@ -202,8 +205,13 @@ void SlideView::clear() {
 }
 
 void SlideView::paintEvent(QPaintEvent *) {
-  if (img.isNull())
+  if (vsnid==0)
     return;
+
+  if (img.isNull()) {
+    needLargerImage();
+    return;
+  }
   
   QPainter p(this);
   QRect r = contentsRect();
@@ -219,9 +227,8 @@ void SlideView::paintEvent(QPaintEvent *) {
         && img.height()<naturalSize.height()
         && i1.height()>img.height()) {
       // I should only request it if I haven't already
-      if (img.size()!=lastSize) {
-        emit needLargerImage();
-      }
+      if (img.size()!=lastSize)
+        needLargerImage();
       lastSize = img.size();
     } else {
       lastSize = PSize();
@@ -347,4 +354,8 @@ QList<SlideOverlay *> SlideView::overlays() const {
       out << dynamic_cast<SlideOverlay *>(obj);
   }
   return out;
+}
+
+void SlideView::needLargerImage() {
+  emit needImage(vsnid, desiredSize());
 }

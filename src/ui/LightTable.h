@@ -41,6 +41,7 @@ public slots:
   void updateSelectedTiles();
 signals:
   void needImage(quint64, QSize);
+  void wantImage(quint64, QSize);
   void newCurrent(quint64);
   void newSlideSize(QSize);
   void newZoom(double);
@@ -48,7 +49,6 @@ signals:
   void newCollection(QString);
   void recacheReoriented(QSet<quint64>);
 private slots:
-  void requestLargerImage();
   void updateAdjusted(Image16, quint64);
   void applyFilterFromDialog();
   void resizeStrip();
