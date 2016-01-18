@@ -79,6 +79,8 @@ MainWindow::MainWindow(PhotoDB *db,
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));
+  connect(lightTable, SIGNAL(wantImage(quint64, QSize)),
+          autocache, SLOT(requestIfEasy(quint64, QSize)));
   connect(lightTable, SIGNAL(recacheReoriented(QSet<quint64>)),
 	  autocache, SLOT(recache(QSet<quint64>)));
   connect(autocache, SIGNAL(available(quint64, Image16, quint64)),
