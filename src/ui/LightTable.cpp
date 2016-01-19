@@ -73,7 +73,7 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   connect(slide, SIGNAL(newZoom(double)),
           this, SIGNAL(newZoom(double)));
 
-  connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
           SLOT(updateAdjusted(Image16, quint64)));
 
   connect(filterDialog, SIGNAL(apply()),
@@ -384,10 +384,10 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
     pDebug() << "LightTable::updateAdjusted current" << i << img.size();
   if (img.isNull())
     return;
-  strips->updateImage(i, img, true);
+  strips->updateImage(i, img, false);
 
   if (i==curr)
-    slide->updateImage(i, img, true);
+    slide->updateImage(i, img, false);
 }
 
 void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {

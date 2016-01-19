@@ -122,12 +122,12 @@ void LiveAdjuster::provideAdjusted(Image16 img) {
   if (mustoffermod) {
     mustoffermod = false;
     cache->cacheModified(version, img);
-  }
+  } 
   if (mustshowupdate) {
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
     pDebug() << "LiveAdjusted: emitting image changed";
-    emit imageChanged(img, version);
+    emit imageAvailable(img, version);
     pDebug() << "LiveAdjusted: emitted image changed";
   }
 }

@@ -23,7 +23,12 @@ public slots:
   /* The latter doesn't immediately request an image, but prepares for
      later setSlider calls that will need an image. */
 signals:
-  void imageChanged(Image16 img, quint64 version);
+  void imageAvailable(Image16 img, quint64 version);
+  /* In addition, when a new adjustment is made, the image is offered
+     to the autocache through CACHEMODIFIED, which will immediately cause an
+     AVAILABLE signal to be emitted with a non-zero CHGID. That happens
+     before this signal is emitted.
+  */
 private slots:
   void setSlider(QString, double);
   void provideOriginal(quint64, Image16);
