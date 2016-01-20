@@ -59,7 +59,8 @@ void SlideView::updateImage(quint64 vsn, Image16 img1, bool force) {
              << " which is not my current vsn (" << vsnid << ")";
     return;
   }
-  if (force || img.isNull() || img.width() < img1.width()) {
+  pDebug() << "SlideView::updateImage" << vsn << img1.size() << force;
+  if (force || img.isNull() || img1.size().exceeds(img.size())) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
     } else {

@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QApplication>
 #include "Sliders.h"
+#include "PDebug.h"
 
 SliderGroups::SliderGroups() {
   QFile src(":/sliders.txt");
@@ -32,18 +33,18 @@ SliderGroups::SliderGroups() {
       currentslider = "";
     } else if (line.contains(":")) {
       // Defining a slider
-      Q_ASSERT(!currentgroup.isEmpty());
+      ASSERT(!currentgroup.isEmpty());
       int idx = line.indexOf(":");
       currentslider = line.left(idx).simplified();
       groupcontents[currentgroup] << currentslider;
-      Q_ASSERT(Sliders::defaults().contains(name));
+      ASSERT(Sliders::defaults().contains(currentslider));
       SliderInfo info;
       info.label = line.mid(idx+1).simplified();
       info.label.replace("~", " ");
       info.dflt = Sliders::defaultFor(currentslider);
       infos[currentslider] = info;
     } else if (line.contains("/")) {
-      Q_ASSERT(!currentslider.isEmpty());
+      ASSERT(!currentslider.isEmpty());
       // set min max and steps
       QStringList lst = line.split(" ");
       if (lst.size()==6 && lst[2]=="/") {
