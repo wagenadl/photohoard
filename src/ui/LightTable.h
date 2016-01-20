@@ -23,7 +23,7 @@ public:
   virtual ~LightTable();
   quint64 current() const { return curr; }
   PSize displaySize() const;
-  class Actions const &actions() const;
+  Actions const &actions() const;
   class Filter const &filter() const;
 public slots:
   void setLayout(LayoutBar::Layout ar);

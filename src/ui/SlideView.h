@@ -29,6 +29,8 @@ public:
   /* FITTINGZOOM - Zoom factor that fills widget
      Returns the zoom factor that would make the current image snugly fit.
    */
+  quint64 currentVersion() const;
+  /* CURRENTVERSION - Return version ID of image being displayed, or 0 */
   Actions const &actions() const;
   /* ACTIONS - List of keyboard actions
    */

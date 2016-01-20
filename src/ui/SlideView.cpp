@@ -10,6 +10,7 @@
 #include "CMS.h"
 #include "Exif.h"
 #include "SlideOverlay.h"
+#include "SO_Grid.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
@@ -138,9 +139,27 @@ void SlideView::wheelEvent(QWheelEvent *e) {
 }
 
 void SlideView::makeActions() {
+  acts
+    << Action { Qt::Key_3, "Display grid of thirds",
+      [this]() {
+      pDebug() << "Display grid";
+      bool got=false;
+      for (auto ptr: overlays()) {
+        SO_Grid *so = dynamic_cast<SO_Grid *>(ptr);
+        if (so) {
+          removeOverlay(so);
+          got = true;
+          break;
+        }
+      }
+      if (!got)
+        addOverlay(new SO_Grid(this));
+      update();
+    }};
 }
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
+  pDebug() << "SlideView::keyPressEvent";
   if (acts.activateIf(e)) {
     e->accept();
   } else {
@@ -281,6 +300,11 @@ void SlideView::paintEvent(QPaintEvent *) {
                      : Image16::Interpolation::Linear);
     p.drawImage(destRect.topLeft(), im1.toQImage());
   }
+  for (auto obj: overlays()) {
+    SlideOverlay *so = dynamic_cast<SlideOverlay *>(obj);
+    ASSERT(so);
+    so->render(&p, QRect());
+  }
 }
     
 void SlideView::enterEvent(QEvent *) {
@@ -293,6 +317,10 @@ Actions const &SlideView::actions() const {
 
 PSize SlideView::currentImageSize() const {
   return naturalSize;
+}
+
+quint64 SlideView::currentVersion() const {
+  return vsnid;
 }
 
 QTransform SlideView::transformationToImage() const {
