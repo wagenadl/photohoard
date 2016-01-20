@@ -74,7 +74,7 @@ MainWindow::MainWindow(PhotoDB *db,
                            lightTable->actions());
   shortcutHelp->addSection("Slider panel", allControls->actions());
   
-  connect(adjuster, SIGNAL(imageChanged(Image16, quint64)),
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
           histogram, SLOT(setImage(Image16))); // is this ok?
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
