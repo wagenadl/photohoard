@@ -7,7 +7,6 @@
 #include "PDebug.h"
 #include "StripScene.h"
 #include "CMS.h"
-#include "NoResult.h"
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {

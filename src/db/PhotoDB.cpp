@@ -6,7 +6,6 @@
 #include "SqlFile.h"
 #include <QFile>
 #include <QDir>
-#include "NoResult.h"
 #include "Sliders.h"
 
 void PhotoDB::open(QString fn) {

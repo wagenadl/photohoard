@@ -5,7 +5,6 @@
 #include <QSqlError>
 #include <system_error>
 #include <QSqlQuery>
-#include "NoResult.h"
 
 Database::Database(QString id0): id(id0), transWait(new QAtomicInt()) {
   if (id.isEmpty())

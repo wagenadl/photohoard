@@ -1,7 +1,6 @@
 // LightTable.cpp
 
 #include "LightTable.h"
-#include "NoResult.h"
 #include "StripView.h"
 #include "SlideView.h"
 #include "Datestrip.h"
