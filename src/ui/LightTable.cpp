@@ -550,7 +550,9 @@ void LightTable::rotateSelected(int dphi) {
 }
 
 Actions const &LightTable::actions() const {
-  return acts;
+  ASSERT(slide);
+  static Actions x = acts + slide->actions();
+  return x;
 }
 
 void LightTable::makeActions() {

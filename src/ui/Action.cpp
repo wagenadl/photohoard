@@ -3,7 +3,7 @@
 #include "Action.h"
 #include <QKeyEvent>
 #include <QAction>
-#include <QDebug>
+#include "PDebug.h"
 
 Action::Action(unsigned int key, QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
@@ -119,4 +119,11 @@ Action const &Actions::last() const {
 
 QList<Action> const &Actions::all() const {
   return acts;
+}
+
+Actions Actions::operator+(Actions const &b) const {
+  Actions a = *this;
+  a.acts.append(b.acts);
+  pDebug() << "Actions::+";
+  return a;
 }

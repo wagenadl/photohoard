@@ -1,15 +1,13 @@
 // SlideOverlay.cpp
 
 #include "SlideOverlay.h"
-#include <QPainter>
 #include "PDebug.h"
 
-SlideOverlay::SlideOverlay(QObject *parent): QObject(parent) {
+SlideOverlay::SlideOverlay(SlideView *base): QObject(base), sv(base) {
 }
 
-
-void SlideOverlay::render(QPainter *ptr, QRect const &rect,
-                          QTransform const &imgToWidget,
-                          quint64 versionid) {
+SlideView *SlideOverlay::base() {
+  SlideView *b = sv;
+  ASSERT(b);
+  return b;
 }
-

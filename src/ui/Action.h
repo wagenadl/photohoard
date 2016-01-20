@@ -121,6 +121,7 @@ public:
    */
   Action const &last() const;
   QList<Action> const &all() const;
+  Actions operator+(Actions const &) const;
 private:
   QList<Action> acts;
 };
