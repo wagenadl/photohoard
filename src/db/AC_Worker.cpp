@@ -6,7 +6,6 @@
 #include "BasicCache.h"
 #include <QVariant>
 #include "PDebug.h"
-#include "NoResult.h"
 #include "AC_ImageHolder.h"
 #include "Sliders.h"
 #include "Here.h"

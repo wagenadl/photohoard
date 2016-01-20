@@ -5,7 +5,6 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QFile>
-#include "NoResult.h"
 
 Application::Application(int &argc, char **argv): QApplication(argc, argv) {
   QFile f(":/style.css");

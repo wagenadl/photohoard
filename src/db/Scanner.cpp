@@ -7,7 +7,6 @@
 #include <system_error>
 #include <QDateTime>
 #include "Exif.h"
-#include "NoResult.h"
 #include "Tags.h"
 #include "Here.h"
 

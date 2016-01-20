@@ -4,7 +4,6 @@
 #include <QMutexLocker>
 #include "PDebug.h"
 #include "IF_Worker.h"
-#include "NoResult.h"
 #include <QRegExp>
 #include <QDir>
 #include "Sliders.h"

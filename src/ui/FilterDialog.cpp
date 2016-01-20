@@ -5,7 +5,6 @@
 #include "ui_FilterDialog.h"
 #include "Filter.h"
 #include "PhotoDB.h"
-#include "NoResult.h"
 #include "Tags.h"
 #include "TagDialog.h"
 

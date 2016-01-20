@@ -3,7 +3,6 @@
 #include "OriginalFinder.h"
 #include "InterruptableFileReader.h"
 #include "InterruptableRawReader.h"
-#include "NoResult.h"
 #include "Exif.h"
 #include "PDebug.h"
 
