@@ -88,7 +88,6 @@ void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
 void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
   QString path1 = db->folder(fid1);
   QString path2 = db->folder(fid2);
-  pDebug() << "addfoldersbetween" << path1 << path2;
   Untransaction t(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"

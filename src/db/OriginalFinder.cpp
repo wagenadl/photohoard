@@ -35,7 +35,6 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
-  pDebug() << "requestScaledOriginal " << vsn << ds;
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "
                 " from versions"
@@ -86,7 +85,6 @@ void OriginalFinder::fixOrientation(Image16 &img) {
 }  
 
 void OriginalFinder::provide(QString fn) {
-  pDebug() << "OriginalFinder::provide" << fn;
   if (fn!=filepath)
     return;
   InterruptableReader::Result res = filereader->result(fn);
@@ -94,28 +92,20 @@ void OriginalFinder::provide(QString fn) {
   if (!res.ok)
     res = rawreader->result(fn);
   if (!res.ok) {
-    pDebug() << "  OF: got no result" << e0 << res.error;
+    COMPLAIN("OriginalFinder: got no result for " + fn);
     return;
   }
-  pDebug() << "Getting image";
   Image16 img = res.image;
-  pDebug() << "Got image";
   if (img.isNull()) {
-    pDebug() << "  got null image";
+    COMPLAIN("OriginalFinder: got null image for " + fn);
     return;
   }
 
   if (desired.isNull()) {
-    pDebug() << "Ofinder: fixing orientation";
     fixOrientation(img);
-    pDebug() << "OFinder: emitting orig avail";
     emit originalAvailable(version, img);
-    pDebug() << "OFinder: emitted orig avail";
   } else {
-    pDebug() << "Ofinder: fixing orientation";
     fixOrientation(img);
-    pDebug() << "OFinder: emitting scaled avail" << img.size() << osize;
     emit scaledOriginalAvailable(version, osize, img);
-    pDebug() << "OFinder: emitted scaled avail";
   }
 }

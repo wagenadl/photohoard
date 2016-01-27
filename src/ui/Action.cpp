@@ -124,6 +124,5 @@ QList<Action> const &Actions::all() const {
 Actions Actions::operator+(Actions const &b) const {
   Actions a = *this;
   a.acts.append(b.acts);
-  pDebug() << "Actions::+";
   return a;
 }

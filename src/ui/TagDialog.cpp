@@ -94,7 +94,6 @@ QList<int> TagDialog::selectedTags() {
 }
 
 void TagDialog::updateSelection(int lvl) {
-  pDebug() << "update selection " << lvl;
   rebuild(lvl+1);
 }
 
@@ -259,9 +258,7 @@ void TagDialog::clickClose() {
 
 void TagDialog::clickDelete() {
   int t = terminalTag();
-  pDebug() << "clickDelete " << t;
   if (tags.undefine(t)) {
-    pDebug() << "deleted";
     rebuild(level-1);
   }
 }

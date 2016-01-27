@@ -23,16 +23,14 @@ namespace CMS {
   CMSTransform monitorTransform;
 }
 
+void usage() {
+  fprintf(stderr, "Usage: photohoard -icc profile -db databasedir\n");
+  exit(1);
+}
+
 int main(int argc, char **argv) {
-  /*
-  if (sqlite3_config(SQLITE_CONFIG_SERIALIZED) != SQLITE_OK) {
-    pDebug() << "Could not configure serialized database access";
-    return 1;
-  }
-  */
 
   QString dbdir = "/home/wagenaar/.local/photohoard";
-  QString picroot = "/home/wagenaar/Pictures";
   QString icc;
   
   QStringList args;
@@ -40,23 +38,14 @@ int main(int argc, char **argv) {
     args << argv[i];
   while (!args.isEmpty()) {
     QString kwd = args.takeFirst();
-    if (kwd=="-exif") {
-      for (auto s: args) {
-        exifreport(s);
-      }
-      return 0;
-    } else if (kwd=="-root") {
-      Q_ASSERT(!args.isEmpty());
-      picroot = args.takeFirst();
-    } else if (kwd=="-db") {
+    if (kwd=="-db") {
       Q_ASSERT(!args.isEmpty());
       dbdir = args.takeFirst();
     } else if (kwd=="-icc") {
       Q_ASSERT(!args.isEmpty());
       icc = args.takeFirst();
     } else {
-      pDebug() << "Unknown command line argument: " << args[0];
-      return 1;
+      usage();
     }
   }
 
@@ -97,8 +86,6 @@ int main(int argc, char **argv) {
   Exporter *expo = new Exporter(&db, 0);
   expo->start();
 
-  //    scan->addTree(picroot); // this should not always happen
-
   MainWindow *mw = new MainWindow(&db, scan, ac, expo);
   QDesktopWidget *dw = app.desktop();
   mw->resize(dw->width()*8/10, dw->height()*8/10);
@@ -110,19 +97,11 @@ int main(int argc, char **argv) {
   scan->start(); // doing this here ensures that the mainwindow can open 1st
 
   int res = app.exec();
-  pDebug() << "App returned " << res;
-  pDebug() << "Stopping scanner";
   scan->stopAndWait(1000);
-  pDebug() << "Deleting scanner";
   delete scan;
-  pDebug() << "Done";
-  pDebug() << "Deleting autocache";
   delete ac;
-  pDebug() << "Done";
-  pDebug() << "Deleting exporter";
   expo->stop();
   delete expo;
-  pDebug() << "Done";
 
   PurgeCache::purge(db, cachefn);
     

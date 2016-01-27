@@ -21,18 +21,15 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   showmax = false;
   
   bool oldcrash = db->simpleQuery("select count(*) from starting").toInt()>0;
-  pDebug() << "Hello world";
   if (oldcrash) {
     Untransaction t(db);
-    db->query("update current set version=null");
+    db->setCurrent(0);
     db->query("delete from expanded");
     db->query("delete from filtersettings");
   }
-  pDebug() << "Starting";
   { Untransaction t(db);
     db->query("insert into starting values(1)");
   }
-  pDebug() << "Hello world";
 
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();
@@ -78,9 +75,9 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
   connect(filterDialog, SIGNAL(apply()),
 	  SLOT(applyFilterFromDialog()));
   
-  quint64 c = db->simpleQuery("select * from current").toULongLong();
+  quint64 c = db->current();
   if (c)
-    select(c);
+    selectNearestInFilter(c);
 
   { Untransaction t(db);
     db->query("delete from starting");
@@ -193,7 +190,7 @@ void LightTable::setLayout(LayoutBar::Layout act) {
       setLayout(LayoutBar::Layout::FullPhoto);
     return;
   case LayoutBar::Layout::ToggleFullScreen:
-    pDebug() << "ToggleFullScreen NYI";
+    COMPLAIN("ToggleFullScreen NYI");
     break;
   case LayoutBar::Layout::ToggleOrg:
     strips->toggleOrganization();
@@ -241,7 +238,6 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 
   if (curr==0)
     makeCurrent(i);
-  pDebug() << "extendorshrink" << i << int(strips->organization());
 
   switch (strips->organization()) {
   case Strip::Organization::ByDate: {
@@ -255,7 +251,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   case Strip::Organization::ByFolder: {
     PhotoDB::PhotoRecord a = db->photoRecord(db->photoFromVersion(curr));
     PhotoDB::PhotoRecord b = db->photoRecord(db->photoFromVersion(i));
-    pDebug() << curr << i << a.folderid << b.folderid << a.capturedate << b.capturedate;
+
     if (a.folderid==b.folderid) {
       // easy case
       if (a.capturedate>b.capturedate)
@@ -284,14 +280,15 @@ void LightTable::simpleSelection(quint64 i, bool keep) {
   if (keep && i==curr)
     return;
 
-  if (i>0 && (!selection->contains(i) || !keep)) {
+  if (i>0 && !(selection->contains(i) && keep)) {
+    // clear selection
     bool localupdate = true; // if we have just a few in selection, we'll
     // repaint just those slides, otherwise the whole view
     if (selection->count()<=10) {
       QSet<quint64> ss = selection->current();
       selection->clear();
-      for (auto i: ss) {
-        Slide *s = strips->strip()->slideByVersion(i);
+      for (auto k: ss) {
+        Slide *s = strips->strip()->slideByVersion(k);
         if (s)
           s->update();
       }
@@ -312,11 +309,7 @@ void LightTable::makeCurrent(quint64 i) {
   if (i==curr)
     return;
 
-  if (i>0)
-    db->query("update current set version=:a", i);
-  else
-    db->query("update current set version=null");
-  
+  db->setCurrent(i);  
   updateSlide(curr);
   updateSlide(i);
 
@@ -344,17 +337,13 @@ void LightTable::makeCurrent(quint64 i) {
   emit newZoom(slide->currentZoom());
 
   if (curr>0 && lay!=LayoutBar::Layout::FullGrid) {
-    pDebug() << "emitting needimage " << curr;
     emit needImage(curr, displaySize());
-    pDebug() << "emitted needimage " << curr;
   }
 
   strips->scrollIfNeeded();
 }
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
-  pDebug() << "select" << i;
-  //  Database::enableDebug();
   if (m & Qt::ControlModifier) {
     toggleSelection(i);
    } else if (m & Qt::ShiftModifier) {
@@ -362,7 +351,6 @@ void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
   } else {
     simpleSelection(i, true);
   }
-  pDebug() << "select done" << i;
 }    
 
 void LightTable::updateSlide(quint64 i) {
@@ -379,8 +367,6 @@ PSize LightTable::displaySize() const {
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i) {
-  if (i==curr)
-    pDebug() << "LightTable::updateAdjusted current" << i << img.size();
   if (img.isNull())
     return;
   strips->updateImage(i, img, false);
@@ -390,16 +376,12 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
 }
 
 void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {
-  if (i==curr)
-    pDebug() << "LightTable::updateImage current" << i << img.size();
   strips->updateImage(i, img, chgid>0);
 
   if (i!=curr)
     return;
 
-  pDebug() << "LightTable::updateImage current slide" << i << img.size();
   slide->updateImage(i, img, chgid>0);
-  pDebug() << "LightTable::updateImage current done" << i << img.size();
 }
 
 void LightTable::rescan(bool rebuildFilter) {
@@ -479,18 +461,20 @@ void LightTable::scrollToCurrent() {
 }
 
 void LightTable::applyFilterFromDialog() {
-  populateFilterFromDialog();
-  quint64 c = db->simpleQuery("select * from current").toULongLong();
-  QSqlQuery q = db->query("select * from filter where version==:a", c);
-  if (!q.next())
-    selectNearestInFilter(c);
-  rescan(false);
+  int oldcurr = curr;
+  select(0);
+  rescan(true);
+  selectNearestInFilter(oldcurr);
+  scrollToCurrent();
 }
 
-void LightTable::selectNearestInFilter(quint64 /*vsn*/) {
-  pDebug() << "Current not in filter - solution NYI";
-  // we should select something near the version, but for now:
-  select(0);
+void LightTable::selectNearestInFilter(quint64 vsn) {
+  QSqlQuery q = db->query("select version, abs(version-:a) as x from filter"
+                          " order by x limit 1", vsn);
+  if (q.next())
+    select(q.value(0).toULongLong());
+  else
+    select(0);
 }
 
 Filter const &LightTable::filter() const {
@@ -503,14 +487,9 @@ void LightTable::populateFilterFromDialog() {
   db->query("delete from filter");
   db->query("insert into filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause());
-  int N = db->simpleQuery("select count(*) from filter").toInt();
-  pDebug() << "Populate Filter" << N;
   db->query("delete from selection"
            " where version not in (select version from filter)");
-  if (f.hasCollection())
-    emit newCollection(f.collection());
-  else
-    emit newCollection("");
+  emit newCollection(f.hasCollection() ? f.collection() : QString(""));
 }
 
 void LightTable::rotateSelected(int dphi) {
@@ -628,7 +607,6 @@ void LightTable::makeActions() {
 }
 
 void LightTable::keyPressEvent(QKeyEvent *e) {
-  qDebug() << "lighttable:: keypressevent";
   if (acts.activateIf(e)) {
     e->accept();
     return;

@@ -191,7 +191,6 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
 
   // Add size of crop
   PSize cropsize = sliders.cropSize(prec.filesize, vrec.orient);
-  qDebug() << prec.filesize << int(vrec.orient) << cropsize << version;
   txt += QString("%1 x %2").arg(cropsize.width()).arg(cropsize.height());
   txt += QString(" (%1 MPix %2").arg(mpix(cropsize)).arg(easyRatio(cropsize));
 

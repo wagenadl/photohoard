@@ -10,8 +10,6 @@
 
 FilterDialog::FilterDialog(PhotoDB *db, QWidget *parent):
   QDialog(parent), db(db), f0(db) {
-  pDebug() << "FilterDialog";
-  pDebug() << "FD? " << db->simpleQuery("select count(*) from versions").toInt();
 
   starting = true;
   f0.loadFromDb();
@@ -328,7 +326,6 @@ void FilterDialog::setCamera() {
 void FilterDialog::recolorTags() {
   if (starting)
     return;
-  pDebug() << "FD::recolorTags";
   QStringList tt = splitTags();
   ui->tagInterpretation->setText(f0.tagsInterpretation(tt));
   recount();

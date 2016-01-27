@@ -16,7 +16,7 @@ Slide::Slide(quint64 id, Slidestrip *parent):
   if (fs)
     fs->markSlideFor(id, this);
   else
-    pDebug() << "Slide not in a scene - won't show image";
+    COMPLAIN("Slide not in a scene - won't show image");
 }
 
 Slide::~Slide() {
@@ -24,7 +24,7 @@ Slide::~Slide() {
   if (fs)
     fs->dropSlideFor(id);
   else
-    pDebug() << "Slide not in a scene - disaster imminent";
+    CRASH("Slide not in a scene");
 }
 
 void Slide::updateImage(Image16 const &img1, bool chgd) {
@@ -39,7 +39,6 @@ void Slide::updateImage(Image16 const &img1, bool chgd) {
       img = CMS::monitorTransform.apply(img1);
     else
       img = img1;
-    pDebug() << "updated strip slide" << id << img.size();
     update();
   } else {
     img = Image16(); // Isn't that right?
@@ -48,7 +47,6 @@ void Slide::updateImage(Image16 const &img1, bool chgd) {
 
 void Slide::quickRotate(int dphi) {
   dphi = dphi & 3;
-  qDebug() << "slide::quickrotate" << id << dphi << pm.size();
   if (dphi==0 || pm.isNull())
     return;
   
@@ -66,7 +64,6 @@ void Slide::quickRotate(int dphi) {
     im.rotate90CCW();
   }
   pm = QPixmap::fromImage(im.toQImage());
-  pDebug() << "rotated strip slide" << id << pm.size();
   update();
 }
       
@@ -87,9 +84,6 @@ void Slide::paint(QPainter *painter,
     ? true
     : parent->database()->constQuery("select 1 from selection"
                                      " where version==:a limit 1", id).next();
-  if (isCurrent) {
-    pDebug() << "Slide::paint current" << id;
-  }
 
   QSqlQuery q = parent->database()
     ->query("select colorlabel, starrating, acceptreject"
@@ -166,7 +160,6 @@ void Slide::paint(QPainter *painter,
   
   int ims = tilesize - 8;
   if (!(pm.width()==ims || pm.height()==ims)) {
-    qDebug() << "slide: cannot use pm" << id << pm.size();
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
       painter->setBrush(QBrush(QColor(0, 0, 0)));
@@ -185,11 +178,10 @@ void Slide::paint(QPainter *painter,
       return;
     }
     if (!img.isNull()) {
-      // pDebug() << "Slide " << id << "image was sized" << img.size();
       pm = QPixmap::fromImage(img.scaledToFitSnuglyIn(PSize(ims, ims))
 			      .toQImage());
     }
-    img = Image16(); // no need to keep it ad inf
+    img = Image16();
   }
   painter->drawPixmap(tilesize/2 - pm.width()/2,
 		      tilesize/2 - pm.height()/2,
@@ -229,3 +221,7 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
    else
      return bg;
  }
+
+Slidestrip *Slide::parentStrip() const {
+  return parent;
+}

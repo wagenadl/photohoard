@@ -52,7 +52,7 @@ void SHPrivate::rebuild() {
   for (int n=0; n<N; n++) {
     int count = 0;
     QString html;
-    pDebug() << n << sectionContents[n];
+
     QList<Action> const &acts(sectionContents[n]->all());
     for (auto a: acts) {
       QString doc = htmlify(a.documentation());

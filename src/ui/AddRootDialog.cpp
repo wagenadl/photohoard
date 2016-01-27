@@ -43,7 +43,6 @@ void AddRootDialog::prepCollections() {
 void AddRootDialog::keyPressEvent(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Return:
-    pDebug() << "AddRootDialog::Return";
     if (e->modifiers() & Qt::ControlModifier) 
       accept();
     break;

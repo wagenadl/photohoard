@@ -41,7 +41,6 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   mustshowupdate = true;
   if (newvsn) {
     originalSize = ofinder->originalSize(v);
-    //    pDebug() << "LiveAdjuster newvsn size is " << originalSize ;
     sliders.readFromDB(v, *db);
     controls->setQuietly(sliders);
     controls->setEnabled(true);
@@ -67,10 +66,6 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   bool canBigger = originalSize.isEmpty()
     || Adjuster::mapCropSize(originalSize, sliders, originalSize)
     .exceeds(maxav);
-  //  pDebug() << "LiveAdjuster::requestAdjusted" << "o=" << originalSize << " av=" << maxav
-//	   << "desired=" << s << " => "
-//	   << needBigger << canBigger
-//	   << Adjuster::mapCropSize(originalSize, sliders, originalSize);
   
   if (newvsn || (needBigger && canBigger)) {
     if (newvsn)
@@ -118,7 +113,6 @@ void LiveAdjuster::setSlider(QString k, double v) {
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img) {
-  pDebug() << "LiveAdjuster: provide adjusted " << img.size();
   if (mustoffermod) {
     mustoffermod = false;
     cache->cacheModified(version, img);
@@ -126,14 +120,11 @@ void LiveAdjuster::provideAdjusted(Image16 img) {
   if (mustshowupdate) {
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
-    pDebug() << "LiveAdjusted: emitting image changed";
     emit imageAvailable(img, version);
-    pDebug() << "LiveAdjusted: emitted image changed";
   }
 }
   
 void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
-  pDebug() << "LiveAdjuster::provideOriginal" << v << img.size();
   if (v!=version)
     return;
   originalSize = img.size();
@@ -147,7 +138,6 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
 }
 
 void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
-  pDebug() << "LiveAdjuster: provideScaledOriginal" << v << osize << img.size();
   if (v!=version)
     return;
   originalSize = osize;
@@ -157,5 +147,4 @@ void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
     adjuster->requestReduced(sliders, img.size());
   else
     adjuster->requestReduced(sliders, targetsize);
-  pDebug() << "LiveAdjuster: requested reduced";
 }

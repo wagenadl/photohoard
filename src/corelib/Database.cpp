@@ -44,8 +44,7 @@ void Database::clone(Database const &src) {
 
 Database::~Database() {
   if (db.isOpen()) {
-    qDebug() << "Caution: Database destructed while still open: "
-             << db.databaseName();
+    CRASH("Database destructed while still open: " + db.databaseName());
     close();
   }
 }

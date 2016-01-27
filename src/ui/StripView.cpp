@@ -81,6 +81,8 @@ StripView::StripView(PhotoDB *db, QWidget *parent):
 
 void StripView::placeAndConnect(Strip *strip) {
   strip->setPos(0, 0);
+  connect(strip, SIGNAL(pleaseRecenter(QPointF)),
+          SLOT(centerOn(QPointF)));
   connect(strip, SIGNAL(resized()),
 	  this, SLOT(stripResized()));
   connect(strip, SIGNAL(needImage(quint64, QSize)),
@@ -128,7 +130,10 @@ void StripView::stripResized() {
   QRectF r = strip()->netBoundingRect();
   r |= QRectF(QPointF(0, 0), viewport()->size());
   scene()->setSceneRect(r);
-  pDebug() << "stripResized";
+  //  scrollIfNeeded(); //?
+  /* This will helpfully cause the current to stay visible during
+     filter change, but it also causes much unwanted scrolling.
+  */
   update();
 }
 
@@ -279,4 +284,8 @@ int StripView::tileSize() const {
 
 Actions const &StripView::actions() const {
   return acts;
+}
+
+void StripView::centerOn(QPointF p) {
+  QGraphicsView::centerOn(p);
 }

@@ -6,10 +6,12 @@
 #include "PDebug.h"
 #include "MetaInfo.h"
 
-#define THRESHOLD 100
-
 static uint qHash(QPoint p) {
   return qHash(p.x()) ^ qHash(p.y() ^ 23478912361);
+}
+
+int Slidestrip::threshold() {
+  return 100;
 }
 
 Slidestrip::Slidestrip(PhotoDB *db, QGraphicsItem *parent):
@@ -22,11 +24,14 @@ Slidestrip::Slidestrip(PhotoDB *db, QGraphicsItem *parent):
 Slidestrip::~Slidestrip() {
 }
 
+int Slidestrip::count() const {
+  return  hasLatent ? latentVersions.size() : slideOrder.size();
+}
 
 QRectF Slidestrip::subBoundingRect() const {
   if (!expanded)
     return QRectF();
-  int nslides = hasLatent ? latentVersions.size() : slideOrder.size();
+  int nslides = count();
   switch (arr) {
   case Arrangement::Horizontal: 
     return QRectF(labelHeight(tilesize), 0, nslides*tilesize, tilesize);
@@ -53,13 +58,11 @@ void Slidestrip::paint(QPainter *painter,
 		       const QStyleOptionGraphicsItem *option,
 		       QWidget *widget) {
   Strip::paint(painter, option, widget);
-  if (hasLatent)
-    instantiate();
+  instantiate();
 }
 
 void Slidestrip::slidePressed(quint64 id,
                               Qt::MouseButton b, Qt::KeyboardModifiers m) {
-  pDebug() << "slidePressed" << id;
   emit pressed(id, b, m);
 }
 
@@ -98,9 +101,9 @@ void Slidestrip::rebuildContents() {
   switch (org) {
   case Organization::ByDate:
     latentVersions = db->versionsInDateRange(startDateTime(), endDateTime());
-    if (latentVersions.size()>THRESHOLD && scl<TimeScale::DecaMinute) {
+    if (latentVersions.size()>threshold() && scl<TimeScale::DecaMinute) {
       emit overfilled(d0);
-      while (latentVersions.size()>THRESHOLD) {
+      while (latentVersions.size()>threshold()) {
         latentVersions.takeLast();
       }
     }
@@ -119,6 +122,9 @@ void Slidestrip::rebuildContents() {
 }
 
 void Slidestrip::instantiate() {
+  if (!hasLatent)
+    return;
+  
   prepareGeometryChange();
   QSet<quint64> keep;
   slideOrder.clear();
@@ -154,6 +160,9 @@ void Slidestrip::instantiate() {
 }
 
 void Slidestrip::expand() {
+  if (isExpanded())
+    return;
+  
   QRectF bb0 = oldbb;
   Strip::expand();
 
@@ -167,7 +176,6 @@ void Slidestrip::expand() {
   
   for (auto s: slideOrder) {
     QString txt = MetaInfo(db, s->version()).html();
-    //    qDebug() << txt;
     s->setToolTip(txt);
     s->show();
   }
@@ -182,6 +190,9 @@ void Slidestrip::expand() {
 }
 
 void Slidestrip::collapse() {
+  if (!isExpanded())
+    return;
+  
   QRectF bb0 = netBoundingRect();
   Strip::collapse();
 
@@ -215,7 +226,7 @@ QPoint Slidestrip::gridPosition(quint64 vsn) {
 }
 
 quint64 Slidestrip::versionAt(quint64 vsn, QPoint dcr) {
-  if (latentVersions.contains(vsn))
+  //  if (latentVersions.contains(vsn))
     instantiate();
   if (!placement.contains(vsn))
     return 0;

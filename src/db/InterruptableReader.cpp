@@ -16,10 +16,10 @@ InterruptableReader::InterruptableReader(QObject *parent):
 InterruptableReader::~InterruptableReader() {
   stop();
   if (!wait(1000)) {
-    pDebug() << "InterruptableReader deleted; did not stop; terminating.";
+    COMPLAIN("InterruptableReader deleted; did not stop; terminating.");
     terminate();
     if (!wait(1000)) 
-      pDebug() << "InterruptableReader still did not stop; disaster imminent.";
+      CRASH("InterruptableReader still did not stop; disaster.");
   }
 }
 
@@ -34,7 +34,6 @@ void InterruptableReader::stop() {
 }
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
-  pDebug() << "InterruptableReader::request" << fn << request << original;
   QMutexLocker l(&mutex);
   newreq = fn;
   rqSize = request;
@@ -97,7 +96,6 @@ void InterruptableReader::run() {
   mutex.lock();
   while (!stopsoon) {
     if (newreq != "") {
-      pDebug() << "InterruptableReader new request" << newreq;
       lNewReq();
     } else if (canceling) {
       lCancel();
@@ -105,7 +103,6 @@ void InterruptableReader::run() {
       lReadSome();
     } else {
       cond.wait(&mutex);
-      pDebug() << "InterruptableReader woke up";
     }
   }
   mutex.unlock();
@@ -175,7 +172,7 @@ void InterruptableReader::lReadSome() {
     mutex.lock();
 
     if (n<0) {
-      pDebug() << "IR: Read error";
+      COMPLAIN("IR: Read error");
       // Error
       res = Result("Read error");
       lUnprepSource();
@@ -185,7 +182,7 @@ void InterruptableReader::lReadSome() {
       emit failed(c);
       mutex.lock();
     } else if (n==0) {
-      pDebug() << "IR: Read nothing";
+      COMPLAIN("IR: Read nothing");
       if (tSource().atEnd())
 	lComplete();
     } else {
@@ -198,8 +195,6 @@ void InterruptableReader::lReadSome() {
 }
 
 void InterruptableReader::lComplete() {
-  pDebug() << "InterruptableReader: complete " << current;
-  
   mutex.unlock();
   tSource().close();
   mutex.lock();
@@ -209,10 +204,8 @@ void InterruptableReader::lComplete() {
   }
 
   mutex.unlock();
-  pDebug() << "InterruptableReader interpreting image";
   res.image = Image16::loadFromMemory(res.data);
   res.data.clear();
-  pDebug() << "InterruptableReader interpreted image";
   mutex.lock();
 
   if (canceling) {
@@ -227,8 +220,6 @@ void InterruptableReader::lComplete() {
 
   QString c = current;
   mutex.unlock();
-  pDebug() << "InterruptableReader emitting ready";
   emit ready(c);
-  pDebug() << "InterruptableReader emitted ready";
   mutex.lock();
 }

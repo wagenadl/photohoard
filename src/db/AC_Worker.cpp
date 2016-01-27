@@ -111,14 +111,14 @@ void AC_Worker::activateBank() {
   QSet<quint64> tobesent;
   while (K>0 && !readyToLoad.isEmpty()) {
     if (rtlOrder.isEmpty()) {
-      pDebug() << "rtlOrder is empty but readyToLoad is not"
-	       << readyToLoad.size() << *readyToLoad.begin();
+      COMPLAIN("rtlOrder is empty but readyToLoad is not");
       readyToLoad.clear();
       break;
     }
     quint64 id = rtlOrder.takeFirst();
     if (!readyToLoad.contains(id)) {
-      pDebug() << "id" << id << "in rtlOrder but not in readyToLoad";
+      COMPLAIN("id" + QString::number(id)
+               + "in rtlOrder but not in readyToLoad");
       continue;
     }
     if (invalidatedWhileLoading.contains(id)) {
@@ -140,7 +140,6 @@ void AC_Worker::activateBank() {
 
 
 void AC_Worker::cachePreview(quint64 id, Image16 img) {
-  //  pDebug() << "cachePreview" << id;
   if (loaded.contains(id))
     return;
   loaded[id] = img;
@@ -257,7 +256,6 @@ void AC_Worker::sendToBank(quint64 vsn) {
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
-  qDebug() << "AC_Worker" << vsn << fn << wid << hei << orient << osize;
   QString path = db.folder(folder) + "/" + fn;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(vsn,

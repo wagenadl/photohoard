@@ -5,6 +5,8 @@
 #include <QSet>
 #include "PDebug.h"
 #include "Slide.h"
+#include "PhotoDB.h"
+#include <QGraphicsView>
 
 #define MAXDIRECT 50
 
@@ -76,6 +78,23 @@ void Datestrip::convertStrip(QDateTime t) {
   if (e)
     dateMap[t]->expand();
   relayout();
+
+  quint64 vsn = db->current();
+  if (vsn) {
+    Slide *sl = slideByVersion(vsn);
+    if (sl) {
+      emit pleaseRecenter(sl->sceneBoundingRect().center());
+    } else {
+      // make sure vsn is visible
+      QDateTime t = db->captureDate(db->photoFromVersion(vsn));
+      Strip *str = stripByDate(t);
+      if (str)
+        str->expandWithParents();
+      Slide *sl = slideByVersion(vsn);
+      if (sl)
+        emit pleaseRecenter(sl->sceneBoundingRect().center());
+    }        
+  }
 }
 
 Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
@@ -89,6 +108,8 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
               this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
   }
 
+  connect(s, SIGNAL(pleaseRecenter(QPointF)),
+          this, SIGNAL(pleaseRecenter(QPointF)));
   connect(s, SIGNAL(needImage(quint64, QSize)),
           this, SIGNAL(needImage(quint64, QSize)));
   connect(s, SIGNAL(pressed(quint64, Qt::MouseButton,
@@ -263,10 +284,12 @@ void Datestrip::rebuildByDate() {
 
 
 void Datestrip::expand() {
+  if (isExpanded())
+    return;
+  
   QRectF bb0 = oldbb;
   Strip::expand();
 
-  //  pDebug() << "Expand" << d0 << int(scl) << mustRebuild << mustRelayout;
   if (mustRebuild)
     rebuildContents();
 
@@ -284,7 +307,6 @@ void Datestrip::expand() {
 
   QRectF bb1 = netBoundingRect();
   if (bb1!=bb0) {
-    //    pDebug() << "Expand" << d0 << int(scl) << bb0 << bb1 << expanded;
     oldbb = bb1;
     emit resized();
   }
@@ -293,6 +315,9 @@ void Datestrip::expand() {
 }
 
 void Datestrip::collapse() {
+  if (!isExpanded())
+    return;
+  
   QRectF bb0 = oldbb;
   Strip::collapse();
 
@@ -305,7 +330,6 @@ void Datestrip::collapse() {
   recalcLabelRect();
   QRectF bb1 = netBoundingRect();
   if (bb1!=bb0) {
-    //    pDebug() << "Collapse" << d0 << int(scl) << bb0 << bb1 << expanded;
     oldbb = bb1;
     emit resized();
   }
@@ -451,7 +475,6 @@ void Datestrip::relayout() {
   recalcLabelRect();
   QRectF bb1 = netBoundingRect();
   if (bb1!=bb0) {
-    //    pDebug() << "Relayout" << d0 << int(scl) << bb0 << bb1 << expanded;
     oldbb = bb1;
     emit resized();
   }
@@ -460,8 +483,18 @@ void Datestrip::relayout() {
 }
 
 class Slide *Datestrip::slideByVersion(quint64 vsn) {
-  if (mustRebuild || mustRelayout || !expanded)
-    return NULL; // is this really necessary?
+#if 0
+  if (!expanded)
+    expand();
+  if (mustRebuild)
+    rebuildContents();
+  if (mustRelayout)
+    relayout();
+#else
+ if (mustRebuild || mustRelayout || !expanded)
+   return NULL; // is this really necessary?
+#endif
+ 
   for (auto f: stripOrder) {
     Slide *s = f->slideByVersion(vsn);
     if (s)
@@ -497,6 +530,16 @@ void Datestrip::setRowWidth(int pix) {
   rebuilding --;
   relayout();
 }
+
+Strip *Datestrip::stripByDate(QDateTime d) {
+  for (Strip *a0: dateMap) {
+    Strip *a = a0->stripByDate(d);
+    if (a)
+      return a;
+  }
+  return Strip::stripByDate(d);
+}
+  
 
 Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
   Strip *a = Strip::stripByDate(d, s);

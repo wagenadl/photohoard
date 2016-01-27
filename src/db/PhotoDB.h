@@ -83,6 +83,8 @@ public: // exploration functions
   QList<QString> rootFolders() const;
   quint64 firstVersionInTree(QString folder) const;
   // all of the above look at the filter
+  void setCurrent(quint64);
+  quint64 current() const;
 public: // manipulating the database
   quint64 newVersion(quint64 versionid, bool clone=true);
   /* NEWVERSION - Create a new version of an existing photo

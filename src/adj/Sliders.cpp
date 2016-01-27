@@ -74,7 +74,7 @@ void Sliders::setAll(QString kvv) {
       QString v = kv[1].simplified();
       set(k, v.toDouble()); // could be more sophisticated
     } else if (!pair.isEmpty()) {
-      pDebug() << "Bad kv pair " << pair;
+      COMPLAIN("Sliders: Bad kv pair ");
     }
   }
 }

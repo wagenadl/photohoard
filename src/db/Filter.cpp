@@ -146,7 +146,6 @@ QString Filter::whereClause() const {
     clauses << fileLocationClause();
   if (hastags)
     clauses << tagsClause();
-  pDebug() << clauses.join(" and ");
   if (clauses.isEmpty())
     return "1>0";
   else
