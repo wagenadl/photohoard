@@ -70,11 +70,9 @@ void Scanner::rescanAll() {
 
 void Scanner::rescan(QString path) {
   // This is called from outside of thread!
-  pDebug() << "rescan" << path;
   Untransaction t(db0);
   db0->query("insert into folderstoscan select id from folders"
              " where pathname==:a", path);
-  pDebug() << "rescan" << path << "inserted";
 
   QMutexLocker l(&mutex);
   waiter.wakeOne();
@@ -204,7 +202,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
       usleep(100000);
     }
     Transaction t(&db);
-    //    pDebug() << "Scanner::scanPhotos: transaction started";
+
     scanPhoto(id);
     QSqlQuery q
       = db.constQuery("select id from versions where photo==:a", id);
@@ -213,7 +211,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
       vv << q.value(0).toULongLong();
     n++;
     t.commit();
-    //    pDebug() << "Scanner::scanPhotos: transaction committed";
+
     if (!vv.isEmpty())
       emit updated(vv);
     versions |= vv;
@@ -288,7 +286,6 @@ void Scanner::scanFolder(quint64 id) {
     usleep(100000); 
   }
   Transaction t(&db);
-  //  pDebug() << "Scanner::scanFolders: transaction started";
   db.query("delete from folderstoscan where folder=:a", id);
   
   // Drop subdirs that do not exist any more
@@ -327,7 +324,6 @@ void Scanner::scanFolder(quint64 id) {
   }
 
   t.commit();
-  //  pDebug() << "Scanner::scanFolders: transaction committed";
 }
 
 int Scanner::photoQueueLength() {
@@ -358,7 +354,7 @@ void Scanner::scanPhoto(quint64 id) {
   // Find exif info
   Exif exif(pathname);
   if (!exif.ok()) {
-    qDebug() << "PhotoScanner::doscan: Could not get exif. Oh well.";
+    COMPLAIN("PhotoScanner::doscan: Could not get exif. Oh well.");
     return;
   }
 

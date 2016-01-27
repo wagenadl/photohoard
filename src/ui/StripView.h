@@ -30,6 +30,7 @@ signals:
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void idealSizeChanged(); // only emitted if caused by key press
 public slots:
+  void centerOn(QPointF);
   void toggleOrganization();
   void scrollTo(quint64);
   void scrollToCurrent();

@@ -30,15 +30,12 @@ static void applyClarity(Image16 &target, double clarity, int n) {
   const int topmargin = ymargin/2;
   const int bottommargin = ymargin - topmargin;
 
-  pDebug() << "width height" << width << height;
-  pDebug() << "blocks" << blocksize << xblockcount << yblockcount;
-
   if (xblockcount<2 || yblockcount<2) {
-    pDebug() << "Cannot apply CLAHE with fewer than 2x2 blocks";
+    COMPLAIN("Cannot apply CLAHE with fewer than 2x2 blocks");
     return;
   }
   if (leftmargin>width || rightmargin>width || topmargin>height || bottommargin>height) {
-    pDebug() << "Cannot apply CLAHE on tiny images. Try increasing block count";
+    COMPLAIN("Cannot apply CLAHE on tiny images. Try increasing block count");
     return;
   }
 
@@ -83,7 +80,7 @@ static void applyClarity(Image16 &target, double clarity, int n) {
                              blocksize, yblockcount,
                              4096, exp(clarity));
   if (!ok) {
-    pDebug() << "CLAHE failed";
+    COMPLAIN("CLAHE failed");
     return;
   }
 

@@ -18,7 +18,6 @@ void BasicCache::open(QString rootdir) {
   readConfig();
   db.query("pragma synchronous = 0");
   attach();
-  pDebug() << "BasicCache opened " << (rootdir + "/cache.db");
 }
 
 void BasicCache::clone(BasicCache const &src) {
@@ -30,7 +29,6 @@ void BasicCache::clone(BasicCache const &src) {
   readConfig();
   db.query("pragma synchronous = 0");
   attach();
-  pDebug() << "BasicCache cloned " << db.name();
 }  
 
 void BasicCache::attach() {
@@ -46,7 +44,7 @@ void BasicCache::attach() {
 
 BasicCache::~BasicCache() {
   if (db.isOpen()) {
-    qDebug() << "Caution: BasicCache deleted while open";
+    CRASH("BasicCache deleted while open");
     close();
   }
 }
@@ -63,7 +61,7 @@ void BasicCache::readConfig() {
     memthresh = q.value(0).toInt();
   } else {
     memthresh = 200000;
-    qDebug() << "Could not read memory threshold from db";
+    CRASH("Could not read memory threshold from db");
   }
 
   q = db.query("select maxdim from sizes");
@@ -249,7 +247,7 @@ Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
     QString fn(constructFilename(vsn, s.maxDim()));
     if (QFile(fn).exists()) 
       return Image16(fn);
-    qDebug() << "Missing file " << fn << " from cache";
+    CRASH("Missing file " + fn + " from cache"); // could tolerate
     return Image16();
   }
 }

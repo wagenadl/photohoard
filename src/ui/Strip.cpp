@@ -40,14 +40,14 @@ void Strip::setHeaderID(quint64 id) {
     if (fs)
       fs->dropHeaderFor(headerid, this);
     else
-      qDebug() << "Strip not in a scene - disaster imminent";
+      CRASH("Strip not in a scene - disaster");
   }
   if (id) {
     StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
     else
-      qDebug() << "Strip not in a scene - won't show image";
+      CRASH("Strip not in a scene - won't show image");
     headerid = id;
   }
 }
@@ -359,9 +359,7 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
       if (q.next())
         setHeaderID(q.value(0).toULongLong());
       else
-        qDebug() << "Could not find header image for " << int(org)
-                 << d0 << endFor(d0, scl) << int(scl)
-                 << pathname;
+        CRASH("Could not find header image");
     } break;
     case Organization::ByFolder:
       setHeaderID(db->firstVersionInTree(pathname));
@@ -439,7 +437,6 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
 void Strip::paint(QPainter *painter,
                   const QStyleOptionGraphicsItem *,
                   QWidget *) {
-  //  pDebug() << "Paint" << d0 << int(scl) << netBoundingRect() << labelBoundingRect();
   QRectF r = labelBoundingRect();
   int bggray = 192;
   switch (org) {
@@ -715,6 +712,13 @@ void Strip::requestImage(quint64 id) {
   emit needImage(id, PSize(tilesize, tilesize));
 }
 
+Strip *Strip::stripByDate(QDateTime d) {
+  if (d>=startDateTime() && d<endDateTime())
+    return this;
+  else
+    return NULL;
+}
+
 Strip *Strip::stripByDate(QDateTime d, TimeScale s) {
   if (d==d0 && s==scl)
     return this;
@@ -765,4 +769,15 @@ quint64 Strip::versionAfter(quint64 vsn) {
     return versionBelow(vsn);
   }
   return 0; // not executed
+}
+
+Strip *Strip::parentStrip() const {
+  return dynamic_cast<Strip *>(parentItem());
+}
+
+void Strip::expandWithParents() {
+  expand();
+  Strip *ps = parentStrip();
+  if (ps)
+    ps->expandWithParents();
 }

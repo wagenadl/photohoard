@@ -14,9 +14,6 @@ void PhotoDB::open(QString fn) {
   QSqlQuery q = query("select id, version from info limit 1");
   ASSERT(q.next());
   
-  pDebug() << "Opened PhotoDB " << fn
-	   << ": " << q.value(0).toString() << q.value(1).toString();
-
   query("pragma synchronous = 0");
   query("pragma foreign_keys = on");
 
@@ -51,10 +48,8 @@ void PhotoDB::create(QString fn) {
   if (fn.contains("/")) {
     QString parent = fn.left(fn.lastIndexOf("/"));
     QDir pdir(parent);
-    if (!pdir.exists()) {
-      pDebug() << "Making path in " << pdir.absolutePath();
+    if (!pdir.exists()) 
       pdir.mkpath(".");
-    }
   }
 
   Database db;
@@ -442,3 +437,15 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
   t.commit();
   return v1;
 }
+
+void PhotoDB::setCurrent(quint64 vsn) {
+  if (vsn>0)
+    query("update current set version=:a", vsn);
+  else
+    query("update current set version=null");
+}
+
+quint64 PhotoDB::current() const {
+  return simpleQuery("select version from current").toULongLong();
+}
+  

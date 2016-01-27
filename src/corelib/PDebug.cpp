@@ -85,7 +85,6 @@ void complain(QString msg, char const *file, int line) {
   qDebug() << calltrace();
   qDebug() << "Location:" << file << line;
   qDebug() << "Message:" << msg;
-  abort();
 }
 
 void crash(QString msg, char const *file, int line) {

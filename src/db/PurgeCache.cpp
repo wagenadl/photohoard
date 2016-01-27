@@ -8,7 +8,6 @@
 
 namespace PurgeCache {
   void purge(PhotoDB &db, QString cachedir) {
-    pDebug() << "Purging removed versions from cache";
     
     db.query(QString("attach '%1/cache.db' as C").arg(cachedir));
     QSqlQuery q = db.query("select max(dbno) from C.cache"

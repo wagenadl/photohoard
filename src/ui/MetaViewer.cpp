@@ -2,7 +2,7 @@
 
 #include "MetaViewer.h"
 #include "MetaInfo.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QUrl>
 
 MetaViewer::MetaViewer(PhotoDB *db, QWidget *parent):
@@ -27,5 +27,5 @@ void MetaViewer::setVersion(quint64 version) {
 }
 
 void MetaViewer::handleClick(QUrl const &url) {
-  qDebug() << "MetaViewer: click: " << url;
+  COMPLAIN("MetaViewer: click: not yet implemented");
 }

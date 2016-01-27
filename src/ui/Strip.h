@@ -44,6 +44,7 @@ public:
   int rowWidth() const { return rowwidth; }
   bool hasTopLabel() const;
   virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
+  virtual Strip *stripByDate(QDateTime t0);
   virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
   PhotoDB *database() { return db; }
@@ -59,6 +60,7 @@ public:
   virtual quint64 lastExpandedVersion()=0;
   virtual Strip *firstExpandedStrip()=0;
   virtual Strip *lastExpandedStrip()=0;
+  Strip *parentStrip() const;
 public slots:
   void makeHeaderless();
   void rescan();
@@ -72,11 +74,13 @@ public slots:
   virtual void setTileSize(int pix);
   virtual void setRowWidth(int pix);
   virtual void expand();
+  void expandWithParents();
   virtual void collapse();
   virtual void expandAll();
   virtual void block() {}
   virtual void unblock() {}
 signals:
+  void pleaseRecenter(QPointF);
   void needImage(quint64, QSize);
   void resized();
   void pressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);

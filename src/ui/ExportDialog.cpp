@@ -80,7 +80,6 @@ void ExportDialog::setup(ExportSettings const &s) {
 }
 
 void ExportDialog::setFormat(int) {
-  pDebug() << "ExportDialog::setFormat";
   switch (ExportSettings::FileFormat(ui->format->currentIndex())) {
   case ExportSettings::FileFormat::JPEG:
     ui->quality->setEnabled(true);
@@ -92,11 +91,7 @@ void ExportDialog::setFormat(int) {
 }
 
 void ExportDialog::setResolutionMode() {
-  pDebug() << "ExportDialog::setResolutionMode";
   ui->scale->setEnabled(ui->rScale->isChecked());
-  pDebug() << ui->rScale->isChecked() <<( ui->rMaxDim->isChecked()
-                         || ui->rWidth->isChecked()
-                                          || ui->rHeight->isChecked());
   ui->maxdim->setEnabled(ui->rMaxDim->isChecked()
                          || ui->rWidth->isChecked()
                          || ui->rHeight->isChecked());

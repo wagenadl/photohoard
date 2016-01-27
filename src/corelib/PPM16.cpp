@@ -55,7 +55,6 @@ PPM16::PPM16(QByteArray const &ar) {
   skipToWhite(src, len);
   src++;
   len--;
-  qDebug() << "PPM16" << wid << hei << dep << len << src << (void*)ar.data();
   if (wid<=0 || hei<=0 || dep!=65535 || len<=0)
     return;
 
@@ -64,7 +63,6 @@ PPM16::PPM16(QByteArray const &ar) {
   dat = QImage(w*3, h, QImage::Format_RGB16);
   uchar *dst = dat.bits();
   int dl = dat.bytesPerLine() - 6*w;
-  qDebug() << w << h << dst << src << (void*)ar.data() << dl;
   for (int y=0; y<hei; y++) {
     for (int x=0; x<3*wid; x++) {
       dst[0] = src[1];
@@ -74,9 +72,4 @@ PPM16::PPM16(QByteArray const &ar) {
     }
     dst += dl;
   }
-
-  quint16 *d = (quint16*)dat.bits();
-  qDebug() << QString::number(d[0],16)
-           << QString::number(d[1],16)
-           << QString::number(d[2],16);
 }

@@ -13,12 +13,10 @@ bool zuiderveld_clahe(unsigned short *image,
                       int yblocksize, int yblockcount, 
                       int nbins, double cliplimit) {
 
-  pDebug() << "Starting CLAHE";
   int r = ClarityInternal::CLAHE(image,
                                  xblocksize*xblockcount, yblocksize*yblockcount,
                                  0, 65535,
                                  xblockcount, yblockcount,
                                  nbins, cliplimit);
-  pDebug() << "CLAHE returned" << r;
   return r>=0;
 }

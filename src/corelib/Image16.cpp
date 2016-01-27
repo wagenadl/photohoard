@@ -146,7 +146,6 @@ void Image16::convertFrom(Image16 const &other, Image16::Format sfmt) {
                           other.bytesPerLine());
       break;
     case Format::IPT16:
-      qDebug() << "Converting from IPT16";
       convertFromTemplate(this, (ColorSpaces::IPT const *)other.bytes(),
                           other.bytesPerLine());
       break;
@@ -386,14 +385,14 @@ Image16 Image16::rotated(double angle, Image16::CropMode c,
 Image16 Image16::perspectived(QPolygonF poly, Image16::CropMode,
                               Image16::Interpolation i) const {
   if (poly.size()!=4) {
-    qDebug() << "Image16::perspectived: need 4-gon";
+    COMPLAIN("Image16::perspectived: need 4-gon");
     return Image16();
   }
 
   if (i!=Interpolation::NearestNeighbor) {
     if (i!=Interpolation::Linear)
-      qDebug() << "Note: Image16::perspectived only supports "
-        "up to linear interpolation";
+      COMPLAIN("Note: Image16::perspectived only supports" 
+               " up to linear interpolation");
     i = Interpolation::Linear;
   }
   
@@ -431,7 +430,6 @@ Image16 Image16::loadFromMemory(QByteArray const &ar) {
   PPM16 ppm(ar);
   if (!ppm.ok())
     return Image16(QImage::fromData(ar));
-  qDebug() << "loadfrommemory";
 
   Image16 res;
   res.d = new Image16Data(ppm.data(), Format::XYZ16);

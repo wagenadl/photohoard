@@ -25,6 +25,8 @@ public:
   virtual quint64 lastExpandedVersion();
   virtual Strip *firstExpandedStrip();
   virtual Strip *lastExpandedStrip();
+  static int threshold();
+  int count() const;
 public slots:
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);

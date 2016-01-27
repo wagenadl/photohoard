@@ -10,8 +10,7 @@
 SliderGroups::SliderGroups() {
   QFile src(":/sliders.txt");
   if (!src.open(QFile::ReadOnly)) {
-    qDebug() << "Cannot open control defs";
-    Q_ASSERT(0);
+    CRASH("Cannot open control defs");
   }
   QTextStream ts(&src);
 
@@ -55,16 +54,14 @@ SliderGroups::SliderGroups() {
         info.step = lst[4].toDouble();
         info.pgstep = lst[5].toDouble();
       } else {
-        qDebug() << "Syntax error:" << line;
-	Q_ASSERT(0);
+        CRASH("Syntax error: " +  line);
       }
     } else if (line.contains(" ")) {
       Q_ASSERT(!currentslider.isEmpty());
       // set balloon
       infos[currentslider].tip = line;
     } else {
-      qDebug() << "Syntax error:" << line;
-      Q_ASSERT(0);
+      CRASH("Syntax error: " +  line);
     }       
   }
 }

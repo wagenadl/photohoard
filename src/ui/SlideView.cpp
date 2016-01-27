@@ -56,11 +56,11 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
 
 void SlideView::updateImage(quint64 vsn, Image16 img1, bool force) {
   if (vsn!=vsnid) {
-    qDebug() << "SlideView::updateImage - got vsn" << vsn
-             << " which is not my current vsn (" << vsnid << ")";
+    COMPLAIN("SlideView::updateImage - got vsn " + QString::number(vsn)
+             + " which is not my current vsn (" + QString::number(vsnid)
+             + ")");
     return;
   }
-  pDebug() << "SlideView::updateImage" << vsn << img1.size() << force;
   if (force || img.isNull() || img1.size().exceeds(img.size())) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
@@ -76,17 +76,6 @@ void SlideView::changeZoomLevel(QPoint, double delta, bool round) {
   if (round) 
     zm = pow(2.0, ::round(log(zm)/log(2) / delta) * delta);
   setZoom(zm);
-  //  double z0 = currentZoom() * pow(2.0, delta);
-  //  if (round) {
-  //    double b = log(pow(2.0, fabs(delta)));
-  //    double lz = log(z0) / b;
-  //    lz = floor(lz + 0.5);
-  //    pDebug() << z0 << b << lz << exp(lz*b);
-  //    z0 = exp(lz * b);
-  //    if (z0>2)
-  //      z0 = floor(z0 + 0.5);
-  //  }
-  //  setZoom(z0);
 }
 
 void SlideView::setZoom(double z) {
@@ -142,7 +131,6 @@ void SlideView::makeActions() {
   acts
     << Action { Qt::Key_3, "Display grid of thirds",
       [this]() {
-      pDebug() << "Display grid";
       bool got=false;
       for (auto ptr: overlays()) {
         SO_Grid *so = dynamic_cast<SO_Grid *>(ptr);
@@ -159,7 +147,6 @@ void SlideView::makeActions() {
 }
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
-  pDebug() << "SlideView::keyPressEvent";
   if (acts.activateIf(e)) {
     e->accept();
   } else {

@@ -16,10 +16,7 @@ TagListWidget::~TagListWidget() {
 }
 
 QSize TagListWidget::sizeHint() const {
-  //  QSize s = QListWidget::sizeHint();
-  //  qDebug() << "hint" << s;
   return QSize(128, 192);
-  //  return QSize(wid, QListWidget::sizeHint().height());
 }
 
 QList<int> TagListWidget::selectedTags() const {
@@ -95,7 +92,7 @@ void TagListWidget::recalculateWidth() {
   for (int i=0; i<count(); i++) {
     auto it = item(i);
     int w = it->sizeHint().width();
-    pDebug() << w;
+
     if (w>w1)
       w1 = w;
   }

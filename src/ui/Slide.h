@@ -27,6 +27,7 @@ public:
   virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
+  Slidestrip *parentStrip() const;
 private:
   static QColor colorLabelColor(int);
 private:

@@ -38,7 +38,7 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
   new PAction(acts.last(), QIcon(":icons/rescan.svg"), this);
 
   acts << Action{Qt::CTRL + Qt::Key_I, "Import from camera or card",
-      []() { qDebug() << "Not yet implemented"; }};
+      []() { COMPLAIN("Import: Not yet implemented"); }};
   new PAction(acts.last(), QIcon(":icons/cameraImport.svg"), this);
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
@@ -61,7 +61,7 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
   parent->addAction(new PAction(acts.last(), this));
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
-      []() { qDebug() << "Not yet implemented"; }};
+      []() { COMPLAIN("Clipboard dialog not yet implemented"); }};
   parent->addAction(new PAction(acts.last(), this));
 
   acts << Action{Qt::CTRL + Qt::Key_H, "Shortcut help",

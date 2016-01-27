@@ -28,14 +28,11 @@ bool Adjuster::isEmpty() const {
 void Adjuster::setOriginal(Image16 const &image) {
   clear();
   stages << AdjusterTile(image);
-  //  pDebug() << "Adjuster " << (void*)this <<  "setOriginal" << image.size();
 }
 
 void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
   clear();
   stages << AdjusterTile(image, originalSize);
-  //  pDebug() << "Adjuster " << (void*)this <<  "setReduced" << image.size()
-  //           << originalSize;
 }
 
 
@@ -72,19 +69,13 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   if (stages.isEmpty() || !stages[0].roi.isEmpty() || stages[0].image.isNull())
     return Image16();
 
-  pDebug() << "Adjuster::retrieveReduced: starting";
-
   applyNeedBasedScaling(settings, maxSize);
 
-  pDebug() << "Adjuster::retrieveReduced: scaled";
-  
   if (stages.last().settings == settings)
     return stages.last().image;
 
   if (!applySettings(settings))
     return Image16();
-
-  pDebug() << "Adjuster::retrieveReduced: applied settings";  
 
   return stages.last().image;
 }
@@ -315,7 +306,7 @@ PSize Adjuster::neededScaledOriginalSize(PSize osize, Sliders const &settings,
   double fac = final.scaleFactorToSnuglyFitIn(desired);
   if (fac>1)
     fac = 1; // we won't scale up
-  //  pDebug() << "neededScaledOriginalSize" << osize << settings.cropl << settings.cropr << settings.cropt << settings.cropb << desired << " -> " << fac << osize*fac;
+
   return osize*fac;
   /* I may be stupid, but I cannot conclusively prove that my rounding is
      correct. Therefore, I wrote a little octave script (studyosize.m) that

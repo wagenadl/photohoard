@@ -94,7 +94,6 @@ void AppliedTagList::rebuild() {
 }
 
 void AppliedTagList::removeTag(int id) {
-  pDebug() << "ATL:remove" << id;
   QSet<quint64> sel = selection.current();
   for (int vsn: sel)
     tags.remove(vsn, id);

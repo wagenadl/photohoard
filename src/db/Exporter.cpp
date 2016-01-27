@@ -17,17 +17,14 @@ Exporter::Exporter(PhotoDB *db0, QObject *parent):
 
 Exporter::~Exporter() {
   if (isRunning()) {
-    pDebug() << "Warning: Exporter destroyed while running";
+    COMPLAIN("Warning: Exporter destroyed while running");
     stopsoon = true;
     cond.wakeOne();
-    if (wait(1000)) {
-      pDebug() << "Exporter stopped. All is well.";
-    } else {
+    if (!wait(1000)) {
+      COMPLAIN("Warning: Exporter won't stop - terminating");
       terminate();
-      if (wait(1000)) {
-        pDebug() << "Exporter terminated.";
-      } else {
-        pDebug() << "Could not terminate exporter";
+      if (!wait(1000)) {
+        CRASH("Could not terminate exporter");
       }
     }
   }
@@ -76,7 +73,7 @@ void Exporter::stop() {
     return;
   cond.wakeOne();
   if (!wait(10000))
-    pDebug() << "Warning: Exporter: failed to stop";
+    COMPLAIN("Warning: Exporter: failed to stop");
 }
 
 void Exporter::run() {
