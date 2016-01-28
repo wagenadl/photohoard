@@ -1,8 +1,6 @@
-// Sliders.cpp
+// Adjustments.cpp
 
-// g++ -I/usr/share/qt4/include -I/usr/share/qt4/include/QtCore -E Sliders.cpp
-
-#include "Sliders.h"
+#include "Adjustments.h"
 #include "math.h"
 #include "PDebug.h"
 #include <QStringList>
@@ -10,61 +8,60 @@
 #include "PhotoDB.h"
 #include <QMetaType>
 
-class SlidersFoo {
+class AdjustmentsFoo {
 public:
-  SlidersFoo() {
-    qRegisterMetaType<Sliders>("Sliders");
+  AdjustmentsFoo() {
+    qRegisterMetaType<Adjustments>("Adjustments");
   }
 };
 
-static SlidersFoo foo;
+static AdjustmentsFoo foo;
 
-
-Sliders::Sliders() {
+Adjustments::Adjustments() {
   reset();
 }
 
-bool Sliders::set(QString k, double v) {
-#define SLIDER(name, dfl) if (k==#name) { name = v; return true; }
-#include "sliders.def"
-#undef SLIDER
+bool Adjustments::set(QString k, double v) {
+#define ADJUSTMENT(name, dfl) if (k==#name) { name = v; return true; }
+#include "adjustments.def"
+#undef ADJUSTMENT
   return false;
 }
 
-double Sliders::get(QString k) const {
-#define SLIDER(name, dfl) if (k==#name) { return name; }
-#include "sliders.def"
-#undef SLIDER
+double Adjustments::get(QString k) const {
+#define ADJUSTMENT(name, dfl) if (k==#name) { return name; }
+#include "adjustments.def"
+#undef ADJUSTMENT
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-QMap<QString, double> const &Sliders::defaults() {
+QMap<QString, double> const &Adjustments::defaults() {
   static QMap<QString, double> df;
   if (df.isEmpty()) {
-#define SLIDER(name, dfl) df[#name] = dfl;
-#include "sliders.def"
-#undef SLIDER
+#define ADJUSTMENT(name, dfl) df[#name] = dfl;
+#include "adjustments.def"
+#undef ADJUSTMENT
   }
   return df;
 }
 
-QStringList const &Sliders::keys() {
+QStringList const &Adjustments::keys() {
   static QStringList kk;
   if (kk.isEmpty()) {
-#define SLIDER(name, dfl) kk << #name;
-#include "sliders.def"
-#undef SLIDER
+#define ADJUSTMENT(name, dfl) kk << #name;
+#include "adjustments.def"
+#undef ADJUSTMENT
   }
   return kk;
 }
 
-void Sliders::reset() {
-#define SLIDER(name, dfl) name = dfl;
-#include "sliders.def"
-#undef SLIDER
+void Adjustments::reset() {
+#define ADJUSTMENT(name, dfl) name = dfl;
+#include "adjustments.def"
+#undef ADJUSTMENT
 }
 
-void Sliders::setAll(QString kvv) {
+void Adjustments::setAll(QString kvv) {
   reset();
   QStringList pairs = kvv.split(";");
   for (QString pair: pairs) {
@@ -74,12 +71,12 @@ void Sliders::setAll(QString kvv) {
       QString v = kv[1].simplified();
       set(k, v.toDouble()); // could be more sophisticated
     } else if (!pair.isEmpty()) {
-      COMPLAIN("Sliders: Bad kv pair ");
+      COMPLAIN("Adjustments: Bad kv pair ");
     }
   }
 }
 
-QString Sliders::getAll() const {
+QString Adjustments::getAll() const {
   QStringList pairs;
   for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
     QString k = it.key();
@@ -91,33 +88,33 @@ QString Sliders::getAll() const {
   return pairs.join(";");
 }
 
-bool Sliders::operator==(Sliders const &s) const {
+bool Adjustments::operator==(Adjustments const &s) const {
   return true
-#define SLIDER(name, dfl) && name==s.name
-#include "sliders.def"
-#undef SLIDER
+#define ADJUSTMENT(name, dfl) && name==s.name
+#include "adjustments.def"
+#undef ADJUSTMENT
     ;
 }
 
-bool Sliders::isDefault() const {
+bool Adjustments::isDefault() const {
   return true
-#define SLIDER(name, dfl) && name==name##Default
-#include "sliders.def"
-#undef SLIDER
+#define ADJUSTMENT(name, dfl) && name==name##Default
+#include "adjustments.def"
+#undef ADJUSTMENT
     ;
 }
 
-bool Sliders::isDefault(QString k) const {
+bool Adjustments::isDefault(QString k) const {
   return get(k) == defaultFor(k);
 }
 
-Sliders Sliders::fromDB(quint64 vsn, class PhotoDB &db) {
-  Sliders s;
+Adjustments Adjustments::fromDB(quint64 vsn, class PhotoDB &db) {
+  Adjustments s;
   s.readFromDB(vsn, db);
   return s;
 }
 
-void Sliders::readFromDB(quint64 vsn, PhotoDB &db) {
+void Adjustments::readFromDB(quint64 vsn, PhotoDB &db) {
   reset();
   QSqlQuery q = db.query("select k, v from adjustments where version==:a",
                          vsn);
@@ -125,7 +122,7 @@ void Sliders::readFromDB(quint64 vsn, PhotoDB &db) {
     set(q.value(0).toString(), q.value(1).toDouble());
 }
   
-void Sliders::writeToDB(quint64 vsn, PhotoDB &db) const {
+void Adjustments::writeToDB(quint64 vsn, PhotoDB &db) const {
   for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
     QString k = it.key();
     double v0 = it.value();
@@ -139,7 +136,7 @@ void Sliders::writeToDB(quint64 vsn, PhotoDB &db) const {
   }
 }  
 
-PSize Sliders::cropSize(PSize filesize, Exif::Orientation orient) {
+PSize Adjustments::cropSize(PSize filesize, Exif::Orientation orient) {
   PSize size = filesize;
   switch (orient) {
   case Exif::Upright:

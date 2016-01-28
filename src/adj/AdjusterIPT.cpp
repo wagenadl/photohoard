@@ -34,7 +34,7 @@ static inline double foo_vibrance(double x, double a) {
   
 
 AdjusterTile AdjusterIPT::apply(AdjusterTile const &parent,
-				Sliders const &final) {
+				Adjustments const &final) {
   AdjusterTile tile = parent;
   
   tile.stage = Stage_IPT;

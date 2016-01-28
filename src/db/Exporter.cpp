@@ -6,7 +6,7 @@
 #include "IF_Worker.h"
 #include <QRegExp>
 #include <QDir>
-#include "Sliders.h"
+#include "Adjustments.h"
 
 Exporter::Exporter(PhotoDB *db0, QObject *parent):
   QThread(parent), db0(db0) {
@@ -117,7 +117,7 @@ void Exporter::run() {
 bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   PhotoDB::VersionRecord vrec = db.versionRecord(vsn);
   PhotoDB::PhotoRecord prec = db.photoRecord(vrec.photo);
-  Sliders adjs = Sliders::fromDB(vsn, db);
+  Adjustments adjs = Adjustments::fromDB(vsn, db);
   PSize cropsize = adjs.cropSize(prec.filesize, vrec.orient);
   
   QString path = db.folder(prec.folderid) + "/" + prec.filename;

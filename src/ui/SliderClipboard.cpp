@@ -47,7 +47,7 @@ void SliderClipboard::autoResize() {
   resize(sizeHint());
 }  
 
-Sliders SliderClipboard::values() const {
+Adjustments SliderClipboard::values() const {
   return val;
 }
 
@@ -71,17 +71,17 @@ QSet<QString> SliderClipboard::mask() const {
   return msk;
 }
 
-void SliderClipboard::get(Sliders *dest) const {
+void SliderClipboard::get(Adjustments *dest) const {
   for (auto sli: mask()) 
     dest->set(sli, val.get(sli));
 }
 
-void SliderClipboard::set(class Sliders const &vv) {
+void SliderClipboard::set(class Adjustments const &vv) {
   for (auto sli: mask())
     val.set(sli, vv.get(sli));
 }
 
-void SliderClipboard::setAll(class Sliders const &vv) {
+void SliderClipboard::setAll(class Adjustments const &vv) {
   val = vv;
 }
 

@@ -8,7 +8,7 @@
 #include "PDebug.h"
 #include <QBoxLayout>
 #include <QSignalMapper>
-#include "Sliders.h"
+#include "Adjustments.h"
 #include <limits>
 #include <QScrollBar>
 #include <QEvent>
@@ -105,7 +105,7 @@ double AllControls::get(QString name) const {
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-void AllControls::setQuietly(Sliders const &vv) {
+void AllControls::setQuietly(Adjustments const &vv) {
   for (auto k: vv.keys()) 
     setQuietly(k, vv.get(k));
 }

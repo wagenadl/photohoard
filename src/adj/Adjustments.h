@@ -1,21 +1,21 @@
-// Sliders.h
+// Adjustments.h
 
-#ifndef SLIDERS_H
+#ifndef ADJUSTMENTS_H
 
-#define SLIDERS_H
+#define ADJUSTMENTS_H
 
 #include <QMap>
 #include <QStringList>
 #include "Exif.h"
 
-class Sliders {
+class Adjustments {
 public:
-  Sliders();
-  explicit Sliders(QString kv): Sliders() { setAll(kv); }
+  Adjustments();
+  explicit Adjustments(QString kv): Adjustments() { setAll(kv); }
   void reset();
   void setAll(QString kv);
   void setAll(QMap<QString, double> const &);
-  static Sliders fromDB(quint64 vsn, class PhotoDB &db);
+  static Adjustments fromDB(quint64 vsn, class PhotoDB &db);
   void readFromDB(quint64 vsn, class PhotoDB &db);
   void writeToDB(quint64 vsn, class PhotoDB &db) const;
   /* WRITETODB - Write all values to DB
@@ -28,17 +28,17 @@ public:
   QString getAll() const;
   bool set(QString k, double v);
   double get(QString k) const;
-  bool operator==(Sliders const &) const;
+  bool operator==(Adjustments const &) const;
   bool isDefault() const;
   bool isDefault(QString k) const;
   PSize cropSize(PSize photoFileSize, Exif::Orientation orient);
 public:
-#define SLIDER(name, dfl) double name;
-#include "sliders.def"
-#undef SLIDER
-#define SLIDER(name, dfl) static constexpr double name##Default = dfl;
-#include "sliders.def"
-#undef SLIDER
+#define ADJUSTMENT(name, dfl) double name;
+#include "adjustments.def"
+#undef ADJUSTMENT
+#define ADJUSTMENT(name, dfl) static constexpr double name##Default = dfl;
+#include "adjustments.def"
+#undef ADJUSTMENT
   static QStringList const &keys();
   static QMap<QString, double> const &defaults();
   static double defaultFor(QString k) { return defaults()[k]; }

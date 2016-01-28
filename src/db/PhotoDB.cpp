@@ -6,7 +6,7 @@
 #include "SqlFile.h"
 #include <QFile>
 #include <QDir>
-#include "Sliders.h"
+#include "Adjustments.h"
 
 void PhotoDB::open(QString fn) {
   Database::open(fn);
@@ -432,7 +432,7 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
                      int(vr.colorlabel), int(vr.acceptreject))
     .lastInsertId().toULongLong();
   if (clone) 
-    Sliders::fromDB(vsn, *this).writeToDB(v1, *this);
+    Adjustments::fromDB(vsn, *this).writeToDB(v1, *this);
   
   t.commit();
   return v1;

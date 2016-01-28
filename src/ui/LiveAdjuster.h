@@ -7,7 +7,7 @@
 #include <QObject>
 #include "PhotoDB.h"
 #include "Image16.h"
-#include "Sliders.h"
+#include "Adjustments.h"
 
 class LiveAdjuster: public QObject {
   Q_OBJECT;
@@ -40,7 +40,7 @@ private:
   AutoCache *cache;  // we do not own
   quint64 version;
   PSize targetsize;
-  Sliders sliders;
+  Adjustments sliders;
   class Adjuster *adj; // we own
   class InterruptableAdjuster *adjuster; // we own
   class OriginalFinder *ofinder; // we own

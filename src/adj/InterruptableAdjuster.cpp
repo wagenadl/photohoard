@@ -21,26 +21,26 @@ InterruptableAdjuster::~InterruptableAdjuster() {
   }
 }
 
-void InterruptableAdjuster::requestFull(Sliders const &settings) {
+void InterruptableAdjuster::requestFull(Adjustments const &settings) {
   requestReducedROI(settings, QRect(), PSize());
 }
 
-void InterruptableAdjuster::requestReduced(Sliders const &settings,
+void InterruptableAdjuster::requestReduced(Adjustments const &settings,
                                            PSize maxSize) {
   requestReducedROI(settings, QRect(), maxSize);
 }
   
-void InterruptableAdjuster::requestROI(Sliders const &settings, QRect roi) {
+void InterruptableAdjuster::requestROI(Adjustments const &settings, QRect roi) {
   requestReducedROI(settings, roi, PSize());
 }
 
-void InterruptableAdjuster::requestReducedROI(Sliders const &settings,
+void InterruptableAdjuster::requestReducedROI(Adjustments const &settings,
                                               QRect roi, PSize maxSize) {
   QMutexLocker l(&mutex);
   adjuster->cancel();
   newreq = true;
   cancel = false;
-  rqSliders = settings;
+  rqAdjustments = settings;
   rqRect = roi;
   rqSize = maxSize;
   waitcond.wakeOne();
@@ -74,7 +74,7 @@ void InterruptableAdjuster::stop() {
   stopsoon = true;
 }
 
-PSize InterruptableAdjuster::maxAvailableSize(Sliders const &s) {
+PSize InterruptableAdjuster::maxAvailableSize(Adjustments const &s) {
   if (clear_)
     return PSize();
   else
@@ -100,7 +100,7 @@ void InterruptableAdjuster::setReduced(Image16 img, PSize siz) {
 void InterruptableAdjuster::handleNewRequest() {
   QRect r = rqRect;
   PSize s = rqSize;
-  Sliders sli = rqSliders;
+  Adjustments sli = rqAdjustments;
   newreq = false;
   mutex.unlock();
   Image16 img;

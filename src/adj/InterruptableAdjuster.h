@@ -7,7 +7,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
-#include "Sliders.h"
+#include "Adjustments.h"
 #include "Image16.h"
 
 class InterruptableAdjuster: public QThread {
@@ -25,13 +25,13 @@ public:
   InterruptableAdjuster(QObject *parent=0);
   // CONSTRUCTOR
   virtual ~InterruptableAdjuster();
-  void requestFull(Sliders const &settings);
+  void requestFull(Adjustments const &settings);
   // REQUESTFULL - See Adjuster's RETRIEVEFULL
-  void requestReduced(Sliders const &settings, PSize maxSize);
+  void requestReduced(Adjustments const &settings, PSize maxSize);
   // REQUESTREDUCED - See Adjuster's RETRIEVEREDUCED
-  void requestROI(Sliders const &settings, QRect roi);
+  void requestROI(Adjustments const &settings, QRect roi);
   // REQUESTROI - See ADJUSTER's RETRIEVEROI
-  void requestReducedROI(Sliders const &settings, QRect roi, PSize maxSize);
+  void requestReducedROI(Adjustments const &settings, QRect roi, PSize maxSize);
   // REQUESTREDUCEDROI - See ADJUSTER's RETRIEVEREDUCEDROI
   void cancelRequest();
   /* CANCELREQUEST - Cancel outstanding request
@@ -42,7 +42,7 @@ public:
   /* CLEAR - Drop original image
      Also cancels any outstanding request.
   */
-  PSize maxAvailableSize(Sliders const &);
+  PSize maxAvailableSize(Adjustments const &);
   // MAXAVAILABLESIZE - See ADJUSTER's MAXAVAILABLESIZE
   bool isEmpty();
   // ISEMPTY - See ADJUSTER's ISEMPTY
@@ -96,7 +96,7 @@ private:
   QMutex mutex;
   QWaitCondition waitcond;
   bool cancel, newreq, clear_;
-  Sliders rqSliders;
+  Adjustments rqAdjustments;
   QRect rqRect;
   PSize rqSize;
   bool stopsoon;
