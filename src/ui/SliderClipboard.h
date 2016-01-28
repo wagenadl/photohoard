@@ -6,19 +6,19 @@
 #include <QScrollArea>
 #include <QMap>
 #include <QSet>
-#include "Sliders.h"
+#include "Adjustments.h"
 
 class SliderClipboard: public QScrollArea {
   Q_OBJECT;
 public:
   SliderClipboard(QWidget *parent=0);
   virtual ~SliderClipboard();
-  Sliders values() const; // ignores mask
+  Adjustments values() const; // ignores mask
   QSet<QString> mask() const;
-  void get(Sliders *dest) const;
+  void get(Adjustments *dest) const;
 public slots:
-  void set(class Sliders const &vv);
-  void setAll(class Sliders const &vv); // ignores mask
+  void set(class Adjustments const &vv);
+  void setAll(class Adjustments const &vv); // ignores mask
   void setMask(QSet<QString>);
   void enableAll(bool on=true);
   void disableAll(bool off=true);
@@ -40,7 +40,7 @@ private:
   QMap<QString, QCheckBox *> jogs;
   QMap<QString, QString> nextThing;
   QMap<QString, QString> previousThing;
-  Sliders val;
+  Adjustments val;
 };
 
 #endif

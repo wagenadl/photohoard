@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-08-20T19:53:02",
-  "mod": "2015-12-29T09:22:41",
+  "mod": "2016-01-27T20:04:46",
   "uuid": "b7dd37c0",
   "cc": [
     { "typ": "entry",
@@ -178,6 +178,14 @@
       "startPage": 34,
       "title": "Bug: rotation",
       "uuid": "2ab1cf1e"
+    },
+    { "typ": "entry",
+      "cre": "2016-01-27T19:51:16",
+      "mod": "2016-01-27T20:04:46",
+      "sheetCount": 2,
+      "startPage": 35,
+      "title": "White balance",
+      "uuid": "85c0da23"
     }
   ]
 }

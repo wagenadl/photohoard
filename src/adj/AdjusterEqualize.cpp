@@ -185,7 +185,7 @@ static void applyLocalContrast(Image16 &target, double contrast, double scale) {
 
 
 AdjusterTile AdjusterEqualize::apply(AdjusterTile const &parent,
-				Sliders const &final) {
+				Adjustments const &final) {
   AdjusterTile tile = parent;
   tile.stage = Stage_Equalize;
 

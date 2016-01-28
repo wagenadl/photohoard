@@ -1,0 +1,513 @@
+{ "typ": "page",
+  "cre": "2016-01-27T19:51:16",
+  "mod": "2016-01-27T20:12:46",
+  "cui": "432c5f2c98b1b020",
+  "stampTime": 0,
+  "startPage": 35,
+  "unlocked": false,
+  "uuid": "85c0da23",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-01-27T19:51:16",
+      "mod": "2016-01-27T19:51:21",
+      "uuid": "e8215d1c",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T19:51:16",
+          "mod": "2016-01-27T19:51:21",
+          "lines": [
+            0
+          ],
+          "text": "White balance",
+          "uuid": "5141f79c"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-01-27T19:51:16",
+      "mod": "2016-01-27T20:01:28",
+      "uuid": "a9f4d1c8",
+      "cc": [
+        { "typ": "res",
+          "cre": "2016-01-27T20:00:30",
+          "mod": "2016-01-27T20:00:30",
+          "archive": "1_-05a310bc.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "1",
+          "title": "",
+          "uuid": "05a310bc"
+        },
+        { "typ": "res",
+          "cre": "2016-01-27T20:01:28",
+          "mod": "2016-01-27T20:01:28",
+          "archive": "2_-ca95b441.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "2",
+          "title": "",
+          "uuid": "ca95b441"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T19:51:21",
+      "mod": "2016-01-27T19:53:06",
+      "h": 96.664,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "73d8a105",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T19:51:21",
+          "mod": "2016-01-27T19:53:06",
+          "lines": [
+            0,
+            61,
+            130,
+            191
+          ],
+          "text": "I am a little unhappy with the way white balance works right now. Simply put, the sliders are not intuitive. At the very least, I need to introduce a mechanism by which sliders in the UI can be mapped in a more flexible manner to sliders in the db.",
+          "uuid": "687d8793"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T19:53:50",
+      "mod": "2016-01-27T19:54:37",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c38491e1",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T19:53:50",
+          "mod": "2016-01-27T19:54:37",
+          "lines": [
+            0,
+            60
+          ],
+          "text": "Before I get into that, I need to make some notes about the math of white balancing.",
+          "uuid": "9ea768e6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T19:54:38",
+      "mod": "2016-01-27T20:01:01",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "30b76de8",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T19:54:38",
+          "mod": "2016-01-27T20:01:01",
+          "lines": [
+            0,
+            60,
+            123,
+            182,
+            245,
+            309,
+            372,
+            430
+          ],
+          "text": "Right now, I am working in LMS space. There exists a matrix M such that lms = M rgb if rgb is a (linear) RGB triplet. (The details are not important.) Right now, I am doing a simple scaling, l ← al, s ← bs, m ← m. The effect of the parameters a and b is not particularly intuitive. I thought it would be more intuitive to work in RGB space, because as a function of color temperature, RGB values behave in a less confusing manner than LMS values:",
+          "uuid": "7b4453c1",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-27T19:54:55",
+              "mod": "2016-01-27T19:54:55",
+              "end": 75,
+              "start": 72,
+              "style": 1,
+              "uuid": "47879957"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:54:57",
+              "mod": "2016-01-27T19:54:57",
+              "end": 83,
+              "start": 80,
+              "style": 1,
+              "uuid": "83a7ba0e"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:55:02",
+              "mod": "2016-01-27T19:55:02",
+              "end": 90,
+              "start": 87,
+              "style": 1,
+              "uuid": "ac407989"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:56:50",
+              "mod": "2016-01-27T19:56:54",
+              "end": 197,
+              "start": 195,
+              "style": 1,
+              "uuid": "99b49b73"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:56:56",
+              "mod": "2016-01-27T19:56:56",
+              "end": 192,
+              "start": 191,
+              "style": 1,
+              "uuid": "fa276337"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:57:00",
+              "mod": "2016-01-27T19:57:00",
+              "end": 200,
+              "start": 199,
+              "style": 1,
+              "uuid": "8da7573f"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:57:02",
+              "mod": "2016-01-27T19:57:03",
+              "end": 205,
+              "start": 203,
+              "style": 1,
+              "uuid": "4b7734de"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:57:10",
+              "mod": "2016-01-27T19:57:10",
+              "end": 212,
+              "start": 211,
+              "style": 1,
+              "uuid": "c38447df"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:57:12",
+              "mod": "2016-01-27T19:57:12",
+              "end": 208,
+              "start": 207,
+              "style": 1,
+              "uuid": "0582d4d7"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:57:34",
+              "mod": "2016-01-27T19:57:34",
+              "end": 244,
+              "start": 243,
+              "style": 1,
+              "uuid": "d1ed3498"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T19:57:36",
+              "mod": "2016-01-27T19:57:36",
+              "end": 250,
+              "start": 249,
+              "style": 1,
+              "uuid": "e9d17c37"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2016-01-27T20:00:30",
+      "mod": "2016-01-27T20:04:31",
+      "h": 204.153,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "cbd058fd",
+      "xref": 0.0,
+      "y0": 408.324,
+      "yref": -32.1759,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2016-01-27T20:00:30",
+          "mod": "2016-01-27T20:04:27",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 53.0,
+          "cropTop": 0.0,
+          "height": 385.0,
+          "res": [
+            "1"
+          ],
+          "resName": "1",
+          "scale": 0.470773,
+          "uuid": "94fefe9a",
+          "width": 493.0,
+          "x": 0.0,
+          "y": -18.5212,
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2016-01-27T20:00:43",
+              "mod": "2016-01-27T20:00:47",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 339.75,
+              "uuid": "8e7c5aa4",
+              "x": 349.567,
+              "y": 38.0726,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2016-01-27T20:00:43",
+                  "mod": "2016-01-27T20:00:44",
+                  "lines": [
+                    0
+                  ],
+                  "text": "RGB",
+                  "uuid": "b1631b9a"
+                }
+              ]
+            }
+          ]
+        },
+        { "typ": "gfximage",
+          "cre": "2016-01-27T20:01:28",
+          "mod": "2016-01-27T20:04:31",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 367.0,
+          "res": [
+            "2"
+          ],
+          "resName": "2",
+          "scale": 0.50723,
+          "uuid": "c7f1899a",
+          "width": 435.0,
+          "x": 211.355,
+          "y": -23.1759,
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2016-01-27T20:01:35",
+              "mod": "2016-01-27T20:01:37",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 113.25,
+              "uuid": "777e543c",
+              "x": 231.736,
+              "y": 44.1226,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2016-01-27T20:01:35",
+                  "mod": "2016-01-27T20:01:37",
+                  "lines": [
+                    0
+                  ],
+                  "text": "LMS",
+                  "uuid": "57dd1cc4"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T20:01:47",
+      "mod": "2016-01-27T20:07:05",
+      "h": 235.66,
+      "ind": 0,
+      "sheet": 0,
+      "split": [
+        92.664
+      ],
+      "uuid": "12505528",
+      "y0": 612.477,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T20:01:47",
+          "mod": "2016-01-27T20:07:05",
+          "lines": [
+            0,
+            64,
+            122,
+            188,
+            253,
+            312,
+            371,
+            422,
+            488,
+            548
+          ],
+          "text": "So I thought, I would apply Q = M S M−1, where S = diag(a,b,c), a, b, c being scale factors for RGB. (Particularly useful combinations could be 1+[δ, 0, –δ] and 1+[–ε/2, ε, –ε/2].) But of course, Q is not diagonal. In fact, Q is not even close to being diagonal, even for pretty small values for δ and ε. Then I realized, that I don’t really know in what space my camera applies white balance corrections. Or what kind of nonlinearities are applied after correction. Ideally, all of that should be undone before changing white balance. (And redone afterward.)",
+          "uuid": "096d4ff7",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:12",
+              "mod": "2016-01-27T20:02:12",
+              "end": 39,
+              "start": 37,
+              "style": 6,
+              "uuid": "5fd1d5a3"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:22",
+              "mod": "2016-01-27T20:02:22",
+              "end": 61,
+              "start": 60,
+              "style": 1,
+              "uuid": "25e595d9"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:23",
+              "mod": "2016-01-27T20:02:23",
+              "end": 59,
+              "start": 58,
+              "style": 1,
+              "uuid": "ecfd8791"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:24",
+              "mod": "2016-01-27T20:02:24",
+              "end": 57,
+              "start": 56,
+              "style": 1,
+              "uuid": "1485d5a1"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:32",
+              "mod": "2016-01-27T20:02:32",
+              "end": 65,
+              "start": 64,
+              "style": 1,
+              "uuid": "ecf8c05e"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:33",
+              "mod": "2016-01-27T20:02:33",
+              "end": 68,
+              "start": 67,
+              "style": 1,
+              "uuid": "92b2e140"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:02:35",
+              "mod": "2016-01-27T20:02:35",
+              "end": 71,
+              "start": 70,
+              "style": 1,
+              "uuid": "6e814317"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T20:07:05",
+      "mod": "2016-01-27T20:07:33",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "8e308301",
+      "y0": 214.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T20:07:05",
+          "mod": "2016-01-27T20:07:33",
+          "lines": [
+            0,
+            62
+          ],
+          "text": "Clearly, that is not going to happen any time soon. So let me focus on that issue with the sliders.",
+          "uuid": "20941388"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T20:07:34",
+      "mod": "2016-01-27T20:12:07",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "c7ea8874",
+      "y0": 265.328,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T20:07:34",
+          "mod": "2016-01-27T20:12:07",
+          "lines": [
+            0,
+            56,
+            117,
+            182,
+            246
+          ],
+          "text": "There is a way-too-smart system for defining adjustment targets. The class Sliders offers both a programmer-friendly struct-style interface and a generic string map–style interface. That’s good. I am not a great fan any more of the “sliders.def” file that implements this trickery.",
+          "uuid": "54fa4fa2",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-27T20:08:57",
+              "mod": "2016-01-27T20:08:57",
+              "end": 82,
+              "start": 75,
+              "style": 1,
+              "uuid": "6251130d"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:09:43",
+              "mod": "2016-01-27T20:09:43",
+              "end": 143,
+              "start": 140,
+              "style": 1,
+              "uuid": "e441c81e"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-27T20:12:09",
+      "mod": "2016-01-27T20:12:46",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "7674e6c1",
+      "y0": 385.158,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-27T20:12:09",
+          "mod": "2016-01-27T20:12:46",
+          "lines": [
+            0,
+            65,
+            127
+          ],
+          "text": "But I’ll leave that for now. At least I will rename Sliders into Adjustments to conceptually differentiate from sliders in the UI.",
+          "uuid": "de7da8ae",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-27T20:12:24",
+              "mod": "2016-01-27T20:12:24",
+              "end": 59,
+              "start": 52,
+              "style": 1,
+              "uuid": "f18b645a"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-27T20:12:27",
+              "mod": "2016-01-27T20:12:27",
+              "end": 76,
+              "start": 65,
+              "style": 1,
+              "uuid": "1de84d98"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,7 @@
 #include "Exif.h"
 #include <QStringList>
 #include "PDebug.h"
-#include "Sliders.h"
+#include "Adjustments.h"
 
 inline double inbetween(double a, double b) {
   return sqrt(a*b);
@@ -131,7 +131,7 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
 
   PhotoDB::VersionRecord vrec = db->versionRecord(version);
   PhotoDB::PhotoRecord prec = db->photoRecord(vrec.photo);
-  Sliders sliders = Sliders::fromDB(version, *db);
+  Adjustments sliders = Adjustments::fromDB(version, *db);
 
   // Add filename
   txt = QString("<b>%1</b><br>").arg(prec.filename);

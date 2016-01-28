@@ -26,8 +26,6 @@ UI_DIR = $${OBJECTS_DIR}
 
 RESOURCES += PhotoHoard.qrc
 
-FORMS += ui/ExportDialog.ui  ui/FilterDialog.ui  ui/AddRootDialog.ui
-
 LIBS += -lexiv2
 LIBS += -llcms2
 LIBS += -lopencv_imgproc -lopencv_core

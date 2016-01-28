@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QApplication>
-#include "Sliders.h"
+#include "Adjustments.h"
 #include "PDebug.h"
 
 SliderGroups::SliderGroups() {
@@ -36,11 +36,11 @@ SliderGroups::SliderGroups() {
       int idx = line.indexOf(":");
       currentslider = line.left(idx).simplified();
       groupcontents[currentgroup] << currentslider;
-      ASSERT(Sliders::defaults().contains(currentslider));
+      ASSERT(Adjustments::defaults().contains(currentslider));
       SliderInfo info;
       info.label = line.mid(idx+1).simplified();
       info.label.replace("~", " ");
-      info.dflt = Sliders::defaultFor(currentslider);
+      info.dflt = Adjustments::defaultFor(currentslider);
       infos[currentslider] = info;
     } else if (line.contains("/")) {
       ASSERT(!currentslider.isEmpty());

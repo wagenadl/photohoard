@@ -83,7 +83,7 @@ static void applyUMask(Image16 &image, PSize osize, QRect oroi,
   
 
 AdjusterTile AdjusterUMask::apply(AdjusterTile const &parent,
-				Sliders const &final) {
+				Adjustments const &final) {
   AdjusterTile tile = parent;
   tile.stage = Stage_UMask;
 

@@ -1,7 +1,7 @@
 // LiveAdjuster.cpp
 
 #include "LiveAdjuster.h"
-#include "Sliders.h"
+#include "Adjustments.h"
 #include "AllControls.h"
 #include "InterruptableAdjuster.h"
 #include "Adjuster.h"
@@ -104,7 +104,7 @@ void LiveAdjuster::setSlider(QString k, double v) {
     db->addUndoStep(version, k, q.value(0), v);
   else
     db->addUndoStep(version, k, QVariant(), v);
-  if (v==Sliders::defaultFor(k))
+  if (v==Adjustments::defaultFor(k))
     db->query("delete from adjustments where version==:a and k==:b",
               version, k);
   else

@@ -7,7 +7,7 @@
 #include <QVariant>
 #include "PDebug.h"
 #include "AC_ImageHolder.h"
-#include "Sliders.h"
+#include "Adjustments.h"
 #include "Here.h"
 
 inline uint qHash(PSize const &s) {
@@ -239,7 +239,7 @@ void AC_Worker::processLoaded() {
 }   
 
 void AC_Worker::sendToBank(quint64 vsn) {
-  Sliders adjs;
+  Adjustments adjs;
   adjs.readFromDB(vsn, db);
 
   QSqlQuery q

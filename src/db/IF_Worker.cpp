@@ -15,7 +15,7 @@ IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
 
 Image16 IF_Worker::findImageNow(QString path, QString ext,
 				Exif::Orientation orient, PSize naturalSize,
-				Sliders const &s,				
+				Adjustments const &s,				
 				int maxdim, bool urgent,
 				PSize *fullSizeReturn) {
   if (fullSizeReturn)
@@ -96,7 +96,7 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 
 void IF_Worker::findImage(quint64 id, QString path, QString ext,
                           Exif::Orientation orient, QSize ns,
-			  Sliders mods,
+			  Adjustments mods,
 			  int maxdim, bool urgent) {
   Q_ASSERT(maxdim>0);
   PSize fullSize;

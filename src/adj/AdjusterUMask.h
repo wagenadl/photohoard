@@ -11,7 +11,7 @@ public:
   AdjusterUMask() { }
   virtual ~AdjusterUMask() { }
   virtual QStringList fields() const override;
-  virtual AdjusterTile apply(AdjusterTile const &, Sliders const &) override;
+  virtual AdjusterTile apply(AdjusterTile const &, Adjustments const &) override;
 };
 
 #endif

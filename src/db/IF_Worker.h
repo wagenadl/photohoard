@@ -6,7 +6,7 @@
 
 #include <QObject>
 #include "Exif.h"
-#include "Sliders.h"
+#include "Adjustments.h"
 
 /* Class: IF_Worker
 
@@ -29,7 +29,7 @@ public:
    */
   Image16 findImageNow(QString path, QString ext,
 		       Exif::Orientation orient, PSize ns,
-		       class Sliders const &mods,
+		       class Adjustments const &mods,
 		       int maxdim, bool urgent,
 		       PSize *fullSizeReturn=0);
   /* Scale to fit in a maxdim-sized rectangle.
@@ -52,7 +52,7 @@ public slots:
    */
   void findImage(quint64 id, QString path, QString ext,
 		 Exif::Orientation orient, QSize ns,
-		 Sliders mods,
+		 Adjustments mods,
 		 int maxdim, bool urgent);
   
 signals:

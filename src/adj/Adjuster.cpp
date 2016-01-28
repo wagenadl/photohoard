@@ -36,7 +36,7 @@ void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
 }
 
 
-Image16 Adjuster::retrieveFull(Sliders const &settings) {
+Image16 Adjuster::retrieveFull(Adjustments const &settings) {
   resetCanceled();
 
   if (stages.isEmpty())
@@ -53,7 +53,7 @@ Image16 Adjuster::retrieveFull(Sliders const &settings) {
   return stages.last().image;
 }
 
-bool Adjuster::applySettings(Sliders const &settings) {
+bool Adjuster::applySettings(Adjustments const &settings) {
   /* Order of stages here must match enum Stage */
   return applyFirstXYZ(settings)
     && applyEqualize(settings)
@@ -62,7 +62,7 @@ bool Adjuster::applySettings(Sliders const &settings) {
     && applyGeometry(settings);
 }
 
-Image16 Adjuster::retrieveReduced(Sliders const &settings,
+Image16 Adjuster::retrieveReduced(Adjustments const &settings,
                                   PSize maxSize) {
   resetCanceled();
 
@@ -80,7 +80,7 @@ Image16 Adjuster::retrieveReduced(Sliders const &settings,
   return stages.last().image;
 }
 
-void Adjuster::applyNeedBasedScaling(Sliders const &settings,
+void Adjuster::applyNeedBasedScaling(Adjustments const &settings,
                                      PSize maxSize) {
   PSize needed = neededScaledOriginalSize(settings, maxSize);
   int k = 0;
@@ -111,12 +111,12 @@ void Adjuster::dropFrom(int k) {
     stages.removeLast();
 }
 
-Image16 Adjuster::retrieveROI(Sliders const &, QRect) {
+Image16 Adjuster::retrieveROI(Adjustments const &, QRect) {
   // NYI
   return Image16();
 }
 
-Image16 Adjuster::retrieveReducedROI(Sliders const &,
+Image16 Adjuster::retrieveReducedROI(Adjustments const &,
                                      QRect, PSize) {
   // NYI
   return Image16();
@@ -136,9 +136,9 @@ void Adjuster::preserveOriginal(bool po) {
 
 
 bool Adjuster::ensureAlreadyGood(AdjusterStage const &adj, int iparent,
-				 Sliders const &final) {
+				 Adjustments const &final) {
   if (stages.size()>iparent+1) {
-    Sliders const &current = stages[iparent+1].settings;
+    Adjustments const &current = stages[iparent+1].settings;
     if (adj.isEquivalent(current, final)) 
       return true; // previous version of stage is fine
     else
@@ -160,7 +160,7 @@ int Adjuster::findParentStage(Stage s) const {
   return stages.size()-1;
 }
 
-bool Adjuster::applyGeometry(Sliders const &final) {
+bool Adjuster::applyGeometry(Adjustments const &final) {
   /* Here we apply rotate, perspective, and crop. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
@@ -178,7 +178,7 @@ bool Adjuster::applyGeometry(Sliders const &final) {
   return true;
 }
 
-bool Adjuster::applyEqualize(Sliders const &final) {
+bool Adjuster::applyEqualize(Adjustments const &final) {
   /* Here we apply clarity. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
@@ -196,7 +196,7 @@ bool Adjuster::applyEqualize(Sliders const &final) {
   return true;
 }
 
-bool Adjuster::applyUMask(Sliders const &final) {
+bool Adjuster::applyUMask(Adjustments const &final) {
   /* Here we apply unsharp mask. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
@@ -214,7 +214,7 @@ bool Adjuster::applyUMask(Sliders const &final) {
   return true;
 }
 
-bool Adjuster::applyFirstXYZ(Sliders const &final) {
+bool Adjuster::applyFirstXYZ(Adjustments const &final) {
   /* Here we apply expose, blackXX, and soon whiteXX. */
   /* For now, I am ignoring the "caching" and "keeporiginal" flags.
    */
@@ -232,7 +232,7 @@ bool Adjuster::applyFirstXYZ(Sliders const &final) {
   return true;
 }
 
-bool Adjuster::applyIPT(Sliders const &final) {
+bool Adjuster::applyIPT(Adjustments const &final) {
   int iparent = findParentStage(Stage_IPT);
   if (iparent<0)
     return false;
@@ -262,7 +262,7 @@ void Adjuster::resetCanceled() {
   canceled = false;
 }
 
-PSize Adjuster::maxAvailableSize(Sliders const &settings) const {
+PSize Adjuster::maxAvailableSize(Adjustments const &settings) const {
   if (stages.isEmpty())
     return PSize();
   else if (stages[0].osize.isEmpty())
@@ -270,12 +270,12 @@ PSize Adjuster::maxAvailableSize(Sliders const &settings) const {
   return mapCropSize(stages[0].osize, settings, stages[0].image.size());
 }
 
-PSize Adjuster::mapCropSize(PSize osize, Sliders const &settings,
+PSize Adjuster::mapCropSize(PSize osize, Adjustments const &settings,
                             PSize scaledOSize) { /* static */
   return mapCropRect(osize, settings, scaledOSize).size();
 }
 
-QRect Adjuster::mapCropRect(PSize osize, Sliders const &settings,
+QRect Adjuster::mapCropRect(PSize osize, Adjustments const &settings,
                             PSize scaledOSize) { /* static */
   if (osize.isEmpty())
     return QRect();
@@ -289,14 +289,14 @@ QRect Adjuster::mapCropRect(PSize osize, Sliders const &settings,
                QSize(orect.width()*xs+.5, orect.height()*ys+.5));
 }
 
-PSize Adjuster::neededScaledOriginalSize(Sliders const &settings,
+PSize Adjuster::neededScaledOriginalSize(Adjustments const &settings,
                                          PSize desired) const {
   if (stages.isEmpty())
     return PSize();
   return neededScaledOriginalSize(stages[0].osize, settings, desired);
 }
 
-PSize Adjuster::neededScaledOriginalSize(PSize osize, Sliders const &settings,
+PSize Adjuster::neededScaledOriginalSize(PSize osize, Adjustments const &settings,
 					 PSize desired) { /* static */
   /* We are looking for a size S such that mapCropSize(osize, settings, s)
      fits snugly in DESIRED. Further, S must be a proportional scaling of

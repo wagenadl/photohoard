@@ -5,7 +5,7 @@
 #define ADJUSTER_H
 
 #include "Image16.h"
-#include "Sliders.h"
+#include "Adjustments.h"
 #include <QRect>
 #include "PSize.h"
 #include <QObject>
@@ -47,7 +47,7 @@ public:
      of the reduced image from the actual and original sizes, taking the
      average of the X and Y scale factors.
   */
-  Image16 retrieveFull(Sliders const &settings);
+  Image16 retrieveFull(Adjustments const &settings);
   /* RETRIEVEFULL - Retrieves a version of the image with settings applied.
      RETRIEVEFULL(settings) retrieves an image, at full resolution, to which
      all the given SETTINGS have been applied.
@@ -55,7 +55,7 @@ public:
      full resolution.
      Results are cached so that asking for the same image twice is fast.
   */
-  Image16 retrieveReduced(Sliders const &settings, PSize maxSize);
+  Image16 retrieveReduced(Adjustments const &settings, PSize maxSize);
   /* RETRIEVEREDUCED - As RETRIEVEFULL, but does not need full res.
      RETRIEVEREDUCED(settings, maxSize) retrieves a version of the
      image with SETTINGS applied and (usually)
@@ -66,7 +66,7 @@ public:
      quicker. RETRIEVEREDUCED will never upscale an image.
   */
 
-  PSize maxAvailableSize(Sliders const &settings) const;
+  PSize maxAvailableSize(Adjustments const &settings) const;
   /* MAXAVAILABLESIZE - Maximum size of an image that we can offer
      MAXAVAILABLESIZE(settings) returns the maximum size of an image
      that we have on offer for the given SETTINGS. The image itself must
@@ -74,7 +74,7 @@ public:
      depends both on the size of the original (as per SETREDUCED) and on
      the SETTINGS. (Especially, of course, crop and rotation settings.)
   */     
-  static PSize mapCropSize(PSize osize, Sliders const &settings,
+  static PSize mapCropSize(PSize osize, Adjustments const &settings,
                            PSize scaledOSize);
   /* MAPCROPSIZE - Determine size of cropped and scaled image
      MAPCROPSIZE(osize, settings, scaledOSize) calculates the size of a
@@ -82,21 +82,21 @@ public:
      be applied to it and if a scaling would be applied that would reduce
      the size of the original (uncropped) image to SCALEDOSIZE.
   */
-  static QRect mapCropRect(PSize osize, Sliders const &settings,
+  static QRect mapCropRect(PSize osize, Adjustments const &settings,
                            PSize scaledOSize);
   /* MAPCROPRECT - Determine area of crop in scaled image
      MAPCROPRECT(osize, settings, scaledOSize) calculates the size and
      location of the cropping rectangle specified in SETTINGS if the image
      had been scaled from its original size OSIZE down to SCALEDOSIZE.
   */
-  PSize neededScaledOriginalSize(Sliders const &settings, PSize desired) const;
+  PSize neededScaledOriginalSize(Adjustments const &settings, PSize desired) const;
   /* NEEDEDSCALEDORIGINALSIZE - Minimum size required to produce desired version
      NEEDEDSCALEDORIGINALSIZE(settings, desired) calculates how large
      a scaled version of an original image is needed to produce an
      adjusted version (as specified in SETTINGS) at the DESIRED final
      size. This applies to the currently loaded image.
    */
-  static PSize neededScaledOriginalSize(PSize osize, Sliders const &settings,
+  static PSize neededScaledOriginalSize(PSize osize, Adjustments const &settings,
                                         PSize desired);
   /* NEEDEDSCALEDORIGINALSIZE - Minimum size required to produce desired version
      NEEDEDSCALEDORIGINALSIZE(osize, settings, desired) calculates how
@@ -105,7 +105,7 @@ public:
      size. This static version does its calculations for an orinal image of
      full size OSIZE.
    */
-  Image16 retrieveROI(Sliders const &settings, QRect roi);
+  Image16 retrieveROI(Adjustments const &settings, QRect roi);
   /* RETRIEVEROI - Retrieves a tile from the image with settings applied.
      RETRIEVEROI(settings, roi) retrieves a tile from the image with
      SETTINGS applied. The ROI specifies which pixels of the final
@@ -113,7 +113,7 @@ public:
      This fails (returning a null image) if we do not have the full
      resolution image.
   */
-  Image16 retrieveReducedROI(Sliders const &settings,
+  Image16 retrieveReducedROI(Adjustments const &settings,
                              QRect roi, PSize maxSize);
   /* RETRIEVEREDUCEDROI - Retrieves a tile from the image with settings applied.
      RETRIEVEREDUCEDROI(settings, roi, maxSize) retrieves a tile from the
@@ -164,10 +164,10 @@ private:
   bool isCanceled();
   /* Test-and-reset the cancellation flag. */
   void resetCanceled();
-  bool applyUMask(Sliders const &settings);
-  bool applyEqualize(Sliders const &settings);
-  bool applyFirstXYZ(Sliders const &settings);
-  bool applyIPT(Sliders const &settings);
+  bool applyUMask(Adjustments const &settings);
+  bool applyEqualize(Adjustments const &settings);
+  bool applyFirstXYZ(Adjustments const &settings);
+  bool applyIPT(Adjustments const &settings);
   /* Apply those settings that work on a per-pixel basis from the given
      settings. This assumes that topmost stage exists and is a suitable
      basis for the requested settings. Intermediate stages may be stored
@@ -175,13 +175,13 @@ private:
      The original image is never removed if preserveOriginal is set.
      Returns true if it could be done.
    */
-  bool applyGeometry(Sliders const &settings);
+  bool applyGeometry(Adjustments const &settings);
   bool ensureAlreadyGood(class AdjusterStage const &adj, int iparent,
-			 Sliders const &final);
+			 Adjustments const &final);
   int findParentStage(Stage s) const;
   void dropFrom(int k);
-  bool applySettings(Sliders const &settings);
-  void applyNeedBasedScaling(Sliders const &settings, PSize desired);
+  bool applySettings(Adjustments const &settings);
+  void applyNeedBasedScaling(Adjustments const &settings, PSize desired);
 private:
   QList<AdjusterTile> stages;
   /* The first stage is always the original image; subsequent stages may

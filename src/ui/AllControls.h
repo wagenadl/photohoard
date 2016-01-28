@@ -25,7 +25,7 @@ signals:
 public slots:
   bool set(QString name, double value); // true if OK; does signal
   bool setQuietly(QString name, double value); // true if OK; does not signal
-  void setQuietly(class Sliders const &vv); // does not signal
+  void setQuietly(class Adjustments const &vv); // does not signal
 protected slots:
   void goNext(QString);
   void goPrevious(QString);

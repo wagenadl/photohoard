@@ -11,7 +11,7 @@ QStringList AdjusterGeometry::fields() const {
 }
 
 AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
-				Sliders const &final) {
+				Adjustments const &final) {
   AdjusterTile tile = parent;
   
   tile.stage = Stage_Geometry;
