@@ -42,7 +42,7 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   if (newvsn) {
     originalSize = ofinder->originalSize(v);
     sliders.readFromDB(v, *db);
-    controls->setQuietly(sliders);
+    controls->setAll(sliders);
     controls->setEnabled(true);
   }
   targetsize = s;
