@@ -89,6 +89,10 @@ AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
 AllControls::~AllControls() {
 }
 
+Adjustments const &AllControls::getAll() const {
+  return adj;
+}  
+
 ControlGroup *AllControls::group(QString name) const {
   return groups.contains(name) ? groups[name] : 0;
 }
@@ -97,48 +101,28 @@ GentleJog *AllControls::jog(QString name) const {
   return jogs.contains(name) ? jogs[name] : 0;
 }
 
-double AllControls::get(QString name) const {
+double AllControls::sliderValue(QString name) const {
   GentleJog *j = jog(name);
-  if (j)
-    return j->value();
-  else
-    return std::numeric_limits<double>::quiet_NaN();
+  ASSERT(j);
+  return j->value();
 }
 
-void AllControls::setQuietly(Adjustments const &vv) {
-  for (auto k: vv.keys()) 
-    setQuietly(k, vv.get(k));
-}
-
-bool AllControls::setQuietly(QString adjustmentname, double value) {
-  // Must convert between adjustment names and slider names
-  QString slidername = adjustmentname;
-  GentleJog *j = jog(slidername);
-  if (j) {
+void AllControls::setAll(Adjustments const &vv) {
+  adj = vv;
+  for (auto adjustmentname: vv.keys()) {
+    double value = vv.get(adjustmentname);
+    QString slidername = adjustmentname;
+    GentleJog *j = jog(slidername);
+    ASSERT(j); // hmmm.
     j->setValueQuietly(value);
-    return j->value()==value;
-  } else {
-    return false;
   }
 }
   
-
-bool AllControls::set(QString adjustmentname, double value) {
-  // Must convert between adjustment names and slider names
-  QString slidername = adjustmentname;
-  GentleJog *j = jog(slidername);
-  if (j) {
-    j->setValue(value);
-    return j->value()==value;
-  } else {
-    return false;
-  }
-}
-
 void AllControls::sliderChange(QString slidername) {
   // Must convert between slider names and adjustment names
+  double value = sliderValue(slidername);
   QString adjustmentname = slidername;
-  double value = get(adjustmentname);
+  adj.set(adjustmentname, value);
   emit valueChanged(adjustmentname, value);
 }
 
