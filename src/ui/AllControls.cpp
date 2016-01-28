@@ -17,7 +17,7 @@
 
 AllControls::AllControls(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
-  connect(mapper, SIGNAL(mapped(QString)), SLOT(valueChange(QString)));
+  connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
   connect(nextmapper, SIGNAL(mapped(QString)), SLOT(goNext(QString)));
   QSignalMapper *prevmapper = new QSignalMapper(this);
@@ -110,8 +110,10 @@ void AllControls::setQuietly(Adjustments const &vv) {
     setQuietly(k, vv.get(k));
 }
 
-bool AllControls::setQuietly(QString name, double value) {
-  GentleJog *j = jog(name);
+bool AllControls::setQuietly(QString adjustmentname, double value) {
+  // Must convert between adjustment names and slider names
+  QString slidername = adjustmentname;
+  GentleJog *j = jog(slidername);
   if (j) {
     j->setValueQuietly(value);
     return j->value()==value;
@@ -121,8 +123,10 @@ bool AllControls::setQuietly(QString name, double value) {
 }
   
 
-bool AllControls::set(QString name, double value) {
-  GentleJog *j = jog(name);
+bool AllControls::set(QString adjustmentname, double value) {
+  // Must convert between adjustment names and slider names
+  QString slidername = adjustmentname;
+  GentleJog *j = jog(slidername);
   if (j) {
     j->setValue(value);
     return j->value()==value;
@@ -131,9 +135,11 @@ bool AllControls::set(QString name, double value) {
   }
 }
 
-void AllControls::valueChange(QString name) {
-  double value = get(name);
-  emit valueChanged(name, value);
+void AllControls::sliderChange(QString slidername) {
+  // Must convert between slider names and adjustment names
+  QString adjustmentname = slidername;
+  double value = get(adjustmentname);
+  emit valueChanged(adjustmentname, value);
 }
 
 QSize AllControls::sizeHint() const {
