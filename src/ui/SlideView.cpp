@@ -129,21 +129,22 @@ void SlideView::wheelEvent(QWheelEvent *e) {
 
 void SlideView::makeActions() {
   acts
-    << Action { Qt::Key_3, "Display grid of thirds",
-      [this]() {
-      bool got=false;
-      for (auto ptr: overlays()) {
-        SO_Grid *so = dynamic_cast<SO_Grid *>(ptr);
-        if (so) {
-          removeOverlay(so);
-          got = true;
-          break;
-        }
-      }
-      if (!got)
-        addOverlay(new SO_Grid(this));
-      update();
-    }};
+    << Action { {Qt::SHIFT + int('#'), Qt::SHIFT + Qt::Key_3},
+      "Display grid of thirds",
+	[this]() {
+	bool got=false;
+	for (auto ptr: overlays()) {
+	  SO_Grid *so = dynamic_cast<SO_Grid *>(ptr);
+	  if (so) {
+	    removeOverlay(so);
+	    got = true;
+	    break;
+	  }
+	}
+	if (!got)
+	  addOverlay(new SO_Grid(this));
+	update();
+      }};
 }
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
