@@ -23,14 +23,14 @@ Adjustments::Adjustments() {
 
 bool Adjustments::set(QString k, double v) {
 #define ADJUSTMENT(name, dfl) if (k==#name) { name = v; return true; }
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
   return false;
 }
 
 double Adjustments::get(QString k) const {
 #define ADJUSTMENT(name, dfl) if (k==#name) { return name; }
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
   return std::numeric_limits<double>::quiet_NaN();
 }
@@ -39,7 +39,7 @@ QMap<QString, double> const &Adjustments::defaults() {
   static QMap<QString, double> df;
   if (df.isEmpty()) {
 #define ADJUSTMENT(name, dfl) df[#name] = dfl;
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
   }
   return df;
@@ -49,7 +49,7 @@ QStringList const &Adjustments::keys() {
   static QStringList kk;
   if (kk.isEmpty()) {
 #define ADJUSTMENT(name, dfl) kk << #name;
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
   }
   return kk;
@@ -57,7 +57,7 @@ QStringList const &Adjustments::keys() {
 
 void Adjustments::reset() {
 #define ADJUSTMENT(name, dfl) name = dfl;
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
 }
 
@@ -91,7 +91,7 @@ QString Adjustments::getAll() const {
 bool Adjustments::operator==(Adjustments const &s) const {
   return true
 #define ADJUSTMENT(name, dfl) && name==s.name
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
     ;
 }
@@ -99,7 +99,7 @@ bool Adjustments::operator==(Adjustments const &s) const {
 bool Adjustments::isDefault() const {
   return true
 #define ADJUSTMENT(name, dfl) && name==name##Default
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
     ;
 }

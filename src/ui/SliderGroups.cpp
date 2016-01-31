@@ -36,11 +36,13 @@ SliderGroups::SliderGroups() {
       int idx = line.indexOf(":");
       currentslider = line.left(idx).simplified();
       groupcontents[currentgroup] << currentslider;
-      ASSERT(Adjustments::defaults().contains(currentslider));
       SliderInfo info;
       info.label = line.mid(idx+1).simplified();
       info.label.replace("~", " ");
-      info.dflt = Adjustments::defaultFor(currentslider);
+      if (Adjustments::defaults().contains(currentslider))
+	info.dflt = Adjustments::defaultFor(currentslider);
+      else
+	info.dflt = 0; // hmmm.
       infos[currentslider] = info;
     } else if (line.contains("/")) {
       ASSERT(!currentslider.isEmpty());
