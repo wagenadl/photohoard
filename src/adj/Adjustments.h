@@ -34,10 +34,10 @@ public:
   PSize cropSize(PSize photoFileSize, Exif::Orientation orient);
 public:
 #define ADJUSTMENT(name, dfl) double name;
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
 #define ADJUSTMENT(name, dfl) static constexpr double name##Default = dfl;
-#include "adjustments.def"
+#include "AdjustmentDefs.h"
 #undef ADJUSTMENT
   static QStringList const &keys();
   static QMap<QString, double> const &defaults();
