@@ -52,6 +52,13 @@ public: // information about photos and versions
   PhotoRecord photoRecord(quint64 photoid) const;
   PSize photoSize(quint64 photoid) const; // size from file, not orientation corrected
   VersionRecord versionRecord(quint64 versionid) const;
+  PSize originalSize(quint64 vsnid) const;
+  static PSize originalSize(VersionRecord const &vr, PhotoRecord const &pr);
+  /* ORIGINALSIZE - Size of version, before cropping
+     ORIGINALSIZE(vsnid) looks up the given version in the database
+     and returns the size of the image before cropping.
+     ORIGINALSIZE(vrec, prec) uses preloaded version and photo records.
+     This does not need database lookup. */
   QString make(int cameraid) const;
   QString camera(int cameraid) const; // i.e., make and model
   QString cameraAlias(int cameraid) const;

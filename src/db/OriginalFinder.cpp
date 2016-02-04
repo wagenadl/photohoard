@@ -25,13 +25,7 @@ void OriginalFinder::requestOriginal(quint64 version) {
 }
 
 PSize OriginalFinder::originalSize(quint64 vsn) {
-  QSqlQuery q = db->query("select width, height, orient"
-                          " from versions"
-                          " inner join photos on versions.photo==photos.id"
-                          " where versions.id==:a limit 1", vsn);
-  ASSERT(q.next());
-  PSize s(q.value(0).toInt(), q.value(1).toInt());
-  return Exif::fixOrientation(s, Exif::Orientation(q.value(2).toInt()));
+  return db->originalSize(vsn);
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {

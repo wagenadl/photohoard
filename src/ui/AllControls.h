@@ -4,17 +4,15 @@
 
 #define ALLCONTROLS_H
 
-#include <QScrollArea>
+#include <QTabWidget>
 #include <QMap>
 #include "Adjustments.h"
 
-class AllControls: public QScrollArea {
+class AllControls: public QTabWidget {
   Q_OBJECT;
 public:
   AllControls(QWidget *parent=0);
   virtual ~AllControls();
-  class ControlGroup *group(QString groupname) const; // groupname must exist
-  class GentleJog *jog(QString slidername) const; // slidername must exist
   Adjustments const &getAll() const;
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
@@ -26,18 +24,11 @@ signals:
   */
 public slots:
   void setAll(Adjustments const &vv); // does not signal VALUECHANGED
-protected slots:
-  void goNext(QString);
-  void goPrevious(QString);
 private slots:
-  void sliderChange(QString slidername);
-  void setAndEmit(QString k, double v);
+  void valueChange(QString adjuster, double value);
 private:
-  Adjustments adj;
-  QMap<QString, ControlGroup *> groups;
-  QMap<QString, GentleJog *> jogs;
-  QMap<QString, QString> next;
-  QMap<QString, QString> previous;
+  class ControlSliders *sliders;
+  class Cropper *cropper;
 };
 
 #endif

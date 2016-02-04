@@ -449,3 +449,18 @@ quint64 PhotoDB::current() const {
   return simpleQuery("select version from current").toULongLong();
 }
   
+PSize PhotoDB::originalSize(quint64 vsn) const {
+  QSqlQuery q = constQuery("select width, height, orient"
+                          " from versions"
+                          " inner join photos on versions.photo==photos.id"
+                          " where versions.id==:a limit 1", vsn);
+  ASSERT(q.next());
+  PSize s(q.value(0).toInt(), q.value(1).toInt());
+  return Exif::fixOrientation(s, Exif::Orientation(q.value(2).toInt()));
+}		     
+
+PSize PhotoDB::originalSize(PhotoDB::VersionRecord const &vr,
+			    PhotoDB::PhotoRecord const &pr) {
+  PSize s(pr.filesize);
+  return Exif::fixOrientation(s, vr.orient);
+}
