@@ -126,8 +126,7 @@
     },
   "pubmed": {
     "re": "\\d\\d\\d\\d\\d*",
-    "web": "http://www.ncbi.nlm.nih.gov/pubmed/%1",
-    "object": "http://www.ncbi.nlm.nih.gov/pmc/articles/pmid/%1/pdf"
+    "web": "http://www.ncbi.nlm.nih.gov/pubmed/%1"
     },
   "thorlabs": {
     "re": "[A-Z][-A-Z0-9a-z]*",

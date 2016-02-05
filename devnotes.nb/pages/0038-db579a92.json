@@ -1,0 +1,588 @@
+{ "typ": "page",
+  "cre": "2016-01-28T09:23:11",
+  "mod": "2016-01-28T10:42:54",
+  "cui": "f37486f547d0daaf",
+  "stampTime": 0,
+  "startPage": 38,
+  "unlocked": false,
+  "uuid": "db579a92",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-01-28T09:23:11",
+      "mod": "2016-01-28T09:23:13",
+      "uuid": "2d5dfa80",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T09:23:11",
+          "mod": "2016-01-28T09:23:13",
+          "lines": [
+            0
+          ],
+          "text": "Local contrast",
+          "uuid": "3343564e"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-01-28T09:23:11",
+      "mod": "2016-01-28T09:23:11",
+      "uuid": "ef371b51"
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T09:23:13",
+      "mod": "2016-01-28T09:24:35",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c4820651",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T09:23:13",
+          "mod": "2016-01-28T09:24:35",
+          "lines": [
+            0,
+            65,
+            117
+          ],
+          "text": "My current local constrast algorithm works in IPT space. It does 3 rounds each of left→right→left and top→bottom→top filtering using the scale parameter as a filter coefficient:",
+          "uuid": "08786ac9",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T09:24:17",
+              "mod": "2016-01-28T09:24:17",
+              "end": 142,
+              "start": 137,
+              "style": 1,
+              "uuid": "ee6adf31"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T09:24:36",
+      "mod": "2016-01-28T09:25:03",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f8f1ed08",
+      "y0": 145.498,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T09:24:36",
+          "mod": "2016-01-28T09:24:57",
+          "lines": [
+            0
+          ],
+          "text": "a = (1/X)  (1−scale),",
+          "uuid": "5ab97e50",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T09:24:45",
+              "mod": "2016-01-28T09:24:45",
+              "end": 1,
+              "start": 0,
+              "style": 1,
+              "uuid": "b14cdb8d"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:24:46",
+              "mod": "2016-01-28T09:24:46",
+              "end": 8,
+              "start": 7,
+              "style": 1,
+              "uuid": "22d9c4f5"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:24:51",
+              "mod": "2016-01-28T09:24:51",
+              "end": 19,
+              "start": 14,
+              "style": 1,
+              "uuid": "a611d8c6"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:24:52",
+              "mod": "2016-01-28T09:24:52",
+              "end": 20,
+              "start": 10,
+              "style": 6,
+              "uuid": "f77c8013"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T09:24:57",
+      "mod": "2016-01-28T09:25:12",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "3535eee0",
+      "y0": 164.645,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T09:24:57",
+          "mod": "2016-01-28T09:25:12",
+          "lines": [
+            0,
+            61
+          ],
+          "text": "where X is the largest dimension of the image. The filter is simple:",
+          "uuid": "b2c324f3"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T09:25:13",
+      "mod": "2016-01-28T09:26:59",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c01dd658",
+      "y0": 214.977,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T09:25:13",
+          "mod": "2016-01-28T09:26:47",
+          "lines": [
+            0
+          ],
+          "text": "Jk = (1−a) Jk−1 + a Ik",
+          "uuid": "e1a9fd0b",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T09:25:56",
+              "mod": "2016-01-28T09:26:47",
+              "end": 2,
+              "start": 0,
+              "style": 1,
+              "uuid": "81b3354e"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:25:56",
+              "mod": "2016-01-28T09:25:56",
+              "end": 2,
+              "start": 1,
+              "style": 7,
+              "uuid": "e1021af7"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:03",
+              "mod": "2016-01-28T09:26:03",
+              "end": 9,
+              "start": 8,
+              "style": 1,
+              "uuid": "d4d8b971"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:05",
+              "mod": "2016-01-28T09:26:44",
+              "end": 13,
+              "start": 11,
+              "style": 1,
+              "uuid": "c8c661f7"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:06",
+              "mod": "2016-01-28T09:26:06",
+              "end": 15,
+              "start": 12,
+              "style": 7,
+              "uuid": "865236c2"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:10",
+              "mod": "2016-01-28T09:26:10",
+              "end": 19,
+              "start": 18,
+              "style": 1,
+              "uuid": "25c84e52"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:11",
+              "mod": "2016-01-28T09:26:11",
+              "end": 21,
+              "start": 20,
+              "style": 1,
+              "uuid": "7db66a9d"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:12",
+              "mod": "2016-01-28T09:26:12",
+              "end": 22,
+              "start": 21,
+              "style": 1,
+              "uuid": "f42e6c77"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:12",
+              "mod": "2016-01-28T09:26:12",
+              "end": 22,
+              "start": 21,
+              "style": 7,
+              "uuid": "8b11c7ee"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T09:26:23",
+      "mod": "2016-01-28T10:38:22",
+      "h": 96.664,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "425202cb",
+      "y0": 234.124,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T09:26:23",
+          "mod": "2016-01-28T10:38:22",
+          "lines": [
+            0,
+            59,
+            114,
+            175
+          ],
+          "text": "where I represents the input image and J the output. (Some magic is applied at edges.) This ultimately produces a smoothed brightness map B. The I channel of the actual image is then transformed according to:",
+          "uuid": "2b660dd9",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:50",
+              "mod": "2016-01-28T09:26:50",
+              "end": 7,
+              "start": 6,
+              "style": 1,
+              "uuid": "bd3a42fc"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T09:26:56",
+              "mod": "2016-01-28T09:26:56",
+              "end": 40,
+              "start": 39,
+              "style": 1,
+              "uuid": "c571e1de"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:37:17",
+              "mod": "2016-01-28T10:37:17",
+              "end": 139,
+              "start": 138,
+              "style": 1,
+              "uuid": "4f5444ce"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:38:09",
+              "mod": "2016-01-28T10:38:09",
+              "end": 146,
+              "start": 145,
+              "style": 1,
+              "uuid": "666811fd"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T10:38:23",
+      "mod": "2016-01-28T10:38:58",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "66e5ae91",
+      "y0": 330.788,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T10:38:23",
+          "mod": "2016-01-28T10:38:58",
+          "lines": [
+            0
+          ],
+          "text": "I ← I + contrast · (I − B).",
+          "uuid": "9e45a982",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T10:38:24",
+              "mod": "2016-01-28T10:38:24",
+              "end": 1,
+              "start": 0,
+              "style": 1,
+              "uuid": "09fc45ce"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:38:28",
+              "mod": "2016-01-28T10:38:28",
+              "end": 5,
+              "start": 4,
+              "style": 1,
+              "uuid": "2252af73"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:38:37",
+              "mod": "2016-01-28T10:38:37",
+              "end": 21,
+              "start": 20,
+              "style": 1,
+              "uuid": "18b68434"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:38:38",
+              "mod": "2016-01-28T10:38:38",
+              "end": 25,
+              "start": 24,
+              "style": 1,
+              "uuid": "d980604a"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:38:50",
+              "mod": "2016-01-28T10:38:50",
+              "end": 16,
+              "start": 8,
+              "style": 1,
+              "uuid": "dbea1829"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T10:39:59",
+      "mod": "2016-01-28T10:40:02",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0d889f6a",
+      "y0": 349.935,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T10:39:59",
+          "mod": "2016-01-28T10:40:02",
+          "lines": [
+            0
+          ],
+          "text": "",
+          "uuid": "4c15ce46"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T10:40:02",
+      "mod": "2016-01-28T10:42:54",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4cb417b8",
+      "y0": 377.101,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T10:40:02",
+          "mod": "2016-01-28T10:42:54",
+          "lines": [
+            0,
+            64,
+            130
+          ],
+          "text": "Note that for my haze thing, if S = (I − bH)/(1−b), I can write that as S = I − bH/(1−b) + I [1/(1−b) − 1]. Now 1/(1−b) − 1 = b + O(b2), so the whole thing becomes S = I + b(I−H) + O(b2).",
+          "uuid": "c87d125a",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T10:40:26",
+              "mod": "2016-01-28T10:40:26",
+              "end": 33,
+              "start": 32,
+              "style": 1,
+              "uuid": "e4e6ab05"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:40:28",
+              "mod": "2016-01-28T10:40:28",
+              "end": 38,
+              "start": 37,
+              "style": 1,
+              "uuid": "1b2fdb3c"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:40:32",
+              "mod": "2016-01-28T10:40:32",
+              "end": 43,
+              "start": 41,
+              "style": 1,
+              "uuid": "f77f2fcb"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:40:34",
+              "mod": "2016-01-28T10:40:34",
+              "end": 49,
+              "start": 48,
+              "style": 1,
+              "uuid": "c9ee2173"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:40:39",
+              "mod": "2016-01-28T10:40:39",
+              "end": 73,
+              "start": 72,
+              "style": 1,
+              "uuid": "2f2cfb74"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:40:51",
+              "mod": "2016-01-28T10:40:51",
+              "end": 77,
+              "start": 76,
+              "style": 1,
+              "uuid": "0319570d"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:41:12",
+              "mod": "2016-01-28T10:41:12",
+              "end": 82,
+              "start": 80,
+              "style": 1,
+              "uuid": "0e39f73a"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:41:13",
+              "mod": "2016-01-28T10:41:13",
+              "end": 87,
+              "start": 86,
+              "style": 1,
+              "uuid": "f2db189c"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:41:21",
+              "mod": "2016-01-28T10:41:21",
+              "end": 92,
+              "start": 91,
+              "style": 1,
+              "uuid": "32b18fb4"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:41:37",
+              "mod": "2016-01-28T10:41:37",
+              "end": 100,
+              "start": 99,
+              "style": 1,
+              "uuid": "920e979d"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:41:53",
+              "mod": "2016-01-28T10:41:53",
+              "end": 118,
+              "start": 117,
+              "style": 1,
+              "uuid": "32cc9968"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:10",
+              "mod": "2016-01-28T10:42:10",
+              "end": 127,
+              "start": 126,
+              "style": 1,
+              "uuid": "756e90ef"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:11",
+              "mod": "2016-01-28T10:42:11",
+              "end": 131,
+              "start": 130,
+              "style": 1,
+              "uuid": "4432b945"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:11",
+              "mod": "2016-01-28T10:42:17",
+              "end": 133,
+              "start": 132,
+              "style": 1,
+              "uuid": "d908d794"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:20",
+              "mod": "2016-01-28T10:42:20",
+              "end": 134,
+              "start": 133,
+              "style": 6,
+              "uuid": "c94d9e2f"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:40",
+              "mod": "2016-01-28T10:42:40",
+              "end": 165,
+              "start": 164,
+              "style": 1,
+              "uuid": "5b7908ec"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:41",
+              "mod": "2016-01-28T10:42:41",
+              "end": 169,
+              "start": 168,
+              "style": 1,
+              "uuid": "c6ce04c5"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:49",
+              "mod": "2016-01-28T10:42:49",
+              "end": 173,
+              "start": 172,
+              "style": 1,
+              "uuid": "d47deebd"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:49",
+              "mod": "2016-01-28T10:42:49",
+              "end": 175,
+              "start": 174,
+              "style": 1,
+              "uuid": "88aa87d4"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:50",
+              "mod": "2016-01-28T10:42:50",
+              "end": 177,
+              "start": 176,
+              "style": 1,
+              "uuid": "ac980aed"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:51",
+              "mod": "2016-01-28T10:42:51",
+              "end": 182,
+              "start": 181,
+              "style": 1,
+              "uuid": "7764889a"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:51",
+              "mod": "2016-01-28T10:42:51",
+              "end": 184,
+              "start": 183,
+              "style": 1,
+              "uuid": "0e517ba9"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T10:42:53",
+              "mod": "2016-01-28T10:42:53",
+              "end": 185,
+              "start": 184,
+              "style": 6,
+              "uuid": "a75e3228"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
