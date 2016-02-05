@@ -1,0 +1,34 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+<!-- ICONS -->
+  <file alias="icons/colorBlue.svg">../res/icons/colorBlue.svg</file>
+  <file alias="icons/colorGreen.svg">../res/icons/colorGreen.svg</file>
+  <file alias="icons/colorNone.svg">../res/icons/colorNone.svg</file>
+  <file alias="icons/colorPurple.svg">../res/icons/colorPurple.svg</file>
+  <file alias="icons/colorRed.svg">../res/icons/colorRed.svg</file>
+  <file alias="icons/colorYellow.svg">../res/icons/colorYellow.svg</file>
+  <file alias="icons/layoutGrid.svg">../res/icons/layoutGrid.svg</file>
+  <file alias="icons/layoutFull.svg">../res/icons/layoutFull.svg</file>
+  <file alias="icons/layoutHGrid.svg">../res/icons/layoutHGrid.svg</file>
+  <file alias="icons/layoutHLine.svg">../res/icons/layoutHLine.svg</file>
+  <file alias="icons/layoutVGrid.svg">../res/icons/layoutVGrid.svg</file>
+  <file alias="icons/layoutVLine.svg">../res/icons/layoutVLine.svg</file>
+  <file alias="icons/scaleLarger.svg">../res/icons/scaleB10.svg</file>
+  <file alias="icons/scaleSmaller.svg">../res/icons/scaleB4.svg</file>
+  <file alias="icons/cameraImport.svg">../res/icons/cameraImport-1.svg</file>
+  <file alias="icons/folderAdd.svg">../res/icons/folderAdd2-1.svg</file>
+  <file alias="icons/export.svg">../res/icons/export-1.svg</file>
+  <file alias="icons/search.svg">../res/icons/searchLines2-1.svg</file>
+  <file alias="icons/toggleOrg.svg">../res/icons/toggleOrg.svg</file>
+  <file alias="icons/rescan.svg">../res/icons/rescan.svg</file>
+  <file alias="icons/sliders.svg">../res/icons/sliders.svg</file>
+  <file alias="icons/crop.svg">../res/icons/crop.svg</file>
+ </qresource> 
+</RCC>
+
+
+<!--
+To update the list of icons:
+
+ls ../res/icons/*svg|perl -ne 'chomp; $a = $_; $b=$a; $b =~ s{../res/}{}; print "  <file alias=\"$b\">$a</file>\n";'
+-->

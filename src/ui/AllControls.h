@@ -23,9 +23,13 @@ signals:
      than a slider name. Mostly these are 1:1, but not quite.
   */
 public slots:
-  void setAll(Adjustments const &vv); // does not signal VALUECHANGED
+  void setAll(Adjustments const &vv, QSize osize);
+  /* SETALL - Sets all sliders and controls
+     Does not signal VALUECHANGED.
+  */
 private slots:
-  void valueChange(QString adjuster, double value);
+  void changeFromSliders(QString adjuster, double value);
+  void changeFromCropper(QRect rect, QSize osize);
 private:
   class ControlSliders *sliders;
   class Cropper *cropper;
