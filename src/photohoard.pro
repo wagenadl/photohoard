@@ -25,6 +25,7 @@ UI_DIR = $${OBJECTS_DIR}
 # Input
 
 RESOURCES += PhotoHoard.qrc
+RESOURCES += Icons.qrc
 
 LIBS += -lexiv2
 LIBS += -llcms2
