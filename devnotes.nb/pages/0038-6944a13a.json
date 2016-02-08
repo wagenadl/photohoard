@@ -1,0 +1,54 @@
+{ "typ": "page",
+  "cre": "2016-01-29T06:26:06",
+  "mod": "2016-01-29T06:26:49",
+  "cui": "de46a656c81805d8",
+  "stampTime": 0,
+  "startPage": 38,
+  "unlocked": false,
+  "uuid": "6944a13a",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-01-29T06:26:06",
+      "mod": "2016-01-29T06:26:49",
+      "uuid": "89e98ad3",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T06:26:06",
+          "mod": "2016-01-29T06:26:49",
+          "lines": [
+            0
+          ],
+          "text": "Local contrast",
+          "uuid": "a99550a5"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-01-29T06:26:06",
+      "mod": "2016-01-29T06:26:06",
+      "uuid": "e40171c1"
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-29T06:26:11",
+      "mod": "2016-01-29T06:26:43",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "fda9a548",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T06:26:11",
+          "mod": "2016-01-29T06:26:43",
+          "lines": [
+            0,
+            65
+          ],
+          "text": "Strength scales strongly with scale. I should perhaps adjust the way the parameters work. See localcontrasttest.m.",
+          "uuid": "d525431b"
+        }
+      ]
+    }
+  ]
+}

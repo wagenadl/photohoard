@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2015-08-20T19:53:02",
-  "mod": "2016-01-27T20:04:46",
+  "mod": "2016-01-29T06:26:49",
   "uuid": "b7dd37c0",
   "cc": [
     { "typ": "entry",
@@ -186,6 +186,22 @@
       "startPage": 35,
       "title": "White balance",
       "uuid": "85c0da23"
+    },
+    { "typ": "entry",
+      "cre": "2016-01-29T05:38:56",
+      "mod": "2016-01-29T05:39:09",
+      "sheetCount": 1,
+      "startPage": 37,
+      "title": "Finding versions based on adjustments",
+      "uuid": "8147750f"
+    },
+    { "typ": "entry",
+      "cre": "2016-01-29T06:26:06",
+      "mod": "2016-01-29T06:26:49",
+      "sheetCount": 1,
+      "startPage": 38,
+      "title": "Local contrast",
+      "uuid": "6944a13a"
     }
   ]
 }
