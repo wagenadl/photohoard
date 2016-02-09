@@ -35,20 +35,24 @@ private slots:
   void setAspectIndex(int);
 private:
   void populate();
-  void connectAll();
+  void addModeButtons();
+  void addOrientButtons();
+  QPushButton *addOrientButton(class QGridLayout *lay, Mode, QString lbl);
+  QPushButton *addModeButton(class QGridLayout *lay, Orientation, QString lbl);
+  QPushButton *addButton(class QGridLayout *lay, QString lbl);
+  QGridLayout *addGrid();
   void addAspects();
   void addAspect(int, int);
   void addAspect(QString, double);
-  void addButtons(QVector<class QAbstractButton *> &, QStringList);
   void addSliders();
 private:
-  QVector<class QAbstractButton *> modeControls;
-  QVector<class QAbstractButton *> orientControls;
-  QVector<class QAbstractButton *> aspectControls;
-  QVector<class GentleJog *> sliders;
+  QMap<Mode, class QAbstractButton *> modeControls;
+  QMap<Orientation, class QAbstractButton *> orientControls;
+  QMap<QString, class QAbstractButton *> aspectControls;
+  QMap<QString, double> aspectValues;
+  QMap<QString, class GentleJog *> sliders;
   QLineEdit *customAspect;
   QLineEdit *customSize;
-  QVector<double> aspectValues;
   class QGridLayout *aspectLayout;
 private:
   QRect rect;
