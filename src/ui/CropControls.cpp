@@ -33,7 +33,16 @@ void CropControls::addModeButtons() {
 }
 
 
+QGridLayout *CropControls::addGrid() {
+  QWidget *container = new QWidget();
+  layout()->addWidget(container);
+  QGridLayout *lay = new QGridLayout();
+  container->setLayout(lay);
+  return lay;
+
 void CropControls::addOrientButtons() {
+  QGridLayout *lay = addGrid();
+  conta
   addButtons(orientControls,
              QStringList() << "Auto" << "Landscape" << "Portrait");
   for (int k=0; k<3; k++) {
