@@ -94,6 +94,34 @@ Adjustments const &CropCalc::adjustments() const {
   return adj;
 }
 
+double CropCalc::pseudoSliderValueTL() const {
+  double dy2 = 1/(1+aspect*aspect);
+  double dy = sqrt(dy2);
+  double dx = sqrt(1-dy2);
+  return clip(adj.cropl/dx, 0, adj.cropt/dy);
+}
+
+double CropCalc::pseudoSliderValueTR() const {
+  double dy2 = 1/(1+aspect*aspect);
+  double dy = sqrt(dy2);
+  double dx = sqrt(1-dy2);
+  return clip(adj.cropr/dx, 0, adj.cropt/dy);
+}
+
+double CropCalc::pseudoSliderValueBL() const {
+  double dy2 = 1/(1+aspect*aspect);
+  double dy = sqrt(dy2);
+  double dx = sqrt(1-dy2);
+  return clip(adj.cropl/dx, 0, adj.cropb/dy);
+}
+
+double CropCalc::pseudoSliderValueBR() const {
+  double dy2 = 1/(1+aspect*aspect);
+  double dy = sqrt(dy2);
+  double dx = sqrt(1-dy2);
+  return clip(adj.cropr/dx, 0, adj.cropb/dy);
+}
+
 double CropCalc::pseudoSliderMaxLeft() const {
   return rect.right() - 10;
 }
