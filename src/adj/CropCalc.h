@@ -15,6 +15,7 @@ public:
 public:
   CropCalc();
   void reset(Adjustments const &adj, QSize osize);
+  void setFree();
   void setAspect(double aspect, Orient o);
   /* SETASPECT - Set fixed aspect ratio for crop rectangle.
      SETASPECT(a, o) sets the fixed aspect ratio of the crop rectangle
@@ -30,7 +31,6 @@ public:
      even when O is AUTO. Instead, the orientation of the preexisting crop
      rectangle or of the image is used. (As specified through SETALL.)
   */
-  void setFree();
   void slideRight(double);
   void slideTop(double);
   void slideLeft(double);
@@ -41,21 +41,36 @@ public:
   void slideBR(double);
   Adjustments const &adjustments() const;
   QRect cropRect() const;
+  double pseudoSliderValueTL() const;
+  double pseudoSliderValueTR() const;
+  double pseudoSliderValueBL() const;
+  double pseudoSliderValueBR() const;
+  double pseudoSliderMaxTL() const;
+  double pseudoSliderMaxTR() const;
+  double pseudoSliderMaxBL() const;
+  double pseudoSliderMaxBR() const;
+  double pseudoSliderMaxLeft() const;
+  double pseudoSliderMaxRight() const;
+  double pseudoSliderMaxTop() const;
+  double pseudoSliderMaxBottom() const;
 private:
   void updateAdj();
   void setCenterAndSize(QPointF c, QSizeF s);
-  bool isPortrait() const;
   double flipIfNeeded(double) const;
+  /* FLIPIFNEEDED - Correct aspect ratio
+     FLIPIFNEEDED(a), where A is an aspect ratio, returns either A or 1/A:
+     If the current crop rectangle has width>height, the number returned by
+     FLIPIFNEEDED will be >=1. In the converse situation, it will be <=1.
+   */
 private:
-  void setTop(double);
-  void setBottom(double); // relative to bottom
-  void setLeft(double);
-  void setRight(double);
+  void expandTop(double);
+  void expandBottom(double); 
+  void expandLeft(double);
+  void expandRight(double);
 private:
   Adjustments adj;
   QSize osize;
   Mode mode;
-  QSize fixsize; // actual corresponding to current aspect
   double aspect; // w:h
   QRectF rect;
 };

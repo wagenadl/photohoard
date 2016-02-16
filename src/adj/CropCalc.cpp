@@ -2,6 +2,15 @@
 
 #include "CropCalc.h"
 
+inline double clip(double v, double minv, double maxv) {
+  if (v<minv)
+    return minv;
+  else if (v>maxv)
+    return maxv;
+  else
+    return v;
+}
+
 CropCalc::CropCalc() {
   setFree();
 }
@@ -10,36 +19,12 @@ void CropCalc::reset(Adjustments const &a, QSize os) {
   adj = a;
   osize = os;
   setFree();
-  fixsize = osize;
   aspect = osize.width() * 1. / osize.height();
   rect = QRectF(cropRect());
 }
 
-
-CropCalc::Orient CropCalc::instantiatedOrientation() const {
-  if (orient==Orient::Auto)
-    return rect.width()<rect.height() ? Orient::Portrait : Orient::Landscape;
-  else
-    return orient;
-}
-
-double CropCalc::instantiatedAspect() const {
-  if (instantiatedOrientation()==Orient::Landscape)
-    return aspect;
-  else
-    return 1./aspect;
-}
-
-QSize CropCalc::instantiatedSize() const {
-  if (instantiatedOrientation()==Orient::Landscape)
-    return fixsize;
-  else
-    return fixsize.transposed();
-}
-
 void CropCalc::setFree() {
   mode = Mode::Free;
-  orient = Orient::Auto;
 }
 
 double CropCalc::flipIfNeeded(double a) const {
@@ -68,50 +53,27 @@ void CropCalc::setAspect(double a, Orient o) {
   if (newwidth>osize.width()) {
     newwidth = osize.width();
     newheight = newwidth/a;
+    // By construction, newheight<=osize.height.
   } else if (newheight>osize.height()) {
     newheight = osize.height();
     newwidth = newheight*aspect;
-  } // by construction, this limits the w and h to within orig
+    // By construction, newwidth<=osize.width.
+  }
 
-  setCenterAndSize(center, QSizeF(newwidth, newheight));
-}
-
-
-void CropCalc::setSize(QSize s, Orient o) {
-  mode = Mode::Size;
-  if (s.width() < s.height())
-    s.transpose();
-  fixsize = s;
-  orient = o;
-  if (osize.isNull())
-    return;
-  
-  if (instantiatedOrientation()==Orient::Portrait)
-    s.transpose();
-
-  QPointF center = rect.center();
-
-  double newwidth = s.width();
-  double newheight = s.height();
-  if (newwidth>osize.width()) 
-    newwidth = osize.width();
-  if (newheight>osize.height()) 
-    newheight = osize.height();
-
-  setCenterAndSize(center, QSizeF(newwidth, newheight));
-}
-
-void setCenterAndSize(QPointF center, QSizeF s) {
-  QPointF tl = center - QPointF(s.width()/2, s.height()/2);
+  // Ideally, place centered on previous crop rectangle: ...
+  QPointF tl = center - QPointF(newwidth/2, newheight/2);
+  // ... But be prepared to shift around:
   if (tl.x()<0)
     tl.setX(0);
-  else if (tl.x()+s.width() > osize.width())
-    tl.setX(osize.width()-s.width());
+  else if (tl.x()+newwidth > osize.width())
+    tl.setX(osize.width()-newwidth);
   if (tl.y()<0)
     tl.setY(0);
-  else if (tl.y()+s.height() > osize.height())
-    tl.setY(osize.height()-s.height());
-  rect = QRectF(tl, QSizeF(s.width(), s.height()));
+  else if (tl.y()+newheight > osize.height())
+    tl.setY(osize.height()-newheight);
+  
+  rect = QRectF(tl, QSizeF(newwidth, newheight));
+
   updateAdj();
 }
 
@@ -132,40 +94,90 @@ Adjustments const &CropCalc::adjustments() const {
   return adj;
 }
 
-void CropCalc::moveE(double cropr) {
-  if (cropr<0)
-    cropr = 0;
-  double right = osize.width() - cropr;
-  if (right - rect.left()<10)
-    right = rect.left()+10;
-  switch (mode) {
-  case Mode::Free:
-    rect.setRight(right);
-    break;
-  case Mode::Aspect: {
-    rect.setRight(right);
-    double height = rect.width() / instantiatedAspect();
-    double deltah2 = (height - rect.height()) / 2;
-    if (rect.top() < deltah2)
-      rect.setTop(0);
-    else
-      rect.setTop(rect.top() - deltah2);
-    deltah2 = (height - rect.height()) / 2;
-    if (osize.height()-rect.bottom() < deltah2)
-      rect.setBottom(osize.height());
-    else
-      rect.setBottom(rect.bottom() + deltah2);
-    if (rect.height() != height) {
-      double width = instantiatedAspect()*rect.height();
-      rect.setLeft(rect.right() - width);
-    }
-  } break;
-  case Mode::Size: {
-    rect.setRight(right);
-    rect.setLeft(right-instantiatedSize().width());
-    if (rect.left()<0)
-      rect.setLeft(0);
-  } break;
+double CropCalc::pseudoSliderMaxLeft() const {
+  return rect.right() - 10;
+}
+
+double CropCalc::pseudoSliderMaxRight() const {
+  return osize.width() - rect.left() - 10;
+}
+
+double CropCalc::pseudoSliderMaxTop() const {
+  return rect.bottom() - 10;
+}
+
+double CropCalc::pseudoSliderMaxBottom() const {
+  return osize.height() - rect.top() - 10;
+}
+
+void CropCalc::slideLeft(double cropl) {
+  cropl = clip(cropl, 0, pseudoSliderMaxLeft());
+  rect.setLeft(cropl);
+  if (mode==Mode::Aspect) {
+    double wid = rect.width();
+    double hei = wid/aspect;
+    expandTop((hei - rect.height())/2);
+    expandBottom(hei - rect.height());
+    expandTop((hei - rect.height()));
+    rect.setRight(rect.left() + rect.height()*aspect);
   }
   updateAdj();
+}
+
+void CropCalc::slideRight(double cropr) {
+  cropr = clip(cropr, 0, pseudoSliderMaxRight());
+  rect.setRight(osize.width() - cropr);
+  if (mode==Mode::Aspect) {
+    double wid = rect.width();
+    double hei = wid/aspect;
+    expandTop((hei - rect.height())/2);
+    expandBottom(hei - rect.height());
+    expandTop((hei - rect.height()));
+    rect.setLeft(rect.right() - rect.height()*aspect);
+  }
+  updateAdj();
+}
+
+void CropCalc::slideTop(double cropt) {
+  cropt = clip(cropt, 0, pseudoSliderMaxTop());
+  rect.setTop(cropt);
+  if (mode==Mode::Aspect) {
+    double hei = rect.height();
+    double wid = hei*aspect;
+    expandLeft((wid - rect.width())/2);
+    expandRight(wid - rect.width());
+    expandLeft((wid - rect.width()));
+    rect.setBottom(rect.top() + rect.width()/aspect);
+  }
+  updateAdj();
+}
+
+void CropCalc::slideBottom(double cropb) {
+  cropb = clip(cropb, 0, pseudoSliderMaxBottom());
+  rect.setBottom(osize.height() - cropb));
+  if (mode==Mode::Aspect) {
+    double hei = rect.height();
+    double wid = hei*aspect;
+    expandLeft((wid - rect.width())/2);
+    expandRight(wid - rect.width());
+    expandLeft((wid - rect.width()));
+    rect.setTop(rect.bottom() - rect.width()/aspect);
+  }
+  updateAdj();
+}
+
+void CropCalc::expandLeft(double dx) {
+  rect.setLeft(clip(rect.left() - dx, 0, rect.right() - 10));
+}
+
+void CropCalc::expandRight(double dx) {
+  rect.setRight(clip(rect.right() + dx, rect.left() + 10, osize.width()));
+}
+
+void CropCalc::expandTop(double dy) {
+  rect.setTop(clip(rect.top() - dy, 0, rect.bottom() - 10));
+}
+
+void CropCalc::expandBottom(double dy) {
+  rect.setBottom(clip(rect.bottom() + dy, rect.top() + 10, osize.height()));
 }
