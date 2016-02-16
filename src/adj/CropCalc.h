@@ -62,6 +62,7 @@ private:
      If the current crop rectangle has width>height, the number returned by
      FLIPIFNEEDED will be >=1. In the converse situation, it will be <=1.
    */
+  void calcDxy();
 private:
   void expandTop(double);
   void expandBottom(double); 
@@ -72,6 +73,7 @@ private:
   QSize osize;
   Mode mode;
   double aspect; // w:h
+  double dx, dy;
   QRectF rect;
 };
 

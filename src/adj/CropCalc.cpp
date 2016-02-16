@@ -13,6 +13,7 @@ inline double clip(double v, double minv, double maxv) {
 
 CropCalc::CropCalc() {
   setFree();
+  dx = dy = 0.7;
 }
 
 void CropCalc::reset(Adjustments const &a, QSize os) {
@@ -20,6 +21,7 @@ void CropCalc::reset(Adjustments const &a, QSize os) {
   osize = os;
   setFree();
   aspect = osize.width() * 1. / osize.height();
+  calcDxy();
   rect = QRectF(cropRect());
 }
 
@@ -42,6 +44,9 @@ void CropCalc::setAspect(double a, Orient o) {
     aspect = flipIfNeeded(a);
   else
     aspect = a;
+
+  calcDxy();
+
   if (osize.isNull())
     return;
   
@@ -94,34 +99,48 @@ Adjustments const &CropCalc::adjustments() const {
   return adj;
 }
 
-double CropCalc::pseudoSliderValueTL() const {
+void CropCalc::calcDxy() {
   double dy2 = 1/(1+aspect*aspect);
-  double dy = sqrt(dy2);
-  double dx = sqrt(1-dy2);
+  dy = sqrt(dy2);
+  dx = sqrt(1-dy2);
+}  
+
+//////////////////////////////////////////////////////////////////////
+double CropCalc::pseudoSliderValueTL() const {
   return clip(adj.cropl/dx, 0, adj.cropt/dy);
 }
 
 double CropCalc::pseudoSliderValueTR() const {
-  double dy2 = 1/(1+aspect*aspect);
-  double dy = sqrt(dy2);
-  double dx = sqrt(1-dy2);
   return clip(adj.cropr/dx, 0, adj.cropt/dy);
 }
 
 double CropCalc::pseudoSliderValueBL() const {
-  double dy2 = 1/(1+aspect*aspect);
-  double dy = sqrt(dy2);
-  double dx = sqrt(1-dy2);
   return clip(adj.cropl/dx, 0, adj.cropb/dy);
 }
 
 double CropCalc::pseudoSliderValueBR() const {
-  double dy2 = 1/(1+aspect*aspect);
-  double dy = sqrt(dy2);
-  double dx = sqrt(1-dy2);
   return clip(adj.cropr/dx, 0, adj.cropb/dy);
 }
 
+//////////////////////////////////////////////////////////////////////
+// I think the following are correc. Not quite sure.
+double CropCalc::pseudoSliderMaxTL() const {
+  return clip(pseudoSliderMaxLeft()/dx, 0, pseudoSliderMaxTop()/dy);
+}
+
+double CropCalc::pseudoSliderMaxTR() const {
+  return clip(pseudoSliderMaxRight()/dx, 0, pseudoSliderMaxTop()/dy);
+}
+
+double CropCalc::pseudoSliderMaxBL() const {
+  return clip(pseudoSliderMaxLeft()/dx, 0, pseudoSliderMaxBottom()/dy);
+}
+
+double CropCalc::pseudoSliderMaxBR() const {
+  return clip(pseudoSliderMaxRight()/dx, 0, pseudoSliderMaxBottom()/dy);
+}
+
+//////////////////////////////////////////////////////////////////////
 double CropCalc::pseudoSliderMaxLeft() const {
   return rect.right() - 10;
 }
@@ -138,6 +157,7 @@ double CropCalc::pseudoSliderMaxBottom() const {
   return osize.height() - rect.top() - 10;
 }
 
+//////////////////////////////////////////////////////////////////////
 void CropCalc::slideLeft(double cropl) {
   cropl = clip(cropl, 0, pseudoSliderMaxLeft());
   rect.setLeft(cropl);
@@ -194,6 +214,41 @@ void CropCalc::slideBottom(double cropb) {
   updateAdj();
 }
 
+//////////////////////////////////////////////////////////////////////
+void CropCalc::slideTL(double croptl) {
+  croptl = clip(croptl, 0, pseudoSliderMaxTL());
+  double oldtl = pseudoSliderValueTL();
+  expandLeft(dx*(croptl-oldtl));
+  rect.setTop(rect.bottom() - rect.width()/aspect);
+  updateAdj();
+}
+  
+void CropCalc::slideTR(double croptr) {
+  croptr = clip(croptr, 0, pseudoSliderMaxTR());
+  double oldtr = pseudoSliderValueTR();
+  expandRight(dx*(croptr-oldtr));
+  rect.setTop(rect.bottom() - rect.width()/aspect);
+  updateAdj();
+}
+
+void CropCalc::slideBL(double cropbl) {
+  cropbl = clip(cropbl, 0, pseudoSliderMaxBL());
+  double oldbl = pseudoSliderValueBL();
+  expandLeft(dx*(cropbl-oldbl));
+  rect.setBottom(rect.top() + rect.width()/aspect);
+  updateAdj();
+}
+  
+void CropCalc::slideBR(double cropbr) {
+  cropbr = clip(cropbr, 0, pseudoSliderMaxBR());
+  double oldbr = pseudoSliderValueBR();
+  expandRight(dx*(cropbr-oldbr));
+  rect.setBottom(rect.top() + rect.width()/aspect);
+  updateAdj();
+}
+  
+
+//////////////////////////////////////////////////////////////////////
 void CropCalc::expandLeft(double dx) {
   rect.setLeft(clip(rect.left() - dx, 0, rect.right() - 10));
 }
