@@ -7,11 +7,9 @@
 #include "Adjustments.h"
 #include <QRectF>
 #include <QSize>
+#include "CropEnums.h"
 
 class CropCalc {
-public:
-  enum class Mode { Free, Aspect };//, Size };
-  enum class Orient { Auto, Portrait, Landscape };
 public:
   CropCalc();
   void reset(Adjustments const &adj, QSize osize);
@@ -71,7 +69,7 @@ private:
 private:
   Adjustments adj;
   QSize osize;
-  Mode mode;
+  CropMode mode;
   double aspect; // w:h
   double dx, dy;
   QRectF rect;

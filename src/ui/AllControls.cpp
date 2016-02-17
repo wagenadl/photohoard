@@ -3,14 +3,14 @@
 #include "AllControls.h"
 #include "Action.h"
 #include "ControlSliders.h"
-#include "Cropper.h"
+#include "CropControls.h"
 
 AllControls::AllControls(QWidget *parent): QTabWidget(parent) {
   sliders = new ControlSliders();
   addTab(sliders, QIcon(":/icons/sliders.svg"), "Sliders");
   connect(sliders, SIGNAL(valueChanged(QString, double)),
 	  SLOT(changeFromSliders(QString, double)));
-  cropper = new Cropper();
+  cropper = new CropControls();
   addTab(cropper, QIcon(":/icons/crop.svg"), "Crop");
   connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
 	  SLOT(changeFromCropper(QRect, QSize)));

@@ -32,7 +32,7 @@ private slots:
   void changeFromCropper(QRect rect, QSize osize);
 private:
   class ControlSliders *sliders;
-  class Cropper *cropper;
+  class CropControls *cropper;
 };
 
 #endif
