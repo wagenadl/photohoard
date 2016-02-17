@@ -1,0 +1,165 @@
+{ "typ": "page",
+  "cre": "2016-01-29T05:38:56",
+  "mod": "2016-01-29T05:45:21",
+  "cui": "de46a656c224a235",
+  "stampTime": 0,
+  "startPage": 37,
+  "unlocked": false,
+  "uuid": "8147750f",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-01-29T05:38:56",
+      "mod": "2016-01-29T05:39:09",
+      "uuid": "05ed04bc",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T05:38:56",
+          "mod": "2016-01-29T05:39:09",
+          "lines": [
+            0
+          ],
+          "text": "Finding versions based on adjustments",
+          "uuid": "a09efe9b"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-01-29T05:38:56",
+      "mod": "2016-01-29T05:38:56",
+      "uuid": "bf0132e9"
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-29T05:39:09",
+      "mod": "2016-01-29T05:45:21",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "1fdef75b",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T05:39:09",
+          "mod": "2016-01-29T05:45:21",
+          "lines": [
+            0,
+            63
+          ],
+          "text": "I am contemplating changing the default for the local contrast scale parameter to 0.5. To do that, I could do this:",
+          "uuid": "de198067"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-29T05:39:34",
+      "mod": "2016-01-29T05:42:52",
+      "h": 90.427,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "97d4ee9e",
+      "y0": 122.332,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T05:39:34",
+          "mod": "2016-01-29T05:42:19",
+          "lines": [
+            0,
+            24,
+            84,
+            100,
+            168
+          ],
+          "text": "attach “:memory:” as M;\ncreate table M.ids as select version from adjustments where k≡”nlcontrast”;\ndelete from M.ids where version in (select version from adjustments where k≡”nlcontrastscale”);",
+          "uuid": "4e7123a6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-29T05:40:46",
+      "mod": "2016-01-29T05:43:13",
+      "h": 96.664,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a197ca26",
+      "y0": 212.759,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T05:40:46",
+          "mod": "2016-01-29T05:43:13",
+          "lines": [
+            0,
+            63,
+            103,
+            171
+          ],
+          "text": "Now M.ids contains only those versions for which nlcontrast is defined as an adjustment, but for which nlcontrastscale defaults to 0. There are 14 of those. It is easy to then",
+          "uuid": "a22c53b7",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-29T05:40:59",
+              "mod": "2016-01-29T05:40:59",
+              "end": 59,
+              "start": 49,
+              "style": 1,
+              "uuid": "0d69554a"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-29T05:41:12",
+              "mod": "2016-01-29T05:41:12",
+              "end": 118,
+              "start": 103,
+              "style": 1,
+              "uuid": "c42d16b8"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-29T05:44:06",
+      "mod": "2016-01-29T05:44:16",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "85d36897",
+      "y0": 309.423,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T05:44:06",
+          "mod": "2016-01-29T05:44:15",
+          "lines": [
+            0,
+            66
+          ],
+          "text": "insert into adjustments select version, \"nlcontrastscale\", 0 from M.ids;",
+          "uuid": "a41e1820"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-29T05:44:23",
+      "mod": "2016-01-29T05:45:08",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "1c805700",
+      "y0": 346.39,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-29T05:44:23",
+          "mod": "2016-01-29T05:45:08",
+          "lines": [
+            0,
+            54
+          ],
+          "text": "While I am at it, I might rename “nlcontrastscale” to “nlconscale”. It is ridiculously long.",
+          "uuid": "b81c5ed9"
+        }
+      ]
+    }
+  ]
+}
