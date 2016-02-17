@@ -26,7 +26,7 @@ void CropCalc::reset(Adjustments const &a, QSize os) {
 }
 
 void CropCalc::setFree() {
-  mode = Mode::Free;
+  mode = CropMode::Free;
 }
 
 double CropCalc::flipIfNeeded(double a) const {
@@ -39,7 +39,7 @@ double CropCalc::flipIfNeeded(double a) const {
 }
 
 void CropCalc::setAspect(double a, Orient o) {
-  mode = Mode::Aspect;
+  mode = CropMode::Aspect;
   if (o==Orient::Auto)
     aspect = flipIfNeeded(a);
   else
@@ -91,8 +91,8 @@ void CropCalc::updateAdj() {
 
 QRect CropCalc::cropRect() const {
   return QRect(QPoint(adj.cropl, adj.cropt),
-               QPoint(osize().width() - adj.cropr,
-                      osize().height() - adj.cropb));
+               QPoint(osize.width() - adj.cropr,
+                      osize.height() - adj.cropb));
 }
 
 Adjustments const &CropCalc::adjustments() const {
@@ -161,7 +161,7 @@ double CropCalc::pseudoSliderMaxBottom() const {
 void CropCalc::slideLeft(double cropl) {
   cropl = clip(cropl, 0, pseudoSliderMaxLeft());
   rect.setLeft(cropl);
-  if (mode==Mode::Aspect) {
+  if (mode==CropMode::Aspect) {
     double wid = rect.width();
     double hei = wid/aspect;
     expandTop((hei - rect.height())/2);
@@ -175,7 +175,7 @@ void CropCalc::slideLeft(double cropl) {
 void CropCalc::slideRight(double cropr) {
   cropr = clip(cropr, 0, pseudoSliderMaxRight());
   rect.setRight(osize.width() - cropr);
-  if (mode==Mode::Aspect) {
+  if (mode==CropMode::Aspect) {
     double wid = rect.width();
     double hei = wid/aspect;
     expandTop((hei - rect.height())/2);
@@ -189,7 +189,7 @@ void CropCalc::slideRight(double cropr) {
 void CropCalc::slideTop(double cropt) {
   cropt = clip(cropt, 0, pseudoSliderMaxTop());
   rect.setTop(cropt);
-  if (mode==Mode::Aspect) {
+  if (mode==CropMode::Aspect) {
     double hei = rect.height();
     double wid = hei*aspect;
     expandLeft((wid - rect.width())/2);
@@ -202,8 +202,8 @@ void CropCalc::slideTop(double cropt) {
 
 void CropCalc::slideBottom(double cropb) {
   cropb = clip(cropb, 0, pseudoSliderMaxBottom());
-  rect.setBottom(osize.height() - cropb));
-  if (mode==Mode::Aspect) {
+  rect.setBottom(osize.height() - cropb);
+  if (mode==CropMode::Aspect) {
     double hei = rect.height();
     double wid = hei*aspect;
     expandLeft((wid - rect.width())/2);

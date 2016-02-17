@@ -4,60 +4,35 @@
 
 #define CROPCONTROLS_H
 
-#include <QWidget>
-#include <QRectF>
-#include <QVector>
+#include <QFrame>
+#include "CropEnums.h"
 
-class CropControls: public QWidget {
+class CropControls: public QFrame {
   Q_OBJECT;
 public:
   CropControls(QWidget *parent=0);
+  virtual ~CropControls();
 public slots:
   void setAll(class Adjustments const &adj, QSize osize);
+  void setValue(QString, double);
 signals:
   void rectangleChanged(QRect, QSize);
-private:
-  enum class Mode { Free=0, Aspect=1, Size=2 };
-  enum class Orientation { Auto=0, Landscape=1, Portrait=2 };
 private slots:
-  void changeN(double);
-  void changeE(double);
-  void changeS(double);
-  void changeW(double);
-  void changeNE(double);
-  void changeSE(double);
-  void changeSW(double);
-  void changeNW(double);
+  void slideLeft(double);
+  void slideRight(double);
+  void slideTop(double);
+  void slideBottom(double);
+  void slideTL(double);
+  void slideTR(double);
+  void slideBL(double);
+  void slideBR(double);
   void gotoSlider(int);
-  void setMode(Mode);
-  void setOrientation(Orientation);
-  void setAspect(double);
-  void setAspectIndex(int);
+  void toggleMode();
+  void toggleOrient();
+  void clickAspect(QString);
 private:
-  void populate();
-  void addModeButtons();
-  void addOrientButtons();
-  QPushButton *addOrientButton(class QGridLayout *lay, Mode, QString lbl);
-  QPushButton *addModeButton(class QGridLayout *lay, Orientation, QString lbl);
-  QPushButton *addButton(class QGridLayout *lay, QString lbl);
-  QGridLayout *addGrid();
-  void addAspects();
-  void addAspect(int, int);
-  void addAspect(QString, double);
-  void addSliders();
-private:
-  QMap<Mode, class QAbstractButton *> modeControls;
-  QMap<Orientation, class QAbstractButton *> orientControls;
-  QMap<QString, class QAbstractButton *> aspectControls;
-  QMap<QString, double> aspectValues;
-  QMap<QString, class GentleJog *> sliders;
-  QLineEdit *customAspect;
-  QLineEdit *customSize;
-  class QGridLayout *aspectLayout;
-private:
-  QRect rect;
-  QSize osize;
-  QRectF rectf;
+  class CropControlsUi *ui;
+  class CropCalc *calc;
 };
 
 #endif
