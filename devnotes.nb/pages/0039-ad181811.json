@@ -1,0 +1,345 @@
+{ "typ": "page",
+  "cre": "2016-01-28T14:25:34",
+  "mod": "2016-01-28T15:00:18",
+  "cui": "f37486f53b1b4518",
+  "stampTime": 0,
+  "startPage": 39,
+  "unlocked": false,
+  "uuid": "ad181811",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-01-28T14:25:34",
+      "mod": "2016-01-28T14:25:34",
+      "uuid": "52d7e839",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T14:25:34",
+          "mod": "2016-01-28T14:25:34",
+          "lines": [
+            0
+          ],
+          "text": "Haze removal (cont’d)",
+          "uuid": "413d938b",
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2016-01-28T14:25:34",
+              "mod": "2016-01-28T14:25:34",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 450.0,
+              "uuid": "b5b9291a",
+              "x": -46.8281,
+              "y": 45.06,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2016-01-28T14:25:34",
+                  "mod": "2016-01-28T14:25:34",
+                  "lines": [
+                    0
+                  ],
+                  "text": "p. 37 >",
+                  "uuid": "03b71386",
+                  "cc": [
+                    { "typ": "markup",
+                      "cre": "2016-01-28T14:25:34",
+                      "mod": "2016-01-28T14:25:34",
+                      "end": 5,
+                      "res": [
+                        "37"
+                      ],
+                      "start": 3,
+                      "style": 4,
+                      "uuid": "abc0ce1e"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-01-28T14:25:34",
+      "mod": "2016-01-28T14:54:20",
+      "uuid": "81eeac53",
+      "cc": [
+        { "typ": "res",
+          "cre": "2016-01-28T14:25:34",
+          "mod": "2016-01-28T14:25:34",
+          "archive": "37_-7d57db15",
+          "desc": "",
+          "preview": "37_-7d57db15p.png",
+          "source": "page://37/6294f02e/0",
+          "tag": "37",
+          "title": "",
+          "uuid": "7d57db15"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:28:30",
+          "mod": "2016-01-28T14:28:37",
+          "archive": "PMID18084055_-c8bf7384.pdf",
+          "desc": "",
+          "preview": "PMID18084055_-c8bf7384p.png",
+          "source": "http://www.thorlabs.us/thorProduct.cfm?partNumber=PMID18084055",
+          "tag": "PMID18084055",
+          "title": "Thorlabs - Your Source for Fiber Optics, Laser Diodes, Optical Instrumentation and Polarization Measurement & Control.",
+          "uuid": "c8bf7384"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:50:07",
+          "mod": "2016-01-28T14:50:08",
+          "archive": "18084055_-111df8e1",
+          "desc": "",
+          "preview": "18084055_-111df8e1p.png",
+          "source": "http://www.ncbi.nlm.nih.gov/pubmed/18084055",
+          "tag": "18084055",
+          "title": "A closed-form solution to natural image matting.  - PubMed - NCBI\n",
+          "uuid": "111df8e1"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:52:44",
+          "mod": "2016-01-28T14:52:44",
+          "archive": "tmp_Dehaze_CVPR2009-0097af5a.pdf",
+          "desc": "",
+          "preview": "tmp_Dehaze_CVPR2009-0097af5ap.png",
+          "source": "file:///tmp/mozilla_wagenaar0/Dehaze_CVPR2009.pdf",
+          "tag": "/tmp/mozilla_wagenaar0/Dehaze_CVPR2009.pdf",
+          "title": "",
+          "uuid": "0097af5a"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:52:55",
+          "mod": "2016-01-28T14:52:55",
+          "archive": "tmp_04359322-183dd92b.pdf",
+          "desc": "",
+          "preview": "tmp_04359322-183dd92bp.png",
+          "source": "file:///tmp/mozilla_wagenaar0//04359322.pdf",
+          "tag": "/tmp/mozilla_wagenaar0//04359322.pdf",
+          "title": "",
+          "uuid": "183dd92b"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:52:55",
+          "mod": "2016-01-28T14:52:56",
+          "archive": "tmp_04359322-168c8fb0.pdf",
+          "desc": "",
+          "preview": "tmp_04359322-168c8fb0p.png",
+          "source": "file:///tmp/mozilla_wagenaar0/04359322.pdf",
+          "tag": "/tmp/mozilla_wagenaar0/04359322.pdf",
+          "title": "",
+          "uuid": "168c8fb0"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:54:04",
+          "mod": "2016-01-28T14:54:06",
+          "archive": "www.cs.huji.ac.il_~yweiss-5207d324.pdf",
+          "desc": "",
+          "preview": "www.cs.huji.ac.il_~yweiss-5207d324p.png",
+          "source": "http://www.cs.huji.ac.il/~yweiss/",
+          "tag": "http://www.cs.huji.ac.il/~yweiss/",
+          "title": "Yair Weiss home page",
+          "uuid": "5207d324"
+        },
+        { "typ": "res",
+          "cre": "2016-01-28T14:54:20",
+          "mod": "2016-01-28T14:54:20",
+          "archive": "tmp_cvpr10_fastmatting-0b82c514.pdf",
+          "desc": "",
+          "preview": "tmp_cvpr10_fastmatting-0b82c514p.png",
+          "source": "file:///tmp/mozilla_wagenaar0/cvpr10_fastmatting.pdf",
+          "tag": "/tmp/mozilla_wagenaar0/cvpr10_fastmatting.pdf",
+          "title": "",
+          "uuid": "0b82c514"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T14:25:35",
+      "mod": "2016-01-28T15:00:18",
+      "h": 142.996,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "85a0cf5c",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T14:25:35",
+          "mod": "2016-01-28T15:00:18",
+          "lines": [
+            0,
+            56,
+            114,
+            170,
+            228,
+            290
+          ],
+          "text": "There exist much more sophisticated algorithms for haze removal. Many start by “matting”, i.e., by separating the foreground from the background*. One such is He et al., 2009+. But the matting is very slow. So He et al., 2010** attempt to make the matting faster. It still takes 30 seconds even for a 5 MP image. I want it very much faster.",
+          "uuid": "45c16c50",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-01-28T14:51:35",
+              "mod": "2016-01-28T14:51:35",
+              "end": 175,
+              "start": 174,
+              "style": 5,
+              "uuid": "a269fa25"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T14:53:38",
+              "mod": "2016-01-28T14:53:38",
+              "end": 145,
+              "start": 144,
+              "style": 5,
+              "uuid": "48075784"
+            },
+            { "typ": "markup",
+              "cre": "2016-01-28T14:54:11",
+              "mod": "2016-01-28T14:54:11",
+              "end": 227,
+              "start": 225,
+              "style": 5,
+              "uuid": "0b70144e"
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2016-01-28T14:51:35",
+          "mod": "2016-01-28T14:52:44",
+          "h": 20.767,
+          "ind": 1,
+          "sheet": 0,
+          "split": [ ],
+          "tag": "+",
+          "uuid": "5b4c3a6b",
+          "y0": 666.466,
+          "cc": [
+            { "typ": "text",
+              "cre": "2016-01-28T14:51:35",
+              "mod": "2016-01-28T14:52:44",
+              "lines": [
+                0
+              ],
+              "text": "/tmp/mozilla_wagenaar0/Dehaze_CVPR2009.pdf.",
+              "uuid": "0d9c3310",
+              "cc": [
+                { "typ": "markup",
+                  "cre": "2016-01-28T14:51:51",
+                  "mod": "2016-01-28T14:52:44",
+                  "end": 42,
+                  "res": [
+                    "/tmp/mozilla_wagenaar0/Dehaze_CVPR2009.pdf"
+                  ],
+                  "start": 0,
+                  "style": 4,
+                  "uuid": "c9a71867"
+                }
+              ]
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2016-01-28T14:53:38",
+          "mod": "2016-01-28T14:54:04",
+          "h": 20.767,
+          "ind": 1,
+          "sheet": 0,
+          "split": [ ],
+          "tag": "*",
+          "uuid": "d4d25796",
+          "y0": 645.699,
+          "cc": [
+            { "typ": "text",
+              "cre": "2016-01-28T14:53:38",
+              "mod": "2016-01-28T14:54:04",
+              "lines": [
+                0
+              ],
+              "text": "/tmp/mozilla_wagenaar0/04359322.pdf; http://www.cs.huji.ac.il/~yweiss/.",
+              "uuid": "779e9035",
+              "cc": [
+                { "typ": "markup",
+                  "cre": "2016-01-28T14:53:51",
+                  "mod": "2016-01-28T14:53:51",
+                  "end": 35,
+                  "start": 0,
+                  "style": 4,
+                  "uuid": "df19e52e"
+                },
+                { "typ": "markup",
+                  "cre": "2016-01-28T14:54:04",
+                  "mod": "2016-01-28T14:54:04",
+                  "end": 70,
+                  "res": [
+                    "http://www.cs.huji.ac.il/~yweiss/"
+                  ],
+                  "start": 37,
+                  "style": 4,
+                  "uuid": "3ad88b8f"
+                }
+              ]
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2016-01-28T14:54:11",
+          "mod": "2016-01-28T14:54:21",
+          "h": 20.767,
+          "ind": 1,
+          "sheet": 0,
+          "split": [ ],
+          "tag": "**",
+          "uuid": "1cb20288",
+          "y0": 687.233,
+          "cc": [
+            { "typ": "text",
+              "cre": "2016-01-28T14:54:11",
+              "mod": "2016-01-28T14:54:21",
+              "lines": [
+                0
+              ],
+              "text": "/tmp/mozilla_wagenaar0/cvpr10_fastmatting.pdf. ",
+              "uuid": "db577999",
+              "cc": [
+                { "typ": "markup",
+                  "cre": "2016-01-28T14:54:20",
+                  "mod": "2016-01-28T14:54:20",
+                  "end": 45,
+                  "res": [
+                    "/tmp/mozilla_wagenaar0/cvpr10_fastmatting.pdf"
+                  ],
+                  "start": 0,
+                  "style": 4,
+                  "uuid": "87c791f3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-01-28T14:28:18",
+      "mod": "2016-01-28T14:28:18",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "040d92f3",
+      "y0": 214.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-01-28T14:28:18",
+          "mod": "2016-01-28T14:28:18",
+          "lines": [
+            0
+          ],
+          "text": "",
+          "uuid": "fc8f7ea6"
+        }
+      ]
+    }
+  ]
+}
