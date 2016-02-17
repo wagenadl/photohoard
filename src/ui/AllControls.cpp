@@ -23,7 +23,7 @@ Adjustments const &AllControls::getAll() const {
   return sliders->getAll();
 }  
 
-void AllControls::setAll(Adjustments const &a, PSize origsize) {
+void AllControls::setAll(Adjustments const &a, QSize origsize) {
   sliders->setAll(a);
   cropper->setAll(a, origsize);
 }
