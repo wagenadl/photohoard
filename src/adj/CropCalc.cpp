@@ -25,6 +25,14 @@ void CropCalc::reset(Adjustments const &a, QSize os) {
   rect = QRectF(cropRect());
 }
 
+void CropCalc::setValue(QString k, double v) {
+  adj.set(k, v);
+  setFree();
+  aspect = osize.width() * 1. / osize.height();
+  calcDxy();
+  rect = QRectF(cropRect());
+}
+
 void CropCalc::setFree() {
   mode = CropMode::Free;
 }
@@ -36,6 +44,10 @@ double CropCalc::flipIfNeeded(double a) const {
     return a;
   else
     return 1/a;
+}
+
+void CropCalc::setAspect(Orient o) {
+  setAspect(rect.width() / rect.height(), o);
 }
 
 void CropCalc::setAspect(double a, Orient o) {
@@ -263,4 +275,16 @@ void CropCalc::expandTop(double dy) {
 
 void CropCalc::expandBottom(double dy) {
   rect.setBottom(clip(rect.bottom() + dy, rect.top() + 10, osize.height()));
+}
+
+CropMode CropCalc::cropMode() const {
+  return mode;
+}
+
+double CropCalc::aspectRatio() const {
+  return rect.width() / rect.height();
+}
+
+QSize CropCalc::originalSize() const {
+  return osize;
 }

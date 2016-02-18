@@ -26,10 +26,11 @@ private slots:
   void slideTR(double);
   void slideBL(double);
   void slideBR(double);
-  void gotoSlider(int);
   void toggleMode();
   void toggleOrient();
   void clickAspect(QString);
+private:
+  void reflectAndEmit();
 private:
   class CropControlsUi *ui;
   class CropCalc *calc;

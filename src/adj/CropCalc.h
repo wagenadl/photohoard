@@ -13,7 +13,9 @@ class CropCalc {
 public:
   CropCalc();
   void reset(Adjustments const &adj, QSize osize);
+  void setValue(QString k, double v); // tweak adj.
   void setFree();
+  void setAspect(Orient o=Orient::Auto);
   void setAspect(double aspect, Orient o);
   /* SETASPECT - Set fixed aspect ratio for crop rectangle.
      SETASPECT(a, o) sets the fixed aspect ratio of the crop rectangle
@@ -29,6 +31,9 @@ public:
      even when O is AUTO. Instead, the orientation of the preexisting crop
      rectangle or of the image is used. (As specified through SETALL.)
   */
+  CropMode cropMode() const;
+  double aspectRatio() const;
+  QSize originalSize() const;
   void slideRight(double);
   void slideTop(double);
   void slideLeft(double);

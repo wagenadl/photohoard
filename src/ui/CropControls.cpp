@@ -21,17 +21,20 @@ class CropControlsUi {
 public:
   void populate(CropControls *);
   void reflectAspect(QString);
+  void reflectLimits(CropCalc *);
+  void reflectCustom(CropCalc *);
 private:
   void addModeButtons(CropControls *);
   void addOrientButtons(CropControls *);
   void addAspects(CropControls *);
   void addSliders(CropControls *);
 public:
+  enum class Slider { Left=0, Right, Top, Bottom, TL, TR, BL, BR };
   QMap<CropMode, QAbstractButton *> modeControls;
   QMap<Orient, QAbstractButton *> orientControls;
   QMap<QString, QAbstractButton *> aspectControls;
   QMap<QString, double> aspectValues;
-  QMap<QString, GentleJog *> sliders;
+  QMap<Slider, GentleJog *> sliders;
   QLineEdit *customAspect;
   QVBoxLayout *vLayout;
 };
@@ -157,38 +160,50 @@ void CropControlsUi::addSliders(CropControls *cc) {
   lay->setContentsMargins(0, 1, 0, 1);
   container->setLayout(lay);
 
-  QStringList jogs;
-  jogs << "Left" << "Right"
-       << "Top" << "Bottom"
-       << "Top left" << "Top right"
-       << "Bottom left" << "Bottom right";
-  for (QString s: jogs) {
-    GentleJog *gj = new GentleJog(s);
+  sliders[Slider::Left] = new GentleJog("Left");
+  sliders[Slider::Right] = new GentleJog("Right");
+  sliders[Slider::Top] = new GentleJog("Top");
+  sliders[Slider::Bottom] = new GentleJog("Bottom");
+  sliders[Slider::TL] = new GentleJog("Top left");
+  sliders[Slider::TR] = new GentleJog("Top right");
+  sliders[Slider::BL] = new GentleJog("Bottom left");
+  sliders[Slider::BR] = new GentleJog("Bottom right");
+
+  for (int i=0; i<8; i++) {
+    Slider s = Slider(i);
+    Slider nxt = Slider((i+1)&7);
+    Slider prv = Slider((i-1)&7);
+    QObject::connect(sliders[s], SIGNAL(goNext()),
+                     sliders[nxt], SLOT(setFocus()));
+    QObject::connect(sliders[s], SIGNAL(goPrevious()),
+                     sliders[prv], SLOT(setFocus()));
+    lay->addWidget(sliders[s]);
+  }
+  
+  for (GentleJog *gj: sliders) {
     gj->setRange(0, 1000);
     gj->setDecimals(0);
     gj->setSingleStep(10);
     gj->setPageStep(100);
     gj->setMicroStep(1);
     gj->setMaxDelta(50);
-    sliders[s] = gj;
-    lay->addWidget(gj);
   }
 
-  QObject::connect(sliders["Left"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::Left], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideLeft(double)));
-  QObject::connect(sliders["Right"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::Right], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideRight(double)));
-  QObject::connect(sliders["Top"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::Top], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideTop(double)));
-  QObject::connect(sliders["Bottom"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::Bottom], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideBottom(double)));
-  QObject::connect(sliders["Top left"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::TL], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideTL(double)));
-  QObject::connect(sliders["Top right"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::TR], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideTR(double)));
-  QObject::connect(sliders["Bottom left"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::BL], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideBL(double)));
-  QObject::connect(sliders["Bottom right"], SIGNAL(valueChanged(double)),
+  QObject::connect(sliders[Slider::BR], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideBR(double)));
 }
 
@@ -197,17 +212,43 @@ void CropControlsUi::reflectAspect(QString a0) {
     aspectControls[a]->setChecked(a==a0);
 }
 
+void CropControlsUi::reflectLimits(CropCalc *calc) {
+  Adjustments const &adj = calc->adjustments();
+
+  sliders[Slider::Left]->setMaximum(calc->pseudoSliderMaxLeft());
+  sliders[Slider::Right]->setMaximum(calc->pseudoSliderMaxRight());
+  sliders[Slider::Top]->setMaximum(calc->pseudoSliderMaxTop());
+  sliders[Slider::Bottom]->setMaximum(calc->pseudoSliderMaxBottom());
+  sliders[Slider::TL]->setMaximum(calc->pseudoSliderMaxTL());
+  sliders[Slider::TR]->setMaximum(calc->pseudoSliderMaxTR());
+  sliders[Slider::BL]->setMaximum(calc->pseudoSliderMaxBL());
+  sliders[Slider::BR]->setMaximum(calc->pseudoSliderMaxBR());
+  
+  sliders[Slider::Left]->setValueQuietly(adj.cropl);
+  sliders[Slider::Right]->setValueQuietly(adj.cropr);
+  sliders[Slider::Top]->setValueQuietly(adj.cropt);
+  sliders[Slider::Bottom]->setValueQuietly(adj.cropb);
+  sliders[Slider::TL]->setValueQuietly(calc->pseudoSliderValueTL());
+  sliders[Slider::TR]->setValueQuietly(calc->pseudoSliderValueTR());
+  sliders[Slider::BL]->setValueQuietly(calc->pseudoSliderValueBL());
+  sliders[Slider::BR]->setValueQuietly(calc->pseudoSliderValueBR());
+  
+}
+
+void CropControlsUi::reflectCustom(CropCalc *calc) {
+  customAspect->setText(QString::number(calc->aspectRatio()));
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 
 CropControls::CropControls(QWidget *parent): QFrame(parent) {
+  calc = new CropCalc;
   ui = new CropControlsUi;
   ui->populate(this);
-  calc = new CropCalc;
+  ui->reflectLimits(calc);
   setAutoFillBackground(true);
-  QPalette p = palette();
-  p.setColor(QPalette::Window, QColor(160, 160, 160));
-  //  setPalette(p);
 }
 
 CropControls::~CropControls() {
@@ -215,7 +256,11 @@ CropControls::~CropControls() {
   delete calc;
 }
 
-void CropControls::slideLeft(double) { }
+void CropControls::slideLeft(double v) {
+  calc->slideLeft(v);
+  reflectAndEmit();
+}
+
 void CropControls::slideRight(double) { }
 void CropControls::slideTop(double) { }
 void CropControls::slideBottom(double) { }
@@ -224,10 +269,66 @@ void CropControls::slideTR(double) { }
 void CropControls::slideBL(double) { }
 void CropControls::slideBR(double) { }
 
-void CropControls::setAll(Adjustments const &, QSize) { }
-void CropControls::setValue(QString, double) { }
+void CropControls::setAll(Adjustments const &adj, QSize osize) {
+  calc->reset(adj, osize);
+  ui->modeControls[CropMode::Free]->setChecked(true);
+  ui->orientControls[Orient::Auto]->setChecked(true);
+  ui->reflectAspect("");
+}
 
-void CropControls::toggleMode() { }
-void CropControls::toggleOrient() { }
-void CropControls::gotoSlider(int) { }
-void CropControls::clickAspect(QString) { }
+void CropControls::setValue(QString k, double v) {
+  calc->setValue(k, v);
+  ui->modeControls[CropMode::Free]->setChecked(true);
+  ui->orientControls[Orient::Auto]->setChecked(true);
+  ui->reflectAspect(""); 
+}
+
+void CropControls::toggleMode() {
+  if (ui->modeControls[CropMode::Free]->isChecked()) {
+    if (calc->cropMode() != CropMode::Free) {
+      calc->setFree();
+      ui->reflectAspect("");
+      reflectAndEmit();
+    }
+  } else if (ui->modeControls[CropMode::Aspect]->isChecked()) {
+    if (calc->cropMode() != CropMode::Aspect) {
+      calc->setAspect();
+      reflectAndEmit();
+    }
+  }
+}
+
+void CropControls::reflectAndEmit() {
+  ui->reflectLimits(calc);
+  ui->reflectCustom(calc);
+  emit rectangleChanged(calc->cropRect(), calc->originalSize());
+}  
+
+void CropControls::toggleOrient() {
+  if (ui->orientControls[Orient::Landscape]->isChecked()) {
+    if (calc->aspectRatio()<1) {
+      calc->setAspect(Orient::Landscape);
+      reflectAndEmit();
+    }
+  } else if (ui->orientControls[Orient::Portrait]->isChecked()) {
+    if (calc->aspectRatio()>1) {
+      calc->setAspect(Orient::Portrait);
+      reflectAndEmit();
+    }
+  } 
+}
+
+void CropControls::clickAspect(QString s) {
+  Orient o = Orient::Auto;
+  for (Orient k: ui->orientControls.keys())
+    if (ui->orientControls[k]->isChecked())
+      o = k;
+  if (s=="Custom") {
+    bool ok;
+    ui->aspectValues[s] = ui->customAspect->text().toDouble(&ok);
+    if (!ok || ui->aspectValues[s]<.1)
+      ui->aspectValues[s] = 1;
+  }
+  calc->setAspect(ui->aspectValues[s], o);
+  reflectAndEmit();
+}
