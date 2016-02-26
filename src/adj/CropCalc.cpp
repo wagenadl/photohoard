@@ -46,17 +46,35 @@ double CropCalc::flipIfNeeded(double a) const {
     return 1/a;
 }
 
-void CropCalc::setAspect(Orient o) {
+void CropCalc::setOrient(Orient o) {
   setAspect(rect.width() / rect.height(), o);
 }
 
-void CropCalc::setAspect(double a, Orient o) {
-  mode = CropMode::Aspect;
-  if (o==Orient::Auto)
-    aspect = flipIfNeeded(a);
-  else
-    aspect = a;
+void CropCalc::setFixedAspect() {
+  setAspect(rect.width() / rect.height());
+}
 
+void CropCalc::setAspect(double a, Orient o) {
+  switch (o) {
+  case Orient::Auto:
+    a = flipIfNeeded(a);
+    break;
+  case Orient::Landscape:
+    if (a<1)
+      a = 1/a;
+    break;
+  case Orient::Portrait:
+    if (a>1)
+      a = 1/a;
+    break;
+  }
+  setAspect(a);
+}
+
+void CropCalc::setAspect(double a) {
+  mode = CropMode::Aspect;
+  aspect = a;
+  
   calcDxy();
 
   if (osize.isNull())
@@ -230,7 +248,7 @@ void CropCalc::slideBottom(double cropb) {
 void CropCalc::slideTL(double croptl) {
   croptl = clip(croptl, 0, pseudoSliderMaxTL());
   double oldtl = pseudoSliderValueTL();
-  expandLeft(dx*(croptl-oldtl));
+  expandLeft(-dx*(croptl-oldtl));
   rect.setTop(rect.bottom() - rect.width()/aspect);
   updateAdj();
 }
@@ -238,7 +256,7 @@ void CropCalc::slideTL(double croptl) {
 void CropCalc::slideTR(double croptr) {
   croptr = clip(croptr, 0, pseudoSliderMaxTR());
   double oldtr = pseudoSliderValueTR();
-  expandRight(dx*(croptr-oldtr));
+  expandRight(-dx*(croptr-oldtr));
   rect.setTop(rect.bottom() - rect.width()/aspect);
   updateAdj();
 }
@@ -246,7 +264,7 @@ void CropCalc::slideTR(double croptr) {
 void CropCalc::slideBL(double cropbl) {
   cropbl = clip(cropbl, 0, pseudoSliderMaxBL());
   double oldbl = pseudoSliderValueBL();
-  expandLeft(dx*(cropbl-oldbl));
+  expandLeft(-dx*(cropbl-oldbl));
   rect.setBottom(rect.top() + rect.width()/aspect);
   updateAdj();
 }
@@ -254,7 +272,7 @@ void CropCalc::slideBL(double cropbl) {
 void CropCalc::slideBR(double cropbr) {
   cropbr = clip(cropbr, 0, pseudoSliderMaxBR());
   double oldbr = pseudoSliderValueBR();
-  expandRight(dx*(cropbr-oldbr));
+  expandRight(-dx*(cropbr-oldbr));
   rect.setBottom(rect.top() + rect.width()/aspect);
   updateAdj();
 }
@@ -287,4 +305,17 @@ double CropCalc::aspectRatio() const {
 
 QSize CropCalc::originalSize() const {
   return osize;
+}
+
+void CropCalc::optimize() {
+  switch (mode) {
+  case CropMode::Free:
+    rect = QRectF(QPointF(0,0), QSizeF(osize));
+    updateAdj();
+    break;
+  case CropMode::Aspect:
+    rect = QRectF(QPointF(0,0), QSizeF(osize));
+    setAspect(aspect);
+    break;
+  }
 }

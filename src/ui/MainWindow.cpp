@@ -76,6 +76,8 @@ MainWindow::MainWindow(PhotoDB *db,
   
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
           histogram, SLOT(setImage(Image16))); // is this ok?
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
+          metaViewer, SLOT(setImage(Image16, quint64)));
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));

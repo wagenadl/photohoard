@@ -37,6 +37,8 @@ QString MetaInfo::ratio(int w, int h) {
       return "Letter";
     else if (fabs(r-297/210.)<marg)
       return "A4";
+    else if (fabs(r-5/3.5)<marg)
+      return QString::fromUtf8("5:3½");
     else if (fabs(r-3/2.)<marg)
       return "3:2";
     else if (fabs(r-16/10.)<marg)
@@ -78,7 +80,7 @@ QString MetaInfo::easyRatio(int w, int h) {
       return "5:4+";
     else if (r<4/3.)
       return "4:3-";
-    else if (r<inbetween(4/3,11/8.5))
+    else if (r<inbetween(4/3.,11/8.5))
       return "4:3+";
     else if (r<11/8.5)
       return "Letter-";
@@ -86,8 +88,12 @@ QString MetaInfo::easyRatio(int w, int h) {
       return "Letter+";
     else if (r<297/210.)
       return "A4-";
-    else if (r<inbetween(297/210., 3/2.))
+    else if (r<inbetween(297/210., 5/3.5))
       return "A4+";
+    else if (r<5/3.5)
+      return QString::fromUtf8("5:3½-");
+    else if (r<inbetween(5/3.5, 3/2.))
+      return QString::fromUtf8("5:3½+");
     else if (r<3/2.)
       return "3:2-";
     else if (r<inbetween(3/2., 16/10.))
@@ -108,7 +114,10 @@ QString MetaInfo::easyRatio(int w, int h) {
 }
 
 QString MetaInfo::easyRatio(PSize s) {
-  return easyRatio(s.width(), s.height());
+  QString r = easyRatio(s.width(), s.height());
+  r.replace("-", QString::fromUtf8("⁻"));
+  r.replace("+", QString::fromUtf8("⁺"));
+  return r;
 }
 
 QString MetaInfo::mpix(int w, int h) {

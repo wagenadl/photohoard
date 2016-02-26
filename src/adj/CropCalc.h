@@ -15,7 +15,14 @@ public:
   void reset(Adjustments const &adj, QSize osize);
   void setValue(QString k, double v); // tweak adj.
   void setFree();
-  void setAspect(Orient o=Orient::Auto);
+  void setFixedAspect();
+  void setOrient(Orient o);
+  /* SETORIENT - Set orientation
+     SETORIENT(o) changes the orientation of the crop rectangle without
+     changing the aspect ratio.
+     SETORIENT(Orient::Auto) does nothing except setting mode.
+   */
+  void setAspect(double aspect);
   void setAspect(double aspect, Orient o);
   /* SETASPECT - Set fixed aspect ratio for crop rectangle.
      SETASPECT(a, o) sets the fixed aspect ratio of the crop rectangle
@@ -24,13 +31,6 @@ public:
      of the preexisting crop rectangle or of the image is used. (As
      specified through SETALL.)
    */
-  //  void setSize(QSize s, Orient o);
-  /* SETSIZE - Set fixed size for crop rectangle
-     SETSIZE(s, o) sets the fixed size of the crop rectangle to S, with
-     orientation specified by O. The orientation of S is completely ignored,
-     even when O is AUTO. Instead, the orientation of the preexisting crop
-     rectangle or of the image is used. (As specified through SETALL.)
-  */
   CropMode cropMode() const;
   double aspectRatio() const;
   QSize originalSize() const;
@@ -56,6 +56,7 @@ public:
   double pseudoSliderMaxRight() const;
   double pseudoSliderMaxTop() const;
   double pseudoSliderMaxBottom() const;
+  void optimize();
 private:
   void updateAdj();
   void setCenterAndSize(QPointF c, QSizeF s);

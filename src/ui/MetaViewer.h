@@ -14,6 +14,7 @@ public:
   virtual ~MetaViewer() { }
 public slots:
   void setVersion(quint64 version);
+  void setImage(class Image16 const &, quint64 version);
   void handleClick(QUrl const &);
 private:
   PhotoDB *db;

@@ -15,6 +15,8 @@
 #include "CropCalc.h"
 #include "BoldButton.h"
 #include <QSignalMapper>
+#include <QDebug>
+#include "ControlGroup.h"
 
 //////////////////////////////////////////////////////////////////////
 class CropControlsUi {
@@ -22,12 +24,12 @@ public:
   void populate(CropControls *);
   void reflectAspect(QString);
   void reflectLimits(CropCalc *);
-  void reflectCustom(CropCalc *);
 private:
   void addModeButtons(CropControls *);
   void addOrientButtons(CropControls *);
   void addAspects(CropControls *);
   void addSliders(CropControls *);
+  void addTools(CropControls *);
 public:
   enum class Slider { Left=0, Right, Top, Bottom, TL, TR, BL, BR };
   QMap<CropMode, QAbstractButton *> modeControls;
@@ -42,11 +44,29 @@ public:
 void CropControlsUi::populate(CropControls *cc) {
   vLayout = new QVBoxLayout;
   vLayout->setContentsMargins(2, 2, 2, 2);
-  cc->setLayout(vLayout);
+  cc->widget()->setLayout(vLayout);
   addModeButtons(cc);
   addOrientButtons(cc);
+  addTools(cc);
   addAspects(cc);
   addSliders(cc);
+  vLayout->addSpacing(100);
+}
+
+void CropControlsUi::addTools(CropControls *cc) {
+
+  QHBoxLayout *lay = new QHBoxLayout();
+  lay->setContentsMargins(0, 1, 0, 1);
+  lay->addSpacing(1);
+
+  auto *b = new QPushButton("Optimize");
+  QObject::connect(b, SIGNAL(clicked()), cc, SLOT(optimize()));
+  lay->addWidget(b);
+
+  lay->addSpacing(1);
+  QWidget *w = new QWidget();
+  w->setLayout(lay);
+  vLayout->addWidget(w);
 }
 
 void CropControlsUi::addModeButtons(CropControls *cc) {
@@ -126,11 +146,14 @@ void CropControlsUi::addAspects(CropControls *cc) {
   };
   
   addAspect(1,1);
+  addLabeled("Custom", 1);
+  customAspect = new QLineEdit();
+  lay->addWidget(customAspect, row, col, 1, -1);
   nextRow();
 
   addAspect(5,4);
   addAspect(4,3);
-  addAspect(7,5);
+  addLabeled(QString::fromUtf8("5:3½"), 5/3.5);
   nextRow();
 
   addAspect(3,2);
@@ -143,10 +166,10 @@ void CropControlsUi::addAspects(CropControls *cc) {
   addLabeled("Golden", sqrt(5.)/2 + 1./2);
   nextRow();
 
-  addLabeled("Custom", 1);
-
-  customAspect = new QLineEdit();
-  lay->addWidget(customAspect, row, col, 1, -1);
+  QObject::connect(customAspect, SIGNAL(textEdited(QString const &)),
+                   cc, SLOT(customChanged()));
+  QObject::connect(customAspect, SIGNAL(returnPressed()),
+                   cc, SLOT(customConfirmed()));
 
   QWidget *w = new QWidget;
   w->setLayout(lay);
@@ -154,11 +177,12 @@ void CropControlsUi::addAspects(CropControls *cc) {
 }
 
 void CropControlsUi::addSliders(CropControls *cc) {
-  QWidget *container = new QWidget();
+  //QWidget *container = new QWidget();
+  auto *container = new ControlGroup("Crop");
   vLayout->addWidget(container);
-  QVBoxLayout *lay = new QVBoxLayout;
-  lay->setContentsMargins(0, 1, 0, 1);
-  container->setLayout(lay);
+//  QVBoxLayout *lay = new QVBoxLayout;
+//  lay->setContentsMargins(0, 1, 0, 1);
+//  container->setLayout(lay);
 
   sliders[Slider::Left] = new GentleJog("Left");
   sliders[Slider::Right] = new GentleJog("Right");
@@ -177,7 +201,7 @@ void CropControlsUi::addSliders(CropControls *cc) {
                      sliders[nxt], SLOT(setFocus()));
     QObject::connect(sliders[s], SIGNAL(goPrevious()),
                      sliders[prv], SLOT(setFocus()));
-    lay->addWidget(sliders[s]);
+    container->addWidget(sliders[s]);
   }
   
   for (GentleJog *gj: sliders) {
@@ -205,11 +229,17 @@ void CropControlsUi::addSliders(CropControls *cc) {
                    cc, SLOT(slideBL(double)));
   QObject::connect(sliders[Slider::BR], SIGNAL(valueChanged(double)),
                    cc, SLOT(slideBR(double)));
+
+  container->expand();
 }
 
 void CropControlsUi::reflectAspect(QString a0) {
   for (QString a: aspectControls.keys())
     aspectControls[a]->setChecked(a==a0);
+  if (a0.isEmpty())
+    modeControls[CropMode::Free]->setChecked(true);
+  else
+    modeControls[CropMode::Aspect]->setChecked(true);
 }
 
 void CropControlsUi::reflectLimits(CropCalc *calc) {
@@ -235,15 +265,15 @@ void CropControlsUi::reflectLimits(CropCalc *calc) {
   
 }
 
-void CropControlsUi::reflectCustom(CropCalc *calc) {
-  customAspect->setText(QString::number(calc->aspectRatio()));
-}
-
-
 //////////////////////////////////////////////////////////////////////
 
 
-CropControls::CropControls(QWidget *parent): QFrame(parent) {
+CropControls::CropControls(QWidget *parent): QScrollArea(parent) {
+  QWidget *w = new QWidget;//OneWayScroll;
+  setWidget(w);
+  setWidgetResizable(true);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
   calc = new CropCalc;
   ui = new CropControlsUi;
   ui->populate(this);
@@ -261,18 +291,46 @@ void CropControls::slideLeft(double v) {
   reflectAndEmit();
 }
 
-void CropControls::slideRight(double) { }
-void CropControls::slideTop(double) { }
-void CropControls::slideBottom(double) { }
-void CropControls::slideTL(double) { }
-void CropControls::slideTR(double) { }
-void CropControls::slideBL(double) { }
-void CropControls::slideBR(double) { }
+void CropControls::slideRight(double v) {
+  calc->slideRight(v);
+  reflectAndEmit();
+}
+
+void CropControls::slideTop(double v) {
+  calc->slideTop(v);
+  reflectAndEmit();
+}
+
+void CropControls::slideBottom(double v) {
+  calc->slideBottom(v);
+  reflectAndEmit();
+}
+
+void CropControls::slideTL(double v) {
+  calc->slideTL(v);
+  reflectAndEmit();
+}
+
+void CropControls::slideTR(double v) {
+  calc->slideTR(v);
+  reflectAndEmit();
+}
+
+void CropControls::slideBL(double v) {
+  calc->slideBL(v);
+  reflectAndEmit();
+}
+
+void CropControls::slideBR(double v) {
+  calc->slideBR(v);
+  reflectAndEmit();
+}
 
 void CropControls::setAll(Adjustments const &adj, QSize osize) {
   calc->reset(adj, osize);
   ui->modeControls[CropMode::Free]->setChecked(true);
   ui->orientControls[Orient::Auto]->setChecked(true);
+  ui->reflectLimits(calc);
   ui->reflectAspect("");
 }
 
@@ -280,6 +338,7 @@ void CropControls::setValue(QString k, double v) {
   calc->setValue(k, v);
   ui->modeControls[CropMode::Free]->setChecked(true);
   ui->orientControls[Orient::Auto]->setChecked(true);
+  ui->reflectLimits(calc);
   ui->reflectAspect(""); 
 }
 
@@ -292,7 +351,7 @@ void CropControls::toggleMode() {
     }
   } else if (ui->modeControls[CropMode::Aspect]->isChecked()) {
     if (calc->cropMode() != CropMode::Aspect) {
-      calc->setAspect();
+      calc->setFixedAspect();
       reflectAndEmit();
     }
   }
@@ -300,22 +359,39 @@ void CropControls::toggleMode() {
 
 void CropControls::reflectAndEmit() {
   ui->reflectLimits(calc);
-  ui->reflectCustom(calc);
   emit rectangleChanged(calc->cropRect(), calc->originalSize());
 }  
 
 void CropControls::toggleOrient() {
+  qDebug() << "toggleOrient";
   if (ui->orientControls[Orient::Landscape]->isChecked()) {
     if (calc->aspectRatio()<1) {
-      calc->setAspect(Orient::Landscape);
+      calc->setOrient(Orient::Landscape);
       reflectAndEmit();
     }
   } else if (ui->orientControls[Orient::Portrait]->isChecked()) {
     if (calc->aspectRatio()>1) {
-      calc->setAspect(Orient::Portrait);
+      calc->setOrient(Orient::Portrait);
       reflectAndEmit();
     }
   } 
+}
+
+static double interpretCustom(QString s, bool *ok) {
+  int idx = s.indexOf(":");
+  double a = 0;
+  if (idx<0)
+    idx = s.indexOf("x");
+  if (idx>0) {
+    a = s.left(idx).toDouble(ok);
+    if (ok)
+      a /= s.mid(idx+1).toDouble(ok);
+  } else {
+    a = s.toDouble(ok);
+  }
+  if (ok)
+    *ok = a>0.1 && a<10;
+  return a;
 }
 
 void CropControls::clickAspect(QString s) {
@@ -325,10 +401,33 @@ void CropControls::clickAspect(QString s) {
       o = k;
   if (s=="Custom") {
     bool ok;
-    ui->aspectValues[s] = ui->customAspect->text().toDouble(&ok);
-    if (!ok || ui->aspectValues[s]<.1)
+    ui->aspectValues[s] = interpretCustom(ui->customAspect->text(), &ok);
+    if (!ok)
       ui->aspectValues[s] = 1;
   }
   calc->setAspect(ui->aspectValues[s], o);
+  ui->reflectAspect(s);
   reflectAndEmit();
+}
+
+void CropControls::optimize() {
+  calc->optimize();
+  reflectAndEmit();
+}
+
+void CropControls::customChanged() {
+  ui->modeControls[CropMode::Free]->setChecked(true);
+}
+
+void CropControls::customConfirmed() {
+  clickAspect("Custom");
+}
+
+QSize CropControls::sizeHint() const {
+  QWidget *vp = viewport();
+  QWidget *wdg = widget();
+  if (vp && wdg)
+    return wdg->sizeHint() + size() - vp->contentsRect().size();
+  else
+    return QSize();
 }

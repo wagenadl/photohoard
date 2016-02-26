@@ -26,6 +26,10 @@ void MetaViewer::setVersion(quint64 version) {
   document()->setHtml(MetaInfo(db, version).html());
 }
 
-void MetaViewer::handleClick(QUrl const &url) {
+void MetaViewer::handleClick(QUrl const &) {
   COMPLAIN("MetaViewer: click: not yet implemented");
+}
+
+void MetaViewer::setImage(class Image16 const &, quint64 version) {
+  setVersion(version);
 }

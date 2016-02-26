@@ -34,7 +34,7 @@ void AllControls::changeFromSliders(QString adjuster, double value) {
 }
 
 void AllControls::changeFromCropper(QRect croprect, QSize osize) {
-  Adjustments const &adj0 = getAll();
+  Adjustments adj0 = getAll();
   Adjustments adj = adj0;
   adj.cropl = croprect.left();
   adj.cropr = osize.width() - croprect.right();
