@@ -4,14 +4,15 @@
 
 #define CROPCONTROLS_H
 
-#include <QFrame>
+#include <QScrollArea>
 #include "CropEnums.h"
 
-class CropControls: public QFrame {
+class CropControls: public QScrollArea {
   Q_OBJECT;
 public:
   CropControls(QWidget *parent=0);
   virtual ~CropControls();
+  QSize sizeHint() const;
 public slots:
   void setAll(class Adjustments const &adj, QSize osize);
   void setValue(QString, double);
@@ -29,6 +30,9 @@ private slots:
   void toggleMode();
   void toggleOrient();
   void clickAspect(QString);
+  void optimize();
+  void customChanged();
+  void customConfirmed();
 private:
   void reflectAndEmit();
 private:
