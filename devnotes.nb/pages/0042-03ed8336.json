@@ -1,0 +1,827 @@
+{ "typ": "page",
+  "cre": "2016-02-28T09:14:26",
+  "mod": "2016-02-28T09:56:34",
+  "cui": "baf7dd5e6a9ba295",
+  "stampTime": 0,
+  "startPage": 42,
+  "unlocked": false,
+  "uuid": "03ed8336",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-02-28T09:14:26",
+      "mod": "2016-02-28T09:16:37",
+      "uuid": "103d5065",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:14:26",
+          "mod": "2016-02-28T09:16:37",
+          "lines": [
+            0
+          ],
+          "text": "Purging rejects",
+          "uuid": "f4e5e910"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-02-28T09:14:26",
+      "mod": "2016-02-28T09:14:26",
+      "uuid": "290df075"
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:16:38",
+      "mod": "2016-02-28T09:17:14",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "8ffc8d29",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:16:38",
+          "mod": "2016-02-28T09:17:14",
+          "lines": [
+            0,
+            62,
+            119
+          ],
+          "text": "I have set Ctrl-X to mark a version as “Rejected.” I think it would be nice to automatically purge whenever photohoard exits normally.",
+          "uuid": "4a8102cc"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:17:31",
+      "mod": "2016-02-28T09:19:04",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "888cb92d",
+      "y0": 145.498,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:17:31",
+          "mod": "2016-02-28T09:19:04",
+          "lines": [
+            0,
+            57,
+            118
+          ],
+          "text": "At the very least, rejected versions of a photo that has other versions associated with it can simply be deleted, and their cache entries dropped.",
+          "uuid": "7825d31c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:18:18",
+      "mod": "2016-02-28T09:20:08",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "8062ef4d",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:18:18",
+          "mod": "2016-02-28T09:20:08",
+          "lines": [
+            0,
+            55,
+            112,
+            176,
+            238
+          ],
+          "text": "Rejected versions that are the only version of a photo should be treated with some care. Simply deleting such a version would leave an image file on disk that will never again be loaded, because Scanner will ignore it, since the photo is already in the db. I think that may not be desirable.",
+          "uuid": "757f9aa2",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:18:34",
+              "mod": "2016-02-28T09:18:34",
+              "end": 35,
+              "start": 31,
+              "style": 1,
+              "uuid": "ec512fd5"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:20:26",
+      "mod": "2016-02-28T09:21:11",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "54b86417",
+      "y0": 338.826,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:20:26",
+          "mod": "2016-02-28T09:21:11",
+          "lines": [
+            0,
+            60,
+            117
+          ],
+          "text": "Deleting the version along with its photo is not an option, because then the beast would simply pop up next time the folder tree is scanned.",
+          "uuid": "55fc94cd"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:21:12",
+      "mod": "2016-02-28T09:21:41",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c8c830d0",
+      "y0": 412.324,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:21:12",
+          "mod": "2016-02-28T09:21:41",
+          "lines": [
+            0,
+            62,
+            123
+          ],
+          "text": "Deleting the image file is an option, but that should only be done with user confirmation. And probably only upon explicit user request.",
+          "uuid": "99d2a573",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:21:20",
+              "mod": "2016-02-28T09:21:20",
+              "end": 26,
+              "start": 24,
+              "style": 1,
+              "uuid": "4108482b"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:21:54",
+      "mod": "2016-02-28T09:27:14",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "6c0898cc",
+      "y0": 485.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:21:54",
+          "mod": "2016-02-28T09:27:14",
+          "lines": [
+            0,
+            62,
+            126,
+            187,
+            241,
+            301,
+            365,
+            422
+          ],
+          "text": "So perhaps, the right thing to do is to leave purging manual? Ctrl-Shift-X could trigger it. A dialog would pop up that says: “About to purge n versions of m photos.” (If m = n, it would simply ask “About to purge m photos.” It would have a checkbox that says “Delete rejected image files.” A balloon help to this checkbox would say: “Checking this box will delete k image files from your hard disk and move them into the system Trash.” ",
+          "uuid": "2d40babf",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:22:47",
+              "mod": "2016-02-28T09:22:47",
+              "end": 143,
+              "start": 142,
+              "style": 1,
+              "uuid": "9807ae33"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:23:11",
+              "mod": "2016-02-28T09:23:11",
+              "end": 157,
+              "start": 156,
+              "style": 1,
+              "uuid": "1ea2f8d5"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:23:25",
+              "mod": "2016-02-28T09:23:25",
+              "end": 172,
+              "start": 171,
+              "style": 1,
+              "uuid": "5a6520e8"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:23:26",
+              "mod": "2016-02-28T09:23:26",
+              "end": 176,
+              "start": 175,
+              "style": 1,
+              "uuid": "9a00b783"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:23:47",
+              "mod": "2016-02-28T09:23:47",
+              "end": 215,
+              "start": 214,
+              "style": 1,
+              "uuid": "d5660558"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:25:48",
+              "mod": "2016-02-28T09:25:48",
+              "end": 366,
+              "start": 365,
+              "style": 1,
+              "uuid": "71d9d462"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:21:54",
+      "mod": "2016-02-28T09:27:24",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        23.166
+      ],
+      "uuid": "6c0898cc",
+      "y0": 675.15,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:21:54",
+          "mod": "2016-02-28T09:27:24",
+          "lines": [
+            0,
+            57
+          ],
+          "text": "There could also be a push button labeled “List affected files.” ",
+          "uuid": "2d40babf"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:27:30",
+      "mod": "2016-02-28T09:29:06",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "6cc4cee3",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:27:30",
+          "mod": "2016-02-28T09:29:06",
+          "lines": [
+            0,
+            56,
+            121,
+            186,
+            249
+          ],
+          "text": "Note how complicated this all is: Let’s say there are 5 versions of photo A, 3 of which are rejects; 2 versions of photo B, both of which are rejects; and 1 version of photo C, which is a reject. Then there would be 6 versions of 3 photos rejected, but only 2 image files are subject to deletion.",
+          "uuid": "db2fc6df"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:29:25",
+      "mod": "2016-02-28T09:31:07",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "106cd611",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:29:25",
+          "mod": "2016-02-28T09:31:07",
+          "lines": [
+            0,
+            58,
+            119
+          ],
+          "text": "Orphaned photos (those without associated versions in the db) could also be detected in the Purge dialog. Instead of a checkbox, a radio group could be created:",
+          "uuid": "c9ffc684"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:31:09",
+      "mod": "2016-02-28T09:33:19",
+      "h": 19.147,
+      "ind": 2,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "5106a607",
+      "y0": 292.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:31:09",
+          "mod": "2016-02-28T09:33:19",
+          "lines": [
+            0
+          ],
+          "text": "– Leave image files for k rejected photos on disk",
+          "uuid": "080b5b42",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:33:16",
+              "mod": "2016-02-28T09:33:16",
+              "end": 25,
+              "start": 24,
+              "style": 1,
+              "uuid": "178fd6c2"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:31:50",
+      "mod": "2016-02-28T09:33:41",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "8833c196",
+      "y0": 311.641,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:31:50",
+          "mod": "2016-02-28T09:33:40",
+          "lines": [
+            0,
+            68
+          ],
+          "text": "– Remove image files for k’ rejected photos (including p previously rejected)",
+          "uuid": "2612799b",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:32:15",
+              "mod": "2016-02-28T09:32:15",
+              "end": 56,
+              "start": 55,
+              "style": 1,
+              "uuid": "6191c513"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:33:35",
+              "mod": "2016-02-28T09:33:35",
+              "end": 26,
+              "start": 25,
+              "style": 1,
+              "uuid": "ad3c2742"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:32:40",
+      "mod": "2016-02-28T09:33:52",
+      "h": 19.147,
+      "ind": 2,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "3d6c9813",
+      "y0": 348.608,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:32:40",
+          "mod": "2016-02-28T09:33:52",
+          "lines": [
+            0
+          ],
+          "text": "– Restore p previously rejected photos from retained image files",
+          "uuid": "0c254713",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:32:46",
+              "mod": "2016-02-28T09:32:46",
+              "end": 11,
+              "start": 10,
+              "style": 1,
+              "uuid": "dce1bff6"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:34:10",
+      "mod": "2016-02-28T09:34:54",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "031cc99d",
+      "y0": 367.755,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:34:10",
+          "mod": "2016-02-28T09:34:54",
+          "lines": [
+            0,
+            60
+          ],
+          "text": "This is actually confusing. Restoring should probably be an entirely separate dialog.",
+          "uuid": "ca276aac"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:37:48",
+      "mod": "2016-02-28T09:39:10",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "f7b06616",
+      "y0": 418.087,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:37:48",
+          "mod": "2016-02-28T09:39:10",
+          "lines": [
+            0,
+            53,
+            118,
+            181
+          ],
+          "text": "The purge dialog should probably distinguish between versions that will have remaining siblings and those that don’t. If there are n rejected versions with remaining siblings and m without, the dialog could state",
+          "uuid": "0b1e1397",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:38:33",
+              "mod": "2016-02-28T09:38:33",
+              "end": 132,
+              "start": 131,
+              "style": 1,
+              "uuid": "0adda437"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:38:34",
+              "mod": "2016-02-28T09:38:34",
+              "end": 180,
+              "start": 179,
+              "style": 1,
+              "uuid": "d995b841"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:39:10",
+      "mod": "2016-02-28T09:55:20",
+      "h": 108.247,
+      "ind": 2,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "ab1965ff",
+      "y0": 514.751,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:39:10",
+          "mod": "2016-02-28T09:55:20",
+          "lines": [
+            0,
+            67,
+            75,
+            141,
+            207,
+            208
+          ],
+          "text": "About to purge n versions of k photos of which other versions will remain.\n [X] Also purge m other photos of which no versions would remain.\n        [X] Delete the images files associated with those photos.\n\n                                                                                                      [Cancel]    [OK]",
+          "uuid": "a869ede2",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:39:25",
+              "mod": "2016-02-28T09:39:25",
+              "end": 16,
+              "start": 15,
+              "style": 1,
+              "uuid": "0e376d61"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:40:06",
+              "mod": "2016-02-28T09:40:06",
+              "end": 92,
+              "start": 91,
+              "style": 1,
+              "uuid": "22b2fb1a"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:40:36",
+              "mod": "2016-02-28T09:40:36",
+              "end": 30,
+              "start": 29,
+              "style": 1,
+              "uuid": "fce1520f"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:42:21",
+      "mod": "2016-02-28T09:43:00",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "81911906",
+      "y0": 622.998,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:42:21",
+          "mod": "2016-02-28T09:43:00",
+          "lines": [
+            0
+          ],
+          "text": "The “(k)” part would only show if n ≠ k (?)",
+          "uuid": "c7291333",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:42:27",
+              "mod": "2016-02-28T09:42:27",
+              "end": 7,
+              "start": 6,
+              "style": 1,
+              "uuid": "21672d80"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:42:34",
+              "mod": "2016-02-28T09:42:34",
+              "end": 35,
+              "start": 34,
+              "style": 1,
+              "uuid": "e3413ef7"
+            },
+            { "typ": "markup",
+              "cre": "2016-02-28T09:42:38",
+              "mod": "2016-02-28T09:42:38",
+              "end": 39,
+              "start": 38,
+              "style": 1,
+              "uuid": "ea2b6b68"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:43:03",
+      "mod": "2016-02-28T09:43:34",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "e1d9e130",
+      "y0": 650.164,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:43:03",
+          "mod": "2016-02-28T09:43:34",
+          "lines": [
+            0
+          ],
+          "text": "If m = 0, the checkboxes would not appear.",
+          "uuid": "4ca3ef85",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:43:25",
+              "mod": "2016-02-28T09:43:25",
+              "end": 4,
+              "start": 3,
+              "style": 1,
+              "uuid": "2fce79e7"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:43:46",
+      "mod": "2016-02-28T09:44:29",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "389760f0",
+      "y0": 677.33,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:43:46",
+          "mod": "2016-02-28T09:44:29",
+          "lines": [
+            0
+          ],
+          "text": "If n = 0, the dialog would state",
+          "uuid": "94cc8dd2",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:43:48",
+              "mod": "2016-02-28T09:43:48",
+              "end": 4,
+              "start": 3,
+              "style": 1,
+              "uuid": "59fbf830"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:44:30",
+      "mod": "2016-02-28T09:49:47",
+      "h": 36.967,
+      "ind": 3,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "41ca7c94",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:44:30",
+          "mod": "2016-02-28T09:49:47",
+          "lines": [
+            0,
+            59
+          ],
+          "text": "About to purge m photos of which no versions would remain.\n [X] Delete the image files associated with those photos.",
+          "uuid": "e06a5532",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:44:34",
+              "mod": "2016-02-28T09:44:34",
+              "end": 16,
+              "start": 15,
+              "style": 1,
+              "uuid": "f986041b"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:45:43",
+      "mod": "2016-02-28T09:46:01",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "6d2492b7",
+      "y0": 108.967,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:45:43",
+          "mod": "2016-02-28T09:46:01",
+          "lines": [
+            0,
+            66
+          ],
+          "text": "In all cases, if there are previously orphaned photos, the dialog would add:",
+          "uuid": "3667ba79"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:46:01",
+      "mod": "2016-02-28T09:51:42",
+      "h": 72.607,
+      "ind": 2,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "2568a9a1",
+      "y0": 159.299,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:46:01",
+          "mod": "2016-02-28T09:51:42",
+          "lines": [
+            0,
+            58,
+            120,
+            178
+          ],
+          "text": "There are q photos in your database that have no versions associated, because they were previously rejected and purged.\n [X] Delete the image files associated with these photos.\n [Restore previous rejects]",
+          "uuid": "c974f57e",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:47:28",
+              "mod": "2016-02-28T09:47:28",
+              "end": 11,
+              "start": 10,
+              "style": 1,
+              "uuid": "501d5710"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:46:32",
+      "mod": "2016-02-28T09:51:58",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "cfb93947",
+      "y0": 231.906,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:46:32",
+          "mod": "2016-02-28T09:51:58",
+          "lines": [
+            0,
+            58
+          ],
+          "text": "The last bit would be a pushbutton that opens a dedicated Restore dialog. It could look as follows:",
+          "uuid": "9ee59d48"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:51:59",
+      "mod": "2016-02-28T09:55:49",
+      "h": 143.887,
+      "ind": 2,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "709214f7",
+      "y0": 282.238,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:51:59",
+          "mod": "2016-02-28T09:55:49",
+          "lines": [
+            0,
+            60,
+            68,
+            106,
+            147,
+            191,
+            252,
+            253
+          ],
+          "text": "About to restore q photos that were previously rejected and purged.\n [O] Mark restored versions as Reject\n [O] Mark restored versions as Undecided\n [X] Mark restored version with color label\n        [O] Red  [O] Yellow  [O] Green  [O] Blue  [O] Purple\n\n                                                                                        [Cancel]   [OK]",
+          "uuid": "60cc0f75",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:52:04",
+              "mod": "2016-02-28T09:52:04",
+              "end": 18,
+              "start": 17,
+              "style": 1,
+              "uuid": "7ce08114"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-02-28T09:55:49",
+      "mod": "2016-02-28T09:56:34",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "b5ae8050",
+      "y0": 426.125,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-02-28T09:55:49",
+          "mod": "2016-02-28T09:56:34",
+          "lines": [
+            0,
+            59,
+            118
+          ],
+          "text": "Opening the Restore dialog should probably close the Purge dialog, so the [Restore previous rejects] button should be placed on a line with [Cancel] and [OK].",
+          "uuid": "132dd3b8",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-02-28T09:56:00",
+              "mod": "2016-02-28T09:56:00",
+              "end": 48,
+              "start": 43,
+              "style": 1,
+              "uuid": "2052d94d"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
