@@ -472,7 +472,8 @@ PSize PhotoDB::originalSize(PhotoDB::VersionRecord const &vr,
 
 bool PhotoDB::hasSiblings(quint64 vsn) {
   int n = simpleQuery("select count(1) from versions where photo in"
-                      " (select photo from versions where id==:a", vsn);
+                      " (select photo from versions where id==:a", vsn)
+    .toInt();
   return n>1;
 }
 
