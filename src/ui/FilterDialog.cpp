@@ -411,14 +411,12 @@ void FilterDialog::prepFolderTree() {
 
 void FilterDialog::selectAllLabels() {
   bool all = ui->cRed->isChecked()
-    &&  ui->cOrange->isChecked()
     &&  ui->cYellow->isChecked()
     &&  ui->cGreen->isChecked()
     &&  ui->cBlue->isChecked()
     &&  ui->cPurple->isChecked();
   ui->cNone->setChecked(false);
   ui->cRed->setChecked(!all);
-  ui->cOrange->setChecked(!all);
   ui->cYellow->setChecked(!all);
   ui->cGreen->setChecked(!all);
   ui->cBlue->setChecked(!all);
