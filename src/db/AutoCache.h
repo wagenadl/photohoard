@@ -119,6 +119,9 @@ public slots:
   */
   void cachePreview(quint64 version, Image16 img);
 
+  void purge(quint64 version);
+  /* PURGE - Throw away cached images for a version */
+  
   /* Functions: Signals
      Public signals
    */

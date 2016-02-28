@@ -100,6 +100,22 @@ public: // manipulating the database
      refers to, but with default rather than copied sliders.
      This function does *not* notify the cache or the GUI.
    */
+  bool deleteVersion(quint64 versionid);
+  /* DELETEVERSION - Delete a version from the database
+     This succeeds only if there is at least one other version associated
+     with the photo that VERSIONID refers to.
+     Returns true if successful.
+  */
+  bool hasSiblings(quint64 versionid);
+  /* HASSIBLINGS - Return true if multiple versions are associated with a photo
+     HASSIBLINGS(versionid) returns true if VERSIONID is associated with
+     a photo that has other versions associated with it as well.
+  */
+  QSet<quint64> versionsForPhoto(quint64 photoid);
+  /* VERSIONSFORPHOTO - The set of versions associated with a given photo
+     VERSIONSFORPHOTO(photoid) returns the set of versions associated with
+     the photo PHOTOID.
+  */
 private:
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;

@@ -433,6 +433,11 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
     .lastInsertId().toULongLong();
   if (clone) 
     Adjustments::fromDB(vsn, *this).writeToDB(v1, *this);
+  QSqlQuery q = constQuery("select tag from appliedtags where version==:a",
+                           vsn);
+  while (q.next())
+    query("insert into appliedtags(tag, version) values(:a, :b)",
+          q.value(0), v1);
   
   t.commit();
   return v1;
@@ -463,4 +468,25 @@ PSize PhotoDB::originalSize(PhotoDB::VersionRecord const &vr,
 			    PhotoDB::PhotoRecord const &pr) {
   PSize s(pr.filesize);
   return Exif::fixOrientation(s, vr.orient);
+}
+
+bool PhotoDB::hasSiblings(quint64 vsn) {
+  int n = simpleQuery("select count(1) from versions where photo in"
+                      " (select photo from versions where id==:a", vsn);
+  return n>1;
+}
+
+bool PhotoDB::deleteVersion(quint64 vsn) {
+  if (!hasSiblings(vsn))
+    return false;
+  query("delete from versions where version==:a", vsn);
+  return true;
+}
+
+QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
+  QSet<quint64> res;
+  QSqlQuery q = constQuery("select id from versions where photo==:a", photo);
+  while (q.next())
+    res.insert(q.value(0).toULongLong());
+  return res;
 }
