@@ -74,3 +74,7 @@ void AutoCache::request(quint64 version, QSize desired) {
 void AutoCache::requestIfEasy(quint64 version, QSize desired) {
   emit forwardIfEasy(version, desired);
 }
+
+void AutoCache::purge(quint64 version) {
+  worker->purge(version);
+}

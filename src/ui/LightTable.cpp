@@ -485,6 +485,8 @@ void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
   Untransaction t(db);
   db->query("delete from filter");
+  qDebug() << "joinclause: " << f.joinClause();
+  qDebug() << "whereclause: " << f.whereClause();
   db->query("insert into filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause());
   db->query("delete from selection"
@@ -598,7 +600,7 @@ void LightTable::makeActions() {
       db->newVersion(current(), false);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::Key_D, "New version from current (duplicate)",
+  << Action { Qt::CTRL + Qt::SHIFT +  Qt::Key_N, "New version from current",
          [&]() {
       db->newVersion(current(), true);
       rescan();

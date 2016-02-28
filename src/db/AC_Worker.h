@@ -117,7 +117,10 @@ public slots:
      vsn - the version ID
   */
   void cacheModified(quint64 vsn);
-                                 
+
+  void purge(quint64 vsn);
+  /* PURGE - Throw away cached images for a version */
+
 private slots:
   /* Function: handleFoundImage (slot)
      Responds when an image has been found by one of the <ImageFinders>.

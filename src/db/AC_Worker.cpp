@@ -356,3 +356,7 @@ void AC_Worker::makeAvailable(quint64 version, Image16 img) {
   emit available(version, img.scaledDownToFitIn(s), cache->isOutdated(version));
   requests.remove(version);
 }
+
+void AC_Worker::purge(quint64 version) {
+  cache->remove(version);
+}
