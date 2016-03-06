@@ -342,7 +342,10 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
            */
     mustCache << version;
     requests[version] |= desired;
-    readyToLoad << version;
+    if (readyToLoad.contains(version))
+      rtlOrder.removeAll(version); // we'll push to front
+    else
+      readyToLoad.insert(version);
     rtlOrder.push_front(version);
     activateBank();
   }
