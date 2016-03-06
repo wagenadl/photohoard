@@ -477,11 +477,12 @@ bool PhotoDB::hasSiblings(quint64 vsn) {
   return n>1;
 }
 
-bool PhotoDB::deleteVersion(quint64 vsn) {
-  if (!hasSiblings(vsn))
-    return false;
-  query("delete from versions where version==:a", vsn);
-  return true;
+void PhotoDB::deleteVersion(quint64 vsn) {
+  query("delete from versions where id==:a", vsn);
+}
+
+void PhotoDB::deletePhoto(quint64 vsn) {
+  query("delete from photos where id==:a", vsn);
 }
 
 QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
