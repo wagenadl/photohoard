@@ -11,11 +11,13 @@
 class SliderClipboard: public QScrollArea {
   Q_OBJECT;
 public:
-  SliderClipboard(QWidget *parent=0);
+  SliderClipboard(class PhotoDB *db, class AutoCache *ac, QWidget *parent=0);
   virtual ~SliderClipboard();
   Adjustments values() const; // ignores mask
   QSet<QString> mask() const;
   void get(Adjustments *dest) const;
+signals:
+  void modified(quint64 version);
 public slots:
   void set(class Adjustments const &vv);
   void setAll(class Adjustments const &vv); // ignores mask
@@ -26,6 +28,8 @@ public slots:
   void disableGroup(QString name, bool off=true);
   void enable(QString name, bool on=true);
   void disable(QString name, bool off=true);
+  void copy();
+  void apply();
 protected slots:
   void goNext(QString);
   void goPrevious(QString);
@@ -33,6 +37,9 @@ protected slots:
 private:
   void autoResize();
 private:
+  bool valok;
+  PhotoDB *db;
+  AutoCache *ac;
   QMap<QString, class QCheckBox *> groupControl;
   QMap<QString, QFrame *> groupFrame;
   QMap<QString, QSet<QString> > groupContents;
@@ -41,6 +48,7 @@ private:
   QMap<QString, QString> nextThing;
   QMap<QString, QString> previousThing;
   Adjustments val;
+  QWidget *applyButton;
 };
 
 #endif

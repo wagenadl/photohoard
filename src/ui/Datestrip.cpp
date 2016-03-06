@@ -762,3 +762,9 @@ void Datestrip::unblock() {
   if (rebuilding==0 && mustRelayout)
     relayout();
 }
+
+void Datestrip::reloadVersion(quint64 vsn) {
+  Strip::reloadVersion(vsn);
+  for (auto s: stripOrder)
+    s->reloadVersion(vsn);
+}

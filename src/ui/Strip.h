@@ -79,6 +79,7 @@ public slots:
   virtual void expandAll();
   virtual void block() {}
   virtual void unblock() {}
+  virtual void reloadVersion(quint64 vsn);
 signals:
   void pleaseRecenter(QPointF);
   void needImage(quint64, QSize);

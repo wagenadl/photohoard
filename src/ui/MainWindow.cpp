@@ -23,6 +23,7 @@
 #include "Exporter.h"
 #include <QMessageBox>
 #include "Filter.h"
+#include "SliderClipboard.h"
 
 MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -53,14 +54,15 @@ MainWindow::MainWindow(PhotoDB *db,
   dock->setWidget(statusBar = new StatusBar(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
-  
+
   adjuster = new LiveAdjuster(db, allControls, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
   
   setCentralWidget(lightTable = new LightTable(db, autocache, adjuster, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
-  addToolBar(area, fileBar = new FileBar(db, exporter, scanner, this));
+  addToolBar(area, fileBar = new FileBar(db, autocache,
+                                         exporter, scanner, this));
   addToolBar(area, layoutBar = new LayoutBar(lightTable, this));
   addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
   addToolBar(area, filterBar = new FilterBar(lightTable, this));
@@ -114,6 +116,9 @@ MainWindow::MainWindow(PhotoDB *db,
   metaViewer->setVersion(lightTable->current());
   if (lightTable->filter().hasCollection())
     statusBar->setCollection(lightTable->filter().collection());
+
+  connect(fileBar->sliderClipboard(), SIGNAL(modified(quint64)),
+          SLOT(reloadVersion(quint64)));
 }
 
 MainWindow::~MainWindow() {
@@ -157,4 +162,12 @@ void MainWindow::setStatusMessage(QString msg, QWidget *src) {
 
 void MainWindow::setStatusMessage(QString msg) {
   statusBar->setMessage(msg);
+}
+
+void MainWindow::reloadVersion(quint64 vsn) {
+  if (vsn==db->current()) {
+    histogram->setVersion(vsn);
+    metaViewer->setVersion(vsn);
+  }
+  lightTable->reloadVersion(vsn);
 }
