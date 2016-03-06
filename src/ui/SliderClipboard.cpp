@@ -5,8 +5,15 @@
 #include "SliderGroups.h"
 #include <QCheckBox>
 #include <QSignalMapper>
+#include <QPushButton>
+#include "PhotoDB.h"
+#include "AutoCache.h"
+#include "Selection.h"
 
-SliderClipboard::SliderClipboard(QWidget *parent): QScrollArea(parent) {
+SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
+  QScrollArea(parent), db(db), ac(ac) {
+  valok = false;
+  
   QVBoxLayout *vlay = new QVBoxLayout;
   QSignalMapper *map = new QSignalMapper(this);
   connect(map, SIGNAL(mapped(QString)), SLOT(groupStateChange(QString)));
@@ -34,6 +41,29 @@ SliderClipboard::SliderClipboard(QWidget *parent): QScrollArea(parent) {
     groupFrame[grp] = gf;
     vlay->addWidget(gf);
   }
+  vlay->addStretch();
+
+  auto *hlay = new QHBoxLayout();
+  auto *but = new QPushButton("All");
+  connect(but, SIGNAL(clicked()), SLOT(enableAll()));
+  hlay->addWidget(but);
+  but = new QPushButton("None");
+  connect(but, SIGNAL(clicked()), SLOT(disableAll()));
+  hlay->addWidget(but);
+  hlay->addStretch();
+  vlay->addLayout(hlay);
+
+  hlay = new QHBoxLayout();
+  hlay->addStretch();
+  but = new QPushButton("Copy");
+  connect(but, SIGNAL(clicked()), SLOT(copy()));
+  hlay->addWidget(but);
+  but = new QPushButton("Apply");
+  but->setEnabled(false);
+  applyButton = but;
+  connect(but, SIGNAL(clicked()), SLOT(apply()));
+  hlay->addWidget(but);
+  vlay->addLayout(hlay);  
   setLayout(vlay);
 
   enableAll();
@@ -178,4 +208,37 @@ void SliderClipboard::groupStateChange(QString grp) {
     break;
   }
   autoResize();
+}
+
+void SliderClipboard::copy() {
+  quint64 c = db->current();
+  if (!c)
+    return;
+
+  auto a = Adjustments::fromDB(c, *db);
+  if (valok)
+    set(a);
+  else
+    setAll(a);
+  valok = true;
+
+  applyButton->setEnabled(true);
+}
+
+void SliderClipboard::apply() {
+  if (!valok)
+    return;
+  
+  Selection sel(db);
+  QSet<quint64> vv = sel.current();
+  Transaction t(db);
+  for (auto v: vv) {
+    Adjustments a = Adjustments::fromDB(v, *db);
+    get(&a);
+    a.writeToDB(v, *db);
+  }
+  t.commit();
+  ac->recache(vv);
+  for (auto v: vv)
+    emit modified(v);
 }

@@ -35,7 +35,7 @@ LightTable::LightTable(PhotoDB *db, AutoCache *cache,
 
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();
-  
+
   selection = new Selection(db);
 
   strips = new StripView(db);
@@ -487,8 +487,6 @@ void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
   Untransaction t(db);
   db->query("delete from filter");
-  qDebug() << "joinclause: " << f.joinClause();
-  qDebug() << "whereclause: " << f.whereClause();
   db->query("insert into filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause());
   db->query("delete from selection"
@@ -622,3 +620,10 @@ void LightTable::keyPressEvent(QKeyEvent *e) {
   }
 }
 
+void LightTable::reloadVersion(quint64 vsn) {
+  if (vsn==curr) {
+    makeCurrent(0);
+    makeCurrent(vsn);
+  }
+  strips->strip()->reloadVersion(vsn);
+}

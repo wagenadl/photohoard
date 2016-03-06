@@ -9,10 +9,12 @@
 #include "AddRootDialog.h"
 #include <QDir>
 #include "MainWindow.h"
+#include "SliderClipboard.h"
 
-FileBar::FileBar(PhotoDB *db, Exporter *exporter,
+FileBar::FileBar(PhotoDB *db, AutoCache *ac, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
   exportdialog = new ExportDialog(db, 0);
+  sliderclip = new SliderClipboard(db, ac);
   setWindowTitle("File");
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
@@ -61,7 +63,7 @@ FileBar::FileBar(PhotoDB *db, Exporter *exporter,
   parent->addAction(new PAction(acts.last(), this));
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
-      []() { COMPLAIN("Clipboard dialog not yet implemented"); }};
+      [this]() { this->sliderclip->show(); }};
   parent->addAction(new PAction(acts.last(), this));
 
   acts << Action{Qt::CTRL + Qt::Key_H, "Shortcut help",

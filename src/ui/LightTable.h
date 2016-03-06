@@ -40,6 +40,7 @@ public slots:
   void openFilterDialog();
   void increaseTileSize(double factor);
   void updateSelectedTiles();
+  void reloadVersion(quint64 vsn);
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);

@@ -225,3 +225,9 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 Slidestrip *Slide::parentStrip() const {
   return parent;
 }
+
+void Slide::reload() {
+  pm = QPixmap();
+  img = Image16();
+  update();
+}

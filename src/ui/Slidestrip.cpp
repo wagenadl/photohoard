@@ -379,3 +379,8 @@ Strip *Slidestrip::lastExpandedStrip() {
   return this;
 }
 
+void Slidestrip::reloadVersion(quint64 vsn) {
+  Strip::reloadVersion(vsn);
+  if (slideMap.contains(vsn))
+    slideMap[vsn]->reload();
+}

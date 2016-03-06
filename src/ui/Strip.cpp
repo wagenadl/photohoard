@@ -781,3 +781,11 @@ void Strip::expandWithParents() {
   if (ps)
     ps->expandWithParents();
 }
+
+void Strip::reloadVersion(quint64 vsn) {
+  if (vsn==headerid) {
+    headerimg = Image16();
+    headerpm = QPixmap();
+    update();
+  }
+}

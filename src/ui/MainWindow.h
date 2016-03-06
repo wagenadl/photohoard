@@ -25,6 +25,7 @@ public slots:
   void setStatusMessage(QString msg);
 private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
+  void reloadVersion(quint64 vsn);
 private:
   class PhotoDB *db;
   class Scanner *scanner;
@@ -35,7 +36,6 @@ private:
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
-  class SliderClipboard *clipboardDialog;
   class AllControls *allControls;
   class HistoWidget *histogram;
   class LiveAdjuster *adjuster;
