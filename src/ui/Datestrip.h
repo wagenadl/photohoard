@@ -34,7 +34,6 @@ public slots:
   virtual void expandAll();
   virtual void block();
   virtual void unblock();
-  virtual void reloadVersion(quint64 vsn);
 protected slots:
   virtual void relayout();
   void convertStrip(QDateTime);

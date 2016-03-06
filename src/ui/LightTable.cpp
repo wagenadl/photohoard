@@ -625,5 +625,7 @@ void LightTable::reloadVersion(quint64 vsn) {
     makeCurrent(0);
     makeCurrent(vsn);
   }
-  strips->strip()->reloadVersion(vsn);
+  Slide *slide = strips->strip()->slideByVersion(vsn);
+  if (slide)
+    slide->reload();
 }
