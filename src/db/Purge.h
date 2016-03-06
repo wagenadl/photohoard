@@ -3,6 +3,7 @@
 #ifndef PURGE_H
 
 #include <QSet>
+#include <QMap>
 
 #define PURGE_H
 
@@ -15,8 +16,13 @@ public:
   QSet<quint64> versionsWithoutSiblings() const { return vsnsWoSiblings; }
   QSet<quint64> photosWithOtherVersions() const { return phsWOtherVsns; }
   QSet<quint64> photosWithoutOtherVersions() const { return phsWoOtherVsns; }
-  QSet<quint64> photosThatCanBeDeleted() const { return phsThatCanBeDeld; }
-  QSet<quint64> photosThatCannotBeDeleted() const { return phsThatCantBeDeld; }
+  QMap<quint64, QString> photosThatCanBeDeleted() const {
+    return phsThatCanBeDeld;
+  } // map is photo ID to pathname
+  QSet<quint64> orphanedPhotos() const { return orphans; }
+  QMap<quint64, QString> orphansThatCanBeDeleted() const {
+    return orphsThatCanBeDeld;
+  } // map is photo ID to pathname
 private:
   class PhotoDB *db;
   class AutoCache *cache;
@@ -24,8 +30,9 @@ private:
   QSet<quint64> vsnsWoSiblings;
   QSet<quint64> phsWOtherVsns;
   QSet<quint64> phsWoOtherVsns;
-  QSet<quint64> phsThatCanBeDeld;
-  QSet<quint64> phsThatCantBeDeld;
+  QMap<quint64, QString> phsThatCanBeDeld;
+  QSet<quint64> orphans;
+  QMap<quint64, QString> orphsThatCanBeDeld;
 };
 
 #endif

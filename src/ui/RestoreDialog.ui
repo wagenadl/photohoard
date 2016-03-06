@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>345</width>
+    <height>272</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="mainLabelLong">
+    <widget class="QLabel" name="mainLabel">
      <property name="text">
-      <string>About to restore #q photos that were previously rejected and purged.</string>
+      <string>About to restore #q photos that #were previously rejected and purged.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -41,14 +41,17 @@
     </spacer>
    </item>
    <item>
-    <widget class="QRadioButton" name="radioButton">
+    <widget class="QRadioButton" name="markReject">
      <property name="text">
       <string>Mark restored version#s as Reject</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="radioButton_2">
+    <widget class="QRadioButton" name="markUndecided">
      <property name="text">
       <string>Mark restored version#s as Undecided</string>
      </property>
@@ -71,7 +74,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="colorCheck">
      <property name="text">
       <string>Mark restored version#s with color label</string>
      </property>
@@ -79,6 +82,9 @@
    </item>
    <item>
     <widget class="QWidget" name="colorContainer" native="true">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
        <number>30</number>
@@ -106,6 +112,9 @@
        <widget class="QRadioButton" name="red">
         <property name="text">
          <string>Red</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -172,7 +181,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
+     <y>271</y>
     </hint>
    </hints>
   </connection>
@@ -188,7 +197,23 @@
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
-     <y>274</y>
+     <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>colorContainer</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>14</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>19</x>
+     <y>175</y>
     </hint>
    </hints>
   </connection>

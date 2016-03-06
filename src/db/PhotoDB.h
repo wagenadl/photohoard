@@ -100,11 +100,9 @@ public: // manipulating the database
      refers to, but with default rather than copied sliders.
      This function does *not* notify the cache or the GUI.
    */
-  bool deleteVersion(quint64 versionid);
+  void deleteVersion(quint64 versionid);
   /* DELETEVERSION - Delete a version from the database
-     This succeeds only if there is at least one other version associated
-     with the photo that VERSIONID refers to.
-     Returns true if successful.
+     The associated photo is not removed, even if it is orphaned.
   */
   bool hasSiblings(quint64 versionid);
   /* HASSIBLINGS - Return true if multiple versions are associated with a photo
@@ -115,6 +113,10 @@ public: // manipulating the database
   /* VERSIONSFORPHOTO - The set of versions associated with a given photo
      VERSIONSFORPHOTO(photoid) returns the set of versions associated with
      the photo PHOTOID.
+  */
+  void deletePhoto(quint64 photoid);
+  /* DELETEPHOTO - Delete a photo from the database
+     All associated versions are deleted too.
   */
 private:
   mutable QMap<quint64, QString> folders;

@@ -12,9 +12,11 @@
 #include "Exif.h"
 #include "FilterDialog.h"
 #include <QKeyEvent>
+#include "PurgeDialog.h"
 
-LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
-  QSplitter(parent), db(db), adjuster(adj) {
+LightTable::LightTable(PhotoDB *db, AutoCache *cache,
+                       LiveAdjuster *adj, QWidget *parent):
+  QSplitter(parent), db(db), cache(cache), adjuster(adj) {
   setObjectName("LightTable");
   curr = 0;
   lay=lastlay=LayoutBar::Layout::VGrid;
@@ -595,14 +597,19 @@ void LightTable::makeActions() {
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
-  << Action { Qt::CTRL + Qt::Key_N, "New version from photo",
+  << Action { Qt::CTRL + Qt::Key_N, "New version from current",
+         [&]() {
+      db->newVersion(current(), true);
+      rescan();
+    }}
+  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from photo",
          [&]() {
       db->newVersion(current(), false);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::SHIFT +  Qt::Key_N, "New version from current",
+  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_X, "Purge rejects",
          [&]() {
-      db->newVersion(current(), true);
+      PurgeDialog::purgeDialog(db, cache);
       rescan();
     }}
   ;

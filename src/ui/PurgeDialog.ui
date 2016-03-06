@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>342</width>
-    <height>384</height>
+    <width>360</width>
+    <height>289</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -100,7 +100,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="purgeLabel">
+       <widget class="ClickLabel" name="purgeLabel">
         <property name="text">
          <string>Also purge #m photo#s of which no other versions would remain.</string>
         </property>
@@ -114,6 +114,9 @@
    </item>
    <item>
     <widget class="QWidget" name="deleteContainer" native="true">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="spacing">
        <number>0</number>
@@ -194,9 +197,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="deleteLabel">
+       <widget class="ClickLabel" name="deleteLabel">
         <property name="text">
-         <string>Delete the image files associated with #those photo#s.</string>
+         <string>Delete the image file#s associated with #those photo#q.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -298,7 +301,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="deleteOldLabel">
+       <widget class="ClickLabel" name="deleteOldLabel">
         <property name="text">
          <string>Delete the image file#s associated with #those photo#t.</string>
         </property>
@@ -324,14 +327,69 @@
     </spacer>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>false</bool>
-     </property>
+    <widget class="QWidget" name="warningContainer" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="warningIcon">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="warningText">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>This action cannot be undone!</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_6">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>4000</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <widget class="QWidget" name="buttonbox1" native="true">
@@ -342,12 +400,25 @@
       <item>
        <widget class="QPushButton" name="restoreButton">
         <property name="text">
-         <string>Restore previous rejects</string>
+         <string>Restore previous reject#s</string>
         </property>
        </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -390,6 +461,81 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ClickLabel</class>
+   <extends>QLabel</extends>
+   <header>ClickLabel.h</header>
+   <slots>
+    <signal>clicked()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>purgeCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>deleteContainer</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>29</x>
+     <y>88</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>126</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>purgeLabel</sender>
+   <signal>clicked()</signal>
+   <receiver>purgeCheck</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>28</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deleteLabel</sender>
+   <signal>clicked()</signal>
+   <receiver>deleteCheck</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>219</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>54</x>
+     <y>121</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deleteOldLabel</sender>
+   <signal>clicked()</signal>
+   <receiver>deleteOldCheck</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>27</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

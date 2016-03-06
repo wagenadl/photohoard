@@ -58,7 +58,7 @@ MainWindow::MainWindow(PhotoDB *db,
 
   shortcutHelp = new ShortcutHelp();
   
-  setCentralWidget(lightTable = new LightTable(db, adjuster, this));
+  setCentralWidget(lightTable = new LightTable(db, autocache, adjuster, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
   addToolBar(area, fileBar = new FileBar(db, exporter, scanner, this));
   addToolBar(area, layoutBar = new LayoutBar(lightTable, this));
