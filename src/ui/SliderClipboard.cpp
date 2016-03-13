@@ -9,21 +9,25 @@
 #include "PhotoDB.h"
 #include "AutoCache.h"
 #include "Selection.h"
+#include "Tristate.h"
+#include "PDebug.h"
 
 SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
   QScrollArea(parent), db(db), ac(ac) {
+  //  setWidget(new QWidget());
   valok = false;
   
   QVBoxLayout *vlay = new QVBoxLayout;
-  QSignalMapper *map = new QSignalMapper(this);
-  connect(map, SIGNAL(mapped(QString)), SLOT(groupStateChange(QString)));
+  QSignalMapper *gmap = new QSignalMapper(this);
+  connect(gmap, SIGNAL(mapped(QString)), SLOT(groupStateChange(QString)));
+  QSignalMapper *smap = new QSignalMapper(this);
+  connect(smap, SIGNAL(mapped(QString)), SLOT(sliderStateChange(QString)));  
   SliderGroups sg;
   foreach (QString grp, sg.groups()) {
-    QCheckBox *gc = new QCheckBox;
-    connect(gc, SIGNAL(stateChanged(int)), map, SLOT(map()));
-    map->setMapping(gc, grp);
+    Tristate *gc = new Tristate;
+    connect(gc, SIGNAL(toggled(bool)), gmap, SLOT(map()));
+    gmap->setMapping(gc, grp);
     gc->setText(sg.groupLabel(grp));
-    gc->setTristate();
     groupControl[grp] = gc;
     vlay->addWidget(gc);
 
@@ -31,8 +35,10 @@ SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
     QVBoxLayout *vl = new QVBoxLayout;
     foreach (QString sli, sg.sliders(grp)) {
       groupContents[grp].insert(sli);
-      reverseMap[sli] = grp;
+      containingGroup[sli] = grp;
       QCheckBox *sc = new QCheckBox;
+      connect(sc, SIGNAL(toggled(bool)), smap, SLOT(map()));
+      smap->setMapping(sc, sli);
       sc->setText(sg.sliderLabel(sli));
       jogs[sli] = sc;
       vl->addWidget(sc);
@@ -84,7 +90,7 @@ Adjustments SliderClipboard::values() const {
 QSet<QString> SliderClipboard::mask() const {
   QSet<QString> msk;
   for (auto grp: groupControl.keys()) {
-    switch (groupControl[grp]->checkState()) {
+    switch (groupControl[grp]->state()) {
     case Qt::Checked:
       for (auto sli: groupContents[grp])
 	msk.insert(sli);
@@ -115,78 +121,16 @@ void SliderClipboard::setAll(class Adjustments const &vv) {
   val = vv;
 }
 
-void SliderClipboard::setMask(QSet<QString> msk) {
-  disableAll();
-  for (auto s: msk)
-    jogs[s]->setChecked(true);
-  for (auto it=groupContents.begin(); it!=groupContents.end(); it++) {
-    bool any = false;
-    bool all = true;
-    for (auto s: it.value()) {
-      if (jogs[s]->isChecked())
-	any = true;
-      else
-	all = false;
-    }
-    QString grp = it.key();
-    if (all) 
-      groupControl[grp]->setCheckState(Qt::Checked);
-    else if (any) 
-      groupControl[grp]->setCheckState(Qt::PartiallyChecked);
-    else 
-      groupControl[grp]->setCheckState(Qt::Unchecked);
-  }
-  autoResize();
-}
-
 void SliderClipboard::enableAll(bool on) {
   for (auto it=jogs.begin(); it!=jogs.end(); it++) 
     it.value()->setCheckState(on ? Qt::Checked : Qt::Unchecked);
   for (auto gc: groupControl)
-    gc->setCheckState(on ? Qt::Checked : Qt::Unchecked);
-  for (auto gf: groupFrame)
-    gf->hide();
+    gc->setState(on ? Tristate::On : Tristate::Off);
   autoResize();
 }
 
 void SliderClipboard::disableAll(bool off) {
   enableAll(!off);
-}
-
-void SliderClipboard::enableGroup(QString name, bool on) {
-  Q_ASSERT(groupControl.contains(name));
-  groupControl[name]->setCheckState(on ? Qt::Checked : Qt::Unchecked);
-  groupFrame[name]->hide();
-  autoResize();
-}
-
-void SliderClipboard::disableGroup(QString name, bool off) {
-  enableGroup(name, !off);
-}
-
-void SliderClipboard::enable(QString name, bool on) {
-  Q_ASSERT(jogs.contains(name));
-  jogs[name]->setChecked(on);
-
-    bool any = false;
-    bool all = true;
-    QString grp = reverseMap[name];
-    for (auto s: groupContents[grp]) {
-      if (jogs[s]->isChecked())
-	any = true;
-      else
-	all = false;
-    }
-    if (all) 
-      groupControl[grp]->setCheckState(Qt::Checked);
-    else if (any) 
-      groupControl[grp]->setCheckState(Qt::PartiallyChecked);
-    else 
-      groupControl[grp]->setCheckState(Qt::Unchecked);
-}
-
-void SliderClipboard::disable(QString name, bool off) {
-  enable(name, !off);
 }
 
 void SliderClipboard::goNext(QString) {
@@ -195,20 +139,6 @@ void SliderClipboard::goNext(QString) {
 void SliderClipboard::goPrevious(QString) {
 }
 
-
-void SliderClipboard::groupStateChange(QString grp) {
-  Q_ASSERT(groupControl.contains(grp));
-  switch (groupControl[grp]->checkState()) {
-  case Qt::Checked:
-  case Qt::Unchecked:
-    groupFrame[grp]->hide();
-    break;
-  case Qt::PartiallyChecked:
-    groupFrame[grp]->show();
-    break;
-  }
-  autoResize();
-}
 
 void SliderClipboard::copy() {
   quint64 c = db->current();
@@ -241,4 +171,38 @@ void SliderClipboard::apply() {
   ac->recache(vv);
   for (auto v: vv)
     emit modified(v);
+}
+
+void SliderClipboard::groupStateChange(QString grp) {
+  pDebug() << "group state change" << grp;
+  ASSERT(groupContents.contains(grp));
+  switch (groupControl[grp]->state()) {
+  case Tristate::On:
+    for (QString sli: groupContents[grp]) 
+      jogs[sli]->setChecked(true);
+    break;
+  case Tristate::Off:
+    for (QString sli: groupContents[grp]) 
+      jogs[sli]->setChecked(false);
+    break;
+  case Tristate::Undef:
+   break;
+  }
+}
+
+void SliderClipboard::sliderStateChange(QString sli) {
+  pDebug() << "slider state change" << sli;
+  ASSERT(containingGroup.contains(sli));
+  QString grp = containingGroup[sli];
+  bool any = false;
+  bool all = true;
+  for (QString s: groupContents[grp]) {
+    if (jogs[s]->isChecked())
+      any = true;
+    else
+      all = false;
+  }
+  groupControl[grp]->setState(all ? Tristate::On
+                              : any ? Tristate::Undef
+                              : Tristate::Off);
 }
