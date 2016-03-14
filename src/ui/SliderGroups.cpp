@@ -98,3 +98,8 @@ SliderGroups::SliderInfo SliderGroups::sliderInfo(QString slider) const {
   Q_ASSERT(infos.contains(slider));
   return infos[slider];
 }
+
+SliderGroups const &SliderGroups::sliderGroups() {
+  static SliderGroups sg;
+  return sg;
+}

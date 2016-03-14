@@ -76,8 +76,6 @@ void Tristate::paintEvent(QPaintEvent *) {
   QRectF box(QPointF(0, y0-1), QSize(wx, wx));
   ptr.drawRect(box);
 
-  pDebug() << "tristate" << this << "paint" << int(s);
-  
   box.adjust(2, 2, -1, -1);
   ptr.setPen(Qt::NoPen);
   ptr.setBrush(QBrush(QColor(0, 0, 0)));
