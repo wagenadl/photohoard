@@ -18,6 +18,7 @@ public:
   Adjustments const &getAll() const;
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
+  static double sliderValue(Adjustments const &vv, QString slider);
 signals:
   void valueChanged(QString adjustmentname, double value);
   /* VALUECHANGED - Emitted when the user changes the value.

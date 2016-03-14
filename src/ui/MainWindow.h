@@ -23,6 +23,8 @@ public slots:
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void showShortcutHelp();
   void setStatusMessage(QString msg);
+protected:
+  virtual void closeEvent(QCloseEvent *) override;
 private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
   void reloadVersion(quint64 vsn);

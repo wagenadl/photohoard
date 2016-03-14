@@ -24,6 +24,7 @@
 #include <QMessageBox>
 #include "Filter.h"
 #include "SliderClipboard.h"
+#include <QApplication>
 
 MainWindow::MainWindow(PhotoDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -170,4 +171,8 @@ void MainWindow::reloadVersion(quint64 vsn) {
     metaViewer->setVersion(vsn);
   }
   lightTable->reloadVersion(vsn);
+}
+
+void MainWindow::closeEvent(QCloseEvent *) {
+  QApplication::quit();
 }

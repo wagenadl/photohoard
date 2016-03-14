@@ -11,18 +11,26 @@
 #include "Selection.h"
 #include "Tristate.h"
 #include "PDebug.h"
+#include <QScrollArea>
+#include <QGridLayout>
+#include <QLabel>
+#include "ControlSliders.h"
 
 SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
-  QScrollArea(parent), db(db), ac(ac) {
-  //  setWidget(new QWidget());
+  QDialog(parent), db(db), ac(ac) {
+  sa = new QScrollArea();
+  sa->setWidget(new QWidget());
+  sa->setWidgetResizable(true);
   valok = false;
   
   QVBoxLayout *vlay = new QVBoxLayout;
+  vlay->setSpacing(2);
+  vlay->setContentsMargins(9, 9, 9, 4);
   QSignalMapper *gmap = new QSignalMapper(this);
   connect(gmap, SIGNAL(mapped(QString)), SLOT(groupStateChange(QString)));
   QSignalMapper *smap = new QSignalMapper(this);
   connect(smap, SIGNAL(mapped(QString)), SLOT(sliderStateChange(QString)));  
-  SliderGroups sg;
+  SliderGroups const &sg(SliderGroups::sliderGroups());
   foreach (QString grp, sg.groups()) {
     Tristate *gc = new Tristate;
     connect(gc, SIGNAL(toggled(bool)), gmap, SLOT(map()));
@@ -31,8 +39,11 @@ SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
     groupControl[grp] = gc;
     vlay->addWidget(gc);
 
-    QFrame *gf = new QFrame;
-    QVBoxLayout *vl = new QVBoxLayout;
+    auto *gf = new QFrame;
+    auto *vl = new QGridLayout;
+    vl->setSpacing(0);
+    vl->setContentsMargins(9, 0, 0, 3);
+    int row = 0;
     foreach (QString sli, sg.sliders(grp)) {
       groupContents[grp].insert(sli);
       containingGroup[sli] = grp;
@@ -41,15 +52,28 @@ SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
       smap->setMapping(sc, sli);
       sc->setText(sg.sliderLabel(sli));
       jogs[sli] = sc;
-      vl->addWidget(sc);
+      vl->addWidget(sc, row, 0);
+      QLabel *lbl = new QLabel;
+      lbl->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+      labels[sli] = lbl;
+      vl->addWidget(lbl, row, 1);
+      ++row;
     }
     gf->setLayout(vl);
     groupFrame[grp] = gf;
     vlay->addWidget(gf);
   }
-  vlay->addStretch();
+  vlay->addStretch(1);
+  sa->widget()->setLayout(vlay);
+  sa->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  vlay = new QVBoxLayout;
+  vlay->setContentsMargins(0,0,0,0);
+  vlay->setSpacing(2);
+  vlay->addWidget(sa);
 
   auto *hlay = new QHBoxLayout();
+  hlay->setContentsMargins(6, 4, 26, 2);
   auto *but = new QPushButton("All");
   connect(but, SIGNAL(clicked()), SLOT(enableAll()));
   hlay->addWidget(but);
@@ -60,27 +84,29 @@ SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
   vlay->addLayout(hlay);
 
   hlay = new QHBoxLayout();
+  hlay->setContentsMargins(26, 2, 6, 9);
   hlay->addStretch();
   but = new QPushButton("Copy");
   connect(but, SIGNAL(clicked()), SLOT(copy()));
   hlay->addWidget(but);
   but = new QPushButton("Apply");
-  but->setEnabled(false);
   applyButton = but;
   connect(but, SIGNAL(clicked()), SLOT(apply()));
   hlay->addWidget(but);
-  vlay->addLayout(hlay);  
+  vlay->addLayout(hlay);
   setLayout(vlay);
-
   enableAll();
-  autoResize();  
+  autoResize();
+  setAll(Adjustments());
 }
 
 SliderClipboard::~SliderClipboard() {
 }
 
 void SliderClipboard::autoResize() {
-  resize(sizeHint());
+  resize(sa->widget()->sizeHint()
+         + QSize(0, sizeHint().height() - sa->sizeHint().height())
+         + sa->size() - sa->viewport()->contentsRect().size());
 }  
 
 Adjustments SliderClipboard::values() const {
@@ -89,21 +115,9 @@ Adjustments SliderClipboard::values() const {
 
 QSet<QString> SliderClipboard::mask() const {
   QSet<QString> msk;
-  for (auto grp: groupControl.keys()) {
-    switch (groupControl[grp]->state()) {
-    case Qt::Checked:
-      for (auto sli: groupContents[grp])
-	msk.insert(sli);
-      break;
-    case Qt::PartiallyChecked:
-      for (auto sli: groupContents[grp])
-	if (jogs[sli]->isChecked())
-	  msk.insert(sli);
-      break;
-    case Qt::Unchecked:
-      break;
-    }
-  }
+  for (auto sli: jogs.keys())
+    if (jogs[sli]->isChecked())
+      msk.insert(sli);
   return msk;
 }
 
@@ -113,12 +127,19 @@ void SliderClipboard::get(Adjustments *dest) const {
 }
 
 void SliderClipboard::set(class Adjustments const &vv) {
-  for (auto sli: mask())
+  for (auto sli: mask()) {
     val.set(sli, vv.get(sli));
+    double v = ControlSliders::sliderValue(vv, sli);
+    labels[sli]->setText(QString::number(v, 'f', decimals(sli)));
+  }
 }
 
 void SliderClipboard::setAll(class Adjustments const &vv) {
   val = vv;
+  for (auto sli: labels.keys()) {
+    double v = ControlSliders::sliderValue(vv, sli);
+    labels[sli]->setText(QString::number(v, 'f', decimals(sli)));
+  }
 }
 
 void SliderClipboard::enableAll(bool on) {
@@ -151,8 +172,6 @@ void SliderClipboard::copy() {
   else
     setAll(a);
   valok = true;
-
-  applyButton->setEnabled(true);
 }
 
 void SliderClipboard::apply() {
@@ -174,7 +193,6 @@ void SliderClipboard::apply() {
 }
 
 void SliderClipboard::groupStateChange(QString grp) {
-  pDebug() << "group state change" << grp;
   ASSERT(groupContents.contains(grp));
   switch (groupControl[grp]->state()) {
   case Tristate::On:
@@ -191,7 +209,6 @@ void SliderClipboard::groupStateChange(QString grp) {
 }
 
 void SliderClipboard::sliderStateChange(QString sli) {
-  pDebug() << "slider state change" << sli;
   ASSERT(containingGroup.contains(sli));
   QString grp = containingGroup[sli];
   bool any = false;
@@ -205,4 +222,17 @@ void SliderClipboard::sliderStateChange(QString sli) {
   groupControl[grp]->setState(all ? Tristate::On
                               : any ? Tristate::Undef
                               : Tristate::Off);
+  labels[sli]->setEnabled(jogs[sli]->checkState());
+}
+
+int SliderClipboard::decimals(QString sli) {
+  static QMap<QString, int> dec;
+  if (!dec.contains(sli)) {
+    auto info = SliderGroups::sliderGroups().sliderInfo(sli);
+    if (info.mustep>=1)
+      dec[sli] = 0;
+    else
+      dec[sli] = -floor(log10(info.mustep));
+  }
+  return dec[sli];
 }

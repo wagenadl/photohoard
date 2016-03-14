@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
   expo->start();
 
   MainWindow *mw = new MainWindow(&db, scan, ac, expo);
+
   QDesktopWidget *dw = app.desktop();
   mw->resize(dw->width()*8/10, dw->height()*8/10);
   mw->move(dw->width()/10, dw->height()/10);

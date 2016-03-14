@@ -3,12 +3,12 @@
 #ifndef SLIDERCLIPBOARD_H
 #define SLIDERCLIPBOARD_H
 
-#include <QScrollArea>
+#include <QDialog>
 #include <QMap>
 #include <QSet>
 #include "Adjustments.h"
 
-class SliderClipboard: public QScrollArea {
+class SliderClipboard: public QDialog {
   Q_OBJECT;
 public:
   SliderClipboard(class PhotoDB *db, class AutoCache *ac, QWidget *parent=0);
@@ -32,17 +32,20 @@ protected slots:
   void sliderStateChange(QString);
 private:
   void autoResize();
+  static int decimals(QString sli);
 private:
   bool valok;
   PhotoDB *db;
   AutoCache *ac;
   QMap<QString, class Tristate *> groupControl;
-  QMap<QString, QFrame *> groupFrame;
+  QMap<QString, class QFrame *> groupFrame;
   QMap<QString, QSet<QString> > groupContents;
   QMap<QString, QString> containingGroup;
   QMap<QString, class QCheckBox *> jogs;
+  QMap<QString, class QLabel *> labels;
   QMap<QString, QString> nextThing;
   QMap<QString, QString> previousThing;
+  class QScrollArea *sa;
   Adjustments val;
   QWidget *applyButton;
 };
