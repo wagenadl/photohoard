@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>743</width>
+    <width>760</width>
     <height>707</height>
    </rect>
   </property>
@@ -840,12 +840,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>156</y>
+     <x>555</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
-     <x>620</x>
-     <y>160</y>
+     <x>614</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -856,12 +856,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>192</y>
+     <x>555</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
-     <x>620</x>
-     <y>196</y>
+     <x>614</x>
+     <y>186</y>
     </hint>
    </hints>
   </connection>
@@ -872,12 +872,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>620</x>
-     <y>160</y>
+     <x>614</x>
+     <y>153</y>
     </hint>
     <hint type="destinationlabel">
-     <x>549</x>
-     <y>156</y>
+     <x>555</x>
+     <y>151</y>
     </hint>
    </hints>
   </connection>
@@ -888,12 +888,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>620</x>
-     <y>196</y>
+     <x>614</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
-     <x>549</x>
-     <y>192</y>
+     <x>555</x>
+     <y>184</y>
     </hint>
    </hints>
   </connection>
@@ -904,8 +904,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>534</x>
-     <y>57</y>
+     <x>511</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>262</x>
@@ -920,8 +920,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>708</x>
-     <y>88</y>
+     <x>659</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>358</x>
@@ -936,8 +936,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>708</x>
-     <y>57</y>
+     <x>584</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -952,8 +952,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>534</x>
-     <y>88</y>
+     <x>659</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>385</x>
@@ -968,8 +968,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>625</x>
-     <y>88</y>
+     <x>584</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -984,8 +984,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>156</y>
+     <x>555</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>7</x>
@@ -1000,8 +1000,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>192</y>
+     <x>555</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
      <x>388</x>
@@ -1016,8 +1016,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>580</x>
-     <y>258</y>
+     <x>553</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1032,8 +1032,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>476</x>
-     <y>258</y>
+     <x>461</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>384</x>
@@ -1048,8 +1048,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>679</x>
-     <y>258</y>
+     <x>640</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>385</x>
@@ -1064,8 +1064,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>213</x>
-     <y>129</y>
+     <x>180</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>384</x>
@@ -1080,8 +1080,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>213</x>
-     <y>165</y>
+     <x>180</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>384</x>
@@ -1096,8 +1096,8 @@
    <slot>setCamera()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>355</y>
+     <x>461</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -1112,8 +1112,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>387</y>
+     <x>448</x>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -1128,8 +1128,8 @@
    <slot>setMaker()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>471</x>
-     <y>323</y>
+     <x>457</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -1144,8 +1144,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>431</x>
-     <y>57</y>
+     <x>453</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -1192,8 +1192,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>389</x>
-     <y>93</y>
+     <x>741</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -1208,8 +1208,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>391</x>
-     <y>198</y>
+     <x>743</x>
+     <y>188</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -1224,8 +1224,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>394</x>
-     <y>260</y>
+     <x>746</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -1240,8 +1240,8 @@
    <slot>recount()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>388</x>
-     <y>389</y>
+     <x>740</x>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
      <x>2</x>
@@ -1257,7 +1257,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>326</x>
-     <y>167</y>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
      <x>748</x>
@@ -1374,6 +1374,22 @@
     <hint type="destinationlabel">
      <x>750</x>
      <y>296</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sNew</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>FilterDialog</receiver>
+   <slot>recount()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>235</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>379</x>
+     <y>353</y>
     </hint>
    </hints>
   </connection>
