@@ -15,7 +15,7 @@
 class PhotoDB: public Database {
 public:
   enum class ColorLabel { None=0, Red, Yellow, Green, Blue, Purple };
-  enum class AcceptReject { Undecided=0, Accept=1, Reject=-1 };
+  enum class AcceptReject { Undecided=0, Accept=1, Reject=-1, NewImport=2 };
 public:
   struct VersionRecord {
     quint64 id;

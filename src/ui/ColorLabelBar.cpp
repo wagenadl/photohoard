@@ -67,6 +67,15 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
                 " (select version from selection)",
                 int(PhotoDB::AcceptReject::Reject));
       lighttable->updateSelectedTiles();
+    }};
+  parent->addAction(new PAction(acts.last(), this));
+  
+  acts << Action{Qt::CTRL + Qt::Key_J, "Mark new import",
+      [=]() {
+      db->query("update versions set acceptreject=:a where id in "
+                " (select version from selection)",
+                int(PhotoDB::AcceptReject::NewImport));
+      lighttable->updateSelectedTiles();
 
     }};
   parent->addAction(new PAction(acts.last(), this));
