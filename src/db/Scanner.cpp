@@ -92,7 +92,8 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   quint64 photo = q.lastInsertId().toULongLong();
 
   // Create first version
-  q = db.query("insert into versions(photo) values(:a)", photo);
+  q = db.query("insert into versions(photo,acceptreject)"
+	       " values(:a,:b)", photo,int(PhotoDB::AcceptReject::NewImport));
   quint64 vsn = q.lastInsertId().toULongLong();
 
   // Attach default tags

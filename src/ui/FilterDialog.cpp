@@ -197,8 +197,9 @@ Filter FilterDialog::extract() const {
     f.unsetStarRating();
 
   f.setStatus(ui->sAccepted->isChecked(),
-	       ui->sUnset->isChecked(),
-	       ui->sRejected->isChecked());
+	      ui->sUnset->isChecked(),
+	      ui->sRejected->isChecked(),
+	      ui->sNew->isChecked());
   if (!ui->status->isChecked())
     f.unsetStatus();
 
@@ -267,6 +268,7 @@ void FilterDialog::populate(Filter const &f) {
   ui->sAccepted->setChecked(f.statusAccepted());
   ui->sRejected->setChecked(f.statusRejected());
   ui->sUnset->setChecked(f.statusUnset());
+  ui->sNew->setChecked(f.statusNewImport());
 
   // Camera
   ui->camera->setChecked(f.hasCamera());
