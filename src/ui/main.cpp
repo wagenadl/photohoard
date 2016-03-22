@@ -24,14 +24,15 @@ namespace CMS {
 }
 
 void usage() {
-  fprintf(stderr, "Usage: photohoard -icc profile -db databasedir\n");
+  fprintf(stderr, "Usage: photohoard -icc profile -new -db database\n");
   exit(1);
 }
 
 int main(int argc, char **argv) {
 
-  QString dbdir = "/home/wagenaar/.local/photohoard";
+  QString dbfn = "/home/wagenaar/.local/photohoard/default.db";
   QString icc;
+  bool newdb = false;
   
   QStringList args;
   for (int i=1; i<argc; i++)
@@ -40,17 +41,16 @@ int main(int argc, char **argv) {
     QString kwd = args.takeFirst();
     if (kwd=="-db") {
       Q_ASSERT(!args.isEmpty());
-      dbdir = args.takeFirst();
+      dbfn = args.takeFirst();
     } else if (kwd=="-icc") {
       Q_ASSERT(!args.isEmpty());
       icc = args.takeFirst();
+    } else if (kwd=="-new") {
+      newdb = true;
     } else {
       usage();
     }
   }
-
-  QString dbfn = dbdir + "/photodb.db";
-  QString cachefn = dbdir + "/photodb.cache";
 
   Application app(argc, argv);
 
@@ -61,14 +61,24 @@ int main(int argc, char **argv) {
     CMS::monitorProfile = CMSProfile(icc);
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
+
+  if (newdb==QFile(dbfn).exists()) {
+    if (newdb) 
+      pDebug() << "Database not found at " << dbfn;
+    else
+      pDebug() << "Database already exists at " << dbfn;
+    return 2;
+  }
   
-  if (!QFile(dbfn).exists()) {
+  if (newdb) {
     pDebug() << "Creating database at " << dbfn;
     PhotoDB::create(dbfn);
   }
 
   PhotoDB db;
   db.open(dbfn);
+
+  QString cachefn = db.cacheFilename();
     
   if (!QDir(cachefn).exists()) {
     pDebug() << "Creating cache at " << cachefn;

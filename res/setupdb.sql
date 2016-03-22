@@ -180,6 +180,9 @@ create table exportsettings (
        k string,
        v );
 
+create table cachefn (
+       fn string );
+
 -- ======================================================================
 
 insert into filetypes(stdext) values ("jpeg");

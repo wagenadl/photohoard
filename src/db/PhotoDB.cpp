@@ -57,10 +57,20 @@ void PhotoDB::create(QString fn) {
   SqlFile sql(":/setupdb.sql");
   {
     Transaction t(&db);
+
     for (auto c: sql) 
       db.query(c);
+
+    QString cachefn = fn;
+    if (fn.endsWith(".db"))
+      fn.replace(".db", ".cache");
+    else
+      fn += ".cache";
+    db.query("insert into cachefn values (:a)", cachefn);
+
     t.commit();
   }
+    
   db.close();
 }
 
@@ -491,4 +501,8 @@ QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
   while (q.next())
     res.insert(q.value(0).toULongLong());
   return res;
+}
+
+QString PhotoDB::cacheFilename() const {
+  return simpleQuery("select fn from cachefn").toString();
 }
