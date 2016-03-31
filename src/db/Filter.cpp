@@ -1,11 +1,11 @@
 // Filter.cpp
 
 #include "Filter.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "Tags.h"
 #include "PDebug.h"
 
-Filter::Filter(PhotoDB *db): db(db) {
+Filter::Filter(SessionDB *db): db(db) {
   reset();
 }
 

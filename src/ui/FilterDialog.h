@@ -6,12 +6,11 @@
 
 #include <QDialog>
 #include "Filter.h"
-#include "PhotoDB.h"
 
 class FilterDialog: public QDialog {
   Q_OBJECT;
 public:
-  FilterDialog(class PhotoDB *db, QWidget *parent=0);
+  FilterDialog(class SessionDB *db, QWidget *parent=0);
   virtual ~FilterDialog() { }
   void populate(Filter const &);
   Filter extract() const; // currently shown in dialog
@@ -42,7 +41,7 @@ private:
   void buildTree(class QTreeWidgetItem *it, quint64 parentid);
 private:
   class Ui_FilterDialog *ui;
-  PhotoDB *db;
+  class SessionDB *db;
   Filter f0;
   bool starting;
 };
