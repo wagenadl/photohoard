@@ -15,7 +15,7 @@
 #include "SliderGroups.h"
 #include "Action.h"
 
-ControlSliders::ControlSliders(QWidget *parent): QScrollArea(parent) {
+ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
@@ -26,6 +26,8 @@ ControlSliders::ControlSliders(QWidget *parent): QScrollArea(parent) {
   SliderGroups const &sg(SliderGroups::sliderGroups());
 
   QWidget *w = new QWidget;//OneWayScroll;
+  if (ro)
+    w->setEnabled(false);
   setWidget(w);
   setWidgetResizable(true);
 

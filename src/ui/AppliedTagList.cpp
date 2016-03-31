@@ -12,16 +12,21 @@ AppliedTagList::AppliedTagList(PhotoDB *db, QWidget *parent):
   db(db), tags(db), selection(db) {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-  editor = new AppliedTagEditor(db, this);
-  connect(editor, SIGNAL(returnPressed()),
-	  SLOT(editorAction()));
-
-  dialog = new TagDialog(db);
-  connect(dialog, SIGNAL(apply(int)), SLOT(applyTag(int)));
-  connect(dialog, SIGNAL(unapply(int)), SLOT(removeTag(int)));
-  browse = new QToolButton(this);
-  browse->setText(QString::fromUtf8("…"));
-  connect(browse, SIGNAL(clicked()), SLOT(clickBrowse()));
+  if (db->isReadOnly()) {
+    editor = 0;
+    dialog = 0;
+    browse = 0;
+  } else {
+    editor = new AppliedTagEditor(db, this);
+    connect(editor, SIGNAL(returnPressed()),
+	    SLOT(editorAction()));
+    dialog = new TagDialog(db);
+    connect(dialog, SIGNAL(apply(int)), SLOT(applyTag(int)));
+    connect(dialog, SIGNAL(unapply(int)), SLOT(removeTag(int)));
+    browse = new QToolButton(this);
+    browse->setText(QString::fromUtf8("…"));
+    connect(browse, SIGNAL(clicked()), SLOT(clickBrowse()));
+  }
   
   cur = 0;
   setAutoFillBackground(true);
@@ -33,7 +38,9 @@ AppliedTagList::~AppliedTagList() {
 
 QSize AppliedTagList::sizeHint() const {
   QMargins m = contentsMargins();
-  QRect cc = editor->geometry().adjusted(0, 0, 2 + browse->width(), 0);
+  QRect cc = editor
+    ? editor->geometry().adjusted(0, 0, 2 + browse->width(), 0)
+    : QRect();  
   for (auto w: widgets)
     cc |= w->rect();
   return cc.size() + QSize(m.left() + m.right(),
@@ -77,9 +84,10 @@ void AppliedTagList::rebuild() {
     }
   }
 
+  bool ro = db->isReadOnly();
   for (auto t: tagsInAny) {
     if (!widgets.contains(t)) {
-      widgets[t] = new AppliedTagWidget(t, tags.smartName(t), this);
+      widgets[t] = new AppliedTagWidget(t, tags.smartName(t), ro, this);
       connect(widgets[t], SIGNAL(removeClicked(int)),
 	      SLOT(removeTag(int)));
       connect(widgets[t], SIGNAL(addClicked(int)),
@@ -89,7 +97,8 @@ void AppliedTagList::rebuild() {
     widgets[t]->setInclusion(tagsInCur.contains(t),
 			     tagsInAll.contains(t));
   }
-  editor->reset();
+  if (editor)
+    editor->reset();
   relayout();
 }
 
@@ -130,9 +139,11 @@ void AppliedTagList::relayout() {
 
   y += lh + 1;
   x = r.left();
-  editor->move(x, y);
-  browse->resize(browse->sizeHint().width(), editor->height());
-  browse->move(r.right()-browse->width(), r.bottom()-browse->height());
+  if (editor) {
+    editor->move(x, y);
+    browse->resize(browse->sizeHint().width(), editor->height());
+    browse->move(r.right()-browse->width(), r.bottom()-browse->height());
+  }
   updateGeometry();
 }
 
@@ -157,7 +168,7 @@ int AppliedTagList::heightForWidth(int w) const {
 
   y += lh + 1;
   x = 0;
-  lh = editor->height();
+  lh = editor ? editor->height() : 0;
   
   return y + lh;
 }
