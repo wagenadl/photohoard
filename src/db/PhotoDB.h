@@ -41,9 +41,10 @@ public:
     QDateTime capturedate;
   };
 public:
-  PhotoDB(QString id=""): Database(id) { }
+  PhotoDB(QString id="");
   virtual void clone(PhotoDB const &);
   static void create(QString fn);
+  bool isReadOnly() const;
 public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
   QDateTime captureDate(quint64 photoid) const;
@@ -118,9 +119,12 @@ public: // manipulating the database
   /* DELETEPHOTO - Delete a photo from the database
      All associated versions are deleted too.
   */
+protected:
+  void setReadOnly();
 private:
   void readFTypes() const;
 private:
+  bool ro;
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;
   mutable QMap<int, QString> ftypes;

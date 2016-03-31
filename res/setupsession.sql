@@ -22,13 +22,19 @@ create table currentvsn (
        version integer );
 
 create table starting ( 
-       -- This table contains a single row.
-       -- Its value is always null except while building the LightTable.
+       -- This table is empty except while building the LightTable.
        -- That way, we can avoid double crashes.
        s integer );
 
+create table expanded (
+       d0 date,
+       scl int,
+       unique(d0, scl) on conflict ignore);
+
+create table expandedfolders (
+       path string,
+       unique(path) on conflict ignore);
+       
 insert into sinfo values("PhotohoardSessionDB", "1.1");
 
 insert into currentvsn values(null);
-
-insert into starting values(null);

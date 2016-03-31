@@ -8,6 +8,10 @@
 #include <QDir>
 #include "Adjustments.h"
 
+PhotoDB::PhotoDB(QString id): Database(id) {
+  ro = false;
+}
+
 void PhotoDB::readFTypes() const {
   QSqlQuery q = constQuery("select id, stdext from filetypes");
   while (q.next()) 
@@ -21,6 +25,7 @@ void PhotoDB::clone(PhotoDB const &src) {
   query("pragma foreign_keys = on");
 
   ftypes = src.ftypes;
+  ro = src.ro;
 }
 
 void PhotoDB::create(QString fn) {
@@ -501,4 +506,12 @@ QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
 
 QString PhotoDB::cacheFilename() const {
   return simpleQuery("select fn from cachefn").toString();
+}
+
+bool PhotoDB::isReadOnly() const {
+  return ro;
+}
+
+void PhotoDB::setReadOnly() {
+  ro = true;
 }
