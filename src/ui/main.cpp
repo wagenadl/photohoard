@@ -25,7 +25,7 @@ namespace CMS {
 }
 
 void usage() {
-  fprintf(stderr, "Usage: photohoard -icc profile -new -db database\n");
+  fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
   exit(1);
 }
 
@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
   QString dbfn = SessionDB::photohoardBaseDir() + "/photodb.db";
   QString icc;
   bool newdb = false;
+  bool readonly = false;
   
   QStringList args;
   for (int i=1; i<argc; i++)
@@ -48,6 +49,8 @@ int main(int argc, char **argv) {
       icc = args.takeFirst();
     } else if (kwd=="-new") {
       newdb = true;
+    } else if (kwd=="-ro") {
+      readonly = true;
     } else {
       usage();
     }
@@ -82,7 +85,7 @@ int main(int argc, char **argv) {
   }
 
   SessionDB db;
-  db.open(dbfn);
+  db.open(dbfn, readonly);
 
   QString cachefn = db.cacheFilename();
     
@@ -93,11 +96,14 @@ int main(int argc, char **argv) {
 
   AutoCache *ac = new AutoCache(&db, cachefn);
 
-  Scanner *scan = new Scanner(&db);
-  QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
-                   ac, SLOT(recache(QSet<quint64>)));
-  QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
-                   ac, SLOT(cachePreview(quint64, Image16)));
+  Scanner *scan = 0;
+  if (!db.isReadOnly()) {
+    scan = new Scanner(&db);
+    QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
+		     ac, SLOT(recache(QSet<quint64>)));
+    QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
+		     ac, SLOT(cachePreview(quint64, Image16)));
+  }
 
   Exporter *expo = new Exporter(&db, 0);
   expo->start();
@@ -110,12 +116,15 @@ int main(int argc, char **argv) {
   mw->show();
 
   mw->scrollToCurrent();
-    
-  scan->start(); // doing this here ensures that the mainwindow can open 1st
+
+  if (scan)
+    scan->start(); // doing this here ensures that the mainwindow can open 1st
 
   int res = app.exec();
-  scan->stopAndWait(1000);
-  delete scan;
+  if (scan) {
+    scan->stopAndWait(1000);
+    delete scan;
+  }
   delete ac;
   expo->stop();
   delete expo;

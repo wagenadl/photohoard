@@ -157,11 +157,19 @@ QString PhotoDB::lensAlias(int id) const {
 
 void PhotoDB::setCameraAlias(int id, QString alias) {
   cameraAliases[id] = alias;
+  if (ro) {
+    COMPLAIN("Setting a camera alias in read-only mode is not permanent");
+    return;
+  }
   query("update cameras set alias=:a where id==:b", alias, id);
 }
 
 void PhotoDB::setLensAlias(int id, QString alias) {
   lensAliases[id] = alias;
+  if (ro) {
+    COMPLAIN("Setting a lens alias in read-only mode is not permanent");
+    return;
+  }
   query("update lenses set alias=:a where id==:b", alias, id);
 }
 
@@ -205,6 +213,10 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
 
 void PhotoDB::addUndoStep(quint64 versionid, QString key,
                           QVariant oldvalue, QVariant newvalue) {
+  if (ro) {
+    COMPLAIN("Cannot add undo step in read only mode");
+    return;
+  }
   QDateTime now = QDateTime::currentDateTime();
   query("delete from undo where version==:a and undone==1", versionid);
   QSqlQuery q = query("select stepid, version,"
@@ -241,6 +253,10 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
 }
 
 void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
+  if (ro) {
+    COMPLAIN("Cannot set color label in read only mode");
+    return;
+  }
   QVariant old = simpleQuery("select colorlabel from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".colorlabel", old, int(label));
@@ -249,6 +265,10 @@ void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
 }
 
 void PhotoDB::setStarRating(quint64 versionid, int stars) {
+  if (ro) {
+    COMPLAIN("Cannot set star rating in read only mode");
+    return;
+  }
   QVariant old = simpleQuery("select starrating from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".starrating", old, stars);
@@ -257,6 +277,10 @@ void PhotoDB::setStarRating(quint64 versionid, int stars) {
 }
   
 void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
+  if (ro) {
+    COMPLAIN("Cannot set accept/reject in read only mode");
+    return;
+  }
   QVariant old = simpleQuery("select acceptreject from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".acceptreject", old, int(label));
@@ -423,6 +447,10 @@ quint64 PhotoDB::firstVersionInTree(QString folder) const {
 }
 
 quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
+  if (ro) {
+    COMPLAIN("Cannot create new version in read only mode");
+    return 0;
+  }
   VersionRecord vr = versionRecord(vsn);
   Transaction t(this);
 
@@ -467,10 +495,18 @@ bool PhotoDB::hasSiblings(quint64 vsn) {
 }
 
 void PhotoDB::deleteVersion(quint64 vsn) {
+  if (ro) {
+    COMPLAIN("Cannot delete version in read only mode");
+    return;
+  }
   query("delete from versions where id==:a", vsn);
 }
 
 void PhotoDB::deletePhoto(quint64 vsn) {
+  if (ro) {
+    COMPLAIN("Cannot delete photo in read only mode");
+    return;
+  }
   query("delete from photos where id==:a", vsn);
 }
 

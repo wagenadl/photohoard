@@ -32,7 +32,7 @@ bool SessionDB::sessionExists(QString photodbfn) {
   return f.exists();
 }
 
-bool SessionDB::isReadOnly(QString photodbfn) {
+bool SessionDB::isDBReadOnly(QString photodbfn) {
   QFileInfo f(photodbfn);
   return !f.isWritable();
 }
@@ -61,7 +61,7 @@ void SessionDB::createSession(QString pdbfn) {
   db.close();
 }
   
-void SessionDB::open(QString photodbfn) {
+void SessionDB::open(QString photodbfn, bool forcereadonly) {
   if (!sessionExists(photodbfn))
     CRASH("Cannot open nonexistent session for " + photodbfn);
   QString sessionfn = sessionFilename(photodbfn);
@@ -82,7 +82,7 @@ void SessionDB::open(QString photodbfn) {
   query("pragma foreign_keys = on");
 
   query("attach database :a as P", photodbfn);
-  if (isReadOnly(photodbfn))
+  if (forcereadonly || isDBReadOnly(photodbfn))
     setReadOnly();
   
   query("attach database ':memory:' as M");

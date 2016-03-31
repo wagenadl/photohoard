@@ -11,7 +11,7 @@
 class AllControls: public QTabWidget {
   Q_OBJECT;
 public:
-  AllControls(QWidget *parent=0);
+  AllControls(bool ro, QWidget *parent=0);
   virtual ~AllControls();
   Adjustments const &getAll() const;
   virtual QSize sizeHint() const override;

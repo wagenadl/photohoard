@@ -5,15 +5,17 @@
 #include "ControlSliders.h"
 #include "CropControls.h"
 
-AllControls::AllControls(QWidget *parent): QTabWidget(parent) {
-  sliders = new ControlSliders();
+AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
+  sliders = new ControlSliders(ro);
   addTab(sliders, QIcon(":/icons/sliders.svg"), "Sliders");
   connect(sliders, SIGNAL(valueChanged(QString, double)),
 	  SLOT(changeFromSliders(QString, double)));
-  cropper = new CropControls();
-  addTab(cropper, QIcon(":/icons/crop.svg"), "Crop");
-  connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
-	  SLOT(changeFromCropper(QRect, QSize)));
+  if (!ro) {
+    cropper = new CropControls();
+    addTab(cropper, QIcon(":/icons/crop.svg"), "Crop");
+    connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
+	    SLOT(changeFromCropper(QRect, QSize)));
+  }
 }
 
 AllControls::~AllControls() {
