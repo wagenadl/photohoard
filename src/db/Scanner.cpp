@@ -10,10 +10,10 @@
 #include "Tags.h"
 #include "Here.h"
 
-Scanner::Scanner(PhotoDB *db0): db0(db0) {
+Scanner::Scanner(SessionDB *db0): db0(db0) {
   setObjectName("Scanner");
   db.clone(*db0);
-  QSqlQuery q = db.constQuery("select extension, filetype from extensions");
+  QSqlQuery q = db0->constQuery("select extension, filetype from extensions");
   while (q.next()) 
     exts[q.value(0).toString()] = q.value(1).toInt();
 }

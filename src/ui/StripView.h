@@ -49,7 +49,6 @@ protected slots:
 protected:
   void setScrollbarPolicies();
   void recalcSizes();
-  quint64 current();
   void placeAndConnect(class Strip *strip);
   void makeActions();
 private:

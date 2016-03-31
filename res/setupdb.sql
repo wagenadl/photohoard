@@ -154,10 +154,6 @@ create table photostoscan (
        photo integer unique on conflict ignore,
        foreign key(photo) references photos(id) );
 
-create table current (
-       version integer references versions(id) 
-               on delete set null );
-
 create table expanded (
        d0 date,
        scl int,
@@ -166,19 +162,6 @@ create table expanded (
 create table expandedfolders (
        path string,
        unique(path) on conflict ignore);
-
-create table starting ( 
-       -- This table is always empty except while building the LightTable
-       -- That way, we can avoid double crashes.
-       s integer );
-
-create table filtersettings (
-       k string,
-       v );
-
-create table exportsettings (
-       k string,
-       v );
 
 create table cachefn (
        fn string );
@@ -198,7 +181,7 @@ insert into extensions(filetype, extension)
 insert into extensions(filetype, extension)
        select id, "tif" from filetypes where stdext=="tiff";
 
-insert into info values("PhotoDB", "1.0");
+insert into info values("PhotoDB", "1.1");
 
 create index if not exists photodateidx on photos(capturedate);
 create index if not exists parentfolderidx on folders(parentfolder);
@@ -224,4 +207,3 @@ create index if not exists undoidx on undo(version);
 --   select id from versions where versions.photo==xxx
 -- Yes, that goes from 6 ms without index to <1 with.
 
-insert into current values(null);
