@@ -82,10 +82,8 @@ void SessionDB::open(QString photodbfn) {
   query("pragma foreign_keys = on");
 
   query("attach database :a as P", photodbfn);
-
-  pDebug() << "Attached photodb";
-
-  pDebug() << simpleQuery("select stdext from filetypes where id==2").toString();
+  if (isReadOnly(photodbfn))
+    setReadOnly();
   
   query("attach database ':memory:' as M");
   query("create table if not exists M.filter"

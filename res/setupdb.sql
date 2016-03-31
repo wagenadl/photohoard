@@ -154,15 +154,6 @@ create table photostoscan (
        photo integer unique on conflict ignore,
        foreign key(photo) references photos(id) );
 
-create table expanded (
-       d0 date,
-       scl int,
-       unique(d0, scl) on conflict ignore);
-
-create table expandedfolders (
-       path string,
-       unique(path) on conflict ignore);
-
 create table cachefn (
        fn string );
 
