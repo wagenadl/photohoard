@@ -12,7 +12,7 @@
 class MainWindow: public QMainWindow {
   Q_OBJECT;
 public:
-  MainWindow(class PhotoDB *,
+  MainWindow(class SessionDB *,
              class Scanner *,
              class AutoCache *,
              class Exporter *);
@@ -29,7 +29,7 @@ private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
   void reloadVersion(quint64 vsn);
 private:
-  class PhotoDB *db;
+  class SessionDB *db;
   class Scanner *scanner;
   class Exporter *exporter;
 private:

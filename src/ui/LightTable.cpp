@@ -14,7 +14,7 @@
 #include <QKeyEvent>
 #include "PurgeDialog.h"
 
-LightTable::LightTable(PhotoDB *db, AutoCache *cache,
+LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, QWidget *parent):
   QSplitter(parent), db(db), cache(cache), adjuster(adj) {
   setObjectName("LightTable");

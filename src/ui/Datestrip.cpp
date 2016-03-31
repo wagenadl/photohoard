@@ -5,7 +5,7 @@
 #include <QSet>
 #include "PDebug.h"
 #include "Slide.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include <QGraphicsView>
 
 #define MAXDIRECT 50
@@ -14,7 +14,7 @@ inline uint qHash(QDateTime const &dt) {
   return qHash(dt.toMSecsSinceEpoch());
 }
 
-Datestrip::Datestrip(PhotoDB *db, QGraphicsItem *parent):
+Datestrip::Datestrip(SessionDB *db, QGraphicsItem *parent):
   Strip(db, parent) {
   mustRebuild = false;
   mustRelayout = false;

@@ -14,7 +14,7 @@ int Slidestrip::threshold() {
   return 100;
 }
 
-Slidestrip::Slidestrip(PhotoDB *db, QGraphicsItem *parent):
+Slidestrip::Slidestrip(SessionDB *db, QGraphicsItem *parent):
   Strip(db, parent) {
   hasLatent = false;
   mustRelayout = false;

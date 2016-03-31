@@ -11,7 +11,7 @@
 #include "MainWindow.h"
 #include "SliderClipboard.h"
 
-FileBar::FileBar(PhotoDB *db, AutoCache *ac, Exporter *exporter,
+FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
   exportdialog = new ExportDialog(db, 0);
   sliderclip = new SliderClipboard(db, ac);

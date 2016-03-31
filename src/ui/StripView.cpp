@@ -7,7 +7,7 @@
 #include "Slide.h"
 #include <QKeyEvent>
 
-StripView::StripView(PhotoDB *db, QWidget *parent):
+StripView::StripView(SessionDB *db, QWidget *parent):
   QGraphicsView(parent), db(db) {
   tilesize = 96;
 

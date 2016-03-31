@@ -10,7 +10,7 @@
 #include <QSet>
 #include <QMap>
 
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "ExportSettings.h"
 
 class Exporter: public QThread {
@@ -24,7 +24,7 @@ public:
     QSet<quint64> failed;
   };
 public:
-  Exporter(PhotoDB *db, QObject *parent=0);
+  Exporter(SessionDB *db, QObject *parent=0);
   void setup(ExportSettings const &);
   void addSelection();
   void add(QSet<quint64> const &vsns);
@@ -39,11 +39,11 @@ protected:
 private:
   bool doExport(quint64 vsn, ExportSettings const &settings);
 private:
-  PhotoDB *db0; // calling thread
+  SessionDB *db0; // calling thread
   QMutex mutex;
   QWaitCondition cond;
   ExportSettings settings;
-  PhotoDB db; // our clone
+  SessionDB db; // our clone
   QList<Job> jobs;
   bool stopsoon;
   class IF_Worker *worker;

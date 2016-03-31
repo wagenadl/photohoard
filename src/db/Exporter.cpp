@@ -8,7 +8,7 @@
 #include <QDir>
 #include "Adjustments.h"
 
-Exporter::Exporter(PhotoDB *db0, QObject *parent):
+Exporter::Exporter(SessionDB *db0, QObject *parent):
   QThread(parent), db0(db0) {
   db.clone(*db0);
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");

@@ -6,7 +6,7 @@
 #include <QCheckBox>
 #include <QSignalMapper>
 #include <QPushButton>
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "AutoCache.h"
 #include "Selection.h"
 #include "Tristate.h"
@@ -16,7 +16,7 @@
 #include <QLabel>
 #include "ControlSliders.h"
 
-SliderClipboard::SliderClipboard(PhotoDB *db, AutoCache *ac, QWidget *parent):
+SliderClipboard::SliderClipboard(SessionDB *db, AutoCache *ac, QWidget *parent):
   QDialog(parent), db(db), ac(ac) {
   sa = new QScrollArea();
   sa->setWidget(new QWidget());

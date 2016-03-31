@@ -442,28 +442,6 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
   t.commit();
   return v1;
 }
-
-void PhotoDB::setCurrent(quint64 vsn) {
-  if (vsn>0)
-    query("update currentvsn set version=:a", vsn);
-  else
-    query("update currentvsn set version=null");
-}
-
-quint64 PhotoDB::current() const {
-  quint64 vsn = simpleQuery("select version from currentvsn").toULongLong();
-  if (!vsn)
-    return 0;
-  /* I don't *know* if it is important that current() only returns existing
-     versions. But it may very well be. I'll have to check that at some
-     point and clarify policy.
-  */
-  QSqlQuery q = constQuery("select id from versions where id==:a limit 1", vsn);
-  if (q.next())
-    return vsn;
-  else
-    return 0;
-}
   
 PSize PhotoDB::originalSize(quint64 vsn) const {
   QSqlQuery q = constQuery("select width, height, orient"
