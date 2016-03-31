@@ -11,7 +11,7 @@
 class SliderClipboard: public QDialog {
   Q_OBJECT;
 public:
-  SliderClipboard(class PhotoDB *db, class AutoCache *ac, QWidget *parent=0);
+  SliderClipboard(class SessionDB *db, class AutoCache *ac, QWidget *parent=0);
   virtual ~SliderClipboard();
   Adjustments values() const; // ignores mask
   QSet<QString> mask() const;
@@ -35,7 +35,7 @@ private:
   static int decimals(QString sli);
 private:
   bool valok;
-  PhotoDB *db;
+  SessionDB *db;
   AutoCache *ac;
   QMap<QString, class Tristate *> groupControl;
   QMap<QString, class QFrame *> groupFrame;

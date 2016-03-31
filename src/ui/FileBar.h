@@ -8,7 +8,7 @@
 
 class FileBar: public ActionBar {
 public:
-  FileBar(class PhotoDB *db, class AutoCache *ac,
+  FileBar(class SessionDB *db, class AutoCache *ac,
           class Exporter *exporter, class Scanner *scanner,
           class MainWindow *parent);
   class SliderClipboard *sliderClipboard() const { return sliderclip; }

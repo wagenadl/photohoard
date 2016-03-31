@@ -7,7 +7,7 @@
 #include <QSplitter>
 #include <QPointer>
 
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "Strip.h"
 #include "LayoutBar.h"
 #include "ColorLabelBar.h"
@@ -18,7 +18,7 @@
 class LightTable: public QSplitter {
   Q_OBJECT;
 public:
-  LightTable(PhotoDB *db, class AutoCache *cache,
+  LightTable(SessionDB *db, class AutoCache *cache,
              LiveAdjuster *adjuster,
              QWidget *parent=0);
   virtual ~LightTable();
@@ -67,7 +67,7 @@ protected:
   void simpleSelection(quint64 i, bool keepIfContained);
   void makeCurrent(quint64 i);
 protected:
-  PhotoDB *db;
+  SessionDB *db;
   AutoCache *cache;
   QPointer<LiveAdjuster> adjuster; // we do not own
   class Selection *selection;

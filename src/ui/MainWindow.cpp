@@ -8,7 +8,7 @@
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "AutoCache.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "AllControls.h"
 #include "HistoWidget.h"
 #include <QDockWidget>
@@ -26,7 +26,7 @@
 #include "SliderClipboard.h"
 #include <QApplication>
 
-MainWindow::MainWindow(PhotoDB *db,
+MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter):
   db(db), scanner(scanner), exporter(exporter) {

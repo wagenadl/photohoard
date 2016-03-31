@@ -9,7 +9,7 @@
 #include "StripScene.h"
 #include "Selection.h"
 
-Strip::Strip(PhotoDB *db, QGraphicsItem *parent):
+Strip::Strip(SessionDB *db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
   hasheader = true;
   arr = Arrangement::Vertical;

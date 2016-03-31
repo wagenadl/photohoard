@@ -18,6 +18,9 @@ public:
   SessionDB(QString id=""): PhotoDB(id) { }
   virtual void open(QString photodbfn) override;
   virtual void clone(SessionDB const &);
+public:
+  void setCurrent(quint64);
+  quint64 current() const;
 };
 
 #endif
