@@ -4,11 +4,11 @@
 #include "PDebug.h"
 #include "ui_FilterDialog.h"
 #include "Filter.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "Tags.h"
 #include "TagDialog.h"
 
-FilterDialog::FilterDialog(PhotoDB *db, QWidget *parent):
+FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   QDialog(parent), db(db), f0(db) {
 
   starting = true;

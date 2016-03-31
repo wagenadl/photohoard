@@ -13,7 +13,7 @@ inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 
 class Filter {
 public:
-  Filter(PhotoDB *);
+  Filter(class SessionDB *);
   void reset();
   bool isTrivial() const;
   void saveToDb() const;
@@ -80,7 +80,7 @@ public:
   QString fileLocationClause() const;
   QString tagsClause() const;
 private:
-  PhotoDB *db;
+  class SessionDB *db;
   bool hascollection;
   QString collection_;
   bool hascolorlabels;
