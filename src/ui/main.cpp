@@ -31,7 +31,7 @@ void usage() {
 
 int main(int argc, char **argv) {
   SessionDB::ensureBaseDirExists();
-  QString dbfn = SessionDB::photohoardBaseDir() + "/default.db";
+  QString dbfn = SessionDB::photohoardBaseDir() + "/photodb.db";
   QString icc;
   bool newdb = false;
   
