@@ -9,7 +9,7 @@
 #include <QWaitCondition>
 #include <QSet>
 #include "Image16.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include <QStringList>
 
 class Scanner: public BasicThread {
@@ -17,7 +17,7 @@ class Scanner: public BasicThread {
    */
   Q_OBJECT;
 public:
-  Scanner(PhotoDB *);
+  Scanner(SessionDB *);
   virtual ~Scanner();
 public slots:
   void addTree(QString path, QString defaultCollection="",
@@ -112,8 +112,8 @@ private:
   int photoQueueLength();
   int folderQueueLength();
 private:
-  PhotoDB *db0; // this is the original of the caller
-  PhotoDB db; // this is our copy in the thread
+  SessionDB *db0; // this is the original of the caller
+  SessionDB db; // this is our copy in the thread
   QMap<QString, int> exts;
   int n, N;
   int m, M;

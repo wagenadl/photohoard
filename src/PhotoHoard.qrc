@@ -8,6 +8,7 @@
 <!-- SQL CODE -->
   <file alias="setupcache.sql">../res/setupcache.sql</file>
   <file alias="setupdb.sql">../res/setupdb.sql</file>
+  <file alias="setupsession.sql">../res/setupsession.sql</file>
 
  </qresource> 
 </RCC>

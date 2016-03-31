@@ -42,7 +42,6 @@ public:
   };
 public:
   PhotoDB(QString id=""): Database(id) { }
-  virtual void open(QString fn) override;
   virtual void clone(PhotoDB const &);
   static void create(QString fn);
 public: // information about photos and versions
@@ -119,6 +118,8 @@ public: // manipulating the database
   /* DELETEPHOTO - Delete a photo from the database
      All associated versions are deleted too.
   */
+private:
+  void readFTypes() const;
 private:
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;

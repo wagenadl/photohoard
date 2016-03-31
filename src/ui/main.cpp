@@ -17,6 +17,7 @@
 #include <sqlite3.h>
 #include <QDesktopWidget>
 #include "CMSTransform.h"
+#include "SessionDB.h"
 
 namespace CMS {
   CMSProfile monitorProfile;
@@ -29,8 +30,8 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
-
-  QString dbfn = "/home/wagenaar/.local/photohoard/default.db";
+  SessionDB::ensureBaseDirExists();
+  QString dbfn = SessionDB::photohoardBaseDir() + "/default.db";
   QString icc;
   bool newdb = false;
   
@@ -75,7 +76,12 @@ int main(int argc, char **argv) {
     PhotoDB::create(dbfn);
   }
 
-  PhotoDB db;
+  if (!SessionDB::sessionExists(dbfn)) {
+    pDebug() << "Creating session for " << dbfn;
+    SessionDB::createSession(dbfn);
+  }
+
+  SessionDB db;
   db.open(dbfn);
 
   QString cachefn = db.cacheFilename();

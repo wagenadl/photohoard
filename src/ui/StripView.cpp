@@ -184,13 +184,13 @@ void StripView::scrollTo(quint64 vsn) {
 }
 
 void StripView::scrollToCurrent() {
-  quint64 c = current();
+  quint64 c = db->current();
   if (c)
     scrollTo(c);
 }
 
 void StripView::scrollIfNeeded() {
-  quint64 c = current();
+  quint64 c = db->current();
   if (!c)
     return;
   Slide *cs = strip()->slideByVersion(c);
@@ -201,10 +201,6 @@ void StripView::scrollIfNeeded() {
   QRectF itemRect = cs->mapRectFromScene(sceneRect);
   if (!itemRect.contains(cs->boundingRect()))
     scrollTo(c);
-}
-
-quint64 StripView::current() {
-  return db->simpleQuery("select * from current").toULongLong();
 }
 
 int StripView::idealSize() const {

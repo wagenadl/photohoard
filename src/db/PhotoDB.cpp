@@ -8,27 +8,10 @@
 #include <QDir>
 #include "Adjustments.h"
 
-void PhotoDB::open(QString fn) {
-  Database::open(fn);
-
-  QSqlQuery q = query("select id, version from info limit 1");
-  ASSERT(q.next());
-  
-  query("pragma synchronous = 0");
-  query("pragma foreign_keys = on");
-
-  q = query("select id, stdext from filetypes");
+void PhotoDB::readFTypes() const {
+  QSqlQuery q = constQuery("select id, stdext from filetypes");
   while (q.next()) 
     ftypes[q.value(0).toInt()] = q.value(1).toString();
-
-  query("attach database ':memory:' as M");
-  query("create table if not exists M.filter"
-        " ( version integer, "
-        "   photo integer )");
-  query("create index if not exists M.photoidx on filter(photo)");
-  
-  query("create table if not exists M.selection"
-        " ( version integer unique on conflict ignore )");
 }
 
 void PhotoDB::clone(PhotoDB const &src) {
@@ -75,6 +58,8 @@ void PhotoDB::create(QString fn) {
 }
 
 QString PhotoDB::ftype(int ft) const {
+  if (ftypes.isEmpty())
+    readFTypes();
   return ftypes[ft];
 }
 
@@ -455,13 +440,24 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
 
 void PhotoDB::setCurrent(quint64 vsn) {
   if (vsn>0)
-    query("update current set version=:a", vsn);
+    query("update currentvsn set version=:a", vsn);
   else
-    query("update current set version=null");
+    query("update currentvsn set version=null");
 }
 
 quint64 PhotoDB::current() const {
-  return simpleQuery("select version from current").toULongLong();
+  quint64 vsn = simpleQuery("select version from currentvsn").toULongLong();
+  if (!vsn)
+    return 0;
+  /* I don't *know* if it is important that current() only returns existing
+     versions. But it may very well be. I'll have to check that at some
+     point and clarify policy.
+  */
+  QSqlQuery q = constQuery("select id from versions where id==:a limit 1", vsn);
+  if (q.next())
+    return vsn;
+  else
+    return 0;
 }
   
 PSize PhotoDB::originalSize(quint64 vsn) const {
