@@ -1,0 +1,224 @@
+{ "typ": "page",
+  "cre": "2016-04-01T06:22:50",
+  "mod": "2016-04-01T06:37:41",
+  "cui": "b95a8265eb15ff4d",
+  "stampTime": 0,
+  "startPage": 46,
+  "unlocked": false,
+  "uuid": "b6ee4b26",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-04-01T06:22:50",
+      "mod": "2016-04-01T06:22:57",
+      "uuid": "b6294f06",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:22:50",
+          "mod": "2016-04-01T06:22:57",
+          "lines": [
+            0
+          ],
+          "text": "More on working “read only”",
+          "uuid": "2659bc80"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-04-01T06:22:50",
+      "mod": "2016-04-01T06:22:50",
+      "uuid": "e5765452"
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:22:58",
+      "mod": "2016-04-01T06:25:43",
+      "h": 212.494,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "279dde15",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:22:58",
+          "mod": "2016-04-01T06:25:43",
+          "lines": [
+            0,
+            62,
+            126,
+            188,
+            251,
+            310,
+            360,
+            421,
+            484
+          ],
+          "text": "The Sessions concept allows for a lot more to be done in read only mode. For instance, I could create an overrides table that contains a (small) number of records that specify the guest’s overrides of certain columns of the versions table. A good use would be colorlabel. It would be straightforward enough to consult the overrides table whenever extracting a VersionRecord. Note that it is not straightforward to expand this idea to overriding adjustments, since I currently have no way to separate cache entries for the guest.",
+          "uuid": "3ceca380",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:23:36",
+              "mod": "2016-04-01T06:23:36",
+              "end": 114,
+              "start": 105,
+              "style": 1,
+              "uuid": "0a0cb170"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:24:14",
+              "mod": "2016-04-01T06:24:14",
+              "end": 232,
+              "start": 224,
+              "style": 1,
+              "uuid": "3c66f807"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:24:49",
+              "mod": "2016-04-01T06:24:49",
+              "end": 331,
+              "start": 322,
+              "style": 1,
+              "uuid": "e8779d7d"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:25:15",
+              "mod": "2016-04-01T06:25:15",
+              "end": 394,
+              "start": 391,
+              "style": 1,
+              "uuid": "6a826225"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:25:47",
+      "mod": "2016-04-01T06:30:14",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b7afbbc3",
+      "y0": 284.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:25:47",
+          "mod": "2016-04-01T06:30:14",
+          "lines": [
+            0,
+            62,
+            130,
+            194,
+            258,
+            321,
+            382,
+            444
+          ],
+          "text": "In any case, if the guest wants to actually modify the image, a better approach (I think) is to hit a key combo (e.g., Ctrl-T) to transfer a copy of the version into their own database. That is not too difficult from a programmer’s perspective: (1) check if the photo exists in the target db, and if not (1a) ensure that the folder exist, and (1b) enter the photo. (2) create a new version with all its adjustments. (3) optionally copy applied tags along, but probably not. ",
+          "uuid": "49f56ced"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:25:47",
+      "mod": "2016-04-01T06:29:55",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b7afbbc3",
+      "y0": 473.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:25:47",
+          "mod": "2016-04-01T06:29:55",
+          "lines": [
+            0,
+            65,
+            127,
+            189,
+            252,
+            312
+          ],
+          "text": "In (1a), if the folder did not exist in the db, it should not be added to the scantree, but also not to the excludes. So a new column should be added in folders to mark a folder “foreign”. That column would be 1 only for such transfer imports, and set to zero if somehow the folder is added to the scantree at a later date.",
+          "uuid": "49f56ced",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:29:09",
+              "mod": "2016-04-01T06:29:09",
+              "end": 160,
+              "start": 153,
+              "style": 1,
+              "uuid": "a6275fb9"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:30:16",
+      "mod": "2016-04-01T06:33:13",
+      "h": 166.162,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        69.498
+      ],
+      "uuid": "fdda10d7",
+      "y0": 616.818,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:30:16",
+          "mod": "2016-04-01T06:33:13",
+          "lines": [
+            0,
+            59,
+            119,
+            186,
+            239,
+            301,
+            360
+          ],
+          "text": "The other to-do is exporting to the file system using drag and drop. I just checked that it is possible to dnd between nemo and nautilus; the result, for either direction, is a copy. So it should be possible to dnd from photohoard to nemo/nautilus. But it may be that I need to create a tempfile when dragging starts. And I may not ever learn whether dragging succeeds. Testing is needed.",
+          "uuid": "0a49e4f7",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:31:22",
+              "mod": "2016-04-01T06:31:22",
+              "end": 94,
+              "start": 92,
+              "style": 1,
+              "uuid": "ef88306e"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:31:39",
+              "mod": "2016-04-01T06:31:39",
+              "end": 195,
+              "start": 189,
+              "style": 1,
+              "uuid": "32ae8c84"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:37:41",
+      "mod": "2016-04-01T06:37:41",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "fe06daa3",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:37:41",
+          "mod": "2016-04-01T06:37:41",
+          "text": "",
+          "uuid": "24c06492"
+        }
+      ]
+    }
+  ]
+}
