@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2016-04-01T06:31:41",
+  "mod": "2016-04-01T07:14:48",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -275,9 +275,9 @@
     },
     { "typ": "entry",
       "cre": "2016-04-01T06:22:50",
-      "mod": "2016-04-01T06:31:41",
+      "mod": "2016-04-01T07:14:48",
       "seen": "2016-04-01T06:22:50",
-      "sheetCount": 2,
+      "sheetCount": 3,
       "startPage": 46,
       "title": "More on working “read only”",
       "uuid": "b6ee4b26"

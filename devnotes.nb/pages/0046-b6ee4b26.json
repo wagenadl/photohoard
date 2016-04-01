@@ -1,6 +1,6 @@
 { "typ": "page",
   "cre": "2016-04-01T06:22:50",
-  "mod": "2016-04-01T06:37:41",
+  "mod": "2016-04-01T07:25:52",
   "cui": "b95a8265eb15ff4d",
   "stampTime": 0,
   "startPage": 46,
@@ -204,8 +204,8 @@
     },
     { "typ": "textblock",
       "cre": "2016-04-01T06:37:41",
-      "mod": "2016-04-01T06:37:41",
-      "h": 27.166,
+      "mod": "2016-04-01T06:39:18",
+      "h": 73.498,
       "ind": 1,
       "sheet": 1,
       "split": [ ],
@@ -214,9 +214,292 @@
       "cc": [
         { "typ": "text",
           "cre": "2016-04-01T06:37:41",
-          "mod": "2016-04-01T06:37:41",
-          "text": "",
-          "uuid": "24c06492"
+          "mod": "2016-04-01T06:39:18",
+          "lines": [
+            0,
+            58,
+            118
+          ],
+          "text": "Basic RO operation now appears to work. I am not going to work on the overrides program immediately; only if Jennifer wants it.",
+          "uuid": "24c06492",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:39:10",
+              "mod": "2016-04-01T06:39:10",
+              "end": 79,
+              "start": 70,
+              "style": 1,
+              "uuid": "23b033ea"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:39:29",
+      "mod": "2016-04-01T06:39:56",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "06e1f23f",
+      "y0": 242.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:39:29",
+          "mod": "2016-04-01T06:39:56",
+          "lines": [
+            0,
+            62
+          ],
+          "text": "I do think that the transfer system is a good idea, but since Jennifer didn’t ask for that either, dnd is more urgent.",
+          "uuid": "c555ed5c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:50:20",
+      "mod": "2016-04-01T06:52:06",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "50d7b3db",
+      "y0": 292.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:50:20",
+          "mod": "2016-04-01T06:52:06",
+          "lines": [
+            0,
+            58,
+            122,
+            185,
+            234
+          ],
+          "text": "DnD in GTK is rather clever: Only once the drag target is known, the source is asked to provide the data. In Qt it is not as smart: you have to provide the data at the time of start of drag by handing a QMimeData to the QDrag object. Fortunately, you do get a signal once drag is complete.",
+          "uuid": "376923eb",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:50:28",
+              "mod": "2016-04-01T06:50:28",
+              "end": 10,
+              "start": 7,
+              "style": 1,
+              "uuid": "5516439f"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:50:55",
+              "mod": "2016-04-01T06:50:55",
+              "end": 84,
+              "start": 79,
+              "style": 1,
+              "uuid": "f0b80127"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:51:56",
+              "mod": "2016-04-01T06:51:56",
+              "end": 253,
+              "start": 251,
+              "style": 1,
+              "uuid": "4940bfda"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:02:35",
+      "mod": "2016-04-01T07:25:52",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "3bf157a8",
+      "y0": 412.324,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:02:35",
+          "mod": "2016-04-01T07:25:52",
+          "lines": [
+            0,
+            61,
+            127
+          ],
+          "text": "If I create a MimeData with only Urls, the drag looks like a little rectangle, not like a plus. But I guess that’s OK. Urls is good, because I can send one or many images without any fuss.",
+          "uuid": "45e7c246"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:08:09",
+      "mod": "2016-04-01T07:09:45",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "9289fe70",
+      "y0": 485.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:08:09",
+          "mod": "2016-04-01T07:09:45",
+          "lines": [
+            0,
+            60,
+            121,
+            186,
+            243,
+            301
+          ],
+          "text": "Note that DnD in Qt is modal: I don’t think I can get mouse leave events or any such things during the drag. Which means that I really have to prep the Url and its contents when I start the drag. This should not happen right when the mouse is pressed, but only after some distance or when leaving the widget.",
+          "uuid": "0c56c75b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:13:58",
+      "mod": "2016-04-01T07:14:47",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [
+        69.498
+      ],
+      "uuid": "288a80a9",
+      "y0": 628.818,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:13:58",
+          "mod": "2016-04-01T07:14:47",
+          "lines": [
+            0,
+            52,
+            113,
+            174
+          ],
+          "text": "While the mouse button is held, mouseMoveEvents are generated, but no leaveEvent is generated if the mouse moves out of the widget. That only happens after mouse release, at which point the mouseReleaseEvent is sent first. ",
+          "uuid": "5585bf60"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:14:48",
+      "mod": "2016-04-01T07:18:50",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "f2652b8f",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:14:48",
+          "mod": "2016-04-01T07:18:50",
+          "lines": [
+            0,
+            53,
+            115,
+            172,
+            232,
+            287
+          ],
+          "text": "So, a reasonable choice might be to monitor the move events and start the drag when wither the distance from press point is large enough or when the mouse moves out of the widget’s rect()* according to the mouse move event. I think that is usually good enough. The exception is a window manager that does not raise windows on button press.",
+          "uuid": "a25c24f1",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T07:16:36",
+              "mod": "2016-04-01T07:16:36",
+              "end": 188,
+              "start": 187,
+              "style": 6,
+              "uuid": "e116279b"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T07:16:36",
+              "mod": "2016-04-01T07:16:36",
+              "end": 188,
+              "start": 187,
+              "style": 5,
+              "uuid": "bbb4aa11"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T07:16:58",
+              "mod": "2016-04-01T07:16:58",
+              "end": 231,
+              "start": 226,
+              "style": 1,
+              "uuid": "dcbd2b82"
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2016-04-01T07:16:36",
+          "mod": "2016-04-01T07:16:48",
+          "h": 20.767,
+          "ind": 1,
+          "sheet": 2,
+          "split": [ ],
+          "tag": "*",
+          "uuid": "0c8755da",
+          "y0": 687.233,
+          "cc": [
+            { "typ": "text",
+              "cre": "2016-04-01T07:16:36",
+              "mod": "2016-04-01T07:16:48",
+              "lines": [
+                0
+              ],
+              "text": "Yes, that is correct, the rect() is always (0,0, width(), height()).",
+              "uuid": "4e841efd"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:22:00",
+      "mod": "2016-04-01T07:22:19",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "c0e18a21",
+      "y0": 242.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:22:00",
+          "mod": "2016-04-01T07:22:19",
+          "lines": [
+            0,
+            56
+          ],
+          "text": "Also, I just confirmed, no move/enter/leave signals get generated while dragging.",
+          "uuid": "184d5b9b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:22:23",
+      "mod": "2016-04-01T07:23:44",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "43ab3526",
+      "y0": 292.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:22:23",
+          "mod": "2016-04-01T07:23:44",
+          "lines": [
+            0,
+            56,
+            118,
+            183
+          ],
+          "text": "By default, QDrag::exec() proposes a “move action”, and nemo accepts that. As a consequence, the file is moved rather than copied. That is good. I do have to delete the temp files if exec() returns something other than Qt::MoveAction (0x02).",
+          "uuid": "ca60d877"
         }
       ]
     }
