@@ -78,7 +78,7 @@ void Slide::paint(QPainter *painter,
 		  QWidget *) {
   QRectF r = boundingRect();
   bool isCurrent
-    = parent->database()->simpleQuery("select version from current")
+    = parent->database()->simpleQuery("select version from currentvsn")
     .toULongLong() == id;
   bool isSelected = isCurrent
     ? true

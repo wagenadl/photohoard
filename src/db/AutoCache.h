@@ -8,7 +8,6 @@
 
 #include <QObject>
 #include <QSet>
-#include "PhotoDB.h"
 #include <QThread>
 #include "PSize.h"
 #include "Image16.h"
@@ -26,7 +25,7 @@ public:
        (For instance, /PATH/FN.cache if /PATH/FN.db is where the database
        is stored.)
    */
-  AutoCache(PhotoDB *db, QString rootdir, QObject *parent=0);
+  AutoCache(class SessionDB *db, QString rootdir, QObject *parent=0);
 
   virtual ~AutoCache();
 
@@ -182,7 +181,7 @@ signals:
   // Function: forwardCacheModified
   void forwardCacheModified(quint64 version);
 private:
-  PhotoDB *db; // we do not own
+  SessionDB *db; // we do not own
   QThread thread;
   class AC_Worker *worker;
   class AC_ImageHolder *holder;
