@@ -7,7 +7,7 @@
 #include "PDebug.h"
 #include "AC_ImageHolder.h"
 
-AutoCache::AutoCache(PhotoDB *db, QString rootdir, QObject *parent):
+AutoCache::AutoCache(SessionDB *db, QString rootdir, QObject *parent):
   QObject(parent), db(db) {
   setObjectName("AutoCache");
   holder = new AC_ImageHolder(this);
