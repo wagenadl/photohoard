@@ -97,7 +97,7 @@ MainWindow::MainWindow(SessionDB *db,
     connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
 	    lightTable, SLOT(rescan()));
 
-  autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
+  autocache->requestIfEasy(db->current(), QSize(1024, 1024));
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
           metaViewer, SLOT(setVersion(quint64)));
@@ -117,8 +117,8 @@ MainWindow::MainWindow(SessionDB *db,
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));
   
-  tagList->setCurrent(lightTable->current());
-  metaViewer->setVersion(lightTable->current());
+  tagList->setCurrent(db->current());
+  metaViewer->setVersion(db->current());
   if (lightTable->filter().hasCollection())
     statusBar->setCollection(lightTable->filter().collection());
 
@@ -135,7 +135,7 @@ void MainWindow::scrollToCurrent() {
 
 void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
   lightTable->updateImage(i, img, chgid);
-  if (i==lightTable->current())
+  if (i==db->current())
     histogram->setImage(img); // this is *bad*
 }
 

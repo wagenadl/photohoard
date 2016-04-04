@@ -22,7 +22,6 @@ public:
              LiveAdjuster *adjuster,
              QWidget *parent=0);
   virtual ~LightTable();
-  quint64 current() const { return curr; }
   PSize displaySize() const;
   Actions const &actions() const;
   class Filter const &filter() const;
@@ -66,6 +65,8 @@ protected:
   void extendOrShrinkSelection(quint64 i);
   void simpleSelection(quint64 i, bool keepIfContained);
   void makeCurrent(quint64 i);
+  void ensureSlideShown();
+  void updateMainSlide();
 protected:
   SessionDB *db;
   AutoCache *cache;
@@ -76,7 +77,6 @@ protected:
   class FilterDialog *filterDialog;
   bool showmax;
   LayoutBar::Layout lastlay, lay;
-  quint64 curr;
   int tilesize;
   int lastgridsize;
   Actions acts;
