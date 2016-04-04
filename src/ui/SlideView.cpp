@@ -54,13 +54,10 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   // we _could_ update() now, which would cause a gray flash
 }  
 
-void SlideView::updateImage(quint64 vsn, Image16 img1, bool force) {
-  if (vsn!=vsnid) {
-    COMPLAIN("SlideView::updateImage - got vsn " + QString::number(vsn)
-             + " which is not my current vsn (" + QString::number(vsnid)
-             + ")");
+void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
+  if (vsn!=vsnid) 
     return;
-  }
+
   if (force || img.isNull() || img1.size().exceeds(img.size())) {
     if (CMS::monitorTransform.isValid()) {
       img = CMS::monitorTransform.apply(img1);
