@@ -286,7 +286,6 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 }  
 
 void LightTable::simpleSelection(quint64 i, bool keep) {
-  // Ignore other modifiers for the moment
   if (keep && i==db->current())
     return;
 
@@ -346,7 +345,7 @@ void LightTable::updateMainSlide() {
     adjuster->markVersionAndSize(cur, ns);
     slide->newImage(cur, ns);
     emit newZoom(slide->currentZoom());
-    emit needImage(cur, displaySize());
+    // emit needImage(cur, displaySize()); // IS THIS NEEDED??
   } else {
     adjuster->clear();
     slide->clear();

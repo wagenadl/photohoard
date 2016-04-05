@@ -19,19 +19,23 @@ class InterruptableAdjuster: public QThread {
      Requests are not queued: if a new request is made before
      the previous one completes, the older request will be
      canceled.
+     One important difference is that most of our functions take an
+     additional ID argument that is an arbitrary number intended to make
+     sure that the READY signal corresponds to the intended request.
    */
   Q_OBJECT;
 public:
   InterruptableAdjuster(QObject *parent=0);
   // CONSTRUCTOR
   virtual ~InterruptableAdjuster();
-  void requestFull(Adjustments const &settings);
+  void requestFull(Adjustments const &settings, quint64 id);
   // REQUESTFULL - See Adjuster's RETRIEVEFULL
-  void requestReduced(Adjustments const &settings, PSize maxSize);
+  void requestReduced(Adjustments const &settings, PSize maxSize, quint64 id);
   // REQUESTREDUCED - See Adjuster's RETRIEVEREDUCED
-  void requestROI(Adjustments const &settings, QRect roi);
+  void requestROI(Adjustments const &settings, QRect roi, quint64 id);
   // REQUESTROI - See ADJUSTER's RETRIEVEROI
-  void requestReducedROI(Adjustments const &settings, QRect roi, PSize maxSize);
+  void requestReducedROI(Adjustments const &settings, QRect roi, PSize maxSize,
+                         quint64 id);
   // REQUESTREDUCEDROI - See ADJUSTER's RETRIEVEREDUCEDROI
   void cancelRequest();
   /* CANCELREQUEST - Cancel outstanding request
@@ -42,17 +46,17 @@ public:
   /* CLEAR - Drop original image
      Also cancels any outstanding request.
   */
-  PSize maxAvailableSize(Adjustments const &);
+  PSize maxAvailableSize(Adjustments const &, quint64 id);
   // MAXAVAILABLESIZE - See ADJUSTER's MAXAVAILABLESIZE
   bool isEmpty();
   // ISEMPTY - See ADJUSTER's ISEMPTY
-  void setOriginal(Image16 img);
+  void setOriginal(Image16 img, quint64 id);
   /* SETORIGINAL - Loads a new original image into the adjuster
      SETORIGINAL(img) loads IMG as the new original into
      the adjuster, canceling any outstanding request.
   */
-  void setReduced(Image16 img, PSize osize);
-  /* SETREDUCED - Loads a new original image into the adjuster at less than full size
+  void setReduced(Image16 img, PSize osize, quint64 id);
+  /* SETREDUCED - Loads a new original image at less than full size
      SETREDUCED(img, osize) loads a new original image into the
      adjuster, just like SETORIGINAL, but not at its full
      resolution.
@@ -61,7 +65,7 @@ public:
      is assumed to be the full original image.
   */
 signals:
-  void ready(Image16 img);
+  void ready(Image16 img, quint64 id);
   /* READY - Emitted once retrieval has finished
      READY(img) is emitted when calculation of the final
      image has been completed.
@@ -99,11 +103,13 @@ private:
   Adjustments rqAdjustments;
   QRect rqRect;
   PSize rqSize;
+  quint64 rqId;
   bool stopsoon;
   bool empty;
   PSize scaledOSize;
   Image16 newOriginal;
   PSize oSize;
+  quint64 oId;
 };
 
 #endif

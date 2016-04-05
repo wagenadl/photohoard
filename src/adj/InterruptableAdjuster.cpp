@@ -21,21 +21,24 @@ InterruptableAdjuster::~InterruptableAdjuster() {
   }
 }
 
-void InterruptableAdjuster::requestFull(Adjustments const &settings) {
-  requestReducedROI(settings, QRect(), PSize());
+void InterruptableAdjuster::requestFull(Adjustments const &settings,
+                                        quint64 id) {
+  requestReducedROI(settings, QRect(), PSize(), id);
 }
 
 void InterruptableAdjuster::requestReduced(Adjustments const &settings,
-                                           PSize maxSize) {
-  requestReducedROI(settings, QRect(), maxSize);
+                                           PSize maxSize, quint64 id) {
+  requestReducedROI(settings, QRect(), maxSize, id);
 }
   
-void InterruptableAdjuster::requestROI(Adjustments const &settings, QRect roi) {
-  requestReducedROI(settings, roi, PSize());
+void InterruptableAdjuster::requestROI(Adjustments const &settings, QRect roi,
+                                       quint64 id) {
+  requestReducedROI(settings, roi, PSize(), id);
 }
 
 void InterruptableAdjuster::requestReducedROI(Adjustments const &settings,
-                                              QRect roi, PSize maxSize) {
+                                              QRect roi, PSize maxSize,
+                                              quint64 id) {
   QMutexLocker l(&mutex);
   adjuster->cancel();
   newreq = true;
@@ -43,6 +46,7 @@ void InterruptableAdjuster::requestReducedROI(Adjustments const &settings,
   rqAdjustments = settings;
   rqRect = roi;
   rqSize = maxSize;
+  rqId = id;
   waitcond.wakeOne();
 }
 
@@ -74,11 +78,12 @@ void InterruptableAdjuster::stop() {
   stopsoon = true;
 }
 
-PSize InterruptableAdjuster::maxAvailableSize(Adjustments const &s) {
-  if (clear_)
-    return PSize();
-  else
-    return Adjuster::mapCropSize(oSize, s, scaledOSize);
+PSize InterruptableAdjuster::maxAvailableSize(Adjustments const &s,
+                                               quint64 id) {
+   if (clear_ || id!=oId)
+     return PSize();
+   else
+     return Adjuster::mapCropSize(oSize, s, scaledOSize);
 }
 
 bool InterruptableAdjuster::isEmpty() {
@@ -86,45 +91,52 @@ bool InterruptableAdjuster::isEmpty() {
   return empty;
 }
 
-void InterruptableAdjuster::setOriginal(Image16 img) {
-  setReduced(img, PSize());
+void InterruptableAdjuster::setOriginal(Image16 img, quint64 id) {
+  setReduced(img, PSize(), id);
 }
 
-void InterruptableAdjuster::setReduced(Image16 img, PSize siz) {
+void InterruptableAdjuster::setReduced(Image16 img, PSize siz, quint64 id) {
   QMutexLocker l(&mutex);
   newOriginal = img;
   scaledOSize = img.size();
   oSize = siz;
+  oId = id;
 }    
 
 void InterruptableAdjuster::handleNewRequest() {
   QRect r = rqRect;
   PSize s = rqSize;
+  bool cando = rqId==oId;
   Adjustments sli = rqAdjustments;
   newreq = false;
   mutex.unlock();
   Image16 img;
-  if (r.isEmpty()) {
-    if (s.isEmpty()) 
-      img = adjuster->retrieveFull(sli);
-    else
-      img = adjuster->retrieveReduced(sli, s);
+  if (cando) {
+    if (r.isEmpty()) {
+      if (s.isEmpty()) 
+        img = adjuster->retrieveFull(sli);
+      else
+        img = adjuster->retrieveReduced(sli, s);
+    } else {
+      if (s.isEmpty())
+        img = adjuster->retrieveROI(sli, r);
+      else
+        img = adjuster->retrieveReducedROI(sli, r, s);
+    }
   } else {
-    if (s.isEmpty())
-      img = adjuster->retrieveROI(sli, r);
-    else
-      img = adjuster->retrieveReducedROI(sli, r, s);
+    pDebug() << "InterruptableAdjuster: no can do";
   }
   mutex.lock();
-  if (cancel || newreq || clear_) {
+  if (!cando || cancel || newreq || clear_) {
     cancel = false;
     if (clear_) {
       adjuster->clear();
       clear_ = false;
     }
   } else {
+    quint64 id = oId;
     mutex.unlock();
-    emit ready(img);
+    emit ready(img, id);
     mutex.lock();
   }
 }  
