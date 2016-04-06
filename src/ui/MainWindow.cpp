@@ -93,9 +93,12 @@ MainWindow::MainWindow(SessionDB *db,
 	  autocache, SLOT(recache(QSet<quint64>)));
   connect(autocache, SIGNAL(available(quint64, Image16, quint64)),
           SLOT(updateImage(quint64, Image16, quint64)));
-  if (scanner)
+  if (scanner) {
     connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
 	    lightTable, SLOT(rescan()));
+    connect(scanner, SIGNAL(message(QString)),
+            statusBar, SLOT(setMessage(QString)));
+  }
 
   autocache->requestIfEasy(db->current(), QSize(1024, 1024));
 
