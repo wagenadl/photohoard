@@ -158,27 +158,24 @@ void Scanner::run() {
     QSet<quint64> ids;
     if (!(ids=findFoldersToScan()).isEmpty()) {
       l.unlock();
-      int N0 = N;
       scanFolders(ids);
-      if (N>N0)
-        emit collecting(N);
       sleepok = false;
       l.relock();
     }
     if (!(ids=findPhotosToScan()).isEmpty()) {
       l.unlock();
       scanPhotos(ids);
-      pDebug() << "Scan progress: " << n << " / " << N;
-      emit progressed(n, N);
       sleepok = false;
       l.relock();
-    } else {
+    }
+    if (sleepok && (N>0 || M>0)) {
       l.unlock();
-      if (N>0)
-        emit done();
+      reportScanDone();
+      l.relock();
       n = 0;
       N = 0;
-      l.relock();
+      m = 0;
+      M = 0;
     }
     if (sleepok && !stopsoon) {
       waiter.wait(&mutex);
@@ -197,13 +194,14 @@ QSet<quint64> Scanner::findPhotosToScan() {
   
 void Scanner::scanPhotos(QSet<quint64> ids) {
   QSet<quint64> versions;
+  int n0 = n;
   for (auto id: ids) {
     while (db.transactionsWaiting()) {
       pDebug() << "scanner waiting in photos";
       usleep(100000);
     }
-    Transaction t(&db);
 
+    Transaction t(&db);
     scanPhoto(id);
     QSqlQuery q
       = db.constQuery("select id from versions where photo==:a", id);
@@ -213,6 +211,11 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
     n++;
     t.commit();
 
+    if (n>=n0+5) {
+      reportPhotoProgress();
+      n0 = n;
+    }
+    
     if (!vv.isEmpty())
       emit updated(vv);
     versions |= vv;
@@ -232,30 +235,37 @@ QSet<quint64> Scanner::findFoldersToScan() {
 
 void Scanner::scanFolders(QSet<quint64> ids) {
   int N0 = N;
-  //  bool worked = false;
+  int M0 = M;
+  int m0 = m;
+  QSet<QString> excludedtrees;
+  // Collect exclusions
+  { QSqlQuery q = db.query("select pathname from excludedtrees");
+    while (q.next())
+      excludedtrees.insert(q.value(0).toString());
+  }
+
   for (auto id: ids) {
-    scanFolder(id);
+    scanFolder(id, excludedtrees);
+    if (m>=m0+5 || M>=M0+5) {
+      reportFolderProgress();
+      m0 = m;
+      M0 = M;
+    }
     if (N >= N0 + 1000)
       break;
   }
 }
 
-void Scanner::scanFolder(quint64 id) {
+void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
   QString p = db.folder(id);
   QDir dir(p);
 
-  QSet<QString> excludedtrees;
   QSet<QString> newsubdirs;
   QSet<QString> newphotos;
   QMap<QString, quint64> oldsubdirs;
   QMap<QString, quint64> oldphotos;
   QMap<QString, QDateTime> photodate;
 
-  // Collect exclusions
-  QSqlQuery q = db.query("select pathname from excludedtrees");
-  while (q.next())
-    excludedtrees.insert(q.value(0).toString());
-  
   // Collect new subdirs and photos
   QFileInfoList infos(dir.entryInfoList(QDir::Dirs | QDir::Files
                                         | QDir::NoDotAndDotDot));
@@ -269,6 +279,8 @@ void Scanner::scanFolder(quint64 id) {
     }
   }
 
+  QSqlQuery q;
+  
   // Collect old subdirs
   q = db.query("select id, leafname from folders where parentfolder==:a", id);
   while (q.next())
@@ -286,8 +298,10 @@ void Scanner::scanFolder(quint64 id) {
     pDebug() << "Scanner waiting in folders";
     usleep(100000); 
   }
+  
   Transaction t(&db);
   db.query("delete from folderstoscan where folder=:a", id);
+  m++;
   
   // Drop subdirs that do not exist any more
   for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
@@ -310,9 +324,11 @@ void Scanner::scanFolder(quint64 id) {
       oldphotos[s] = addPhoto(id, s);
 
   // Add all existing folders to scan list
-  for (auto s: newsubdirs)
+  for (auto s: newsubdirs) {
     db.query("insert into folderstoscan values (:a)", oldsubdirs[s]);
-
+    M++;
+  }
+  
   // Add new or modified photos to scan list
   for (auto s: newphotos) {
     QDateTime lastscan
@@ -428,4 +444,22 @@ void Scanner::scanPhoto(quint64 id) {
        them? */
   }
 #endif
+}
+
+
+void Scanner::reportPhotoProgress() {
+  pDebug() << "Photo scan progress: " << n << " / " << N;
+  QString msg = QString("Scanning photos: %1/%2").arg(n).arg(N);
+  emit message(msg);
+}
+
+void Scanner::reportFolderProgress() {
+  pDebug() << "Folder scan progress: " << m << " / " << M;
+  QString msg = QString("Scanning folders: %1/%2").arg(m).arg(M);
+  emit message(msg);
+}
+
+void Scanner::reportScanDone() {
+  pDebug() << "Scan complete";
+  emit message("Scan complete");
 }

@@ -59,22 +59,7 @@ public slots:
      There is not currently a mechanism to report on disappeared photos, which
      is a bug. */
 signals:
-  void collecting(int N);
-  /* COLLECTING - Emitted to report how many photos need to be scanned
-     COLLECTING(n) is emitted periodically when the folder scanning
-     process has collected a substantial number of photos that will
-     have to be scanned. This signal can be used to show progress to
-     the user.  */
-  void progressed(int n, int N);
-  /* PROGRESSED - Emitted to report how many photos have been scanned
-     PROGRESSED(n, N) is emitted periodically when the photo scanning
-     process has scanned a substantial number of photos. This signal
-     can be used to show progress to the user. */
-  void done();
-  /* DONE - Emitted when folder and photo scanning is complete
-     DONE() is emitted at the end of a folder/photo scanning
-     round. Afterwards, the counters for COLLECTING and PROGRESSED are
-     reset to zero. */
+  void message(QString);
   void updated(QSet<quint64> versions);
   /* UPDATED - Emitted to report photo that has been scanned
      UPDATED(ids) is emitted to report that the photo scanning process
@@ -107,10 +92,14 @@ private:
   QSet<quint64> findPhotosToScan();
   void scanFolders(QSet<quint64>); // this creates a transaction
   void scanPhotos(QSet<quint64>); // this creates a transaction
-  void scanFolder(quint64 folder);
+  void scanFolder(quint64 folder, QSet<QString> const &excltrees);
   void scanPhoto(quint64 photo);
   int photoQueueLength();
   int folderQueueLength();
+private:
+  void reportFolderProgress();
+  void reportPhotoProgress();
+  void reportScanDone();
 private:
   SessionDB *db0; // this is the original of the caller
   SessionDB db; // this is our copy in the thread
