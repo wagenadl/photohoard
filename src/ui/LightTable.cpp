@@ -331,7 +331,7 @@ void LightTable::makeCurrent(quint64 i) {
 
 void LightTable::updateMainSlide() {
   int cur = db->current();
-  if (cur>0 && slide->isVisible()) {
+  if (cur>0 && slide->isVisibleTo(this)) {
     QSqlQuery q = db->query("select width, height, orient"
 			    " from versions"
 			    " inner join photos on versions.photo==photos.id"
