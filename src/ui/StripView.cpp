@@ -285,3 +285,64 @@ Actions const &StripView::actions() const {
 void StripView::centerOn(QPointF p) {
   QGraphicsView::centerOn(p);
 }
+
+void StripView::mousePressEvent(QMouseEvent *e) {
+  QGraphicsView::mousePressEvent(e);
+  if (e->button()==Qt::LeftButton && !e->isAccepted())
+    startDragScroll(e->pos());
+}
+
+void StripView::startDragScroll(QPoint p0) {
+  QWidget *vp = viewport();
+  ASSERT(vp);
+  QSize vps = vp->size();
+  QPoint center(vps.width()/2, vps.height()/2);
+  QPoint inscene = mapToScene(center).toPoint();
+  QDrag *drag = new QDrag(this);
+  QMimeData *data = new QMimeData;
+  QByteArray ar(16, ' ');
+  qint32 *d = reinterpret_cast<qint32*>(ar.data());
+  d[0] = p0.x();
+  d[1] = p0.y();
+  d[2] = inscene.x();
+  d[3] = inscene.y();
+  data->setData("int32/point", ar);
+  drag->setMimeData(data);
+  QPixmap pm(1, 1);
+  pm.fill(QColor(255, 255, 255));
+  drag->setDragCursor(pm, Qt::MoveAction); // this does nothing
+  drag->setPixmap(pm);
+  drag->exec(Qt::MoveAction);
+}
+
+void StripView::dragEnterEvent(QDragEnterEvent *e) {
+  QMimeData const *md = e->mimeData();
+  if (md->hasFormat("int32/point"))
+    e->accept();
+  else
+    e->ignore();
+}
+
+void StripView::dragMoveEvent(QDragMoveEvent *e) {
+  QMimeData const *md = e->mimeData();
+  if (md->hasFormat("int32/point")) {
+    QPoint p = e->pos();
+    QByteArray ar = md->data("int32/point");
+    ASSERT(ar.size()==16);
+    qint32 const *d = reinterpret_cast<qint32*>(ar.data());
+    QPoint p0(d[0], d[1]);
+    QPoint inscene0(d[2], d[3]);
+    centerOn(inscene0 + 3*(p0 - p));
+    e->accept();
+  } else {
+    e->ignore();
+  }
+}
+  
+void StripView::dragLeaveEvent(QDragLeaveEvent *e) {
+  e->accept();
+}
+
+void StripView::dropEvent(QDropEvent *e) {
+  e->ignore();
+}

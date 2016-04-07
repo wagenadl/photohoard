@@ -44,6 +44,11 @@ protected:
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void enterEvent(QEvent *) override;
+  virtual void mousePressEvent(QMouseEvent *) override;
+  virtual void dragEnterEvent(QDragEnterEvent *) override;
+  virtual void dragMoveEvent(QDragMoveEvent *) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *) override;
+  virtual void dropEvent(QDropEvent *) override;
 protected slots:
   void stripResized();
 protected:
@@ -51,6 +56,7 @@ protected:
   void recalcSizes();
   void placeAndConnect(class Strip *strip);
   void makeActions();
+  void startDragScroll(QPoint p0);
 private:
   SessionDB *db;
   bool useFolders;
