@@ -12,11 +12,12 @@
 #include "Exif.h"
 #include "FilterDialog.h"
 #include <QKeyEvent>
+#include "PurgeDialog.h"
 
-LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
-  QSplitter(parent), db(db), adjuster(adj) {
+LightTable::LightTable(SessionDB *db, AutoCache *cache,
+                       LiveAdjuster *adj, QWidget *parent):
+  QSplitter(parent), db(db), cache(cache), adjuster(adj) {
   setObjectName("LightTable");
-  curr = 0;
   lay=lastlay=LayoutBar::Layout::VGrid;
   showmax = false;
   
@@ -33,7 +34,7 @@ LightTable::LightTable(PhotoDB *db, LiveAdjuster *adj, QWidget *parent):
 
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();
-  
+
   selection = new Selection(db);
 
   strips = new StripView(db);
@@ -120,7 +121,7 @@ void LightTable::setLayout(LayoutBar::Layout act) {
       setSizes(QList<int>() << lastgridsize << height()-lastgridsize);
     ensureReasonableGridSize();
     strips->show();
-    slide->show();
+    ensureSlideShown();
     lay = act;
     break;
   case LayoutBar::Layout::VGrid:
@@ -132,7 +133,7 @@ void LightTable::setLayout(LayoutBar::Layout act) {
       setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
     ensureReasonableGridSize();
     strips->show();
-    slide->show();
+    ensureSlideShown();
     lay = act;
     break;
   case LayoutBar::Layout::HLine: {
@@ -146,7 +147,7 @@ void LightTable::setLayout(LayoutBar::Layout act) {
     strips->setTileSize(ts);
     setSizes(QList<int>() << strips->idealSize(Strip::Arrangement::Horizontal)
              << height());
-    slide->show();
+    ensureSlideShown();
     lay = act;
   } break;
   case LayoutBar::Layout::VLine: {
@@ -160,7 +161,7 @@ void LightTable::setLayout(LayoutBar::Layout act) {
     strips->setTileSize(ts);
     setSizes(QList<int>() << strips->idealSize(Strip::Arrangement::Vertical)
              << width());
-    slide->show();
+    ensureSlideShown();
     lay = act;
   } break;
   case LayoutBar::Layout::FullPhoto:
@@ -168,7 +169,7 @@ void LightTable::setLayout(LayoutBar::Layout act) {
         || lay==LayoutBar::Layout::VGrid)
       lastgridsize = sizes()[0];
     strips->hide();
-    slide->show();
+    ensureSlideShown();
     lay = act;
     break;
   case LayoutBar::Layout::Line:
@@ -197,10 +198,16 @@ void LightTable::setLayout(LayoutBar::Layout act) {
     break;
   }
   if (lastlay==LayoutBar::Layout::FullGrid && lay!=lastlay)
-    emit needImage(curr, displaySize());
+    emit needImage(db->current(), displaySize());
   if (lay!=LayoutBar::Layout::FullPhoto)
     scrollToCurrent();
 }
+
+void LightTable::ensureSlideShown() {
+  slide->show();
+  if (slide->currentVersion() != db->current())
+    updateMainSlide();
+}  
 
 void LightTable::slidePress(quint64 i, Qt::MouseButton b,
                             Qt::KeyboardModifiers mm) {
@@ -217,13 +224,13 @@ void LightTable::toggleSelection(quint64 i) {
   // Control: Toggle whether image i is selected
   if (selection->contains(i)) {
     selection->remove(i);
-    if (i==curr)
+    if (i==db->current())
       makeCurrent(0);
     else
       updateSlide(i);
   } else {
     selection->add(i);
-    if (curr==0)
+    if (db->current()==0)
       makeCurrent(i);
     else
       updateSlide(i);
@@ -236,12 +243,15 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   // Currently, this always adds, but that needs not be the case
   // Also, this should work differently for folder-tree organization
 
-  if (curr==0)
+  quint64 cur = db->current();
+  if (cur==0) {
     makeCurrent(i);
-
+    cur = i;
+  }
+  
   switch (strips->organization()) {
   case Strip::Organization::ByDate: {
-    QDateTime a = db->captureDate(db->photoFromVersion(curr));
+    QDateTime a = db->captureDate(db->photoFromVersion(cur));
     QDateTime b = db->captureDate(db->photoFromVersion(i));
     if (a>b)
       selection->addDateRange(b, a);
@@ -249,7 +259,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
       selection->addDateRange(a, b);
   } break;
   case Strip::Organization::ByFolder: {
-    PhotoDB::PhotoRecord a = db->photoRecord(db->photoFromVersion(curr));
+    PhotoDB::PhotoRecord a = db->photoRecord(db->photoFromVersion(cur));
     PhotoDB::PhotoRecord b = db->photoRecord(db->photoFromVersion(i));
 
     if (a.folderid==b.folderid) {
@@ -276,8 +286,7 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
 }  
 
 void LightTable::simpleSelection(quint64 i, bool keep) {
-  // Ignore other modifiers for the moment
-  if (keep && i==curr)
+  if (keep && i==db->current())
     return;
 
   if (i>0 && !(selection->contains(i) && keep)) {
@@ -306,41 +315,41 @@ void LightTable::simpleSelection(quint64 i, bool keep) {
 }
 
 void LightTable::makeCurrent(quint64 i) {
-  if (i==curr)
+  quint64 oldcur = db->current();
+  if (i==oldcur)
     return;
 
-  db->setCurrent(i);  
-  updateSlide(curr);
-  updateSlide(i);
+  db->setCurrent(i);
+  emit newCurrent(i);
 
-  if (i>0) {
+  updateSlide(oldcur);
+  updateSlide(i);
+  strips->scrollIfNeeded();
+  
+  updateMainSlide();
+}
+
+void LightTable::updateMainSlide() {
+  int cur = db->current();
+  if (cur>0 && slide->isVisibleTo(this)) {
     QSqlQuery q = db->query("select width, height, orient"
 			    " from versions"
 			    " inner join photos on versions.photo==photos.id"
-			    " where versions.id==:a", i);
+			    " where versions.id==:a", cur);
     ASSERT(q.next());
     int w = q.value(0).toInt();
     int h =  q.value(1).toInt();
     Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
     q.finish();
     QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
-    adjuster->markVersionAndSize(i, ns);
-    slide->newImage(i, ns);
+    adjuster->markVersionAndSize(cur, ns);
+    slide->newImage(cur, ns);
+    emit newZoom(slide->currentZoom());
+    // emit needImage(cur, displaySize()); // IS THIS NEEDED??
   } else {
     adjuster->clear();
     slide->clear();
   }
-
-  curr = i;
-  
-  emit newCurrent(curr);
-  emit newZoom(slide->currentZoom());
-
-  if (curr>0 && lay!=LayoutBar::Layout::FullGrid) {
-    emit needImage(curr, displaySize());
-  }
-
-  strips->scrollIfNeeded();
 }
 
 void LightTable::select(quint64 i, Qt::KeyboardModifiers m) {
@@ -370,17 +379,11 @@ void LightTable::updateAdjusted(Image16 img, quint64 i) {
   if (img.isNull())
     return;
   strips->updateImage(i, img, false);
-
-  if (i==curr)
-    slide->updateImage(i, img, false);
+  slide->updateImage(i, img, false);
 }
 
 void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {
   strips->updateImage(i, img, chgid>0);
-
-  if (i!=curr)
-    return;
-
   slide->updateImage(i, img, chgid>0);
 }
 
@@ -427,8 +430,9 @@ void LightTable::selectAll() {
 }
 
 void LightTable::clearSelection() {
-  if (curr) {
-    simpleSelection(curr, false);
+  quint64 cur = db->current();
+  if (cur) {
+    simpleSelection(cur, false);
   } else {
     if (selection->count()<=10) {
       QSet<quint64> ss = selection->current();
@@ -461,10 +465,10 @@ void LightTable::scrollToCurrent() {
 }
 
 void LightTable::applyFilterFromDialog() {
-  int oldcurr = curr;
+  int oldcur = db->current();
   select(0);
   rescan(true);
-  selectNearestInFilter(oldcurr);
+  selectNearestInFilter(oldcur);
   scrollToCurrent();
 }
 
@@ -485,8 +489,6 @@ void LightTable::populateFilterFromDialog() {
   Filter f = filterDialog->filter();
   Untransaction t(db);
   db->query("delete from filter");
-  qDebug() << "joinclause: " << f.joinClause();
-  qDebug() << "whereclause: " << f.whereClause();
   db->query("insert into filter select versions.id, photos.id from versions "
            + f.joinClause() + " where " + f.whereClause());
   db->query("delete from selection"
@@ -500,8 +502,8 @@ void LightTable::rotateSelected(int dphi) {
   for (auto id: vsns)
     strips->quickRotate(id, dphi);
 
-  quint64 oldcurr = curr;
-  if (vsns.contains(curr)) {
+  quint64 oldcur = db->current();
+  if (vsns.contains(oldcur)) {
     /* Somehow update the slideview, which involves updating the
        liveadjuster, which is not trivial, at least not when I am
        tired.  In fact, it really is tricky, because the live
@@ -525,8 +527,8 @@ void LightTable::rotateSelected(int dphi) {
   // and now rescan
   emit recacheReoriented(vsns);
 
-  if (curr!=oldcurr)
-    makeCurrent(oldcurr);
+  if (db->current()!=oldcur)
+    makeCurrent(oldcur);
 
 }
 
@@ -561,48 +563,53 @@ void LightTable::makeActions() {
   << Action{ "Arrows", "Navigate between images" }
   << Action{ Qt::Key_Up, "",
       [&]() {
-      quint64 v = strips->strip()->versionAbove(current());
+      quint64 v = strips->strip()->versionAbove(db->current());
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
   << Action{ Qt::Key_Down, "",
       [&]() {
-      quint64 v = strips->strip()->versionBelow(current());
+      quint64 v = strips->strip()->versionBelow(db->current());
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
   << Action{ Qt::Key_Left, "",
       [&]() {
-      quint64 v = strips->strip()->versionLeftOf(current());
+      quint64 v = strips->strip()->versionLeftOf(db->current());
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
   << Action{ Qt::Key_Right, "",
       [&]() {
-      quint64 v = strips->strip()->versionRightOf(current());
+      quint64 v = strips->strip()->versionRightOf(db->current());
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
   << Action { Qt::Key_BracketLeft, "Select previous image",
       [&]() {
-      quint64 v = strips->strip()->versionBefore(current());
+      quint64 v = strips->strip()->versionBefore(db->current());
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
   << Action { Qt::Key_BracketRight, "Select next image",
       [&]() {
-      quint64 v = strips->strip()->versionAfter(current());
+      quint64 v = strips->strip()->versionAfter(db->current());
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
-  << Action { Qt::CTRL + Qt::Key_N, "New version from photo",
+  << Action { Qt::CTRL + Qt::Key_N, "New version from current",
          [&]() {
-      db->newVersion(current(), false);
+      db->newVersion(db->current(), true);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::SHIFT +  Qt::Key_N, "New version from current",
+  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from photo",
          [&]() {
-      db->newVersion(current(), true);
+      db->newVersion(db->current(), false);
+      rescan();
+    }}
+  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_X, "Purge rejects",
+         [&]() {
+      PurgeDialog::purgeDialog(db, cache);
       rescan();
     }}
   ;
@@ -615,3 +622,12 @@ void LightTable::keyPressEvent(QKeyEvent *e) {
   }
 }
 
+void LightTable::reloadVersion(quint64 vsn) {
+  if (vsn==db->current()) {
+    makeCurrent(0);
+    makeCurrent(vsn);
+  }
+  Slide *slide = strips->strip()->slideByVersion(vsn);
+  if (slide)
+    slide->reload();
+}

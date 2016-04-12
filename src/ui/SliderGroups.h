@@ -17,13 +17,15 @@ public:
     QString tip;
   };
 public:
-  SliderGroups();
   QStringList groups() const;
   QString groupLabel(QString group) const;
   QStringList allSliders() const;
   QStringList sliders(QString group) const;
   QString sliderLabel(QString slider) const;
   SliderInfo sliderInfo(QString slider) const;
+  static SliderGroups const &sliderGroups();
+private:
+  SliderGroups();
 private:
   QStringList groupnames;
   QMap<QString, QString> grouplabels;

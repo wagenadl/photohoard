@@ -3,6 +3,7 @@
 #include "Purge.h"
 #include "PhotoDB.h"
 #include "AutoCache.h"
+#include <QFileInfo>
 
 Purge::Purge(PhotoDB *db, AutoCache *cache): db(db), cache(cache) {
   refresh();
@@ -14,7 +15,8 @@ void Purge::refresh() {
   phsWOtherVsns.clear();
   phsWoOtherVsns.clear();
   phsThatCanBeDeld.clear();
-  phsThatCantBeDeld.clear();
+  orphans.clear();
+  orphsThatCanBeDeld.clear();
   
   db->query("create table M.rejects as"
             " select id as vsn, photo from versions"
@@ -30,8 +32,8 @@ void Purge::refresh() {
     QSqlQuery q = db->constQuery("select vsn, photo, photo in M.keepphoto"
 				 " from M.rejects");
     while (q.next()) {
-      quint64_t vsn = q.value(0).toULongLong();
-      quint64_t pht = q.value(1).toULongLong();
+      uint64_t vsn = q.value(0).toULongLong();
+      uint64_t pht = q.value(1).toULongLong();
       bool keep = q.value(2).toBool();
       if (keep) {
 	vsnsWSiblings.insert(vsn);
@@ -51,16 +53,35 @@ void Purge::refresh() {
 				 " where photo not in"
 				 " (select photo from M.keepphoto)"
 				 " group by photo");
-    while (q->next()) {
-      quint64_t pht = q.value(0);
+    while (q.next()) {
+      uint64_t pht = q.value(0).toULongLong();
       QFileInfo filei(q.value(2).toString() + "/" + q.value(1).toString());
       QFileInfo folderi(q.value(2).toString());
       bool candel = filei.isWritable() && folderi.isWritable();
       // Note that isWritable() returns user's ability to write, not owner's.
       if (candel)
-	phsThatCanBeDeld.insert(pht);
-      else
-	phsThatCantBeDeld.insert(pht);
+	phsThatCanBeDeld[pht] = filei.absoluteFilePath();
     }
   }
+
+  { QSqlQuery q = db->constQuery("select photos.id, filename, pathname"
+                                 " from photos inner join folders"
+                                 " on photos.folder==folders.id"
+                                 " where photos.id not in"
+                                 " (select photo from versions)");
+    while (q.next()) {
+      uint64_t pht = q.value(0).toULongLong();
+      orphans.insert(pht);
+      QFileInfo filei(q.value(2).toString() + "/" + q.value(1).toString());
+      QFileInfo folderi(q.value(2).toString());
+      bool candel = filei.isWritable() && folderi.isWritable();
+      // Note that isWritable() returns user's ability to write, not owner's.
+      if (candel)
+	orphsThatCanBeDeld[pht] = filei.absoluteFilePath();
+    }
+  }
+
+  db->query("drop table M.rejects");
+  db->query("drop table M.allvsn");
+  db->query("drop table M.keepphoto");
 }

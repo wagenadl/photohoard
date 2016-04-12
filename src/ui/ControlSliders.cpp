@@ -15,7 +15,7 @@
 #include "SliderGroups.h"
 #include "Action.h"
 
-ControlSliders::ControlSliders(QWidget *parent): QScrollArea(parent) {
+ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
@@ -23,9 +23,11 @@ ControlSliders::ControlSliders(QWidget *parent): QScrollArea(parent) {
   QSignalMapper *prevmapper = new QSignalMapper(this);
   connect(prevmapper, SIGNAL(mapped(QString)), SLOT(goPrevious(QString)));
 
-  SliderGroups sg;
+  SliderGroups const &sg(SliderGroups::sliderGroups());
 
   QWidget *w = new QWidget;//OneWayScroll;
+  if (ro)
+    w->setEnabled(false);
   setWidget(w);
   setWidgetResizable(true);
 
@@ -191,36 +193,43 @@ static double const *wbadj2sli() {
 //   return mm;
 // }
 
+double ControlSliders::sliderValue(Adjustments const &a, QString slider) {
+  if (slider=="nlc_strength") {
+    double nlc = a.get("nlcontrast");
+    double nlcs = a.get("nlcontrastscale");
+    return nlc * pow(1.0-nlcs, 0.75);
+  } else if (slider=="nlc_localness") {
+    double nlcs = a.get("nlcontrastscale");
+    return pow(nlcs / 0.9, 2);
+  } else if (slider=="expose") {
+    double ex = a.get("expose");
+    double wb = ex + a.get("wb")/5;
+    double wg = ex + a.get("wbg")/15;
+    double const *mm = wbadj2sli();
+    return mm[0]*ex + mm[1]*wb + mm[2]*wg;
+  } else if (slider=="wbg") {
+    double ex = a.get("expose");
+    double wb = ex + a.get("wb")/5;
+    double wg = ex + a.get("wbg")/15;
+    double const *mm = wbadj2sli();
+    return mm[3]*ex + mm[4]*wb + mm[5]*wg;
+  } else if (slider=="wb") {
+    double ex = a.get("expose");
+    double wb = ex + a.get("wb")/5;
+    double wg = ex + a.get("wbg")/15;
+    double const *mm = wbadj2sli();
+    return mm[6]*ex + mm[7]*wb + mm[8]*wg;
+  } else {
+    return a.get(slider);
+  }
+}  
+
 void ControlSliders::setAll(Adjustments const &a) {
-  static QSet<QString> specials;
-  if (specials.isEmpty()) 
-    specials << "nlcontrast" << "nlcontrastscale"
-	     << "expose" << "wb" << "wbg";
 
   adj = a;
 
-  QMap<QString, double> vv;
-  for (auto k: adj.keys())
-    if (!specials.contains(k))
-      vv[k] = adj.get(k);
-
-  double nlc = adj.get("nlcontrast");
-  double nlcs = adj.get("nlcontrastscale");
-  double nlc_loc = pow(nlcs / 0.9, 2);
-  double nlc_s = nlc * pow(1.0-nlcs, 0.75);
-  vv["nlc_strength"] =  nlc_s;
-  vv["nlc_localness"] = nlc_loc;
-
-  double ex = adj.get("expose");
-  double wb = ex + adj.get("wb")/5;
-  double wg = ex + adj.get("wbg")/15;
-  double const *mm = wbadj2sli();
-  vv["expose"] = mm[0]*ex + mm[1]*wb + mm[2]*wg;
-  vv["wbg"] = mm[3]*ex + mm[4]*wb + mm[5]*wg;
-  vv["wb"] = mm[6]*ex + mm[7]*wb + mm[8]*wg;
-  
-  for (auto k:vv.keys())
-    jog(k)->setValueQuietly(vv[k]);
+  for (auto k: jogs.keys()) 
+    jogs[k]->setValueQuietly(sliderValue(adj, k));
 }
 
 void ControlSliders::sliderChange(QString slider) {

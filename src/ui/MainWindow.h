@@ -12,7 +12,7 @@
 class MainWindow: public QMainWindow {
   Q_OBJECT;
 public:
-  MainWindow(class PhotoDB *,
+  MainWindow(class SessionDB *,
              class Scanner *,
              class AutoCache *,
              class Exporter *);
@@ -23,10 +23,13 @@ public slots:
   void updateImage(quint64 vsn, Image16 img, quint64 chgid);
   void showShortcutHelp();
   void setStatusMessage(QString msg);
+protected:
+  virtual void closeEvent(QCloseEvent *) override;
 private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
+  void reloadVersion(quint64 vsn);
 private:
-  class PhotoDB *db;
+  class SessionDB *db;
   class Scanner *scanner;
   class Exporter *exporter;
 private:
@@ -35,7 +38,6 @@ private:
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
-  class SliderClipboard *clipboardDialog;
   class AllControls *allControls;
   class HistoWidget *histogram;
   class LiveAdjuster *adjuster;

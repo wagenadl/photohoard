@@ -1,0 +1,507 @@
+{ "typ": "page",
+  "cre": "2016-04-01T06:22:50",
+  "mod": "2016-04-01T07:25:52",
+  "cui": "b95a8265eb15ff4d",
+  "stampTime": 0,
+  "startPage": 46,
+  "unlocked": false,
+  "uuid": "b6ee4b26",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-04-01T06:22:50",
+      "mod": "2016-04-01T06:22:57",
+      "uuid": "b6294f06",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:22:50",
+          "mod": "2016-04-01T06:22:57",
+          "lines": [
+            0
+          ],
+          "text": "More on working “read only”",
+          "uuid": "2659bc80"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-04-01T06:22:50",
+      "mod": "2016-04-01T06:22:50",
+      "uuid": "e5765452"
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:22:58",
+      "mod": "2016-04-01T06:25:43",
+      "h": 212.494,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "279dde15",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:22:58",
+          "mod": "2016-04-01T06:25:43",
+          "lines": [
+            0,
+            62,
+            126,
+            188,
+            251,
+            310,
+            360,
+            421,
+            484
+          ],
+          "text": "The Sessions concept allows for a lot more to be done in read only mode. For instance, I could create an overrides table that contains a (small) number of records that specify the guest’s overrides of certain columns of the versions table. A good use would be colorlabel. It would be straightforward enough to consult the overrides table whenever extracting a VersionRecord. Note that it is not straightforward to expand this idea to overriding adjustments, since I currently have no way to separate cache entries for the guest.",
+          "uuid": "3ceca380",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:23:36",
+              "mod": "2016-04-01T06:23:36",
+              "end": 114,
+              "start": 105,
+              "style": 1,
+              "uuid": "0a0cb170"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:24:14",
+              "mod": "2016-04-01T06:24:14",
+              "end": 232,
+              "start": 224,
+              "style": 1,
+              "uuid": "3c66f807"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:24:49",
+              "mod": "2016-04-01T06:24:49",
+              "end": 331,
+              "start": 322,
+              "style": 1,
+              "uuid": "e8779d7d"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:25:15",
+              "mod": "2016-04-01T06:25:15",
+              "end": 394,
+              "start": 391,
+              "style": 1,
+              "uuid": "6a826225"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:25:47",
+      "mod": "2016-04-01T06:30:14",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b7afbbc3",
+      "y0": 284.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:25:47",
+          "mod": "2016-04-01T06:30:14",
+          "lines": [
+            0,
+            62,
+            130,
+            194,
+            258,
+            321,
+            382,
+            444
+          ],
+          "text": "In any case, if the guest wants to actually modify the image, a better approach (I think) is to hit a key combo (e.g., Ctrl-T) to transfer a copy of the version into their own database. That is not too difficult from a programmer’s perspective: (1) check if the photo exists in the target db, and if not (1a) ensure that the folder exist, and (1b) enter the photo. (2) create a new version with all its adjustments. (3) optionally copy applied tags along, but probably not. ",
+          "uuid": "49f56ced"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:25:47",
+      "mod": "2016-04-01T06:29:55",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b7afbbc3",
+      "y0": 473.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:25:47",
+          "mod": "2016-04-01T06:29:55",
+          "lines": [
+            0,
+            65,
+            127,
+            189,
+            252,
+            312
+          ],
+          "text": "In (1a), if the folder did not exist in the db, it should not be added to the scantree, but also not to the excludes. So a new column should be added in folders to mark a folder “foreign”. That column would be 1 only for such transfer imports, and set to zero if somehow the folder is added to the scantree at a later date.",
+          "uuid": "49f56ced",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:29:09",
+              "mod": "2016-04-01T06:29:09",
+              "end": 160,
+              "start": 153,
+              "style": 1,
+              "uuid": "a6275fb9"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:30:16",
+      "mod": "2016-04-01T06:33:13",
+      "h": 166.162,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        69.498
+      ],
+      "uuid": "fdda10d7",
+      "y0": 616.818,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:30:16",
+          "mod": "2016-04-01T06:33:13",
+          "lines": [
+            0,
+            59,
+            119,
+            186,
+            239,
+            301,
+            360
+          ],
+          "text": "The other to-do is exporting to the file system using drag and drop. I just checked that it is possible to dnd between nemo and nautilus; the result, for either direction, is a copy. So it should be possible to dnd from photohoard to nemo/nautilus. But it may be that I need to create a tempfile when dragging starts. And I may not ever learn whether dragging succeeds. Testing is needed.",
+          "uuid": "0a49e4f7",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:31:22",
+              "mod": "2016-04-01T06:31:22",
+              "end": 94,
+              "start": 92,
+              "style": 1,
+              "uuid": "ef88306e"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:31:39",
+              "mod": "2016-04-01T06:31:39",
+              "end": 195,
+              "start": 189,
+              "style": 1,
+              "uuid": "32ae8c84"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:37:41",
+      "mod": "2016-04-01T06:39:18",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "fe06daa3",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:37:41",
+          "mod": "2016-04-01T06:39:18",
+          "lines": [
+            0,
+            58,
+            118
+          ],
+          "text": "Basic RO operation now appears to work. I am not going to work on the overrides program immediately; only if Jennifer wants it.",
+          "uuid": "24c06492",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:39:10",
+              "mod": "2016-04-01T06:39:10",
+              "end": 79,
+              "start": 70,
+              "style": 1,
+              "uuid": "23b033ea"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:39:29",
+      "mod": "2016-04-01T06:39:56",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "06e1f23f",
+      "y0": 242.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:39:29",
+          "mod": "2016-04-01T06:39:56",
+          "lines": [
+            0,
+            62
+          ],
+          "text": "I do think that the transfer system is a good idea, but since Jennifer didn’t ask for that either, dnd is more urgent.",
+          "uuid": "c555ed5c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T06:50:20",
+      "mod": "2016-04-01T06:52:06",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "50d7b3db",
+      "y0": 292.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T06:50:20",
+          "mod": "2016-04-01T06:52:06",
+          "lines": [
+            0,
+            58,
+            122,
+            185,
+            234
+          ],
+          "text": "DnD in GTK is rather clever: Only once the drag target is known, the source is asked to provide the data. In Qt it is not as smart: you have to provide the data at the time of start of drag by handing a QMimeData to the QDrag object. Fortunately, you do get a signal once drag is complete.",
+          "uuid": "376923eb",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T06:50:28",
+              "mod": "2016-04-01T06:50:28",
+              "end": 10,
+              "start": 7,
+              "style": 1,
+              "uuid": "5516439f"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:50:55",
+              "mod": "2016-04-01T06:50:55",
+              "end": 84,
+              "start": 79,
+              "style": 1,
+              "uuid": "f0b80127"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T06:51:56",
+              "mod": "2016-04-01T06:51:56",
+              "end": 253,
+              "start": 251,
+              "style": 1,
+              "uuid": "4940bfda"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:02:35",
+      "mod": "2016-04-01T07:25:52",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "3bf157a8",
+      "y0": 412.324,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:02:35",
+          "mod": "2016-04-01T07:25:52",
+          "lines": [
+            0,
+            61,
+            127
+          ],
+          "text": "If I create a MimeData with only Urls, the drag looks like a little rectangle, not like a plus. But I guess that’s OK. Urls is good, because I can send one or many images without any fuss.",
+          "uuid": "45e7c246"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:08:09",
+      "mod": "2016-04-01T07:09:45",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "9289fe70",
+      "y0": 485.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:08:09",
+          "mod": "2016-04-01T07:09:45",
+          "lines": [
+            0,
+            60,
+            121,
+            186,
+            243,
+            301
+          ],
+          "text": "Note that DnD in Qt is modal: I don’t think I can get mouse leave events or any such things during the drag. Which means that I really have to prep the Url and its contents when I start the drag. This should not happen right when the mouse is pressed, but only after some distance or when leaving the widget.",
+          "uuid": "0c56c75b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:13:58",
+      "mod": "2016-04-01T07:14:47",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [
+        69.498
+      ],
+      "uuid": "288a80a9",
+      "y0": 628.818,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:13:58",
+          "mod": "2016-04-01T07:14:47",
+          "lines": [
+            0,
+            52,
+            113,
+            174
+          ],
+          "text": "While the mouse button is held, mouseMoveEvents are generated, but no leaveEvent is generated if the mouse moves out of the widget. That only happens after mouse release, at which point the mouseReleaseEvent is sent first. ",
+          "uuid": "5585bf60"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:14:48",
+      "mod": "2016-04-01T07:18:50",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "f2652b8f",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:14:48",
+          "mod": "2016-04-01T07:18:50",
+          "lines": [
+            0,
+            53,
+            115,
+            172,
+            232,
+            287
+          ],
+          "text": "So, a reasonable choice might be to monitor the move events and start the drag when wither the distance from press point is large enough or when the mouse moves out of the widget’s rect()* according to the mouse move event. I think that is usually good enough. The exception is a window manager that does not raise windows on button press.",
+          "uuid": "a25c24f1",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-01T07:16:36",
+              "mod": "2016-04-01T07:16:36",
+              "end": 188,
+              "start": 187,
+              "style": 6,
+              "uuid": "e116279b"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T07:16:36",
+              "mod": "2016-04-01T07:16:36",
+              "end": 188,
+              "start": 187,
+              "style": 5,
+              "uuid": "bbb4aa11"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-01T07:16:58",
+              "mod": "2016-04-01T07:16:58",
+              "end": 231,
+              "start": 226,
+              "style": 1,
+              "uuid": "dcbd2b82"
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2016-04-01T07:16:36",
+          "mod": "2016-04-01T07:16:48",
+          "h": 20.767,
+          "ind": 1,
+          "sheet": 2,
+          "split": [ ],
+          "tag": "*",
+          "uuid": "0c8755da",
+          "y0": 687.233,
+          "cc": [
+            { "typ": "text",
+              "cre": "2016-04-01T07:16:36",
+              "mod": "2016-04-01T07:16:48",
+              "lines": [
+                0
+              ],
+              "text": "Yes, that is correct, the rect() is always (0,0, width(), height()).",
+              "uuid": "4e841efd"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:22:00",
+      "mod": "2016-04-01T07:22:19",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "c0e18a21",
+      "y0": 242.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:22:00",
+          "mod": "2016-04-01T07:22:19",
+          "lines": [
+            0,
+            56
+          ],
+          "text": "Also, I just confirmed, no move/enter/leave signals get generated while dragging.",
+          "uuid": "184d5b9b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-01T07:22:23",
+      "mod": "2016-04-01T07:23:44",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "43ab3526",
+      "y0": 292.494,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-01T07:22:23",
+          "mod": "2016-04-01T07:23:44",
+          "lines": [
+            0,
+            56,
+            118,
+            183
+          ],
+          "text": "By default, QDrag::exec() proposes a “move action”, and nemo accepts that. As a consequence, the file is moved rather than copied. That is good. I do have to delete the temp files if exec() returns something other than Qt::MoveAction (0x02).",
+          "uuid": "ca60d877"
+        }
+      ]
+    }
+  ]
+}

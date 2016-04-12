@@ -15,7 +15,7 @@
 class PhotoDB: public Database {
 public:
   enum class ColorLabel { None=0, Red, Yellow, Green, Blue, Purple };
-  enum class AcceptReject { Undecided=0, Accept=1, Reject=-1 };
+  enum class AcceptReject { Undecided=0, Accept=1, Reject=-1, NewImport=2 };
 public:
   struct VersionRecord {
     quint64 id;
@@ -41,10 +41,10 @@ public:
     QDateTime capturedate;
   };
 public:
-  PhotoDB(QString id=""): Database(id) { }
-  virtual void open(QString fn) override;
+  PhotoDB(QString id="");
   virtual void clone(PhotoDB const &);
   static void create(QString fn);
+  bool isReadOnly() const;
 public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
   QDateTime captureDate(quint64 photoid) const;
@@ -74,6 +74,7 @@ public: // information about cameras and lenses
   void setLensAlias(int lensid, QString alias);
   void setCameraAlias(int cameraid, QString alias);
 public: // exploration functions
+  QString cacheFilename() const; // returns full pathname
   QString folder(quint64 folderid) const; // returns full pathname
   quint64 root(quint64 folderid) const; // returns id of root folder
   quint64 findFolder(QString) const; // 0 if not found
@@ -90,8 +91,6 @@ public: // exploration functions
   QList<QString> rootFolders() const;
   quint64 firstVersionInTree(QString folder) const;
   // all of the above look at the filter
-  void setCurrent(quint64);
-  quint64 current() const;
 public: // manipulating the database
   quint64 newVersion(quint64 versionid, bool clone=true);
   /* NEWVERSION - Create a new version of an existing photo
@@ -100,11 +99,9 @@ public: // manipulating the database
      refers to, but with default rather than copied sliders.
      This function does *not* notify the cache or the GUI.
    */
-  bool deleteVersion(quint64 versionid);
+  void deleteVersion(quint64 versionid);
   /* DELETEVERSION - Delete a version from the database
-     This succeeds only if there is at least one other version associated
-     with the photo that VERSIONID refers to.
-     Returns true if successful.
+     The associated photo is not removed, even if it is orphaned.
   */
   bool hasSiblings(quint64 versionid);
   /* HASSIBLINGS - Return true if multiple versions are associated with a photo
@@ -116,7 +113,16 @@ public: // manipulating the database
      VERSIONSFORPHOTO(photoid) returns the set of versions associated with
      the photo PHOTOID.
   */
+  void deletePhoto(quint64 photoid);
+  /* DELETEPHOTO - Delete a photo from the database
+     All associated versions are deleted too.
+  */
+protected:
+  void setReadOnly();
 private:
+  void readFTypes() const;
+private:
+  bool ro;
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;
   mutable QMap<int, QString> ftypes;

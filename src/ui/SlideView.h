@@ -61,7 +61,7 @@ public slots:
   /* CLEAR - Drop image
      CLEAR clears the display and forgets about the previously displayed version
    */
-  void updateImage(quint64 vsn, Image16 img, bool force=false);
+  void updateImage(quint64 vsn, Image16 const &img, bool force=false);
   /* UPDATEIMAGE - Offer a new image for the currently displayed version.
      UPDATEIMAGE(vsn, img, force) offers the image IMG for display as version
      VSN. If VSN doesn't match our current version (see NEWIMAGE), this

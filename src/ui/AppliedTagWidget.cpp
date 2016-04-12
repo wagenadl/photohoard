@@ -5,8 +5,9 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-AppliedTagWidget::AppliedTagWidget(int id, QString name, QWidget *parent):
-  QFrame(parent), id(id), name(name) {
+AppliedTagWidget::AppliedTagWidget(int id, QString name, bool ro,
+				   QWidget *parent):
+  QFrame(parent), id(id), name(name), ro(ro) {
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   mouseover = false;
   inall = incur = false;
@@ -29,11 +30,15 @@ QSize AppliedTagWidget::minimumSizeHint() const {
 }  
 
 void AppliedTagWidget::enterEvent(QEvent *) {
+  if (ro)
+    return;
   mouseover = true;
   update();
 }
 
 void AppliedTagWidget::leaveEvent(QEvent *) {
+  if (ro)
+    return;
   mouseover = false;
   update();
 }
@@ -93,6 +98,8 @@ void AppliedTagWidget::paintEvent(QPaintEvent *) {
 }
 
 void AppliedTagWidget::mousePressEvent(QMouseEvent *e) {
+  if (ro)
+    return;
   if (!inall && addButtonPlace().contains(e->pos()))
     emit addClicked(id);
   else if (removeButtonPlace().contains(e->pos()))

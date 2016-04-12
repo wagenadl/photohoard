@@ -7,7 +7,7 @@
 #include <QSplitter>
 #include <QPointer>
 
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "Strip.h"
 #include "LayoutBar.h"
 #include "ColorLabelBar.h"
@@ -18,10 +18,10 @@
 class LightTable: public QSplitter {
   Q_OBJECT;
 public:
-  LightTable(PhotoDB *db, LiveAdjuster *adjuster,
+  LightTable(SessionDB *db, class AutoCache *cache,
+             LiveAdjuster *adjuster,
              QWidget *parent=0);
   virtual ~LightTable();
-  quint64 current() const { return curr; }
   PSize displaySize() const;
   Actions const &actions() const;
   class Filter const &filter() const;
@@ -39,6 +39,7 @@ public slots:
   void openFilterDialog();
   void increaseTileSize(double factor);
   void updateSelectedTiles();
+  void reloadVersion(quint64 vsn);
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);
@@ -64,8 +65,11 @@ protected:
   void extendOrShrinkSelection(quint64 i);
   void simpleSelection(quint64 i, bool keepIfContained);
   void makeCurrent(quint64 i);
+  void ensureSlideShown();
+  void updateMainSlide();
 protected:
-  PhotoDB *db;
+  SessionDB *db;
+  AutoCache *cache;
   QPointer<LiveAdjuster> adjuster; // we do not own
   class Selection *selection;
   class StripView *strips;
@@ -73,7 +77,6 @@ protected:
   class FilterDialog *filterDialog;
   bool showmax;
   LayoutBar::Layout lastlay, lay;
-  quint64 curr;
   int tilesize;
   int lastgridsize;
   Actions acts;

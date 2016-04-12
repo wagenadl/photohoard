@@ -63,7 +63,7 @@ QSize HistoWidget::minimumSizeHint() const {
   
 void HistoWidget::setVersion(quint64 v) {
   setEnabled(v>0);
-  if (!v)
+  //  if (!v)
     histo.clear();
   update();
 }

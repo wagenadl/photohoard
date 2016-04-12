@@ -11,7 +11,6 @@
 #include <QSet>
 #include "Image16.h"
 #include <QMap>
-#include "PhotoDB.h"
 
 /* Class: AC_Worker
    Worker thread for <AutoCache>.
@@ -33,7 +32,7 @@ public:
      holder - object to be used to funnel images from
      <AutoCache::cacheModified> to our <cacheModified>.
    */
-  AC_Worker(PhotoDB const *db, QString rootdir,
+  AC_Worker(class SessionDB const *db, QString rootdir,
 	    class AC_ImageHolder *holder,
             QObject *parent=0);
   virtual ~AC_Worker();
@@ -267,7 +266,7 @@ private:
    */
   void processLoaded();
 private:
-  PhotoDB db;
+  class SessionDB *db; // we own
   class BasicCache *cache;
   class IF_Bank *bank;
 

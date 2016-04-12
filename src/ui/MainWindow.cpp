@@ -8,7 +8,7 @@
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "AutoCache.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "AllControls.h"
 #include "HistoWidget.h"
 #include <QDockWidget>
@@ -23,8 +23,10 @@
 #include "Exporter.h"
 #include <QMessageBox>
 #include "Filter.h"
+#include "SliderClipboard.h"
+#include <QApplication>
 
-MainWindow::MainWindow(PhotoDB *db,
+MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter):
   db(db), scanner(scanner), exporter(exporter) {
@@ -35,7 +37,7 @@ MainWindow::MainWindow(PhotoDB *db,
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
   dock = new QDockWidget("Adjustments", this);
-  dock->setWidget(allControls = new AllControls(this));
+  dock->setWidget(allControls = new AllControls(db->isReadOnly(), this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
@@ -53,26 +55,30 @@ MainWindow::MainWindow(PhotoDB *db,
   dock->setWidget(statusBar = new StatusBar(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
-  
+
   adjuster = new LiveAdjuster(db, allControls, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
   
-  setCentralWidget(lightTable = new LightTable(db, adjuster, this));
+  setCentralWidget(lightTable = new LightTable(db, autocache, adjuster, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
-  addToolBar(area, fileBar = new FileBar(db, exporter, scanner, this));
+  addToolBar(area, fileBar = new FileBar(db, autocache,
+                                         exporter, scanner, this));
   addToolBar(area, layoutBar = new LayoutBar(lightTable, this));
-  addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
+  if (!db->isReadOnly())
+    addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
   addToolBar(area, filterBar = new FilterBar(lightTable, this));
   // etc.
 
   shortcutHelp->addSection("General", fileBar->actions());
   shortcutHelp->addSection("General", filterBar->actions());
   shortcutHelp->addSection("Layout", layoutBar->actions());
-  shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
+  if (!db->isReadOnly())
+    shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
   shortcutHelp->addSection("Image strip and photo editor",
                            lightTable->actions());
-  shortcutHelp->addSection("Slider panel", allControls->actions());
+  if (!db->isReadOnly())
+    shortcutHelp->addSection("Slider panel", allControls->actions());
   
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
           histogram, SLOT(setImage(Image16))); // is this ok?
@@ -87,10 +93,14 @@ MainWindow::MainWindow(PhotoDB *db,
 	  autocache, SLOT(recache(QSet<quint64>)));
   connect(autocache, SIGNAL(available(quint64, Image16, quint64)),
           SLOT(updateImage(quint64, Image16, quint64)));
-  connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
-          lightTable, SLOT(rescan()));
+  if (scanner) {
+    connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
+	    lightTable, SLOT(rescan()));
+    connect(scanner, SIGNAL(message(QString)),
+            statusBar, SLOT(setMessage(QString)));
+  }
 
-  autocache->requestIfEasy(lightTable->current(), QSize(1024, 1024));
+  autocache->requestIfEasy(db->current(), QSize(1024, 1024));
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
           metaViewer, SLOT(setVersion(quint64)));
@@ -110,10 +120,13 @@ MainWindow::MainWindow(PhotoDB *db,
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));
   
-  tagList->setCurrent(lightTable->current());
-  metaViewer->setVersion(lightTable->current());
+  tagList->setCurrent(db->current());
+  metaViewer->setVersion(db->current());
   if (lightTable->filter().hasCollection())
     statusBar->setCollection(lightTable->filter().collection());
+
+  connect(fileBar->sliderClipboard(), SIGNAL(modified(quint64)),
+          SLOT(reloadVersion(quint64)));
 }
 
 MainWindow::~MainWindow() {
@@ -125,7 +138,7 @@ void MainWindow::scrollToCurrent() {
 
 void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
   lightTable->updateImage(i, img, chgid);
-  if (i==lightTable->current())
+  if (i==db->current())
     histogram->setImage(img); // this is *bad*
 }
 
@@ -157,4 +170,16 @@ void MainWindow::setStatusMessage(QString msg, QWidget *src) {
 
 void MainWindow::setStatusMessage(QString msg) {
   statusBar->setMessage(msg);
+}
+
+void MainWindow::reloadVersion(quint64 vsn) {
+  if (vsn==db->current()) {
+    histogram->setVersion(vsn);
+    metaViewer->setVersion(vsn);
+  }
+  lightTable->reloadVersion(vsn);
+}
+
+void MainWindow::closeEvent(QCloseEvent *) {
+  QApplication::quit();
 }

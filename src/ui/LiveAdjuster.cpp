@@ -16,8 +16,8 @@ LiveAdjuster::LiveAdjuster(PhotoDB *db,
   QObject(parent), db(db), controls(controls), cache(cache) {
   ofinder = new OriginalFinder(db, this);
   adjuster = new InterruptableAdjuster(this);
-  connect(adjuster, SIGNAL(ready(Image16)),
-          SLOT(provideAdjusted(Image16)));
+  connect(adjuster, SIGNAL(ready(Image16, quint64)),
+          SLOT(provideAdjusted(Image16, quint64)));
   connect(controls, SIGNAL(valueChanged(QString, double)),
           SLOT(setSlider(QString, double)));
   connect(ofinder, SIGNAL(originalAvailable(quint64, Image16)),
@@ -61,7 +61,7 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
     targetsize = s;
   mustshowupdate = true;
 
-  PSize maxav = adjuster->maxAvailableSize(sliders);
+  PSize maxav = adjuster->maxAvailableSize(sliders, v);
   bool needBigger = PSize(s).exceeds(maxav);
   bool canBigger = originalSize.isEmpty()
     || Adjuster::mapCropSize(originalSize, sliders, originalSize)
@@ -76,7 +76,7 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
 						      targetsize);
     ofinder->requestScaledOriginal(version, needed);
   } else {
-    adjuster->requestReduced(sliders, s);
+    adjuster->requestReduced(sliders, s, version);
   }
 }
 
@@ -92,9 +92,9 @@ void LiveAdjuster::setSlider(QString k, double v) {
     ofinder->requestScaledOriginal(version, targetsize);
   } else {
     if (targetsize.isEmpty())
-      adjuster->requestFull(sliders);
+      adjuster->requestFull(sliders, version);
     else
-      adjuster->requestReduced(sliders, targetsize);
+      adjuster->requestReduced(sliders, targetsize, version);
   }
 
   Untransaction t(db);
@@ -112,7 +112,11 @@ void LiveAdjuster::setSlider(QString k, double v) {
               " values (:a, :b, :c)", version, k, v);
 }
 
-void LiveAdjuster::provideAdjusted(Image16 img) {
+void LiveAdjuster::provideAdjusted(Image16 img, quint64 v) {
+  if (v!=version) {
+    pDebug() << "LiveAdjuster: version mismatch";
+    return;
+  }
   if (mustoffermod) {
     mustoffermod = false;
     cache->cacheModified(version, img);
@@ -129,22 +133,22 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
     return;
   originalSize = img.size();
   adjuster->cancelRequest();
-  adjuster->setOriginal(img);
+  adjuster->setOriginal(img, v);
 
   if (targetsize.isEmpty())
-    adjuster->requestFull(sliders);
+    adjuster->requestFull(sliders, v);
   else
-    adjuster->requestReduced(sliders, targetsize);
+    adjuster->requestReduced(sliders, targetsize, v);
 }
 
 void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
   if (v!=version)
     return;
   originalSize = osize;
-  adjuster->setReduced(img, osize);
+  adjuster->setReduced(img, osize, v);
 
   if (targetsize.isEmpty())
-    adjuster->requestReduced(sliders, img.size());
+    adjuster->requestReduced(sliders, img.size(), v);
   else
-    adjuster->requestReduced(sliders, targetsize);
+    adjuster->requestReduced(sliders, targetsize, v);
 }

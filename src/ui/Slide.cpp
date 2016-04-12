@@ -78,7 +78,7 @@ void Slide::paint(QPainter *painter,
 		  QWidget *) {
   QRectF r = boundingRect();
   bool isCurrent
-    = parent->database()->simpleQuery("select version from current")
+    = parent->database()->simpleQuery("select version from currentvsn")
     .toULongLong() == id;
   bool isSelected = isCurrent
     ? true
@@ -130,8 +130,9 @@ void Slide::paint(QPainter *painter,
   }
 
   if (acceptReject != PhotoDB::AcceptReject::Undecided) {
-    QString acc = QString::fromUtf8("√");
-    QString rej = QString::fromUtf8("×");
+    static QString acc = QString::fromUtf8("✔"); // ✓✔√");
+    static QString rej = QString::fromUtf8("×❌"); // ❌
+    static QString newi = QString::fromUtf8("✶");
     QString txt = "";
     QColor clr;
     switch (acceptReject) {
@@ -143,6 +144,9 @@ void Slide::paint(QPainter *painter,
       txt = rej;
       clr = QColor("red");
       break;
+    case PhotoDB::AcceptReject::NewImport:
+      txt = newi;
+      clr = QColor("#ffff00");
     default:
       break;
     }
@@ -152,7 +156,7 @@ void Slide::paint(QPainter *painter,
     f.setWeight(QFont::Bold);
     painter->setPen(clr);
     painter->setFont(f);
-    painter->drawText(r.adjusted(0, 0, -2*dx, 0),
+    painter->drawText(r.adjusted(0, 0, -3, 0),
                       Qt::AlignRight | Qt::AlignTop,
                       txt);
     painter->setFont(f0);
@@ -224,4 +228,10 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 
 Slidestrip *Slide::parentStrip() const {
   return parent;
+}
+
+void Slide::reload() {
+  pm = QPixmap();
+  img = Image16();
+  update();
 }

@@ -1,0 +1,238 @@
+{ "typ": "page",
+  "cre": "2016-03-31T21:05:12",
+  "mod": "2016-03-31T21:14:31",
+  "cui": "b95a8265eb0b915f",
+  "stampTime": 0,
+  "startPage": 45,
+  "unlocked": false,
+  "uuid": "a82324d6",
+  "cc": [
+    { "typ": "title",
+      "cre": "2016-03-31T21:05:12",
+      "mod": "2016-03-31T21:05:14",
+      "uuid": "3214bfdd",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-03-31T21:05:12",
+          "mod": "2016-03-31T21:05:14",
+          "lines": [
+            0
+          ],
+          "text": "Sessions",
+          "uuid": "8458358e"
+        }
+      ]
+    },
+    { "typ": "resources",
+      "cre": "2016-03-31T21:05:12",
+      "mod": "2016-03-31T21:05:12",
+      "uuid": "2b7ed5d3"
+    },
+    { "typ": "textblock",
+      "cre": "2016-03-31T21:05:14",
+      "mod": "2016-03-31T21:05:57",
+      "h": 96.664,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c0a6ddcc",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-03-31T21:05:14",
+          "mod": "2016-03-31T21:05:57",
+          "lines": [
+            0,
+            64,
+            124,
+            182
+          ],
+          "text": "I want to be able to attach to a “foreign” database. That is, I want Jennifer to be able to work with my database on a read-only basis. But right now, even navigation requires write-access to the database.",
+          "uuid": "2567e174"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-03-31T21:05:57",
+      "mod": "2016-03-31T21:06:58",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "898e4149",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-03-31T21:05:57",
+          "mod": "2016-03-31T21:06:58",
+          "lines": [
+            0,
+            64,
+            129
+          ],
+          "text": "So, I have created a new sqlite file called a “session db” that contains the tables current, filtersettings, exportsettings that should be usable by guests.",
+          "uuid": "1f119c7c",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-03-31T21:06:25",
+              "mod": "2016-03-31T21:06:25",
+              "end": 91,
+              "start": 84,
+              "style": 1,
+              "uuid": "63f07f02"
+            },
+            { "typ": "markup",
+              "cre": "2016-03-31T21:06:28",
+              "mod": "2016-03-31T21:06:28",
+              "end": 107,
+              "start": 93,
+              "style": 1,
+              "uuid": "44a52ec6"
+            },
+            { "typ": "markup",
+              "cre": "2016-03-31T21:06:31",
+              "mod": "2016-03-31T21:06:31",
+              "end": 123,
+              "start": 109,
+              "style": 1,
+              "uuid": "751fa16b"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-03-31T21:07:53",
+      "mod": "2016-03-31T21:11:22",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "068e91a9",
+      "y0": 242.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-03-31T21:07:53",
+          "mod": "2016-03-31T21:11:22",
+          "lines": [
+            0,
+            54,
+            109,
+            163,
+            224,
+            283
+          ],
+          "text": "This was a somewhat involved change. main() no longer opens instantiates a PhotoDB, rather it instantiates a SessionDB, which is a derived class from PhotoDB. The SessionDB opens the session (from a file called $HOME/.local/photohoard/HASH.sdb) and then attaches to the actual photo database (e.g., $HOME/.local/photohoard/default.db*).  ",
+          "uuid": "7eb44adb",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-03-31T21:09:14",
+              "mod": "2016-03-31T21:09:14",
+              "end": 239,
+              "start": 235,
+              "style": 1,
+              "uuid": "1c41073d"
+            },
+            { "typ": "markup",
+              "cre": "2016-03-31T21:09:54",
+              "mod": "2016-03-31T21:09:54",
+              "end": 334,
+              "start": 333,
+              "style": 6,
+              "uuid": "84c42ede"
+            },
+            { "typ": "markup",
+              "cre": "2016-03-31T21:09:54",
+              "mod": "2016-03-31T21:09:54",
+              "end": 334,
+              "start": 333,
+              "style": 5,
+              "uuid": "abf23f78"
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2016-03-31T21:09:54",
+          "mod": "2016-03-31T21:10:27",
+          "h": 20.767,
+          "ind": 1,
+          "sheet": 0,
+          "split": [ ],
+          "tag": "*",
+          "uuid": "ff2f35a7",
+          "y0": 687.233,
+          "cc": [
+            { "typ": "text",
+              "cre": "2016-03-31T21:09:54",
+              "mod": "2016-03-31T21:10:27",
+              "lines": [
+                0
+              ],
+              "text": "By the way, I am very tempted to undo the rename to “default.db”.",
+              "uuid": "40967429"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-03-31T21:07:53",
+      "mod": "2016-03-31T21:12:57",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "068e91a9",
+      "y0": 385.158,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-03-31T21:07:53",
+          "mod": "2016-03-31T21:12:57",
+          "lines": [
+            0,
+            61,
+            118,
+            171,
+            225
+          ],
+          "text": "Since Sqlite is relaxed about refering to tables in attached databases, this basically works. Except that cloning the database connection drops attached databases. I have therefore made SessionDB::clone() issue a new “attach database” statement. I hope all of that is actually threadsafe.",
+          "uuid": "7eb44adb"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-03-31T21:13:18",
+      "mod": "2016-03-31T21:14:31",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "52bc82e9",
+      "y0": 504.988,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-03-31T21:13:18",
+          "mod": "2016-03-31T21:14:31",
+          "lines": [
+            0,
+            59,
+            120,
+            182
+          ],
+          "text": "In a sense, it would be much easier to let the Scanner and Autocache simply open their own database connections. But is that threadsafe? (Note that neither needs any of the stuff in the .sdb.)",
+          "uuid": "c7c49f60",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-03-31T21:14:06",
+              "mod": "2016-03-31T21:14:06",
+              "end": 124,
+              "start": 120,
+              "style": 1,
+              "uuid": "5a5a1258"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
