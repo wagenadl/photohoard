@@ -11,13 +11,14 @@
 class ControlSliders: public QScrollArea {
   Q_OBJECT;
 public:
-  ControlSliders(QWidget *parent=0);
+  ControlSliders(bool ro, QWidget *parent=0);
   virtual ~ControlSliders();
   class ControlGroup *group(QString groupname) const; // groupname must exist
   class GentleJog *jog(QString slidername) const; // slidername must exist
   Adjustments const &getAll() const;
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
+  static double sliderValue(Adjustments const &vv, QString slider);
 signals:
   void valueChanged(QString adjustmentname, double value);
   /* VALUECHANGED - Emitted when the user changes the value.

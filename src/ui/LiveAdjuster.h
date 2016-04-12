@@ -33,7 +33,7 @@ private slots:
   void setSlider(QString, double);
   void provideOriginal(quint64, Image16);
   void provideScaledOriginal(quint64, QSize osize, Image16);
-  void provideAdjusted(Image16);
+  void provideAdjusted(Image16, quint64 v);
 private:
   PhotoDB *db;
   AllControls *controls; // we do not own

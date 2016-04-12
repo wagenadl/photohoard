@@ -10,7 +10,7 @@
 class Slidestrip: public Strip {
   Q_OBJECT;
 public:
-  Slidestrip(PhotoDB *db, QGraphicsItem *parent);
+  Slidestrip(SessionDB *db, QGraphicsItem *parent);
   virtual ~Slidestrip();
 public:
   virtual QRectF subBoundingRect() const; // children

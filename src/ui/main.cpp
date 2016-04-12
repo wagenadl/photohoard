@@ -17,6 +17,7 @@
 #include <sqlite3.h>
 #include <QDesktopWidget>
 #include "CMSTransform.h"
+#include "SessionDB.h"
 
 namespace CMS {
   CMSProfile monitorProfile;
@@ -24,14 +25,16 @@ namespace CMS {
 }
 
 void usage() {
-  fprintf(stderr, "Usage: photohoard -icc profile -db databasedir\n");
+  fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
   exit(1);
 }
 
 int main(int argc, char **argv) {
-
-  QString dbdir = "/home/wagenaar/.local/photohoard";
+  SessionDB::ensureBaseDirExists();
+  QString dbfn = SessionDB::photohoardBaseDir() + "/photodb.db";
   QString icc;
+  bool newdb = false;
+  bool readonly = false;
   
   QStringList args;
   for (int i=1; i<argc; i++)
@@ -40,17 +43,18 @@ int main(int argc, char **argv) {
     QString kwd = args.takeFirst();
     if (kwd=="-db") {
       Q_ASSERT(!args.isEmpty());
-      dbdir = args.takeFirst();
+      dbfn = args.takeFirst();
     } else if (kwd=="-icc") {
       Q_ASSERT(!args.isEmpty());
       icc = args.takeFirst();
+    } else if (kwd=="-new") {
+      newdb = true;
+    } else if (kwd=="-ro") {
+      readonly = true;
     } else {
       usage();
     }
   }
-
-  QString dbfn = dbdir + "/photodb.db";
-  QString cachefn = dbdir + "/photodb.cache";
 
   Application app(argc, argv);
 
@@ -61,14 +65,29 @@ int main(int argc, char **argv) {
     CMS::monitorProfile = CMSProfile(icc);
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
+
+  if (newdb==QFile(dbfn).exists()) {
+    if (newdb) 
+      pDebug() << "Database not found at " << dbfn;
+    else
+      pDebug() << "Database already exists at " << dbfn;
+    return 2;
+  }
   
-  if (!QFile(dbfn).exists()) {
+  if (newdb) {
     pDebug() << "Creating database at " << dbfn;
     PhotoDB::create(dbfn);
   }
 
-  PhotoDB db;
-  db.open(dbfn);
+  if (!SessionDB::sessionExists(dbfn)) {
+    pDebug() << "Creating session for " << dbfn;
+    SessionDB::createSession(dbfn);
+  }
+
+  SessionDB db;
+  db.open(dbfn, readonly);
+
+  QString cachefn = db.cacheFilename();
     
   if (!QDir(cachefn).exists()) {
     pDebug() << "Creating cache at " << cachefn;
@@ -77,28 +96,35 @@ int main(int argc, char **argv) {
 
   AutoCache *ac = new AutoCache(&db, cachefn);
 
-  Scanner *scan = new Scanner(&db);
-  QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
-                   ac, SLOT(recache(QSet<quint64>)));
-  QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
-                   ac, SLOT(cachePreview(quint64, Image16)));
+  Scanner *scan = 0;
+  if (!db.isReadOnly()) {
+    scan = new Scanner(&db);
+    QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
+		     ac, SLOT(recache(QSet<quint64>)));
+    QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
+		     ac, SLOT(cachePreview(quint64, Image16)));
+  }
 
   Exporter *expo = new Exporter(&db, 0);
   expo->start();
 
   MainWindow *mw = new MainWindow(&db, scan, ac, expo);
+
   QDesktopWidget *dw = app.desktop();
   mw->resize(dw->width()*8/10, dw->height()*8/10);
   mw->move(dw->width()/10, dw->height()/10);
   mw->show();
 
   mw->scrollToCurrent();
-    
-  scan->start(); // doing this here ensures that the mainwindow can open 1st
+
+  if (scan)
+    scan->start(); // doing this here ensures that the mainwindow can open 1st
 
   int res = app.exec();
-  scan->stopAndWait(1000);
-  delete scan;
+  if (scan) {
+    scan->stopAndWait(1000);
+    delete scan;
+  }
   delete ac;
   expo->stop();
   delete expo;

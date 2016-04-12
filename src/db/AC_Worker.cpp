@@ -9,17 +9,19 @@
 #include "AC_ImageHolder.h"
 #include "Adjustments.h"
 #include "Here.h"
+#include "SessionDB.h"
 
 inline uint qHash(PSize const &s) {
   return qHash(QPair<int,int>(s.width(), s.height()));
 }
 
-AC_Worker::AC_Worker(PhotoDB const *db0, QString rootdir,
+AC_Worker::AC_Worker(SessionDB const *db0, QString rootdir,
 		     AC_ImageHolder *holder,
                      QObject *parent):
   QObject(parent), holder(holder) {
   setObjectName("AC_Worker");
-  db.clone(*db0);
+  db = new SessionDB;
+  db->clone(*db0);
   cache = new BasicCache;
   cache->open(rootdir);
   threshold = 100;
@@ -34,7 +36,8 @@ AC_Worker::AC_Worker(PhotoDB const *db0, QString rootdir,
 }
 
 AC_Worker::~AC_Worker() {
-  db.close();
+  db->close();
+  delete db;
   cache->close();
   delete cache;
 }
@@ -171,7 +174,7 @@ void AC_Worker::cacheModified(quint64 vsn) {
 
 void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   // siz must be the orientation-corrected size for the given version
-  QSqlQuery q = db.query("select width, height, orient, photos.id"
+  QSqlQuery q = db->query("select width, height, orient, photos.id"
 			 " from versions"
 			 " inner join photos on versions.photo==photos.id"
 			 " where versions.id==:a", vsn);
@@ -184,8 +187,8 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   q.finish();
 
   if (wid!=fs.width() || hei!=fs.height()) {
-    Untransaction ut(&db);
-    db.query("update photos set width=:a, height=:b where id=:c",
+    Untransaction ut(db);
+    db->query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
   }
 }
@@ -240,10 +243,10 @@ void AC_Worker::processLoaded() {
 
 void AC_Worker::sendToBank(quint64 vsn) {
   Adjustments adjs;
-  adjs.readFromDB(vsn, db);
+  adjs.readFromDB(vsn, *db);
 
   QSqlQuery q
-    = db.query("select folder, filename, filetype, width, height, orient "
+    = db->query("select folder, filename, filetype, width, height, orient "
 	       " from versions"
 	       " inner join photos on versions.photo==photos.id"
 	       " where versions.id==:a limit 1", vsn);
@@ -256,10 +259,10 @@ void AC_Worker::sendToBank(quint64 vsn) {
   Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
   
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
-  QString path = db.folder(folder) + "/" + fn;
+  QString path = db->folder(folder) + "/" + fn;
   int maxdim = cache->maxSize().maxDim();
   bank->findImage(vsn,
-		  path, db.ftype(ftype), orient, osize,
+		  path, db->ftype(ftype), orient, osize,
 		  adjs,
                   maxdim, requests.contains(vsn));
 }
@@ -342,7 +345,10 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
            */
     mustCache << version;
     requests[version] |= desired;
-    readyToLoad << version;
+    if (readyToLoad.contains(version))
+      rtlOrder.removeAll(version); // we'll push to front
+    else
+      readyToLoad.insert(version);
     rtlOrder.push_front(version);
     activateBank();
   }

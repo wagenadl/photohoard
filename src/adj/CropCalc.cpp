@@ -47,7 +47,9 @@ double CropCalc::flipIfNeeded(double a) const {
 }
 
 void CropCalc::setOrient(Orient o) {
+  auto m = mode;
   setAspect(rect.width() / rect.height(), o);
+  mode = m;
 }
 
 void CropCalc::setFixedAspect() {

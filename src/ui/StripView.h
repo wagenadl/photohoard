@@ -6,14 +6,14 @@
 
 #include <QGraphicsView>
 #include "Strip.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "ColorLabelBar.h"
 #include "Action.h"
 
 class StripView: public QGraphicsView {
   Q_OBJECT;
 public:
-  StripView(PhotoDB *db, QWidget *parent=0);
+  StripView(SessionDB *db, QWidget *parent=0);
   virtual ~StripView();
   class StripScene *scene();
   class Datestrip const *strip() const;
@@ -44,16 +44,21 @@ protected:
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void enterEvent(QEvent *) override;
+  virtual void mousePressEvent(QMouseEvent *) override;
+  virtual void dragEnterEvent(QDragEnterEvent *) override;
+  virtual void dragMoveEvent(QDragMoveEvent *) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *) override;
+  virtual void dropEvent(QDropEvent *) override;
 protected slots:
   void stripResized();
 protected:
   void setScrollbarPolicies();
   void recalcSizes();
-  quint64 current();
   void placeAndConnect(class Strip *strip);
   void makeActions();
+  void startDragScroll(QPoint p0);
 private:
-  PhotoDB *db;
+  SessionDB *db;
   bool useFolders;
   class StripScene *dateScene, *folderScene;
   class Datestrip *dateStrip, *folderStrip;

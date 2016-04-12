@@ -5,7 +5,7 @@
 #define STRIP_H
 
 #include <QGraphicsObject>
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include <QDateTime>
 #include "Image16.h"
 
@@ -32,7 +32,7 @@ public:
     ByFolder,
   };
 public:
-  Strip(PhotoDB *db, QGraphicsItem *parent);
+  Strip(SessionDB *db, QGraphicsItem *parent);
   virtual ~Strip();
   QDateTime startDateTime() const;
   QDateTime endDateTime() const;
@@ -47,7 +47,7 @@ public:
   virtual Strip *stripByDate(QDateTime t0);
   virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
-  PhotoDB *database() { return db; }
+  SessionDB *database() { return db; }
   virtual quint64 versionLeftOf(quint64 vsn); // returns 0 if not found
   virtual quint64 versionRightOf(quint64 vsn);
   virtual quint64 versionAbove(quint64 vsn);
@@ -122,7 +122,7 @@ protected:
   void toggleSelection();
   static QPixmap const &dashPattern(QColor);
 protected:
-  PhotoDB *db;
+  SessionDB *db;
   Organization org;
   QDateTime d0;
   TimeScale scl;

@@ -1,11 +1,11 @@
 // Filter.cpp
 
 #include "Filter.h"
-#include "PhotoDB.h"
+#include "SessionDB.h"
 #include "Tags.h"
 #include "PDebug.h"
 
-Filter::Filter(PhotoDB *db): db(db) {
+Filter::Filter(SessionDB *db): db(db) {
   reset();
 }
 
@@ -18,7 +18,7 @@ void Filter::reset() {
   minstars = 0;
   maxstars = 5;
   hasstatus = true;
-  statusaccepted = statusunset = true;
+  statusaccepted = statusunset = statusnew = true;
   statusrejected = false;
   hascamera = false;
   cameramake = cameramodel = cameralens = "";
@@ -63,11 +63,12 @@ void Filter::unsetStarRating() {
   hasstarrating = false;
 }
 
-void Filter::setStatus(bool accepted, bool unset, bool rejected) {
+void Filter::setStatus(bool accepted, bool unset, bool rejected, bool newi) {
   hasstatus = true;
   statusaccepted = accepted;
   statusunset = unset;
   statusrejected = rejected;
+  statusnew = newi;
 }
 
 void Filter::unsetStatus() {
@@ -196,14 +197,16 @@ QString Filter::starRatingClause() const {
 }
 
 QString Filter::statusClause() const {
-  if (statusaccepted || statusunset || statusrejected) {
+  if (statusaccepted || statusunset || statusrejected || statusnew) {
     QStringList vv;
     if (statusaccepted)
-      vv << "1";
+      vv << QString::number(int(PhotoDB::AcceptReject::Accept));
     if (statusunset)
-      vv << "0";
+      vv << QString::number(int(PhotoDB::AcceptReject::Undecided));
     if (statusrejected)
-      vv << "-1";
+      vv << QString::number(int(PhotoDB::AcceptReject::Reject));
+    if (statusnew)
+      vv << QString::number(int(PhotoDB::AcceptReject::NewImport));
     return "acceptreject in ( " + vv.join(", ") + " )";
   } else {
     return "0>1";
@@ -341,6 +344,7 @@ void Filter::saveToDb() const {
   db->query(q, "s_acc", statusaccepted);
   db->query(q, "s_rej", statusrejected);
   db->query(q, "s_uns", statusunset);
+  db->query(q, "s_new", statusnew);
   db->query(q, "hascam", hascamera);
   db->query(q, "cammake", cameramake);
   db->query(q, "cammodel", cameramodel);
@@ -377,13 +381,15 @@ void Filter::loadFromDb() {
     else if (k=="maxsr")
       maxstars = v.toInt();
     else if (k=="hasst")
-      hasstatus = v.toInt();
+      hasstatus = v.toBool();
     else if (k=="s_acc")
-      statusaccepted = v.toInt();
+      statusaccepted = v.toBool();
     else if (k=="s_uns")
-      statusunset = v.toInt();
+      statusunset = v.toBool();
     else if (k=="s_rej")
-      statusrejected = v.toInt();
+      statusrejected = v.toBool();
+    else if (k=="s_new")
+      statusnew = v.toBool();
     else if (k=="hascam")
       hascamera = v.toBool();
     else if (k=="cammake")

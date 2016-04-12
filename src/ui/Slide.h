@@ -15,6 +15,7 @@ public:
   virtual ~Slide();
   quint64 version() const { return id; }
   void makeReady();
+  void reload();
   void updateImage(Image16 const &img, bool chgd);
   void quickRotate(int dphi);
   void setTileSize(int pix);

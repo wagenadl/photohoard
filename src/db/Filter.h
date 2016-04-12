@@ -13,7 +13,7 @@ inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 
 class Filter {
 public:
-  Filter(PhotoDB *);
+  Filter(class SessionDB *);
   void reset();
   bool isTrivial() const;
   void saveToDb() const;
@@ -36,12 +36,13 @@ public:
   int minStarRating() const { return minstars; }
   int maxStarRating() const { return maxstars; }
   // STATUS
-  void setStatus(bool accepted, bool unset, bool rejected);
+  void setStatus(bool accepted, bool unset, bool rejected, bool newi);
   void unsetStatus();
   bool hasStatus() const { return hasstatus; }
   bool statusAccepted() const { return statusaccepted; }
   bool statusRejected() const { return statusrejected; }
   bool statusUnset() const { return statusunset; }
+  bool statusNewImport() const { return statusnew; }
   // CAMERA
   void setCamera(QString make, QString model, QString lens);
   void unsetCamera();
@@ -79,7 +80,7 @@ public:
   QString fileLocationClause() const;
   QString tagsClause() const;
 private:
-  PhotoDB *db;
+  class SessionDB *db;
   bool hascollection;
   QString collection_;
   bool hascolorlabels;
@@ -87,7 +88,7 @@ private:
   bool hasstarrating;
   int minstars, maxstars;
   bool hasstatus;
-  bool statusaccepted, statusunset, statusrejected;
+  bool statusaccepted, statusunset, statusrejected, statusnew;
   bool hascamera;
   QString cameramake, cameramodel, cameralens;
   bool hasdaterange;

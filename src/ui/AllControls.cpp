@@ -5,15 +5,19 @@
 #include "ControlSliders.h"
 #include "CropControls.h"
 
-AllControls::AllControls(QWidget *parent): QTabWidget(parent) {
-  sliders = new ControlSliders();
+AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
+  sliders = new ControlSliders(ro);
   addTab(sliders, QIcon(":/icons/sliders.svg"), "Sliders");
   connect(sliders, SIGNAL(valueChanged(QString, double)),
 	  SLOT(changeFromSliders(QString, double)));
-  cropper = new CropControls();
-  addTab(cropper, QIcon(":/icons/crop.svg"), "Crop");
-  connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
-	  SLOT(changeFromCropper(QRect, QSize)));
+  if (ro) {
+    cropper = 0;
+  } else {
+    cropper = new CropControls();
+    addTab(cropper, QIcon(":/icons/crop.svg"), "Crop");
+    connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
+	    SLOT(changeFromCropper(QRect, QSize)));
+  }
 }
 
 AllControls::~AllControls() {
@@ -25,12 +29,14 @@ Adjustments const &AllControls::getAll() const {
 
 void AllControls::setAll(Adjustments const &a, QSize origsize) {
   sliders->setAll(a);
-  cropper->setAll(a, origsize);
+  if (cropper)
+    cropper->setAll(a, origsize);
 }
 
 void AllControls::changeFromSliders(QString adjuster, double value) {
   emit valueChanged(adjuster, value);
-  cropper->setValue(adjuster, value);
+  if (cropper)
+    cropper->setValue(adjuster, value);
 }
 
 void AllControls::changeFromCropper(QRect croprect, QSize osize) {

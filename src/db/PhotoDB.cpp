@@ -8,27 +8,14 @@
 #include <QDir>
 #include "Adjustments.h"
 
-void PhotoDB::open(QString fn) {
-  Database::open(fn);
+PhotoDB::PhotoDB(QString id): Database(id) {
+  ro = false;
+}
 
-  QSqlQuery q = query("select id, version from info limit 1");
-  ASSERT(q.next());
-  
-  query("pragma synchronous = 0");
-  query("pragma foreign_keys = on");
-
-  q = query("select id, stdext from filetypes");
+void PhotoDB::readFTypes() const {
+  QSqlQuery q = constQuery("select id, stdext from filetypes");
   while (q.next()) 
     ftypes[q.value(0).toInt()] = q.value(1).toString();
-
-  query("attach database ':memory:' as M");
-  query("create table if not exists M.filter"
-        " ( version integer, "
-        "   photo integer )");
-  query("create index if not exists M.photoidx on filter(photo)");
-  
-  query("create table if not exists M.selection"
-        " ( version integer unique on conflict ignore )");
 }
 
 void PhotoDB::clone(PhotoDB const &src) {
@@ -38,6 +25,7 @@ void PhotoDB::clone(PhotoDB const &src) {
   query("pragma foreign_keys = on");
 
   ftypes = src.ftypes;
+  ro = src.ro;
 }
 
 void PhotoDB::create(QString fn) {
@@ -57,14 +45,26 @@ void PhotoDB::create(QString fn) {
   SqlFile sql(":/setupdb.sql");
   {
     Transaction t(&db);
+
     for (auto c: sql) 
       db.query(c);
+
+    QString cachefn = fn;
+    if (fn.endsWith(".db"))
+      fn.replace(".db", ".cache");
+    else
+      fn += ".cache";
+    db.query("insert into cachefn values (:a)", cachefn);
+
     t.commit();
   }
+    
   db.close();
 }
 
 QString PhotoDB::ftype(int ft) const {
+  if (ftypes.isEmpty())
+    readFTypes();
   return ftypes[ft];
 }
 
@@ -157,11 +157,19 @@ QString PhotoDB::lensAlias(int id) const {
 
 void PhotoDB::setCameraAlias(int id, QString alias) {
   cameraAliases[id] = alias;
+  if (ro) {
+    COMPLAIN("Setting a camera alias in read-only mode is not permanent");
+    return;
+  }
   query("update cameras set alias=:a where id==:b", alias, id);
 }
 
 void PhotoDB::setLensAlias(int id, QString alias) {
   lensAliases[id] = alias;
+  if (ro) {
+    COMPLAIN("Setting a lens alias in read-only mode is not permanent");
+    return;
+  }
   query("update lenses set alias=:a where id==:b", alias, id);
 }
 
@@ -205,6 +213,10 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
 
 void PhotoDB::addUndoStep(quint64 versionid, QString key,
                           QVariant oldvalue, QVariant newvalue) {
+  if (ro) {
+    COMPLAIN("Cannot add undo step in read only mode");
+    return;
+  }
   QDateTime now = QDateTime::currentDateTime();
   query("delete from undo where version==:a and undone==1", versionid);
   QSqlQuery q = query("select stepid, version,"
@@ -241,6 +253,10 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
 }
 
 void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
+  if (ro) {
+    COMPLAIN("Cannot set color label in read only mode");
+    return;
+  }
   QVariant old = simpleQuery("select colorlabel from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".colorlabel", old, int(label));
@@ -249,6 +265,10 @@ void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
 }
 
 void PhotoDB::setStarRating(quint64 versionid, int stars) {
+  if (ro) {
+    COMPLAIN("Cannot set star rating in read only mode");
+    return;
+  }
   QVariant old = simpleQuery("select starrating from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".starrating", old, stars);
@@ -257,6 +277,10 @@ void PhotoDB::setStarRating(quint64 versionid, int stars) {
 }
   
 void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
+  if (ro) {
+    COMPLAIN("Cannot set accept/reject in read only mode");
+    return;
+  }
   QVariant old = simpleQuery("select acceptreject from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".acceptreject", old, int(label));
@@ -423,6 +447,10 @@ quint64 PhotoDB::firstVersionInTree(QString folder) const {
 }
 
 quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
+  if (ro) {
+    COMPLAIN("Cannot create new version in read only mode");
+    return 0;
+  }
   VersionRecord vr = versionRecord(vsn);
   Transaction t(this);
 
@@ -441,17 +469,6 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
   
   t.commit();
   return v1;
-}
-
-void PhotoDB::setCurrent(quint64 vsn) {
-  if (vsn>0)
-    query("update current set version=:a", vsn);
-  else
-    query("update current set version=null");
-}
-
-quint64 PhotoDB::current() const {
-  return simpleQuery("select version from current").toULongLong();
 }
   
 PSize PhotoDB::originalSize(quint64 vsn) const {
@@ -477,11 +494,20 @@ bool PhotoDB::hasSiblings(quint64 vsn) {
   return n>1;
 }
 
-bool PhotoDB::deleteVersion(quint64 vsn) {
-  if (!hasSiblings(vsn))
-    return false;
-  query("delete from versions where version==:a", vsn);
-  return true;
+void PhotoDB::deleteVersion(quint64 vsn) {
+  if (ro) {
+    COMPLAIN("Cannot delete version in read only mode");
+    return;
+  }
+  query("delete from versions where id==:a", vsn);
+}
+
+void PhotoDB::deletePhoto(quint64 vsn) {
+  if (ro) {
+    COMPLAIN("Cannot delete photo in read only mode");
+    return;
+  }
+  query("delete from photos where id==:a", vsn);
 }
 
 QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
@@ -490,4 +516,16 @@ QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
   while (q.next())
     res.insert(q.value(0).toULongLong());
   return res;
+}
+
+QString PhotoDB::cacheFilename() const {
+  return simpleQuery("select fn from cachefn").toString();
+}
+
+bool PhotoDB::isReadOnly() const {
+  return ro;
+}
+
+void PhotoDB::setReadOnly() {
+  ro = true;
 }

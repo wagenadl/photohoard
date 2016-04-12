@@ -9,7 +9,7 @@
 class AppliedTagWidget: public QFrame {
   Q_OBJECT;
 public:
-  AppliedTagWidget(int id, QString name, QWidget *parent=0);
+  AppliedTagWidget(int id, QString name, bool ro, QWidget *parent=0);
   virtual ~AppliedTagWidget() { }
   virtual QSize sizeHint() const override;
   virtual QSize minimumSizeHint() const override;
@@ -32,6 +32,7 @@ private:
   QString name;
   bool mouseover;
   bool inall, incur;
+  bool ro;
 };
 
 #endif
