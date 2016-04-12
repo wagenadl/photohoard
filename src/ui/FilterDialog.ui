@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>743</width>
-    <height>707</height>
+    <width>901</width>
+    <height>818</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,7 +60,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="collection">
+          <widget class="OverGroupBox" name="collection">
            <property name="title">
             <string>Collection</string>
            </property>
@@ -106,7 +106,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="dateRange">
+          <widget class="OverGroupBox" name="dateRange">
            <property name="title">
             <string>Date range</string>
            </property>
@@ -191,7 +191,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="fileLocation">
+          <widget class="OverGroupBox" name="fileLocation">
            <property name="title">
             <string>File location</string>
            </property>
@@ -249,7 +249,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="colorLabel">
+          <widget class="OverGroupBox" name="colorLabel">
            <property name="title">
             <string>Color label</string>
            </property>
@@ -332,7 +332,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="starRating">
+          <widget class="OverGroupBox" name="starRating">
            <property name="title">
             <string>Star rating</string>
            </property>
@@ -435,7 +435,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="status">
+          <widget class="OverGroupBox" name="status">
            <property name="title">
             <string>Status</string>
            </property>
@@ -493,7 +493,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="camera">
+          <widget class="OverGroupBox" name="camera">
            <property name="title">
             <string>Camera</string>
            </property>
@@ -619,7 +619,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="tags">
+          <widget class="OverGroupBox" name="tags">
            <property name="title">
             <string>Tags</string>
            </property>
@@ -792,6 +792,14 @@
   <zorder>widget_3</zorder>
   <zorder>widget_10</zorder>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>OverGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>OverGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
