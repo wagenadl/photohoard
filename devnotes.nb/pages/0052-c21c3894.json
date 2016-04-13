@@ -1,0 +1,74 @@
+{ "typ": "page",
+  "cre": "2016-04-09T10:20:54",
+  "mod": "2016-04-09T10:27:49",
+  "cui": "f292520f91113ab8",
+  "stampTime": 0,
+  "startPage": 52,
+  "unlocked": false,
+  "uuid": "c21c3894",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-04-09T10:20:54",
+      "mod": "2016-04-09T10:20:54",
+      "uuid": "0e0ecf37"
+    },
+    { "typ": "title",
+      "cre": "2016-04-09T10:20:54",
+      "mod": "2016-04-09T10:21:04",
+      "uuid": "c90bc486",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:20:54",
+          "mod": "2016-04-09T10:21:04",
+          "lines": [
+            0
+          ],
+          "text": "Proposed improvement for Filter dialog",
+          "uuid": "2c4cceb3"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:21:05",
+      "mod": "2016-04-09T10:27:49",
+      "h": 281.992,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "eb44a13c",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:21:05",
+          "mod": "2016-04-09T10:27:49",
+          "lines": [
+            0,
+            60,
+            121,
+            178,
+            242,
+            307,
+            367,
+            427,
+            481,
+            536,
+            581,
+            639
+          ],
+          "text": "The elements inside each group box should not be “disabled” when the group box is unchecked. Rather, the group box shoud be shaded to indicate that the elements do not currently affect the filter, but they should be clickable. A click should check the group box as well as have the intended local effect. I will implement this by subclassing QGroupBox and completely overriding the mousePressEvents and paintEvents and various other methods, so that the checked() mechanism can be effectively decoupled from the enabled() status of the children. In the mousePressEvent, I will use QApplication::sendEvent to send the mouse press on to the previously disabled child.",
+          "uuid": "b9ce0db9",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T10:22:01",
+              "mod": "2016-04-09T10:22:01",
+              "end": 212,
+              "start": 206,
+              "style": 1,
+              "uuid": "752a5f9c"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

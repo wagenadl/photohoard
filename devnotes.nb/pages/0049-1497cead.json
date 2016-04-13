@@ -1,0 +1,266 @@
+{ "typ": "page",
+  "cre": "2016-04-09T09:57:53",
+  "mod": "2016-04-09T10:06:06",
+  "cui": "f292520f91113ab8",
+  "stampTime": 0,
+  "startPage": 49,
+  "unlocked": false,
+  "uuid": "1497cead",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-04-09T09:57:53",
+      "mod": "2016-04-09T09:57:53",
+      "uuid": "53a5a6e3"
+    },
+    { "typ": "title",
+      "cre": "2016-04-09T09:57:53",
+      "mod": "2016-04-09T09:57:57",
+      "uuid": "61294c65",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T09:57:53",
+          "mod": "2016-04-09T09:57:57",
+          "lines": [
+            0
+          ],
+          "text": "Logic for drag in",
+          "uuid": "ddb139e6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T09:57:58",
+      "mod": "2016-04-09T09:58:09",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "758e4c2e",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T09:57:58",
+          "mod": "2016-04-09T09:58:09",
+          "lines": [
+            0
+          ],
+          "text": "When an image file is dragged in from a folder:",
+          "uuid": "1621265c",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T09:58:02",
+              "mod": "2016-04-09T09:58:02",
+              "end": 18,
+              "start": 14,
+              "style": 1,
+              "uuid": "8c7e0ba9"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T09:58:15",
+      "mod": "2016-04-09T09:59:53",
+      "h": 54.787,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4eee4a93",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T09:58:15",
+          "mod": "2016-04-09T09:59:53",
+          "lines": [
+            0,
+            67,
+            108
+          ],
+          "text": "* If the source is /media/… or /tmp/…, the default action is copy.\n* Otherwise, the default action is link.\n* In all cases, defaults can be overridden, and move is also an option.",
+          "uuid": "45074b6a",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T09:58:34",
+              "mod": "2016-04-09T09:58:34",
+              "end": 65,
+              "start": 61,
+              "style": 2,
+              "uuid": "60bb1dec"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T09:58:56",
+              "mod": "2016-04-09T09:58:56",
+              "end": 106,
+              "start": 102,
+              "style": 2,
+              "uuid": "21fafbb1"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T09:59:30",
+              "mod": "2016-04-09T09:59:30",
+              "end": 160,
+              "start": 156,
+              "style": 2,
+              "uuid": "a0a23974"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T09:59:54",
+      "mod": "2016-04-09T10:01:29",
+      "h": 119.83,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e04de3c4",
+      "y0": 153.953,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T09:59:54",
+          "mod": "2016-04-09T10:01:29",
+          "lines": [
+            0,
+            61,
+            120,
+            174,
+            238
+          ],
+          "text": "The drop site determines where a file is copied or moved to: scanning up from the drop site through the folder tree, we look for the topmost folder that has the same default collection. In there, we create a subfolder “photohoard-dropin” (unless it already exists) and place the image file there.",
+          "uuid": "19b9bc16",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T10:00:02",
+              "mod": "2016-04-09T10:00:02",
+              "end": 30,
+              "start": 25,
+              "style": 1,
+              "uuid": "573cfd32"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:56",
+              "mod": "2016-04-09T10:05:56",
+              "end": 47,
+              "start": 41,
+              "style": 2,
+              "uuid": "88bf6977"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:57",
+              "mod": "2016-04-09T10:05:57",
+              "end": 56,
+              "start": 51,
+              "style": 2,
+              "uuid": "5e9795d0"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:01:29",
+      "mod": "2016-04-09T10:05:07",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c5df05f7",
+      "y0": 273.783,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:01:29",
+          "mod": "2016-04-09T10:05:07",
+          "lines": [
+            0,
+            55,
+            118,
+            180,
+            243,
+            307,
+            373,
+            431
+          ],
+          "text": "For linking, a photo is created without a real folder; leafname will simply be its full path. I will need to put in a “fake” folder in folders, because photos.folder has a foreign key constraint, and that is a good thing. That fake folder can simply be “/”. Actually, that is not true. Folders.parentfolder also has a foreign key constraint (to folders.id), but for “root” folders, it is null. So that’s what we could do for these singleton photos.",
+          "uuid": "4ddc99e4",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T10:02:44",
+              "mod": "2016-04-09T10:02:44",
+              "end": 142,
+              "start": 135,
+              "style": 2,
+              "uuid": "c540b537"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:53",
+              "mod": "2016-04-09T10:05:53",
+              "end": 11,
+              "start": 4,
+              "style": 2,
+              "uuid": "c9ed1451"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:05:10",
+      "mod": "2016-04-09T10:06:06",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0b25b9e0",
+      "y0": 463.111,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:05:10",
+          "mod": "2016-04-09T10:06:06",
+          "lines": [
+            0,
+            61,
+            121
+          ],
+          "text": "When a folder is dragged in from a folder, link means to add the folder as a new root, while copy and move semantics are as for single image files.",
+          "uuid": "e15b1c86",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:13",
+              "mod": "2016-04-09T10:05:13",
+              "end": 13,
+              "start": 7,
+              "style": 1,
+              "uuid": "10c1ad5f"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:30",
+              "mod": "2016-04-09T10:05:30",
+              "end": 47,
+              "start": 43,
+              "style": 2,
+              "uuid": "43d21cc1"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:40",
+              "mod": "2016-04-09T10:05:40",
+              "end": 97,
+              "start": 93,
+              "style": 2,
+              "uuid": "35c85faa"
+            },
+            { "typ": "markup",
+              "cre": "2016-04-09T10:05:42",
+              "mod": "2016-04-09T10:05:42",
+              "end": 106,
+              "start": 102,
+              "style": 2,
+              "uuid": "40426f88"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{ "typ": "page",
+  "cre": "2016-04-09T10:07:49",
+  "mod": "2016-04-09T10:20:53",
+  "cui": "f292520f91113ab8",
+  "stampTime": 0,
+  "startPage": 50,
+  "unlocked": false,
+  "uuid": "060387cc",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-04-09T10:07:49",
+      "mod": "2016-04-09T10:15:16",
+      "uuid": "9b71ff6a",
+      "cc": [
+        { "typ": "res",
+          "cre": "2016-04-09T10:15:16",
+          "mod": "2016-04-09T10:15:16",
+          "archive": "1_-63305d5b.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "1",
+          "title": "",
+          "uuid": "63305d5b"
+        }
+      ]
+    },
+    { "typ": "title",
+      "cre": "2016-04-09T10:07:49",
+      "mod": "2016-04-09T10:07:54",
+      "uuid": "c9dbb82b",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:07:49",
+          "mod": "2016-04-09T10:07:54",
+          "lines": [
+            0
+          ],
+          "text": "Logic for drag out",
+          "uuid": "374c1636"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:07:55",
+      "mod": "2016-04-09T10:08:47",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "625f5e86",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:07:55",
+          "mod": "2016-04-09T10:08:47",
+          "lines": [
+            0,
+            63,
+            128
+          ],
+          "text": "In Qt, I have to have the data for a draggable object ready at the time of start-of-drag. This is not true in Gtk, but I am not willing to pull in Gtk libraries just for that one feature.",
+          "uuid": "05274ffd"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:08:47",
+      "mod": "2016-04-09T10:09:03",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "9840aba6",
+      "y0": 145.498,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:08:47",
+          "mod": "2016-04-09T10:09:03",
+          "lines": [
+            0,
+            63
+          ],
+          "text": "So, I’ll treat single-image drags differently from multi-image drags.",
+          "uuid": "0d71eab5"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:09:04",
+      "mod": "2016-04-09T10:13:40",
+      "h": 305.158,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c7e4d065",
+      "y0": 195.83,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:09:04",
+          "mod": "2016-04-09T10:13:40",
+          "lines": [
+            0,
+            57,
+            117,
+            176,
+            234,
+            298,
+            355,
+            412,
+            468,
+            529,
+            593,
+            658,
+            720
+          ],
+          "text": "For a single image drag, the QDrag gets initiated when a MouseMoveEvent indicates that the pointer leaves the source widget. A URL target is setup that points to /tmp/xxx.jpg, where xxx is the leafname of the photo. Another target is setup with type “photohoard/versionid”. At this point, we start copying the file to its URL as a background process. The toplevel widget monitors dragenter/move/leave events, so that when a drag that contains a “photohoard/versionid” target leaves the main window, we can wait on the background process to complete. That way, it is impossible to drop the URL on an external window before the file is actually ready. (If the target is dropped inside photohoard, we simply abort the copy and delete the temp file.)",
+          "uuid": "50cfbd1d",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-04-09T10:12:30",
+              "mod": "2016-04-09T10:12:30",
+              "end": 481,
+              "start": 475,
+              "style": 1,
+              "uuid": "6c5533a3"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:14:03",
+      "mod": "2016-04-09T10:14:34",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "aae5f8a4",
+      "y0": 500.988,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:14:03",
+          "mod": "2016-04-09T10:14:34",
+          "lines": [
+            0,
+            61,
+            124
+          ],
+          "text": "If multiple images are selected, only the “current” image is copied in the above fashion, and a dialog box pops up once the drag is complete:",
+          "uuid": "2cfa646e"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2016-04-09T10:15:16",
+      "mod": "2016-04-09T10:20:41",
+      "h": 361.108,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "4e118c48",
+      "xref": 0.0,
+      "y0": 72.0,
+      "yref": -9.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2016-04-09T10:15:16",
+          "mod": "2016-04-09T10:20:41",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 496.0,
+          "res": [
+            "1"
+          ],
+          "resName": "1",
+          "scale": 0.691749,
+          "uuid": "be9a1521",
+          "width": 428.0,
+          "x": 0.0,
+          "y": 0.0
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-09T10:20:53",
+      "mod": "2016-04-09T10:20:53",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "7d36e8ed",
+      "y0": 433.108,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-09T10:20:53",
+          "mod": "2016-04-09T10:20:53",
+          "text": "",
+          "uuid": "7d03eed9"
+        }
+      ]
+    }
+  ]
+}
