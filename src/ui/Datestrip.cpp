@@ -124,6 +124,8 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
                                   Qt::KeyboardModifiers)),
           this, SIGNAL(doubleClicked(quint64, Qt::MouseButton,
                                      Qt::KeyboardModifiers)));
+  connect(s, SIGNAL(dragStarted(quint64)),
+          this, SIGNAL(dragStarted(quint64)));
 
   s->setArrangement(arr);
   s->setTileSize(tilesize);

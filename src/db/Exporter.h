@@ -22,12 +22,14 @@ public:
     QSet<quint64> todo;
     QSet<quint64> completed;
     QSet<quint64> failed;
+    QMap<quint64, QString> fnoverride;
   };
 public:
   Exporter(SessionDB *db, QObject *parent=0);
   void setup(ExportSettings const &);
   void addSelection();
   void add(QSet<quint64> const &vsns);
+  void add(quint64 vsn, QString ofn);
   void start();
   void stop();
   virtual ~Exporter();
@@ -37,7 +39,8 @@ signals:
 protected:
   virtual void run();
 private:
-  bool doExport(quint64 vsn, ExportSettings const &settings);
+  bool doExport(quint64 vsn, ExportSettings const &settings,
+                QString ovr=QString());
 private:
   SessionDB *db0; // calling thread
   QMutex mutex;

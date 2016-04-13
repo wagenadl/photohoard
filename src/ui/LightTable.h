@@ -40,6 +40,7 @@ public slots:
   void increaseTileSize(double factor);
   void updateSelectedTiles();
   void reloadVersion(quint64 vsn);
+  void ensureDragExportComplete();
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);
@@ -53,6 +54,7 @@ private slots:
   void updateAdjusted(Image16, quint64);
   void applyFilterFromDialog();
   void resizeStrip();
+  void startDrag(quint64);
 private:
   void makeActions();
 protected:
@@ -80,6 +82,7 @@ protected:
   int tilesize;
   int lastgridsize;
   Actions acts;
+  class DragOut *dragout;
 };
 
 #endif

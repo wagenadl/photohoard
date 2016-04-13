@@ -61,6 +61,19 @@ void Exporter::add(QSet<quint64> const &vsns) {
     cond.wakeOne();
 }
 
+void Exporter::add(quint64 vsn, QString ofn) {
+  QMutexLocker l(&mutex);
+  if (jobs.isEmpty()) {
+    jobs << Job();
+    jobs.last().settings = settings;
+  }
+  bool wasEmpty = jobs.last().todo.isEmpty();
+  jobs.last().todo << vsn;
+  jobs.last().fnoverride[vsn] = ofn;
+  if (wasEmpty)
+    cond.wakeOne();
+}
+
 void Exporter::start() {
   stopsoon = false;
   if (!isRunning())
@@ -88,7 +101,9 @@ void Exporter::run() {
 
       quint64 vsn = *job.todo.begin();
       mutex.unlock();
-      bool ok = doExport(vsn, job.settings);
+      QString ovr = job.fnoverride.contains(vsn)
+        ? job.fnoverride[vsn] : QString();
+      bool ok = doExport(vsn, job.settings, ovr);
       mutex.lock();
 
       if (ok)
@@ -114,7 +129,8 @@ void Exporter::run() {
   mutex.unlock();
 }
 
-bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
+bool Exporter::doExport(quint64 vsn, ExportSettings const &settings,
+                        QString fnoverride) {
   PhotoDB::VersionRecord vrec = db.versionRecord(vsn);
   PhotoDB::PhotoRecord prec = db.photoRecord(vrec.photo);
   Adjustments adjs = Adjustments::fromDB(vsn, db);
@@ -145,8 +161,8 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
       if (img.width() > settings.maxdim)
         img = img.scaledToWidth(settings.maxdim);
     } else {
-    if (img.height() > settings.maxdim)
-      img = img.scaledToHeight(settings.maxdim);
+      if (img.height() > settings.maxdim)
+        img = img.scaledToHeight(settings.maxdim);
     }      
     break;
   case ExportSettings::ResolutionMode::Scale:
@@ -156,28 +172,32 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings) {
   }
 
   QString ofn;
-  switch (settings.namingScheme) {
-  case ExportSettings::NamingScheme::Original:
-    ofn = prec.filename;
-    if (ofn.contains("."))
-      ofn = ofn.left(ofn.lastIndexOf("."));
-    break;
-  case ExportSettings::NamingScheme::DateTime:
-    ofn = prec.capturedate.toString("yyMMdd-hhmmss");
-    break;
-  case ExportSettings::NamingScheme::DateTimeDSC: {
-    ofn = prec.capturedate.toString("yyMMdd-hhmmss");
-    QRegExp dd("(\\d+)");
-    if (dd.indexIn(prec.filename)>=0)
-      ofn += "-" + dd.cap(1);
-    else
-      ofn += "_" + QString::number(vsn);
-  } break;
+  if (fnoverride.isEmpty()) {
+    switch (settings.namingScheme) {
+    case ExportSettings::NamingScheme::Original:
+      ofn = prec.filename;
+      if (ofn.contains("."))
+        ofn = ofn.left(ofn.lastIndexOf("."));
+      break;
+    case ExportSettings::NamingScheme::DateTime:
+      ofn = prec.capturedate.toString("yyMMdd-hhmmss");
+      break;
+    case ExportSettings::NamingScheme::DateTimeDSC: {
+      ofn = prec.capturedate.toString("yyMMdd-hhmmss");
+      QRegExp dd("(\\d+)");
+      if (dd.indexIn(prec.filename)>=0)
+        ofn += "-" + dd.cap(1);
+      else
+        ofn += "_" + QString::number(vsn);
+    } break;
+    }
+    ofn = settings.destination + "/" + ofn + "." + settings.extension();
+  } else {
+    ofn = fnoverride;
   }
 
-  QDir root(QDir::root());
+  //  QDir root(QDir::root());
   
-  ofn = settings.destination + "/" + ofn + "." + settings.extension();
 
   if (settings.fileFormat == ExportSettings::FileFormat::JPEG)
     return img.toQImage().save(ofn, 0, settings.jpegQuality);

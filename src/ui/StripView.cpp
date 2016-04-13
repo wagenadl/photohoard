@@ -101,6 +101,8 @@ void StripView::placeAndConnect(Strip *strip) {
 	  this,
           SIGNAL(doubleClicked(quint64,
                                Qt::MouseButton, Qt::KeyboardModifiers)));
+  connect(strip, SIGNAL(dragStarted(quint64)),
+          this, SIGNAL(dragStarted(quint64)));
 }
 
 StripView::~StripView() {
