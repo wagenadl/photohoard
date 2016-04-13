@@ -25,6 +25,10 @@ public slots:
   void setStatusMessage(QString msg);
 protected:
   virtual void closeEvent(QCloseEvent *) override;
+  virtual void dragEnterEvent(QDragEnterEvent *) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *) override;
+  virtual void dragMoveEvent(QDragMoveEvent *) override;
+  virtual void dropEvent(QDropEvent *) override;
 private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
   void reloadVersion(quint64 vsn);
@@ -45,6 +49,8 @@ private:
   class AppliedTagList *tagList;
   class StatusBar *statusBar;
   class ShortcutHelp *shortcutHelp;
+private:
+  bool dragout;
 };
 
 

@@ -61,6 +61,10 @@ void Slidestrip::paint(QPainter *painter,
   instantiate();
 }
 
+void Slidestrip::startDrag(quint64 id) {
+  emit dragStarted(id);
+}
+
 void Slidestrip::slidePressed(quint64 id,
                               Qt::MouseButton b, Qt::KeyboardModifiers m) {
   emit pressed(id, b, m);

@@ -13,6 +13,8 @@
 #include "FilterDialog.h"
 #include <QKeyEvent>
 #include "PurgeDialog.h"
+#include <QUrl>
+#include "DragOut.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, QWidget *parent):
@@ -32,6 +34,7 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
     db->query("insert into starting values(1)");
   }
 
+  dragout = 0;
   filterDialog = new FilterDialog(db);
   populateFilterFromDialog();
 
@@ -56,6 +59,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
                                 Qt::MouseButton, Qt::KeyboardModifiers)));
   connect(strips, SIGNAL(needImage(quint64, QSize)),
 	  this, SIGNAL(needImage(quint64, QSize)));
+  connect(strips, SIGNAL(dragStarted(quint64)),
+          this, SLOT(startDrag(quint64)));
   connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
   connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
@@ -630,4 +635,49 @@ void LightTable::reloadVersion(quint64 vsn) {
   Slide *slide = strips->strip()->slideByVersion(vsn);
   if (slide)
     slide->reload();
+}
+
+void LightTable::startDrag(quint64 id) {
+  qDebug() << "Start drag for " << id;
+
+  PhotoDB::PhotoRecord pr = db->photoRecord(db->photoFromVersion(id));
+  QString fn = pr.filename;
+  qDebug() << "  fn = " << fn;
+  if (fn.isEmpty()) {
+    COMPLAIN("fn is empty-can't drag");
+    return;
+  }
+  fn = "/tmp/" + fn;
+
+  QDrag *drag = new QDrag(this);
+  QMimeData *data = new QMimeData;
+  QByteArray id_ar(reinterpret_cast<const char*>(&id), sizeof(id));
+  data->setData("photohoard/versionid", id_ar);
+  QList<QUrl> lst; lst << QUrl("file://" + fn);
+  data->setUrls(lst);
+
+  drag->setMimeData(data);
+  dragout = new DragOut(db, id, fn, this);
+  Qt::DropAction act = drag->exec(Qt::MoveAction);
+  qDebug() << "act = " << act;
+  if (act>0)
+    dragout->finish();
+  else
+    dragout->cancel();
+  delete dragout;
+  dragout = 0;
+
+  if (act==0)
+    return;
+
+  QSet<quint64> cursel = selection->current();
+  if (cursel.size()>1 || !cursel.contains(id)) {
+    qDebug() << "But wait! There is more";
+  }
+}
+
+void LightTable::ensureDragExportComplete() {
+  qDebug() << "ensure drag export complete";
+  if (dragout)
+    dragout->ensureComplete();
 }

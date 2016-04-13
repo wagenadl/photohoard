@@ -39,6 +39,7 @@ public: // for slide only
   void slidePressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void slideClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void slideDoubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
+  void startDrag(quint64);
 protected slots:
   virtual void relayout();
 protected:

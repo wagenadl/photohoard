@@ -7,6 +7,9 @@
 #include "PDebug.h"
 #include "StripScene.h"
 #include "CMS.h"
+#include <QApplication>
+
+bool Slide::mayStartDrag = false;
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
@@ -201,6 +204,17 @@ void Slide::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (parent)
     parent->slidePressed(id, e->button(), e->modifiers());
   e->accept();
+  mayStartDrag = e->button()==Qt::LeftButton;
+}
+
+void Slide::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
+  e->accept();
+  if (parent && mayStartDrag &&
+      (e->pos()-e->buttonDownPos(Qt::LeftButton)).manhattanLength()
+      > QApplication::startDragDistance()) {
+    parent->startDrag(id);
+    mayStartDrag = false;
+  }
 }
 
 void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {

@@ -25,6 +25,11 @@
 #include "Filter.h"
 #include "SliderClipboard.h"
 #include <QApplication>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDragLeaveEvent>
+#include <QDropEvent>
+
 
 MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -127,6 +132,9 @@ MainWindow::MainWindow(SessionDB *db,
 
   connect(fileBar->sliderClipboard(), SIGNAL(modified(quint64)),
           SLOT(reloadVersion(quint64)));
+
+  dragout = false;
+  setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow() {
@@ -183,3 +191,33 @@ void MainWindow::reloadVersion(quint64 vsn) {
 void MainWindow::closeEvent(QCloseEvent *) {
   QApplication::quit();
 }
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e) {
+  dragout = false;
+  QMimeData const *data = e->mimeData();
+  if (data->hasFormat("photohoard/versionid")) {
+    dragout = true;
+    e->accept();
+  }
+}
+
+void MainWindow::dragLeaveEvent(QDragLeaveEvent *e) {
+  if (dragout) {
+    QPoint cp = mapFromGlobal(QCursor::pos());
+    if (!rect().contains(cp))
+      lightTable->ensureDragExportComplete();
+    dragout = false;
+  }
+  e->accept();
+}
+
+void MainWindow::dragMoveEvent(QDragMoveEvent *e) {
+  QMimeData const *data = e->mimeData();
+  if (data->hasFormat("photohoard/versionid")) {
+    e->setDropAction(Qt::IgnoreAction);
+  }
+}
+
+void MainWindow::dropEvent(QDropEvent *) {
+}
+

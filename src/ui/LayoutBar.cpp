@@ -39,4 +39,14 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
   acts << Action{Qt::Key_F6, "Toggle date/folder view",
       [=]() { lighttable->setLayout(Layout::ToggleOrg); }};
   new PAction(acts.last(), QIcon(":icons/toggleOrg.svg"), this);
+
+  if (parent) {
+    acts << Action{Qt::Key_F11, "Toggle full screen",
+        [=]() { if (parent->isFullScreen())
+          parent->showNormal();
+        else
+          parent->showFullScreen();
+      }};
+    parent->addAction(new PAction(acts.last(), this));
+  }
 }

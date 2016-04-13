@@ -29,6 +29,7 @@ signals:
   void clicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void doubleClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void idealSizeChanged(); // only emitted if caused by key press
+  void dragStarted(quint64);
 public slots:
   void centerOn(QPointF);
   void toggleOrganization();
