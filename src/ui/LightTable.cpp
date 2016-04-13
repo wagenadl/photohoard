@@ -15,6 +15,7 @@
 #include "PurgeDialog.h"
 #include <QUrl>
 #include "DragOut.h"
+#include "MultiDragDialog.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, QWidget *parent):
@@ -647,23 +648,32 @@ void LightTable::startDrag(quint64 id) {
     COMPLAIN("fn is empty-can't drag");
     return;
   }
+
+  int idx = fn.lastIndexOf(".");
+  if (idx>=0)
+    fn = fn.left(idx) + ".jpg";
+  else
+    fn += ".jpg";
+  
   fn = "/tmp/" + fn;
 
-  QDrag *drag = new QDrag(this);
   QMimeData *data = new QMimeData;
   QByteArray id_ar(reinterpret_cast<const char*>(&id), sizeof(id));
-  data->setData("photohoard/versionid", id_ar);
+  data->setData("x-special/photohoard-versionid", id_ar);
   QList<QUrl> lst; lst << QUrl("file://" + fn);
   data->setUrls(lst);
 
+  QDrag *drag = new QDrag(this);
   drag->setMimeData(data);
+
   dragout = new DragOut(db, id, fn, this);
+
   Qt::DropAction act = drag->exec(Qt::MoveAction);
-  qDebug() << "act = " << act;
   if (act>0)
     dragout->finish();
   else
     dragout->cancel();
+
   delete dragout;
   dragout = 0;
 
@@ -673,6 +683,8 @@ void LightTable::startDrag(quint64 id) {
   QSet<quint64> cursel = selection->current();
   if (cursel.size()>1 || !cursel.contains(id)) {
     qDebug() << "But wait! There is more";
+    auto *d = new MultiDragDialog(db, cursel, id);
+    d->show();
   }
 }
 

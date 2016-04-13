@@ -195,7 +195,7 @@ void MainWindow::closeEvent(QCloseEvent *) {
 void MainWindow::dragEnterEvent(QDragEnterEvent *e) {
   dragout = false;
   QMimeData const *data = e->mimeData();
-  if (data->hasFormat("photohoard/versionid")) {
+  if (data->hasFormat("x-special/photohoard-versionid")) {
     dragout = true;
     e->accept();
   }
