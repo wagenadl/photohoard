@@ -136,6 +136,7 @@ MainWindow::MainWindow(SessionDB *db,
           SLOT(reloadVersion(quint64)));
 
   dragout = false;
+  dragin = false;
   setAcceptDrops(true);
 }
 
@@ -200,6 +201,13 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e) {
   if (data->hasFormat("x-special/photohoard-versionid")) {
     dragout = true;
     e->accept();
+  } else if (data->hasFormat("text/uri-list")) {
+    QList<QUrl> urls = data->urls();
+    for (auto const &url: urls)
+      if (!url.isLocalFile())
+        return;
+    dragin = true;
+    e->accept();
   }
 }
 
@@ -220,6 +228,36 @@ void MainWindow::dragMoveEvent(QDragMoveEvent *e) {
   }
 }
 
-void MainWindow::dropEvent(QDropEvent *) {
+void MainWindow::dropEvent(QDropEvent *e) {
+  if (!dragin)
+    return;
+
+  Qt::DropAction act = e->dropAction();
+  QMimeData const *data = e->mimeData();
+  QList<QUrl> urls = data->urls();
+
+  QString coll = "";
+  {
+    Filter filter(db);
+    filter.loadFromDb();
+    if (filter.hasCollection())
+      coll = filter.collection();
+  }
+  
+  qDebug() << "Drop action" << act;
+  if (coll.isEmpty())
+    qDebug() << "  Ask for drop collection!";
+  else
+    qDebug() << "  Into collection: " << coll;
+  
+  for (auto const &url: urls) {
+    ASSERT(url.isLocalFile());
+    QFileInfo fi(url.path());
+    if (fi.isDir())
+      qDebug() << "  Import folder" << fi.absoluteFilePath();
+    else
+      qDebug() << "  Import photo" << fi.absoluteFilePath();
+  }
+  dragin = false;
 }
 

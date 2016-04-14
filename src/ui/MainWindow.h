@@ -51,6 +51,7 @@ private:
   class ShortcutHelp *shortcutHelp;
 private:
   bool dragout;
+  bool dragin;
 };
 
 
