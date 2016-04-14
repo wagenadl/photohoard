@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>423</width>
-    <height>376</height>
+    <width>387</width>
+    <height>339</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,7 +44,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You dragged an image out while multiple images were selected. Only the directly dragged image (shown on right) was exported. The other #n #were not.&lt;/p&gt;&lt;p&gt;If you want to copy the other images too, you have two options:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You dragged an image out while multiple images were selected. Only the directly dragged image was exported. The other #n #were not.&lt;/p&gt;&lt;p&gt;If you want to copy the other images too, you have two options:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>
@@ -54,34 +54,6 @@
         </property>
         <property name="wordWrap">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="image">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>96</width>
-          <height>96</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>96</width>
-          <height>96</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Image</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -110,7 +82,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DropFrame" name="dropFolder">
+       <widget class="DropFrame" name="dropParentFolder">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -153,7 +125,7 @@ that folder</string>
        </widget>
       </item>
       <item>
-       <widget class="DropFrame" name="dropParent">
+       <widget class="DropFrame" name="dropSibling">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -246,5 +218,41 @@ containing folder</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>close</sender>
+   <signal>clicked()</signal>
+   <receiver>MultiDragDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>377</x>
+     <y>355</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>370</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doNothingEver</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MultiDragDialog</receiver>
+   <slot>setDontShowAgain(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>348</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>370</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>setDontShowAgain(bool)</slot>
+ </slots>
 </ui>

@@ -36,6 +36,8 @@ MainWindow::MainWindow(SessionDB *db,
                        Exporter *exporter):
   db(db), scanner(scanner), exporter(exporter) {
 
+  setWindowTitle("Photohoard");
+  
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setWidget(histogram = new HistoWidget(this));
   dock->setTitleBarWidget(new QWidget());
