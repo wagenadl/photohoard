@@ -36,7 +36,7 @@ void Exporter::setup(ExportSettings const &s) {
   if (jobs.isEmpty() || !jobs.last().todo.isEmpty())
     jobs << Job();
   jobs.last().settings = s;
-  settings = s;
+  settings_ = s;
 }
 
 void Exporter::addSelection() {
@@ -53,7 +53,7 @@ void Exporter::add(QSet<quint64> const &vsns) {
   QMutexLocker l(&mutex);
   if (jobs.isEmpty()) {
     jobs << Job();
-    jobs.last().settings = settings;
+    jobs.last().settings = settings_;
   }
   bool wasEmpty = jobs.last().todo.isEmpty();
   jobs.last().todo |= vsns;
@@ -65,7 +65,7 @@ void Exporter::add(quint64 vsn, QString ofn) {
   QMutexLocker l(&mutex);
   if (jobs.isEmpty()) {
     jobs << Job();
-    jobs.last().settings = settings;
+    jobs.last().settings = settings_;
   }
   bool wasEmpty = jobs.last().todo.isEmpty();
   jobs.last().todo << vsn;
@@ -96,13 +96,17 @@ void Exporter::run() {
   while (!stopsoon) {
     while (!jobs.isEmpty()) {
       Job &job(jobs.first());
-      if (job.todo.isEmpty())
+      if (job.todo.isEmpty()) {
+        emit completed(job.settings.destination,
+                       job.completed.size(), job.failed.size());
+        jobs.removeFirst();
         break;
+      }
 
       quint64 vsn = *job.todo.begin();
-      mutex.unlock();
       QString ovr = job.fnoverride.contains(vsn)
         ? job.fnoverride[vsn] : QString();
+      mutex.unlock();
       bool ok = doExport(vsn, job.settings, ovr);
       mutex.lock();
 
@@ -117,11 +121,6 @@ void Exporter::run() {
         int ndone = job.completed.size() + job.failed.size();
         emit progress(ndone, nleft+ndone);
         t0.restart();
-      }
-      if (job.todo.isEmpty()) {
-        emit completed(job.settings.destination,
-                       job.completed.size(), job.failed.size());
-        jobs.removeFirst();
       }
     }
     cond.wait(&mutex);
