@@ -48,15 +48,19 @@ void Purge::refresh() {
   { QSqlQuery q = db->constQuery("select photo, filename, pathname"
 				 " from M.rejects inner join photos"
 				 " on M.rejects.photo==photos.id"
-				 " inner join folders"
+				 " left join folders"
 				 " on photos.folder==folders.id"
 				 " where photo not in"
 				 " (select photo from M.keepphoto)"
 				 " group by photo");
     while (q.next()) {
       uint64_t pht = q.value(0).toULongLong();
-      QFileInfo filei(q.value(2).toString() + "/" + q.value(1).toString());
-      QFileInfo folderi(q.value(2).toString());
+      QString filename = q.value(1).toString();
+      QString foldername = q.value(2).toString();
+      QFileInfo filei(foldername.isEmpty()
+                      ? filename
+                      : (foldername + "/" + filename));
+      QFileInfo folderi(filei.absolutePath());
       bool candel = filei.isWritable() && folderi.isWritable();
       // Note that isWritable() returns user's ability to write, not owner's.
       if (candel)
@@ -65,15 +69,19 @@ void Purge::refresh() {
   }
 
   { QSqlQuery q = db->constQuery("select photos.id, filename, pathname"
-                                 " from photos inner join folders"
+                                 " from photos left join folders"
                                  " on photos.folder==folders.id"
                                  " where photos.id not in"
                                  " (select photo from versions)");
     while (q.next()) {
       uint64_t pht = q.value(0).toULongLong();
       orphans.insert(pht);
-      QFileInfo filei(q.value(2).toString() + "/" + q.value(1).toString());
-      QFileInfo folderi(q.value(2).toString());
+      QString filename = q.value(1).toString();
+      QString foldername = q.value(2).toString();
+      QFileInfo filei(foldername.isEmpty()
+                      ? filename
+                      : (foldername + "/" + filename));
+      QFileInfo folderi(filei.absolutePath());
       bool candel = filei.isWritable() && folderi.isWritable();
       // Note that isWritable() returns user's ability to write, not owner's.
       if (candel)
