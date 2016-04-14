@@ -24,21 +24,17 @@ void DragOut::finish() {
 }
 
 void DragOut::cancel() {
-  qDebug() << "DragOut::cancel" << fn;
   exporter->stop();
   QFile f(fn);
   f.remove();
 }
 
 void DragOut::ensureComplete() {
-  qDebug() << "DragOut::ensureComplete" << fn;
   if (iscomplete)
     return;
   
-  qDebug() << "incomplete";
   QEventLoop el(this);
   while (!iscomplete) {
-    qDebug() << "wait for events";
     el.processEvents(QEventLoop::ExcludeUserInputEvents
                      | QEventLoop::WaitForMoreEvents);
   }
@@ -46,5 +42,4 @@ void DragOut::ensureComplete() {
 
 void DragOut::completed() {
   iscomplete = true;
-  qDebug() << "DragOut::completed";
 }

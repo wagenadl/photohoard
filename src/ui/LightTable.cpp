@@ -680,16 +680,17 @@ void LightTable::startDrag(quint64 id) {
   if (act==0)
     return;
 
-  QSet<quint64> cursel = selection->current();
-  if (cursel.size()>1 || !cursel.contains(id)) {
-    qDebug() << "But wait! There is more";
-    auto *d = new MultiDragDialog(db, cursel, id);
-    d->show();
+  if (!MultiDragDialog::shouldNotShow()) {
+    QSet<quint64> cursel = selection->current();
+    cursel.remove(id);
+    if (!cursel.isEmpty()) {
+      auto *mdd = new MultiDragDialog(db, cursel);
+      mdd->show();
+    }
   }
 }
 
 void LightTable::ensureDragExportComplete() {
-  qDebug() << "ensure drag export complete";
   if (dragout)
     dragout->ensureComplete();
 }

@@ -12,15 +12,17 @@ class DropFrame: public QLabel {
 public:
   DropFrame(QWidget *parent=0);
   virtual ~DropFrame() { }
+  void setMustBeDir(bool);
 signals:
-  void dropped(QList<QUrl>, Qt::DropAction);
+  void dropped(QString);
 protected:
   virtual void dragEnterEvent(QDragEnterEvent *) override;
   virtual void dragLeaveEvent(QDragLeaveEvent *) override;
-  virtual void dragMoveEvent(QDragMoveEvent *) override;
   virtual void dropEvent(QDropEvent *) override;
 private:
   void markFrame(bool in);
+private:
+  bool mustbedir;
 };
 
 #endif
