@@ -27,6 +27,7 @@ public:
 public:
   Exporter(SessionDB *db, QObject *parent=0);
   void setup(ExportSettings const &);
+  ExportSettings const &settings() const { return settings_; }
   void addSelection();
   void add(QSet<quint64> const &vsns);
   void add(quint64 vsn, QString ofn);
@@ -45,7 +46,7 @@ private:
   SessionDB *db0; // calling thread
   QMutex mutex;
   QWaitCondition cond;
-  ExportSettings settings;
+  ExportSettings settings_;
   SessionDB db; // our clone
   QList<Job> jobs;
   bool stopsoon;
