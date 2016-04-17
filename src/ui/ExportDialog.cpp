@@ -12,15 +12,12 @@ ExportDialog::ExportDialog(bool now, QWidget *parent):
   QDialog(parent) {
   ui = new Ui_exportDialog();
   ui->setupUi(this);
-  connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)),
-          SLOT(handleClick(QAbstractButton *)));
   setup(ExportSettings());
-  QPushButton *okb = ui->buttonBox->button(QDialogButtonBox::Ok);
-  Q_ASSERT(okb);
-  okb->setDefault(true);
   if (now)
-    ui->buttonBox->addButton("Export now", QDialogButtonBox::ActionRole);
-  br = QDialogButtonBox::InvalidRole;
+    ui->bOk->hide();
+  else
+    ui->bExport->hide();
+  do_export = false;
 }
 
 ExportDialog::~ExportDialog() {
@@ -141,25 +138,19 @@ void ExportDialog::browse() {
   }
 }
 
-void ExportDialog::handleClick(QAbstractButton *b) {
-  br = ui->buttonBox->buttonRole(b);
-  switch (br) {
-  case QDialogButtonBox::ActionRole:
-    accept();
-    break;
-  case QDialogButtonBox::ResetRole: {
-    QString dst = ui->destination->text();
-    ExportSettings set;
-    set.destination = dst;
-    setup(set);
-  } break;
-  default:
-    break;
-  }
+void ExportDialog::reset() {
+  QString dst = ui->destination->text();
+  ExportSettings set;
+  set.destination = dst;
+  setup(set);
 }
 
+void ExportDialog::exportNow() {
+  do_export = true;
+  accept();
+}
 
-void ExportDialog::showandexport(class Exporter *exporter, bool now) {
+void ExportDialog::standalone(class Exporter *exporter, bool now) {
   ExportSettings settings(exporter->settings());
   if (!settings.isValid())
     settings.destination = "/tmp";
@@ -167,8 +158,8 @@ void ExportDialog::showandexport(class Exporter *exporter, bool now) {
   exportdialog.setup(settings);
 
   if (exportdialog.exec() == ExportDialog::Accepted) {
-      exporter->setup(exportdialog.settings());
-      if (exportdialog.result()==QDialogButtonBox::ActionRole)
-        exporter->addSelection();
+    exporter->setup(exportdialog.settings());
+    if (exportdialog.do_export)
+      exporter->addSelection();
   }
 }

@@ -66,9 +66,5 @@ void MultiDragDialog::copyInto(QString dst) {
 }
 
 void MultiDragDialog::openExportSettings() {
-  ExportDialog dialog(db);
-  dialog.setup(exporter->settings());
-  if (dialog.exec()) {
-    exporter->setup(dialog.settings());
-  }
+  ExportDialog::standalone(exporter);
 }

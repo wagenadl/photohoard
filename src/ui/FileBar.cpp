@@ -46,7 +46,7 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
   
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
       [exporter,this]() {
-      ExportDialog::showandexport(exporter, true);
+      ExportDialog::standalone(exporter, true);
     }};
   new PAction(acts.last(), QIcon(":icons/export.svg"), this);
 
@@ -55,7 +55,7 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
       if (exporter->settings().isValid()) 
         exporter->addSelection();
       else 
-        ExportDialog::showandexport(exporter, true);
+        ExportDialog::standalone(exporter, true);
     }};
   parent->addAction(new PAction(acts.last(), this));
 
