@@ -13,7 +13,6 @@
 
 FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
-  exportdialog = new ExportDialog(db, 0);
   sliderclip = new SliderClipboard(db, ac);
   setWindowTitle("File");
 
@@ -47,25 +46,16 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
   
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
       [exporter,this]() {
-      exportdialog->setup(exporter->settings());
-      if (exportdialog->exec() == ExportDialog::Accepted) {
-	exporter->setup(exportdialog->settings());
-	exporter->addSelection();
-      }
+      ExportDialog::showandexport(exporter, true);
     }};
   new PAction(acts.last(), QIcon(":icons/export.svg"), this);
 
   acts << Action{Qt::CTRL + Qt::Key_E, "Export more images",
       [exporter,this]() {
-      if (exportdialog->everOKd()) {
+      if (exporter->settings().isValid()) 
         exporter->addSelection();
-      } else {
-        exportdialog->setup(exporter->settings());
-        if (exportdialog->exec() == ExportDialog::Accepted) {
-          exporter->setup(exportdialog->settings());
-          exporter->addSelection();
-        }
-      }
+      else 
+        ExportDialog::showandexport(exporter, true);
     }};
   parent->addAction(new PAction(acts.last(), this));
 

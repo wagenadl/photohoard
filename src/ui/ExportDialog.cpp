@@ -6,16 +6,21 @@
 #include "PDebug.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include "Exporter.h"
 
-ExportDialog::ExportDialog(PhotoDB *db, QWidget *parent):
-  QDialog(parent), db(db) {
-  ever_okd = false;
+ExportDialog::ExportDialog(bool now, QWidget *parent):
+  QDialog(parent) {
   ui = new Ui_exportDialog();
   ui->setupUi(this);
-  setup(ExportSettings(db));
+  connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)),
+          SLOT(handleClick(QAbstractButton *)));
+  setup(ExportSettings());
   QPushButton *okb = ui->buttonBox->button(QDialogButtonBox::Ok);
   Q_ASSERT(okb);
   okb->setDefault(true);
+  if (now)
+    ui->buttonBox->addButton("Export now", QDialogButtonBox::ActionRole);
+  br = QDialogButtonBox::InvalidRole;
 }
 
 ExportDialog::~ExportDialog() {
@@ -23,25 +28,21 @@ ExportDialog::~ExportDialog() {
 }
 
 QDialog::DialogCode ExportDialog::exec() {
-  ExportSettings before = settings();
   while (true) {
     DialogCode res = DialogCode(QDialog::exec());
-    if (res!=Accepted) {
-      setup(before);
+    if (!res) 
       return res;
-    }
 
     QString dir = ui->destination->text();
-    QDir d(dir);
-    if (d.exists()) {
-      ever_okd = true;
+    QFileInfo fi(dir);
+    if (fi.isDir() && fi.isWritable()) {
       return res;
     }
 
     QMessageBox::warning(0, "photohoard", 
                          QString::fromUtf8("Folder “")
-                         + dir + QString::fromUtf8("” does not exist.")
-                         + " Please try again.");
+                         + dir + QString::fromUtf8("” is not a folder"
+                                                   " or is not writable."));
   }
 }
 
@@ -128,17 +129,46 @@ void ExportDialog::browse() {
                                             QFileDialog::ShowDirsOnly);
     if (dir.isEmpty())
       return;
-    QDir d(dir);
-    if (d.exists()) {
-      ui->destination->setText(dir);
+    QFileInfo fi(dir);
+    if (fi.isDir() && fi.isWritable()) {
       return;
     }
-    QMessageBox::warning(0, "photohoard", QString::fromUtf8("Folder “")
-                         + dir + QString::fromUtf8("” does not exist.")
-                         + " Please try again.");
+
+    QMessageBox::warning(0, "photohoard", 
+                         QString::fromUtf8("Folder “")
+                         + dir + QString::fromUtf8("” is not a folder"
+                                                   " or is not writable."));
   }
 }
 
-bool ExportDialog::everOKd() const {
-  return ever_okd;
+void ExportDialog::handleClick(QAbstractButton *b) {
+  br = ui->buttonBox->buttonRole(b);
+  switch (br) {
+  case QDialogButtonBox::ActionRole:
+    accept();
+    break;
+  case QDialogButtonBox::ResetRole: {
+    QString dst = ui->destination->text();
+    ExportSettings set;
+    set.destination = dst;
+    setup(set);
+  } break;
+  default:
+    break;
+  }
+}
+
+
+void ExportDialog::showandexport(class Exporter *exporter, bool now) {
+  ExportSettings settings(exporter->settings());
+  if (!settings.isValid())
+    settings.destination = "/tmp";
+  ExportDialog exportdialog(now);
+  exportdialog.setup(settings);
+
+  if (exportdialog.exec() == ExportDialog::Accepted) {
+      exporter->setup(exportdialog.settings());
+      if (exportdialog.result()==QDialogButtonBox::ActionRole)
+        exporter->addSelection();
+  }
 }

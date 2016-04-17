@@ -6,25 +6,27 @@
 
 #include <QDialog>
 #include "ExportSettings.h"
+#include <QDialogButtonBox>
 
 class ExportDialog: public QDialog {
   Q_OBJECT;
 public:
-public:
-  ExportDialog(class PhotoDB *db, QWidget *parent=0);
+  ExportDialog(bool now=false, QWidget *parent=0);
   virtual ~ExportDialog();
   void setup(ExportSettings const &);
   ExportSettings settings() const;
   DialogCode exec();
-  bool everOKd() const;
+public:
+  static void showandexport(class Exporter *expo, bool now=false);
 public slots:
   void setFormat(int);
   void setResolutionMode();
   void browse();
+  void handleClick(class QAbstractButton *x);
 private:
   class Ui_exportDialog *ui;
   class PhotoDB *db;
-  bool ever_okd;
+  QDialogButtonBox::ButtonRole br;
 };
 
 #endif

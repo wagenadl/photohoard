@@ -13,7 +13,6 @@ public:
           class MainWindow *parent);
   class SliderClipboard *sliderClipboard() const { return sliderclip; }
 private:
-  class ExportDialog *exportdialog;
   class SliderClipboard *sliderclip;
 };
 
