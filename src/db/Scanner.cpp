@@ -9,6 +9,7 @@
 #include "Exif.h"
 #include "Tags.h"
 #include "Here.h"
+#include <QUrl>
 
 Scanner::Scanner(SessionDB *db0): db0(db0) {
   setObjectName("Scanner");
@@ -462,4 +463,17 @@ void Scanner::reportFolderProgress() {
 void Scanner::reportScanDone() {
   pDebug() << "Scan complete";
   emit message("Scan complete");
+}
+
+//////////////////////////////////////////////////////////////////////
+void Scanner::importDragged(QList<QUrl> urls, QString coll) {
+  for (auto const &url: urls) {
+    ASSERT(url.isLocalFile());
+    QFileInfo fi(url.path());
+    if (fi.isDir())
+      qDebug() << "  Import folder" << fi.absoluteFilePath();
+    else
+      qDebug() << "  Import photo" << fi.absoluteFilePath();
+  }
+  qDebug() << "  Into collection: " << coll;
 }
