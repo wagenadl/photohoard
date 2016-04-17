@@ -18,6 +18,7 @@ private slots:
   void dropParentFolder(QString);
   void dropSibling(QString);
   void setDontShowAgain(bool);
+  void openExportSettings();
 private:
   void copyInto(QString);
 private:

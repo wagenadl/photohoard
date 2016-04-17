@@ -171,6 +171,19 @@ containing folder</string>
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="doNothingEver">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Don't show again this session</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="widget_3" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -186,17 +199,24 @@ containing folder</string>
        <number>0</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="doNothingEver">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
+       <widget class="QToolButton" name="exportSettings">
         <property name="text">
-         <string>Don't show again this session</string>
+         <string>Export settings...</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
       <item>
        <widget class="QToolButton" name="close">
@@ -227,7 +247,7 @@ containing folder</string>
    <hints>
     <hint type="sourcelabel">
      <x>377</x>
-     <y>355</y>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>421</x>
@@ -242,8 +262,8 @@ containing folder</string>
    <slot>setDontShowAgain(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>152</x>
-     <y>348</y>
+     <x>161</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>159</x>
@@ -251,8 +271,25 @@ containing folder</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>exportSettings</sender>
+   <signal>clicked()</signal>
+   <receiver>MultiDragDialog</receiver>
+   <slot>openExportSettings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>88</x>
+     <y>338</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>setDontShowAgain(bool)</slot>
+  <slot>openExportSettings()</slot>
  </slots>
 </ui>

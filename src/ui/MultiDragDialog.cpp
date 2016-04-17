@@ -7,13 +7,14 @@
 #include "Exporter.h"
 #include <QMessageBox>
 #include <QFileInfo>
+#include "ExportDialog.h"
 
 bool MultiDragDialog::dontshow = false;
 
 MultiDragDialog::MultiDragDialog(SessionDB *db,
                                  Exporter *expo,
                                  QSet<quint64> const &set):
-  db(db), exporter(exporter), set(set) {
+  db(db), exporter(expo), set(set) {
   ui = new Ui_MultiDragDialog;
   ui->setupUi(this);
   connect(ui->dropParentFolder, SIGNAL(dropped(QString)),
@@ -62,4 +63,12 @@ void MultiDragDialog::copyInto(QString dst) {
   exporter->setup(settings);
   exporter->add(set);
   deleteLater();
+}
+
+void MultiDragDialog::openExportSettings() {
+  ExportDialog dialog(db);
+  dialog.setup(exporter->settings());
+  if (dialog.exec()) {
+    exporter->setup(dialog.settings());
+  }
 }
