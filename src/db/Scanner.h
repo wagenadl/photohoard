@@ -11,6 +11,7 @@
 #include "Image16.h"
 #include "SessionDB.h"
 #include <QStringList>
+#include <QUrl>
 
 class Scanner: public BasicThread {
   /* SCANNER - Thread for scanning folder trees
@@ -58,6 +59,7 @@ public slots:
      be emitted when new or changed photos are found.
      There is not currently a mechanism to report on disappeared photos, which
      is a bug. */
+  void importDragged(QList<QUrl>, QString coll);
 signals:
   void message(QString);
   void updated(QSet<quint64> versions);

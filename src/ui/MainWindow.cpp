@@ -248,17 +248,9 @@ void MainWindow::dropEvent(QDropEvent *e) {
   qDebug() << "Drop action" << act;
   if (coll.isEmpty())
     qDebug() << "  Ask for drop collection!";
-  else
-    qDebug() << "  Into collection: " << coll;
-  
-  for (auto const &url: urls) {
-    ASSERT(url.isLocalFile());
-    QFileInfo fi(url.path());
-    if (fi.isDir())
-      qDebug() << "  Import folder" << fi.absoluteFilePath();
-    else
-      qDebug() << "  Import photo" << fi.absoluteFilePath();
-  }
+
+  scanner->importDragged(urls, coll);
+
   dragin = false;
 }
 
