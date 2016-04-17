@@ -47,6 +47,7 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
   
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
       [exporter,this]() {
+      exportdialog->setup(exporter->settings());
       if (exportdialog->exec() == ExportDialog::Accepted) {
 	exporter->setup(exportdialog->settings());
 	exporter->addSelection();
@@ -56,10 +57,14 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
 
   acts << Action{Qt::CTRL + Qt::Key_E, "Export more images",
       [exporter,this]() {
-      if (exportdialog->everOKd() ||
-          exportdialog->exec() == ExportDialog::Accepted) {
-        exporter->setup(exportdialog->settings());
+      if (exportdialog->everOKd()) {
         exporter->addSelection();
+      } else {
+        exportdialog->setup(exporter->settings());
+        if (exportdialog->exec() == ExportDialog::Accepted) {
+          exporter->setup(exportdialog->settings());
+          exporter->addSelection();
+        }
       }
     }};
   parent->addAction(new PAction(acts.last(), this));

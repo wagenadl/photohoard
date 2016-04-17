@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2016-04-09T10:21:04",
+  "mod": "2016-04-16T21:47:54",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -284,8 +284,8 @@
     },
     { "typ": "entry",
       "cre": "2016-04-09T09:57:53",
-      "mod": "2016-04-09T09:57:57",
-      "seen": "2016-04-09T09:57:53",
+      "mod": "2016-04-16T21:47:45",
+      "seen": "2016-04-16T21:47:45",
       "sheetCount": 1,
       "startPage": 49,
       "title": "Logic for drag in",
@@ -293,8 +293,8 @@
     },
     { "typ": "entry",
       "cre": "2016-04-09T10:07:49",
-      "mod": "2016-04-09T10:15:16",
-      "seen": "2016-04-09T10:07:49",
+      "mod": "2016-04-16T21:47:45",
+      "seen": "2016-04-16T21:47:45",
       "sheetCount": 2,
       "startPage": 50,
       "title": "Logic for drag out",
@@ -302,12 +302,21 @@
     },
     { "typ": "entry",
       "cre": "2016-04-09T10:20:54",
-      "mod": "2016-04-09T10:21:04",
-      "seen": "2016-04-09T10:20:54",
+      "mod": "2016-04-16T21:47:45",
+      "seen": "2016-04-16T21:47:45",
       "sheetCount": 1,
       "startPage": 52,
       "title": "Proposed improvement for Filter dialog",
       "uuid": "c21c3894"
+    },
+    { "typ": "entry",
+      "cre": "2016-04-16T21:47:49",
+      "mod": "2016-04-16T21:47:54",
+      "seen": "2016-04-16T21:47:49",
+      "sheetCount": 1,
+      "startPage": 53,
+      "title": "Exporter and export dialog",
+      "uuid": "30ad65b2"
     }
   ]
 }

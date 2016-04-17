@@ -1,0 +1,59 @@
+{ "typ": "page",
+  "cre": "2016-04-16T21:47:49",
+  "mod": "2016-04-16T21:49:03",
+  "cui": "7ac12b2a4c6ddf23",
+  "stampTime": 0,
+  "startPage": 53,
+  "unlocked": false,
+  "uuid": "30ad65b2",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-04-16T21:47:49",
+      "mod": "2016-04-16T21:47:49",
+      "uuid": "2102a05d"
+    },
+    { "typ": "title",
+      "cre": "2016-04-16T21:47:49",
+      "mod": "2016-04-16T21:47:54",
+      "uuid": "4f7610fb",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-16T21:47:49",
+          "mod": "2016-04-16T21:47:54",
+          "lines": [
+            0
+          ],
+          "text": "Exporter and export dialog",
+          "uuid": "ff70bed3"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-16T21:47:55",
+      "mod": "2016-04-16T21:49:03",
+      "h": 166.162,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "388980b0",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-16T21:47:55",
+          "mod": "2016-04-16T21:49:03",
+          "lines": [
+            0,
+            60,
+            120,
+            183,
+            241,
+            301,
+            365
+          ],
+          "text": "I am going to make the Exporter be the keeper of the export settings, rather than the ExportDialog. That means that the ExportDialog does not have to exist except when it is open. To make that work, the default destination in ExportSettings must be null, i.e., invalid, which can be used to know that export has not been setup. ExportDialog will force that default to be something real.",
+          "uuid": "b810ecbf"
+        }
+      ]
+    }
+  ]
+}
