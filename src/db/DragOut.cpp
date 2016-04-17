@@ -6,9 +6,17 @@
 #include <QDebug>
 #include <QEventLoop>
 
-DragOut::DragOut(SessionDB *db, quint64 id, QString fn, QObject *parent):
+DragOut::DragOut(SessionDB *db, Exporter *expo,
+                 quint64 id, QString fn, QObject *parent):
   QObject(parent), fn(fn), iscomplete(false) {
+  /* We make our own exporter, because this is a time-critical job:
+     The user is in mid-drag.
+     Optimally, we should perhaps suspend other experter threads while
+     this is going on.
+  */
   exporter = new Exporter(db, this);
+  if (expo) 
+    exporter->setup(expo->settings());
   connect(exporter, SIGNAL(completed(QString,int,int)),
           SLOT(completed()));
   exporter->start();

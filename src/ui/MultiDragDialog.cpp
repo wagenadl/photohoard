@@ -11,8 +11,9 @@
 bool MultiDragDialog::dontshow = false;
 
 MultiDragDialog::MultiDragDialog(SessionDB *db,
+                                 Exporter *expo,
                                  QSet<quint64> const &set):
-  db(db), set(set) {
+  db(db), exporter(exporter), set(set) {
   ui = new Ui_MultiDragDialog;
   ui->setupUi(this);
   connect(ui->dropParentFolder, SIGNAL(dropped(QString)),
@@ -30,8 +31,6 @@ MultiDragDialog::MultiDragDialog(SessionDB *db,
   }
   ui->label->setText(msg);
   ui->dropParentFolder->setMustBeDir(true);
-  progress = 0;
-  exporter = 0;
 }
 
 MultiDragDialog::~MultiDragDialog() {
@@ -58,43 +57,9 @@ void MultiDragDialog::setDontShowAgain(bool b) {
 
 void MultiDragDialog::copyInto(QString dst) {
   hide();
-
-  progress = new QProgressDialog(QString("Copying %1 %2 to %3...")
-                                 .arg(set.size())
-                                 .arg(set.size()==1 ? "image" : "images")
-                                 .arg(dst), "Cancel",
-                                 0, set.size());
-  progress->setWindowTitle("Photohoard");
-  progress->setValue(0);
-
-  exporter = new Exporter(db, this);
-  connect(exporter, SIGNAL(progress(int,int)),
-          SLOT(exportProgress(int,int)));
-  connect(exporter, SIGNAL(completed(QString,int,int)),
-          SLOT(exportComplete(QString,int,int)));
-  ExportSettings settings;
+  ExportSettings settings = exporter->settings();
   settings.destination = dst;
   exporter->setup(settings);
-  exporter->start();
   exporter->add(set);
-}
-
-void MultiDragDialog::exportProgress(int n, int) {
-  progress->setValue(n);
-  if (progress->wasCanceled()) {
-    exporter->stop();
-    progress->deleteLater();
-    deleteLater();
-  }
-}
-
-void MultiDragDialog::exportComplete(QString, int nok, int) {
-  delete progress;
-  progress = 0;
-  exporter->stop();
-  if (nok < set.size()) 
-    QMessageBox::warning(0, "Photohoard",
-                         QString("Export failed: %1 image(s) not exported")
-                         .arg(set.size()-nok));
   deleteLater();
 }

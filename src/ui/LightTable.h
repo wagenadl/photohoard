@@ -19,7 +19,7 @@ class LightTable: public QSplitter {
   Q_OBJECT;
 public:
   LightTable(SessionDB *db, class AutoCache *cache,
-             LiveAdjuster *adjuster,
+             LiveAdjuster *adjuster, class Exporter *expo,
              QWidget *parent=0);
   virtual ~LightTable();
   PSize displaySize() const;
@@ -72,6 +72,7 @@ protected:
 protected:
   SessionDB *db;
   AutoCache *cache;
+  class Exporter *exporter;
   QPointer<LiveAdjuster> adjuster; // we do not own
   class Selection *selection;
   class StripView *strips;
