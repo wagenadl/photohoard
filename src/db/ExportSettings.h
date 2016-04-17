@@ -26,8 +26,10 @@ public:
       DateTimeDSC,
       };
 public:
-  ExportSettings(class PhotoDB *db=0);
+  ExportSettings();
   QString extension() const;
+  bool isValid() const;
+  void loadFromDB(class PhotoDB const *db);
   void saveToDB(class PhotoDB *db);
 public:
   FileFormat fileFormat;
