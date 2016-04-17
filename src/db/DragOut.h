@@ -9,7 +9,8 @@
 class DragOut: public QObject {
   Q_OBJECT;
 public:
-  DragOut(class SessionDB *, quint64 id, QString fn, QObject *parent=0);
+  DragOut(class SessionDB *, class Exporter *,
+          quint64 id, QString fn, QObject *parent=0);
   virtual ~DragOut();
   void cancel();
   void finish();

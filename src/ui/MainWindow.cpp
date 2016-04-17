@@ -67,7 +67,8 @@ MainWindow::MainWindow(SessionDB *db,
 
   shortcutHelp = new ShortcutHelp();
   
-  setCentralWidget(lightTable = new LightTable(db, autocache, adjuster, this));
+  setCentralWidget(lightTable = new LightTable(db, autocache, adjuster,
+                                               exporter, this));
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
   addToolBar(area, fileBar = new FileBar(db, autocache,
                                          exporter, scanner, this));

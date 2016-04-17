@@ -18,8 +18,11 @@
 #include "MultiDragDialog.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
-                       LiveAdjuster *adj, QWidget *parent):
-  QSplitter(parent), db(db), cache(cache), adjuster(adj) {
+                       LiveAdjuster *adj, Exporter *expo,
+                       QWidget *parent):
+  QSplitter(parent), db(db), cache(cache),
+  exporter(expo),
+  adjuster(adj) {
   setObjectName("LightTable");
   lay=lastlay=LayoutBar::Layout::VGrid;
   showmax = false;
@@ -666,7 +669,7 @@ void LightTable::startDrag(quint64 id) {
   QDrag *drag = new QDrag(this);
   drag->setMimeData(data);
 
-  dragout = new DragOut(db, id, fn, this);
+  dragout = new DragOut(db, exporter, id, fn, this);
 
   Qt::DropAction act = drag->exec(Qt::MoveAction);
   if (act>0)
@@ -684,7 +687,7 @@ void LightTable::startDrag(quint64 id) {
     QSet<quint64> cursel = selection->current();
     cursel.remove(id);
     if (!cursel.isEmpty()) {
-      auto *mdd = new MultiDragDialog(db, cursel);
+      auto *mdd = new MultiDragDialog(db, exporter, cursel);
       mdd->show();
     }
   }
