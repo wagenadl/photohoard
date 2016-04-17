@@ -6,7 +6,6 @@
 
 #include <QDialog>
 #include "ExportSettings.h"
-#include <QDialogButtonBox>
 
 class ExportDialog: public QDialog {
   Q_OBJECT;
@@ -17,16 +16,17 @@ public:
   ExportSettings settings() const;
   DialogCode exec();
 public:
-  static void showandexport(class Exporter *expo, bool now=false);
+  static void standalone(class Exporter *expo, bool now=false);
 public slots:
   void setFormat(int);
   void setResolutionMode();
   void browse();
-  void handleClick(class QAbstractButton *x);
+  void reset();
+  void exportNow();
 private:
   class Ui_exportDialog *ui;
   class PhotoDB *db;
-  QDialogButtonBox::ButtonRole br;
+  bool do_export;
 };
 
 #endif
