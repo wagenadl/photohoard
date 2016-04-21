@@ -23,7 +23,7 @@ public:
 public slots:
   void addTree(QString path, QString defaultCollection="",
                QStringList excluded=QStringList());
-  /* ADDTREE - Main mechanism for adding an entirely new folder tree to a database
+  /* ADDTREE - Main mechanism for adding an entirely new folder tree to a db
      ADDTREE(path) adds the folder PATH and all its subfolders to the db.
      ADDTREE(path, coll) attaches the tag COLL as a "default collection" to all
      photos in the tree. (This applies to photos currently present as well as any
@@ -44,6 +44,12 @@ public slots:
      does not add it to the list of excluded paths. As a consequence, if PATH is
      a subfolder of a folder that is still in the db, RESCANALL will re-add PATH
      to the db.
+  */
+  void addSubTree(QString path);
+  /* ADDSUBTREE - Notifies the scanner that there is a new folder
+     ADDSUBTREE(path) notifies the scanner that PATH is a new folder somewhere
+     in an existing tree. There is no *need* to call this function, but it
+     does ensure that the new folder is scanned immediately.
   */
   void rescanAll();
   /* RESCANALL - Rescan all trees in the db

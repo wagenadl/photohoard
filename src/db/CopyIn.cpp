@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
+#include <QDate>
 #include "Messenger.h"
 #include "Extensions.h"
 
@@ -31,12 +32,12 @@ void CopyIn::setMovieDestination(QString d) {
   moviedest = d;
 }
 
-void CopyIn::setNoMovieDestination() {
-  moviedest = "";
+void CopyIn::setSources(QStringList s) {
+  imgSources = s;
 }
 
-void CopyIn::setSources(QList<QUrl> urls) {
-  src = urls;
+void CopyIn::setMovieSources(QStringList s) {
+  movSources = s;
 }
 
 void CopyIn::setSourceDisposition(CopyIn::SourceDisposition d) {
@@ -44,11 +45,10 @@ void CopyIn::setSourceDisposition(CopyIn::SourceDisposition d) {
 }
 
 bool CopyIn::isValid() const {
-  if (dest.isEmpty())
+  if (dest.isEmpty() && !imgSources.isEmpty())
     return false;
-  for (QUrl const &url: src) 
-    if (!url.isLocalFile())
-      return false;
+  if (moviedest.isEmpty() && !movSources.isEmpty())
+    return false;
   return true;
 }
 
@@ -66,14 +66,14 @@ void CopyIn::cancel() {
 void CopyIn::run() {
   // First, let's make sure destination exists
   QDir root("/");
-  if (!root.mkpath(dest)) {
-    emit completed(0, src.size());
+  if (!root.mkpath(dest) && !imgSources.isEmpty()) {
+    emit completed(0, imgSources.size() + movSources.size());
     return;
   }
 
-  if (!moviedest.isEmpty()) {
+  if (!moviedest.isEmpty() && !movSources.isEmpty()) {
     if (!root.mkpath(moviedest)) {
-      emit completed(0, src.size());
+      emit completed(0, imgSources.size() + movSources.size());
       return;
     }
   }
@@ -91,49 +91,12 @@ void CopyIn::run() {
     emit canceled();
   };    
     
-  QList<QString> sourceFiles;
-  QList<QString> movieFiles;
-  QList<QString> sourceDirs;
-  for (QUrl const &url: src) {
-    if (cancel_) {
-      doCancel();
-      return;
-    }
-    if (url.isLocalFile()) {
-      QFileInfo fi(url.path());
-      if (fi.isDir())
-        sourceDirs << url.path();
-      else
-        sourceFiles << url.path();
-    } else {
-      qDebug() << "Ignoring non-local" << url.toString();
-    }
-  }
-
-  while (!sourceDirs.isEmpty()) {
-    if (cancel_) {
-      doCancel();
-      return;
-    }
-    QDir dir(sourceDirs.takeFirst());
-    for (QFileInfo const &fi: dir.entryInfoList(QDir::Dirs | QDir::Files
-                                                | QDir::NoDotAndDotDot)) {
-      if (fi.isDir())
-        sourceDirs << fi.absoluteFilePath();
-      else if (Extensions::imageExtensions().contains(fi.suffix().toLower()))
-        sourceFiles << fi.absoluteFilePath();
-      else if (Extensions::movieExtensions().contains(fi.suffix().toLower())
-               && !moviedest.isEmpty())
-        movieFiles << fi.absoluteFilePath();
-    }
-  }
-
   int nok=0, nmov=0, nfail=0;
-  int ntot = sourceFiles.size() + movieFiles.size();
+  int ntot = imgSources.size() + movSources.size();
   QString lbl = ntot==1 ? "file" : "files";
   QList<QString> disposableSources;
   
-  for (QString s: sourceFiles) {
+  for (QString s: imgSources) {
     if (cancel_) {
       doCancel();
       return;
@@ -152,7 +115,7 @@ void CopyIn::run() {
                        .arg(nok + nmov).arg(ntot).arg(lbl));
   }
   
-  for (QString s: movieFiles) {
+  for (QString s: movSources) {
     if (cancel_) {
       doCancel();
       return;
@@ -170,7 +133,20 @@ void CopyIn::run() {
     Messenger::message(this, QString("Copied %1/%2 %3")
                        .arg(nok + nmov).arg(ntot).arg(lbl));
   }
-        
+
+  if (!disposableSources.isEmpty() && srcdisp!=Leave) {
+    COMPLAIN("CopyIn: Source disposition NYI");
+  }
   Messenger::message(this, "Copying complete");
   emit completed(nok + nmov, nfail);
+}
+
+QString CopyIn::autoDest(QString path) {
+  QString sub = QDate::currentDate().toString("yyyy/yyMMdd");
+  if (path.isEmpty())
+    return sub;
+  else if (path.endsWith("/"))
+    return path + sub;
+  else
+    return path + "/" + sub;
 }
