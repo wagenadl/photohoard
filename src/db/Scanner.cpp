@@ -62,6 +62,46 @@ QStringList Scanner::allRoots() {
   return roots;
 }
 
+void Scanner::addSubTree(QString folder) {
+  // Called from outside of thread
+  QDir dir(folder);
+  QString path = dir.absolutePath();
+  if (db0->constQuery("select id from folders where pathname==:a", path)
+      .next()) {
+    // got it already -> easy
+    rescan(path);
+    return;
+  }
+  QString npath;
+  while (true) {
+    dir.cdUp();
+    npath = dir.absolutePath();
+    if (npath==path) {
+      COMPLAIN("Scanner::addSubTree: " + folder
+               + " is not a descendent of any root in the db");
+      return; // not found
+    }
+
+    QSqlQuery q = db0->constQuery("select id from folders where pathname==:a",
+                                  npath);
+    if (q.next())
+      break;
+    path = npath;
+  }
+
+  // Now, npath is a folder that exists in the db, and path is a subfolder
+  // that doesn't yet.
+  QString coll = db0->defaultQuery("select tags.tag from tags"
+                                   " inner join defaulttags"
+                                   " on tags.id==defaulttags.tag"
+                                   " inner join folders"
+                                   " on defaulttags.folder==folders.id"
+                                   " where folders.pathname==:a", npath, "")
+    .toString();
+  addTree(path, coll);
+}
+   
+
 void Scanner::rescanAll() {
   // This is called from outside of thread!
   QStringList roots = allRoots();

@@ -5,8 +5,7 @@
 #define COPYIN_H
 
 #include <QThread>
-#include <QList>
-#include <QUrl>
+#include <QStringList>
 
 class CopyIn: public QThread {
   Q_OBJECT;
@@ -35,7 +34,7 @@ public:
      AUTODEST(path) appends that string to a specified PATH.
   */
 public slots:
-  void setSources(QList<QUrl>);
+  void setSources(QStringList);
   /* SETSOURCES - Specify what is going to be copied
      SETSOURCES(urls) must be called _before_ calling START().
   */
@@ -52,17 +51,13 @@ public slots:
      where action is one of Leave, Backup, or Delete, determines what happens.
      Note: If there are any errors, this action is not executed.
   */
+  void setMovieSources(QStringList);
   void setMovieDestination(QString);
   /* SETMOVIEDESTINATION - Set destination for movie files
      Photohoard does not presently catalog movie files, but external media
      often do contain movies. In that case, SETMOVIEDESTINATION enables
      copying those movie files to some location on the hard disk.
    */
-  void setNoMovieDestination();
-  /* SETNOMOVIEDESTINATION - Specify that movies are to be left in place
-     Even if the source disposition is Backup or Delete, movies will be
-     left untouched in their original locations.
-  */
   void start();
   /* START - Start the process
      You must call ISVALID() first. Otherwise, the program will terminate.
@@ -84,7 +79,8 @@ signals:
 private:
   virtual void run() override;
 private:
-  QList<QUrl> src;
+  QStringList imgSources;
+  QStringList movSources;
   QString dest;
   QString moviedest;
   SourceDisposition srcdisp;
