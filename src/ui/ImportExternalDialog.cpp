@@ -9,14 +9,18 @@
 #include "CopyIn.h"
 #include "PDebug.h"
 #include "Scanner.h"
+#include <QProgressDialog>
 
 ImportExternalDialog::ImportExternalDialog(Scanner *scanner, SessionDB *db,
                                            QList<QUrl> sources,
                                            QWidget *parent):
-  QDialog(parent), scanner(scanner), db(db) {
+  QWidget(parent), scanner(scanner), db(db) {
+  progress = 0;
+  copyin = 0;
   ui = new Ui_ImportExternalDialog;
   ui->setupUi(this);
-  ui->ok->setEnabled(false);
+  accept_prov = false;
+  complete_cnt = false;
   what = ui->what->text();
   movieWhat = ui->copyMovies->text();
   ui->movieContainer->hide();
@@ -62,7 +66,8 @@ ImportExternalDialog::ImportExternalDialog(Scanner *scanner, SessionDB *db,
 }
 
 ImportExternalDialog::~ImportExternalDialog() {
-  collector->cancel();
+  if (progress)
+    delete progress;
 }
 
 void ImportExternalDialog::changeCollection(QString coll) {
@@ -89,8 +94,27 @@ void ImportExternalDialog::updateCounts(int nimg, int nmov) {
     ui->movieContainer->show();
 }
 
+void ImportExternalDialog::cancel() {
+  close();
+  if (copyin)
+    copyin->cancel();
+  if (progress)
+    progress->deleteLater();
+  deleteLater();
+}
+
 void ImportExternalDialog::completeCounts() {
-  ui->ok->setEnabled(true);
+  complete_cnt = true;
+  if (accept_prov)
+    startCopy();
+}
+
+void ImportExternalDialog::allowImport() {
+  accept_prov = true;
+  if (complete_cnt)
+    startCopy();
+  else
+    hide();
 }
 
 void ImportExternalDialog::nowImport() {
@@ -100,21 +124,28 @@ void ImportExternalDialog::nowImport() {
 }
 
 void ImportExternalDialog::showAndGo(Scanner *scanner,
-                                            SessionDB *db,
-                                            QList<QUrl> sources) {
+                                     SessionDB *db,
+                                     QList<QUrl> sources) {
   ImportExternalDialog *dlg = new ImportExternalDialog(scanner, db, sources);
-  if (!dlg->exec()) {
-    delete dlg;
-    return;
-  }
+  dlg->show();
+}
+
+void ImportExternalDialog::startCopy() {
+  hide();
+  QStringList images = collector->imageFiles();
+  QStringList movies = ui->copyMovies->isChecked()
+    ? collector->movieFiles() : QStringList();
+
+  collector->deleteLater();
+  collector = 0;
+
+  progress = new QProgressDialog("Copying...", "Cancel",
+                                 0, images.size() + movies.size());
+  progress->setValue(0);
+  connect(progress, SIGNAL(canceled()), SLOT(cancel()));
   
-  QStringList images = dlg->collector->imageFiles();
-
-  QStringList movies = dlg->ui->copyMovies->isChecked()
-    ? dlg->collector->movieFiles() : QStringList();
-
   CopyIn::SourceDisposition disp = CopyIn::Leave;
-  switch (dlg->ui->disposition->currentIndex()) {
+  switch (ui->disposition->currentIndex()) {
   case 0:
     disp = CopyIn::Backup;
     break;
@@ -126,15 +157,15 @@ void ImportExternalDialog::showAndGo(Scanner *scanner,
     break;
   }
 
-  CopyIn *copyin = new CopyIn(scanner);
+  copyin = new CopyIn(this);
   connect(copyin, SIGNAL(completed(int,int)),
-          dlg, SLOT(nowImport()));
-  connect(copyin, SIGNAL(completed(int,int)),
-          copyin, SLOT(deleteLater()));
-
-  copyin->setDestination(dlg->ui->destination->text());
-  if (dlg->ui->copyMovies->isChecked())
-    copyin->setMovieDestination(dlg->ui->movieDestination->text());
+          SLOT(nowImport()));
+  connect(copyin, SIGNAL(progress(int)),
+          progress, SIGNAL(setValue()));
+  
+  copyin->setDestination(ui->destination->text());
+  if (ui->copyMovies->isChecked())
+    copyin->setMovieDestination(ui->movieDestination->text());
 
   copyin->setSources(images);
   copyin->setMovieSources(movies);

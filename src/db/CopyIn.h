@@ -64,12 +64,13 @@ public slots:
   */
   void cancel();
   /* CANCEL - Cancel the process
-     Note: For right now, we don't provide a GUI to call cancel.
+     Deletes all files copied so far.
      No effect if not running.
    */
 signals:
   void canceled();
   /* CANCELED - Emitted after CANCEL is called. */
+  void progress(int n);
   void completed(int nOk, int nFail);
   /* COMPLETED - Emitted when the job finishes
      COMPLETED(nOk, nFail) is emitted when the job is complete, even if

@@ -108,9 +108,12 @@ void CopyIn::run() {
       copiedFiles << f_out;
       disposableSources << s;
       nok ++;
+      qDebug() << "Copied" << s << "as" << f_out;
     } else {
       nfail ++;
+      qDebug() << "Copy failed on " << s;
     }
+    emit progress(nok + nmov + nfail);
     Messenger::message(this, QString("Copied %1/%2 %3")
                        .arg(nok + nmov).arg(ntot).arg(lbl));
   }
@@ -130,6 +133,7 @@ void CopyIn::run() {
     } else {
       nfail ++;
     }
+    emit progress(nok + nmov + nfail);
     Messenger::message(this, QString("Copied %1/%2 %3")
                        .arg(nok + nmov).arg(ntot).arg(lbl));
   }

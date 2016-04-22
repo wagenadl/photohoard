@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ImportExternalDialog</class>
- <widget class="QDialog" name="ImportExternalDialog">
+ <widget class="QWidget" name="ImportExternalDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -353,7 +353,7 @@
    <sender>cancel</sender>
    <signal>clicked()</signal>
    <receiver>ImportExternalDialog</receiver>
-   <slot>reject()</slot>
+   <slot>cancel()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>245</x>
@@ -369,7 +369,7 @@
    <sender>ok</sender>
    <signal>clicked()</signal>
    <receiver>ImportExternalDialog</receiver>
-   <slot>accept()</slot>
+   <slot>allowImport()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>336</x>
@@ -401,5 +401,7 @@
  <slots>
   <slot>changeDestination()</slot>
   <slot>changeCollection(QString)</slot>
+  <slot>allowImport()</slot>
+  <slot>cancel()</slot>
  </slots>
 </ui>
