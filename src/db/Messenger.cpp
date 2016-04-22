@@ -4,13 +4,15 @@
 #include "MainWindow.h"
 #include "PDebug.h"
 
-Messenger::Messenger(MainWindow *parent): QObject(parent), owner(parent) {
+Messenger::Messenger(MainWindow *parent): QObject(parent) {
   ASSERT(parent);
   messengers()[parent] = this;
+  connect(this, SIGNAL(posted(QString)),
+          parent, SLOT(setStatusMessage(QString)),
+          Qt::QueuedConnection);
 }
 
 Messenger::~Messenger() {
-  messengers().remove(owner);
 }
 
 QMap<QObject *, QPointer<Messenger> > &Messenger::messengers() {
@@ -29,9 +31,14 @@ void Messenger::message(QObject *src, QString id, QString msg, double t) {
       obj = obj->parent();
     }
   }
-  if (msgr==0 && !messengers().isEmpty())
-    msgr = *messengers().begin();
-
+  if (!msgr) {
+    for (auto m: messengers()) {
+      msgr = m;
+      if (msgr)
+        break;
+    }
+  }
+  
   if (msgr)
     msgr->sendMessage(QString("%1:%2").arg(reinterpret_cast<quint64>(src))
                       .arg(id), msg, t);
@@ -40,8 +47,7 @@ void Messenger::message(QObject *src, QString id, QString msg, double t) {
 }
 
 void Messenger::sendMessage(QString, QString msg, double) {
-  ASSERT(owner);
-  owner->setStatusMessage(msg);
+  emit posted(msg);
 }
 
 void Messenger::message(QObject *src, QString msg, double t) {

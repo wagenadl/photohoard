@@ -40,8 +40,9 @@ public:
   */
 private:
   void sendMessage(QString id, QString msg, double timeout_s);
-private:
-  class MainWindow *owner;
+signals:
+  void posted(QString msg);
+  /* We use this signal, so that messaging works across threads. */
 private:
   static QMap<QObject *, QPointer<Messenger> > &messengers();
 };
