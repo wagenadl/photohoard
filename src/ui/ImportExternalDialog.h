@@ -4,11 +4,11 @@
 
 #define IMPORTEXTERNALDIALOG_H
 
-#include <QDialog>
+#include <QWidget>
 #include <QList>
 #include <QUrl>
 
-class ImportExternalDialog: public QDialog {
+class ImportExternalDialog: public QWidget {
   Q_OBJECT;
 public:
   ImportExternalDialog(class Scanner *scanner, class SessionDB *db,
@@ -23,13 +23,20 @@ private slots:
   void completeCounts();
   void changeCollection(QString);
   void nowImport();
+  void allowImport();
+  void startCopy();
+  void cancel();
 private:
   class Ui_ImportExternalDialog *ui;
-  class Collector *collector;
+  class Collector *collector; // our child
   class Scanner *scanner;
   SessionDB *db;
   QString what;
   QString movieWhat;
+  bool accept_prov;
+  bool complete_cnt;
+  class QProgressDialog *progress; // our responsibility, but not our child
+  class CopyIn *copyin; // our child
 };
 
 #endif
