@@ -95,7 +95,7 @@ void ImportExternalDialog::completeCounts() {
 
 void ImportExternalDialog::nowImport() {
   qDebug() << "ImportExternal: nowImport";
-  scanner->addSubTree(ui->destination->text());
+  scanner->addTree(ui->destination->text(), ui->collection->currentText());
   deleteLater();
 }
 

@@ -18,23 +18,32 @@ QMap<QObject *, QPointer<Messenger> > &Messenger::messengers() {
   return msgrs;
 }
 
-void Messenger::message(QObject *src, QString msg, double) {
-  QObject *top = src;
-  while (src) {
-    src = src->parent();
-    if (src)
-      top = src;
-  }
-  Messenger *msgr = messengers()[top];
-  if (msgr) {
-    MainWindow *mw = msgr->owner;
-    if (mw) {
-      mw->setStatusMessage(msg);
+void Messenger::message(QObject *src, QString id, QString msg, double t) {
+  Messenger *msgr = 0;
+  QObject *obj = src;
+  while (obj) {
+    if (messengers().contains(obj)) {
+      msgr = messengers()[obj];
+      break;
+    } else {
+      obj = obj->parent();
     }
   }
-  qDebug() << "Message: " << msg;
+  if (msgr==0 && !messengers().isEmpty())
+    msgr = *messengers().begin();
+
+  if (msgr)
+    msgr->sendMessage(QString("%1:%2").arg(reinterpret_cast<quint64>(src))
+                      .arg(id), msg, t);
+  else
+    COMPLAIN("No way to send message: " + msg);
 }
 
-void Messenger::message(QObject *src, QString, QString msg, double) {
-  message(src, msg);
+void Messenger::sendMessage(QString, QString msg, double) {
+  ASSERT(owner);
+  owner->setStatusMessage(msg);
+}
+
+void Messenger::message(QObject *src, QString msg, double t) {
+  message(src, "", msg, t);
 }
