@@ -39,6 +39,8 @@ public:
      associated with SRC.
   */
 private:
+  void sendMessage(QString id, QString msg, double timeout_s);
+private:
   class MainWindow *owner;
 private:
   static QMap<QObject *, QPointer<Messenger> > &messengers();

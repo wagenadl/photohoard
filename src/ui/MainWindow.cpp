@@ -249,7 +249,7 @@ void MainWindow::dropEvent(QDropEvent *e) {
   if (coll.isEmpty())
     qDebug() << "  Ask for drop collection!";
 
-  scanner->importDragged(urls, coll);
+  //  scanner->importDragged(urls, coll);
 
   dragin = false;
 }

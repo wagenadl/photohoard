@@ -31,6 +31,7 @@ void Scanner::addTree(QString path, QString defaultCollection,
     excludeTree(e);
   
   if (!db0->findFolder(path)) {
+    // We don't have the folder yet
     QDir parent(path);
     parent.cdUp();
     QString leaf = parent.relativeFilePath(path);
@@ -39,6 +40,7 @@ void Scanner::addTree(QString path, QString defaultCollection,
     quint64 parentid = db0->defaultQuery("select id from folders"
                                          " where pathname==:a", parentPath, 0)
       .toULongLong();
+    // parentid is nonzero if we do have the parent
     quint64 id = addFolder(db0, parentid, path, leaf);
     if (!defaultCollection.isEmpty()) {
       Tags tags(db0);
@@ -61,46 +63,6 @@ QStringList Scanner::allRoots() {
   
   return roots;
 }
-
-void Scanner::addSubTree(QString folder) {
-  // Called from outside of thread
-  QDir dir(folder);
-  QString path = dir.absolutePath();
-  if (db0->constQuery("select id from folders where pathname==:a", path)
-      .next()) {
-    // got it already -> easy
-    rescan(path);
-    return;
-  }
-  QString npath;
-  while (true) {
-    dir.cdUp();
-    npath = dir.absolutePath();
-    if (npath==path) {
-      COMPLAIN("Scanner::addSubTree: " + folder
-               + " is not a descendent of any root in the db");
-      return; // not found
-    }
-
-    QSqlQuery q = db0->constQuery("select id from folders where pathname==:a",
-                                  npath);
-    if (q.next())
-      break;
-    path = npath;
-  }
-
-  // Now, npath is a folder that exists in the db, and path is a subfolder
-  // that doesn't yet.
-  QString coll = db0->defaultQuery("select tags.tag from tags"
-                                   " inner join defaulttags"
-                                   " on tags.id==defaulttags.tag"
-                                   " inner join folders"
-                                   " on defaulttags.folder==folders.id"
-                                   " where folders.pathname==:a", npath, "")
-    .toString();
-  addTree(path, coll);
-}
-   
 
 void Scanner::rescanAll() {
   // This is called from outside of thread!
@@ -149,11 +111,11 @@ quint64 Scanner::addFolder(PhotoDB *db,
 			   quint64 parentid, QString path, QString leaf) {
   // This is called from with thread or caller's thread.
   // Normally, a transaction should be in progress.
-  QSqlQuery q =
-    db->query("insert into folders(parentfolder,leafname,pathname) "
-              " values (:a,:b,:c)", parentid?parentid:QVariant(),
-              leaf, path);
-  quint64 id = q.lastInsertId().toULongLong();
+  quint64 id = db->query("insert into"
+                         " folders(parentfolder, leafname, pathname) "
+                         " values (:a,:b,:c)",
+                         parentid ? parentid : QVariant(), leaf, path)
+    .lastInsertId().toULongLong();
 
   if (parentid) {
     // update the foldertree
@@ -168,6 +130,19 @@ quint64 Scanner::addFolder(PhotoDB *db,
     db->query("insert into defaulttags(tag, folder) "
               " select tag, :a from defaulttags where folder==:b",
               id, parentid);
+  }
+
+  /* Now let's see if any folders that were hitherto roots are in fact
+     direct children of this new folder */
+  QSqlQuery q = db->query("select id, pathname, leafname from folders"
+                          " where parentfolder is null"
+                          " and pathname like :a", path + "/%");
+  while (q.next()) {
+    quint64 cid = q.value(0).toULongLong();
+    QString cpath = q.value(1).toString();
+    QString cleaf = q.value(2).toString();
+    if (path + "/" + cleaf == cpath) 
+      db->query("update folders set parentfolder=:a where id==:b", id, cid);
   }
 
   return id;
@@ -505,7 +480,7 @@ void Scanner::reportScanDone() {
   emit message("Scan complete");
 }
 
-//////////////////////////////////////////////////////////////////////
+/*/////////////////////////////////////////////////////////////////////
 void Scanner::importDragged(QList<QUrl> urls, QString coll) {
   for (auto const &url: urls) {
     ASSERT(url.isLocalFile());
@@ -517,3 +492,4 @@ void Scanner::importDragged(QList<QUrl> urls, QString coll) {
   }
   qDebug() << "  Into collection: " << coll;
 }
+*/
