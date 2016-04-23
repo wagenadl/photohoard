@@ -185,12 +185,17 @@
         </property>
         <item>
          <property name="text">
+          <string>Left untouched</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Moved to a backup location</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Left untouched</string>
+          <string>Deleted</string>
          </property>
         </item>
        </widget>
@@ -350,38 +355,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>cancel</sender>
-   <signal>clicked()</signal>
-   <receiver>ImportExternalDialog</receiver>
-   <slot>cancel()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>245</x>
-     <y>360</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>329</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ok</sender>
-   <signal>clicked()</signal>
-   <receiver>ImportExternalDialog</receiver>
-   <slot>allowImport()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>336</x>
-     <y>360</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>292</x>
-     <y>329</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>collection</sender>
    <signal>currentIndexChanged(QString)</signal>
    <receiver>ImportExternalDialog</receiver>
@@ -397,11 +370,59 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>copyMovies</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_3</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>27</x>
+     <y>309</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>changeDest</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportExternalDialog</receiver>
+   <slot>browseDestination()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>301</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>345</x>
+     <y>165</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>changeMovieDest</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportExternalDialog</receiver>
+   <slot>browseMovieDestination()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>302</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>289</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>changeDestination()</slot>
+  <slot>browseDestination()</slot>
   <slot>changeCollection(QString)</slot>
-  <slot>allowImport()</slot>
   <slot>cancel()</slot>
+  <slot>browseMovieDestination()</slot>
  </slots>
 </ui>
