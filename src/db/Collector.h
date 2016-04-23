@@ -13,8 +13,9 @@ class Collector: public QThread {
 public:
   Collector(QObject *parent=0);
   virtual ~Collector();
-  QStringList const &imageFiles() const;
-  QStringList const &movieFiles() const;
+  QStringList const &imageFiles() const; // do not touch unless complete
+  QStringList const &movieFiles() const; // do not touch unless complete
+  bool isComplete() const;
 public slots:
   void collect(QList<QUrl> urls);
   void cancel();
@@ -27,6 +28,7 @@ private:
 private:
   QList<QUrl> urls;
   bool cancel_;
+  bool complete_;
   QStringList imgFiles;
   QStringList movFiles;
 };

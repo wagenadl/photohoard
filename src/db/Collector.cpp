@@ -8,6 +8,7 @@
 #include "Extensions.h"
 
 Collector::Collector(QObject *parent): QThread(parent) {
+  complete_ = false;
 }
 
 Collector::~Collector() {
@@ -22,10 +23,12 @@ Collector::~Collector() {
 }
 
 QStringList const &Collector::imageFiles() const {
+  ASSERT(complete_);
   return imgFiles;
 }
 
 QStringList const &Collector::movieFiles() const {
+  ASSERT(complete_);
   return movFiles;
 }
 
@@ -33,6 +36,7 @@ void Collector::collect(QList<QUrl> urls0) {
   ASSERT(!isRunning());
   urls = urls0;
   cancel_ = false;
+  complete_ = false;
   imgFiles.clear();
   movFiles.clear();
   start();
@@ -83,6 +87,7 @@ void Collector::run() {
     emit progress(imgFiles.size(), movFiles.size());
   }
 
+  complete_ = true;
   emit complete();
 }
 
