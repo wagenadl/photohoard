@@ -9,6 +9,7 @@
 
 Collector::Collector(QObject *parent): QThread(parent) {
   complete_ = false;
+  cnt = 0;
 }
 
 Collector::~Collector() {
@@ -20,6 +21,10 @@ Collector::~Collector() {
       ASSERT(0);
     }
   }
+}
+
+bool Collector::isComplete() const {
+  return complete_;
 }
 
 QStringList const &Collector::imageFiles() const {
@@ -37,6 +42,7 @@ void Collector::collect(QList<QUrl> urls0) {
   urls = urls0;
   cancel_ = false;
   complete_ = false;
+  cnt = 0;
   imgFiles.clear();
   movFiles.clear();
   start();
@@ -68,6 +74,8 @@ void Collector::run() {
       qDebug() << "Collector: Ignoring non-local" << url.toString();
     }
   }
+  cnt = imgFiles.size() + movFiles.size();
+  emit progress(cnt, movFiles.size());
 
   while (!sourceDirs.isEmpty()) {
     if (cancel_) {
@@ -84,10 +92,14 @@ void Collector::run() {
       else if (Extensions::movieExtensions().contains(fi.suffix().toLower()))
         movFiles << fi.absoluteFilePath();
     }
-    emit progress(imgFiles.size(), movFiles.size());
+    cnt = imgFiles.size() + movFiles.size();
+    emit progress(cnt, movFiles.size());
   }
 
   complete_ = true;
   emit complete();
 }
 
+int Collector::preliminaryCount() const {
+  return cnt;
+}

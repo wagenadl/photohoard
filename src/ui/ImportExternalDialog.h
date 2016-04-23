@@ -7,36 +7,36 @@
 #include <QWidget>
 #include <QList>
 #include <QUrl>
+#include "CopyIn.h"
 
 class ImportExternalDialog: public QWidget {
   Q_OBJECT;
 public:
-  ImportExternalDialog(class Scanner *scanner, class SessionDB *db,
-                       QList<QUrl> sources,
+  ImportExternalDialog(class ImportJob *job,
+                       QStringList collections,
                        QWidget *parent=0);
   virtual ~ImportExternalDialog();
+  void showAndGo();
+signals:
+  void accepted();
+  void canceled();
 public:
-  static void showAndGo(class Scanner *scanner, class SessionDB *db,
-                        QList<QUrl> sources);
+  QString destination() const;
+  bool hasMovieDestination() const;
+  QString movieDestination() const;
+  QString collection() const;
+  CopyIn::SourceDisposition sourceDisposition() const;
 private slots:
-  void updateCounts(int, int);
-  void completeCounts();
+  void updateCounts(int ntotal, int nmov);
   void changeCollection(QString);
-  void nowImport();
-  void allowImport();
-  void startCopy();
-  void cancel();
+  void browseDestination();
+  void browseMovieDestination();
 private:
   class Ui_ImportExternalDialog *ui;
-  class Collector *collector; // our child
-  class Scanner *scanner;
-  SessionDB *db;
+private:
+  ImportJob *job;
   QString what;
   QString movieWhat;
-  bool accept_prov;
-  bool complete_cnt;
-  class QProgressDialog *progress; // our responsibility, but not our child
-  class CopyIn *copyin; // our child
 };
 
 #endif

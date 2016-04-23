@@ -134,7 +134,7 @@ void Slide::paint(QPainter *painter,
 
   if (acceptReject != PhotoDB::AcceptReject::Undecided) {
     static QString acc = QString::fromUtf8("✔"); // ✓✔√");
-    static QString rej = QString::fromUtf8("×❌"); // ❌
+    static QString rej = QString::fromUtf8("❌"); // ×❌
     static QString newi = QString::fromUtf8("✶");
     QString txt = "";
     QColor clr;

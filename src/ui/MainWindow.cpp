@@ -29,7 +29,7 @@
 #include <QDragMoveEvent>
 #include <QDragLeaveEvent>
 #include <QDropEvent>
-
+#include "ImportGUI.h"
 
 MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -237,19 +237,8 @@ void MainWindow::dropEvent(QDropEvent *e) {
   QMimeData const *data = e->mimeData();
   QList<QUrl> urls = data->urls();
 
-  QString coll = "";
-  {
-    Filter filter(db);
-    filter.loadFromDb();
-    if (filter.hasCollection())
-      coll = filter.collection();
-  }
-  
-  qDebug() << "Drop action" << act;
-  if (coll.isEmpty())
-    qDebug() << "  Ask for drop collection!";
-
-  //  scanner->importDragged(urls, coll);
+  auto *gui = new ImportGUI(db, scanner, urls);
+  gui->showAndGo();
 
   dragin = false;
 }

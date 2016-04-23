@@ -146,7 +146,8 @@ void CopyIn::run() {
 }
 
 QString CopyIn::autoDest(QString path) {
-  QString sub = QDate::currentDate().toString("yyyy/yyMMdd");
+  QString sub = "photohoard/"
+    + QDate::currentDate().toString("yyyy/yyMMdd");
   if (path.isEmpty())
     return sub;
   else if (path.endsWith("/"))
