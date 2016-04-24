@@ -136,7 +136,9 @@ void Exporter::run() {
       pDebug() << "Exporter wakeup";
     }
   }
+  pDebug() << "Exporter out of loop";
   mutex.unlock();
+  pDebug() << "Exporter end run";
 }
 
 bool Exporter::doExport(quint64 vsn, ExportSettings const &settings,

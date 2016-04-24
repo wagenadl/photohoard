@@ -205,10 +205,10 @@ QString ImportJob::commonRoot(QStringList const &paths) {
       while (parts.size()>p0.size())
         parts.takeLast();
       while (!parts.isEmpty()) {
-        if (p0.last()!=parts.last()) {
-          p0.takeLast();
-          parts.takeLast();
-        }
+        if (p0==parts)
+          break;
+        p0.takeLast();
+        parts.takeLast();
       }
     } else {
       parts = p0;
