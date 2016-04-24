@@ -239,8 +239,8 @@ void ControlSliders::sliderChange(QString slider) {
     double nlc_loc = jog("nlc_localness")->value();
     double nlcs = 0.9 * pow(nlc_loc, 0.5);
     double nlc = nlc_s / pow(1.0-nlcs, 0.75);
-    setAndEmit("nlcontrastscale", nlcs);
-    setAndEmit("nlcontrast", nlc);
+    adj.set("nlcontrastscale", nlcs);
+    adj.set("nlcontrast", nlc);
   } else if (slider=="expose" || slider=="wb" || slider=="wbg") {
     double E = jog("expose")->value();
     double W = jog("wb")->value();
@@ -249,17 +249,13 @@ void ControlSliders::sliderChange(QString slider) {
     double ex = mm[0]*E + mm[1]*G + mm[2]*W;
     double wb = mm[3]*E + mm[4]*G + mm[5]*W;
     double wg = mm[6]*E + mm[7]*G + mm[8]*W;
-    setAndEmit("expose", ex);
-    setAndEmit("wb", 5*(wb-ex));
-    setAndEmit("wbg", 15*(wg-ex));
+    adj.set("expose", ex);
+    adj.set("wb", 5*(wb-ex));
+    adj.set("wbg", 15*(wg-ex));
   } else {
-    setAndEmit(slider, value);
+    adj.set(slider, value);
   }
-}
-
-void ControlSliders::setAndEmit(QString k, double v) {
-  adj.set(k, v);
-  emit valueChanged(k, v);
+  emit valuesChanged();
 }
 
 QSize ControlSliders::sizeHint() const {

@@ -8,8 +8,8 @@
 AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
   sliders = new ControlSliders(ro);
   addTab(sliders, QIcon(":/icons/sliders.svg"), "Sliders");
-  connect(sliders, SIGNAL(valueChanged(QString, double)),
-	  SLOT(changeFromSliders(QString, double)));
+  connect(sliders, SIGNAL(valuesChanged()),
+	  SLOT(changeFromSliders()));
   if (ro) {
     cropper = 0;
   } else {
@@ -33,10 +33,10 @@ void AllControls::setAll(Adjustments const &a, QSize origsize) {
     cropper->setAll(a, origsize);
 }
 
-void AllControls::changeFromSliders(QString adjuster, double value) {
-  emit valueChanged(adjuster, value);
+void AllControls::changeFromSliders() {
+  emit valuesChanged();
   if (cropper)
-    cropper->setValue(adjuster, value);
+    cropper->setAll(sliders->getAll());
 }
 
 void AllControls::changeFromCropper(QRect croprect, QSize osize) {
@@ -52,16 +52,7 @@ void AllControls::changeFromCropper(QRect croprect, QSize osize) {
       || adj.cropb!=adj0.cropb)
     sliders->setAll(adj);
 
-  /* Perhaps a "valuesChanged" signal would be useful. It would take a
-     QMap<QString, double> as argument. */
-  if (adj.cropl!=adj0.cropl)
-    emit valueChanged("cropl", adj.cropl);
-  if (adj.cropr!=adj0.cropr)
-    emit valueChanged("cropr", adj.cropr);
-  if (adj.cropt!=adj0.cropt)
-    emit valueChanged("cropt", adj.cropt);
-  if (adj.cropb!=adj0.cropb)
-    emit valueChanged("cropb", adj.cropb);
+  emit valuesChanged();
 }
 
 QSize AllControls::sizeHint() const {

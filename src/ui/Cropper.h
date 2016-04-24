@@ -18,7 +18,7 @@ public:
   Cropper(QWidget *parent=0);
   virtual ~Cropper() { }
 public slots:
-  void setValue(QString k, double v);
+  void setAll(class Adjustments const &adj);
   void setAll(class Adjustments const &adj, QSize origsize);
   void setRatio(int top, int bottom);
   void setRatioMode(RatioMode);

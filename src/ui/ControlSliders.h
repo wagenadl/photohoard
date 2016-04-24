@@ -20,10 +20,9 @@ public:
   static class Actions const &actions();
   static double sliderValue(Adjustments const &vv, QString slider);
 signals:
-  void valueChanged(QString adjustmentname, double value);
-  /* VALUECHANGED - Emitted when the user changes the value.
-     Note that the key is an adjustment name (see AdjustmentDefs.h) rather
-     than a slider name. Mostly these are 1:1, but not quite.
+  void valuesChanged();
+  /* VALUESCHANGED - Emitted when the user changes a slider
+     Use GETALL() to get the new values.
   */
 public slots:
   void setAll(Adjustments const &vv); // does not signal VALUECHANGED
@@ -32,7 +31,6 @@ protected slots:
   void goPrevious(QString);
 private slots:
   void sliderChange(QString slidername);
-  void setAndEmit(QString k, double v);
 private:
   Adjustments adj;
   QMap<QString, ControlGroup *> groups;

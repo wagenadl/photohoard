@@ -30,7 +30,7 @@ signals:
      before this signal is emitted.
   */
 private slots:
-  void setSlider(QString, double);
+  void reloadSliders();
   void provideOriginal(quint64, Image16);
   void provideScaledOriginal(quint64, QSize osize, Image16);
   void provideAdjusted(Image16, quint64 v);

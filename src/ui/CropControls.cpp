@@ -326,7 +326,12 @@ void CropControls::slideBR(double v) {
   reflectAndEmit();
 }
 
-void CropControls::setAll(Adjustments const &adj, QSize osize) {
+void CropControls::setAll(Adjustments const &adj, QSize osize1) {
+  osize = osize1;
+  setAll(adj);
+}
+
+void CropControls::setAll(Adjustments const &adj) {
   calc->reset(adj, osize);
   ui->modeControls[CropMode::Free]->setChecked(true);
   ui->orientControls[Orient::Auto]->setChecked(true);

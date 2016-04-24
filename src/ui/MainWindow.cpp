@@ -233,7 +233,7 @@ void MainWindow::dropEvent(QDropEvent *e) {
   if (!dragin)
     return;
 
-  Qt::DropAction act = e->dropAction();
+  //  Qt::DropAction act = e->dropAction();
   QMimeData const *data = e->mimeData();
   QList<QUrl> urls = data->urls();
 
