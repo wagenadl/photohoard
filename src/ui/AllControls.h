@@ -17,10 +17,9 @@ public:
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
 signals:
-  void valueChanged(QString adjustmentname, double value);
-  /* VALUECHANGED - Emitted when the user changes the value.
-     Note that the key is an adjustment name (see AdjustmentDefs.h) rather
-     than a slider name. Mostly these are 1:1, but not quite.
+  void valuesChanged();
+  /* VALUECHANGED - Emitted when the user changes a value.
+     Use GETALL to get the new values
   */
 public slots:
   void setAll(Adjustments const &vv, QSize osize);
@@ -28,7 +27,7 @@ public slots:
      Does not signal VALUECHANGED.
   */
 private slots:
-  void changeFromSliders(QString adjuster, double value);
+  void changeFromSliders();
   void changeFromCropper(QRect rect, QSize osize);
 private:
   class ControlSliders *sliders;

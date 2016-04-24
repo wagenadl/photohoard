@@ -15,6 +15,7 @@ public:
   QSize sizeHint() const;
 public slots:
   void setAll(class Adjustments const &adj, QSize osize);
+  void setAll(class Adjustments const &adj);
   void setValue(QString, double);
 signals:
   void rectangleChanged(QRect, QSize);
@@ -38,6 +39,7 @@ private:
 private:
   class CropControlsUi *ui;
   class CropCalc *calc;
+  QSize osize;
 };
 
 #endif

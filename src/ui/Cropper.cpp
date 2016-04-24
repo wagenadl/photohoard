@@ -14,24 +14,13 @@ Cropper::Cropper(QWidget *parent): QWidget(parent) {
 
 void Cropper::setAll(Adjustments const &adj, QSize s) {
   origSize = s;
-  cropRect = QRect(QPoint(adj.cropl, adj.cropt),
-		   QPoint(s.width()-adj.cropr, s.height()-adj.cropb));
-  ui->tgt_free->setChecked(true);
-  reflectRect();
+  setAll(adj);
 }
 
-void Cropper::setValue(QString k, double v) {
-  if (k=="cropl") 
-    cropRect.setLeft(v);
-  else if (k=="cropr")
-    cropRect.setRight(origSize.width() - v);
-  else if (k=="cropt")
-    cropRect.setTop(v);
-  else if (k=="cropb")
-    cropRect.setBottom(origSize.height() - v);
-  else
-    return;
-  
+void Cropper::setAll(Adjustments const &adj) {
+  cropRect = QRect(QPoint(adj.cropl, adj.cropt),
+		   QPoint(origSize.width()-adj.cropr,
+                          origSize.height()-adj.cropb));
   ui->tgt_free->setChecked(true);
   reflectRect();
 }

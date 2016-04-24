@@ -18,8 +18,8 @@ LiveAdjuster::LiveAdjuster(PhotoDB *db,
   adjuster = new InterruptableAdjuster(this);
   connect(adjuster, SIGNAL(ready(Image16, quint64)),
           SLOT(provideAdjusted(Image16, quint64)));
-  connect(controls, SIGNAL(valueChanged(QString, double)),
-          SLOT(setSlider(QString, double)));
+  connect(controls, SIGNAL(valuesChanged()),
+          SLOT(reloadSliders()));
   connect(ofinder, SIGNAL(originalAvailable(quint64, Image16)),
           SLOT(provideOriginal(quint64, Image16)));
   connect(ofinder, SIGNAL(scaledOriginalAvailable(quint64, QSize, Image16)),
@@ -80,36 +80,42 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   }
 }
 
-void LiveAdjuster::setSlider(QString k, double v) {
-  if (v==sliders.get(k))
+void LiveAdjuster::reloadSliders() {
+  Adjustments sli = controls->getAll();
+  if (sli==sliders)
     return;
   
   mustshowupdate = true;
   mustoffermod = true;
-  sliders.set(k, v);
-
   if (adjuster->isEmpty()) {
     ofinder->requestScaledOriginal(version, targetsize);
   } else {
     if (targetsize.isEmpty())
-      adjuster->requestFull(sliders, version);
+      adjuster->requestFull(sli, version);
     else
-      adjuster->requestReduced(sliders, targetsize, version);
+      adjuster->requestReduced(sli, targetsize, version);
   }
 
   Untransaction t(db);
-  QSqlQuery q = db->query("select v from adjustments"
-                          " where version==:a and k==:b", version, k);
-  if (q.next()) 
-    db->addUndoStep(version, k, q.value(0), v);
-  else
-    db->addUndoStep(version, k, QVariant(), v);
-  if (v==Adjustments::defaultFor(k))
-    db->query("delete from adjustments where version==:a and k==:b",
-              version, k);
-  else
-    db->query("insert or replace into adjustments (version, k, v)"
-              " values (:a, :b, :c)", version, k, v);
+  for (QString k: Adjustments::keys()) {
+    double v = sli.get(k);
+    if (v != sliders.get(k)) {
+      QSqlQuery q = db->query("select v from adjustments"
+                              " where version==:a and k==:b", version, k);
+      if (q.next()) 
+        db->addUndoStep(version, k, q.value(0), v);
+      else
+        db->addUndoStep(version, k, QVariant(), v);
+      if (v==Adjustments::defaultFor(k))
+        db->query("delete from adjustments where version==:a and k==:b",
+                  version, k);
+      else
+        db->query("insert or replace into adjustments (version, k, v)"
+                  " values (:a, :b, :c)", version, k, v);
+    }
+  }
+
+  sliders = sli;
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img, quint64 v) {
