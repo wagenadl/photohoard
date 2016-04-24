@@ -10,7 +10,7 @@
 class CopyIn: public QThread {
   Q_OBJECT;
 public:
-  enum SourceDisposition {
+  enum class SourceDisposition {
     Leave,
     Backup,
     Delete,
@@ -25,13 +25,6 @@ public:
      have been specified.
      That is, all sources must be local and readable, and the destination
      must be writable or inside a writable tree.
-  */
-public:
-  static QString autoDest(QString path="");
-  /* AUTODEST - Calculate automatic destination based on date
-     AUTODEST() returns a string of the form "YYYY/YYMMDD", to be used
-     as an automatic default destination for today.
-     AUTODEST(path) appends that string to a specified PATH.
   */
 public slots:
   void setSources(QStringList);

@@ -10,7 +10,7 @@
 #include "Extensions.h"
 
 CopyIn::CopyIn(QObject *parent): QThread(parent) {
-  srcdisp = Leave;
+  srcdisp = SourceDisposition::Leave;
 }
 
 CopyIn::~CopyIn() {
@@ -138,20 +138,10 @@ void CopyIn::run() {
                        .arg(nok + nmov).arg(ntot).arg(lbl));
   }
 
-  if (!disposableSources.isEmpty() && srcdisp!=Leave) {
+  if (!disposableSources.isEmpty() && srcdisp!=SourceDisposition::Leave) {
     COMPLAIN("CopyIn: Source disposition NYI");
   }
   Messenger::message(this, "Copying complete");
   emit completed(nok + nmov, nfail);
 }
 
-QString CopyIn::autoDest(QString path) {
-  QString sub = "photohoard/"
-    + QDate::currentDate().toString("yyyy/yyMMdd");
-  if (path.isEmpty())
-    return sub;
-  else if (path.endsWith("/"))
-    return path + sub;
-  else
-    return path + "/" + sub;
-}

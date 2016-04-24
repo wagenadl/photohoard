@@ -84,7 +84,12 @@ void Exporter::stop() {
   stopsoon = true;
   if (!isRunning())
     return;
+  pDebug() << "Exporter: stop";
+  mutex.lock();
+  pDebug() << "Exporter: stop: lock";
   cond.wakeOne();
+  mutex.unlock();
+  pDebug() << "Sent wakeup";
   if (!wait(10000))
     COMPLAIN("Warning: Exporter: failed to stop");
 }
@@ -93,7 +98,9 @@ void Exporter::run() {
   QTime t0;
   t0.start();
   mutex.lock();
+  pDebug() << "Exporter running";
   while (!stopsoon) {
+    pDebug() << "Not yet stopping";
     while (!jobs.isEmpty()) {
       Job &job(jobs.first());
       if (job.todo.isEmpty()) {
@@ -123,7 +130,11 @@ void Exporter::run() {
         t0.restart();
       }
     }
-    cond.wait(&mutex);
+    if (!stopsoon) {
+      pDebug() << "Exporter waiting";
+      cond.wait(&mutex);
+      pDebug() << "Exporter wakeup";
+    }
   }
   mutex.unlock();
 }

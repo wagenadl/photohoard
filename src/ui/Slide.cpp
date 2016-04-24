@@ -210,8 +210,7 @@ void Slide::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void Slide::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
   if (parent && mayStartDrag &&
-      (e->pos()-e->buttonDownPos(Qt::LeftButton)).manhattanLength()
-      > QApplication::startDragDistance()) {
+      (e->pos()-e->buttonDownPos(Qt::LeftButton)).manhattanLength() > 20) {
     parent->startDrag(id);
     mayStartDrag = false;
   }
