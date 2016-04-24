@@ -64,7 +64,14 @@ public:
 public:
   QString commonRoot() const;
   static QString commonRoot(QList<QUrl> const &);
+  static QString commonRoot(QStringList const &);
   static bool pathIsExternalMedia(QString);
+  static QString autoDest(QString path="");
+  /* AUTODEST - Calculate automatic destination based on date
+     AUTODEST() returns a string of the form "YYYY/YYMMDD", to be used
+     as an automatic default destination for today.
+     AUTODEST(path) appends that string to a specified PATH.
+  */
 private slots:
   void markFinalSourceCount();
   void doneCopying(int, int);

@@ -16,6 +16,8 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   what = ui->what->text();
   movieWhat = ui->copyMovies->text();
   ui->source->setText(ui->source->text() + ": " + job->commonRoot());
+  QString home = QString(qgetenv("HOME"));
+  ui->movieDestination->setText(ImportJob::autoDest(home + "/Pictures/movies"));
   ui->movieContainer->hide();
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
@@ -33,13 +35,13 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   ui->destination->setText(job->destination());
 
   switch (job->sourceDisposition()) {
-  case CopyIn::Leave:
+  case CopyIn::SourceDisposition::Leave:
     ui->disposition->setCurrentIndex(0);
     break;
-  case CopyIn::Backup:
+  case CopyIn::SourceDisposition::Backup:
     ui->disposition->setCurrentIndex(1);
     break;
-  case CopyIn::Delete:
+  case CopyIn::SourceDisposition::Delete:
     ui->disposition->setCurrentIndex(2);
     break;
   }
@@ -67,14 +69,14 @@ QString ImportExternalDialog::collection() const {
 CopyIn::SourceDisposition ImportExternalDialog::sourceDisposition() const {
   switch (ui->disposition->currentIndex()) {
   case 0:
-    return CopyIn::Leave;
+    return CopyIn::SourceDisposition::Leave;
   case 1:
-    return CopyIn::Backup;
+    return CopyIn::SourceDisposition::Backup;
   case 2:
-    return CopyIn::Delete;
+    return CopyIn::SourceDisposition::Delete;
   default:
     CRASH("Unknown disposition");
-    return CopyIn::Leave;
+    return CopyIn::SourceDisposition::Leave;
   }
 }
 

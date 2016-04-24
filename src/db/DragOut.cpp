@@ -3,7 +3,7 @@
 #include "DragOut.h"
 #include "Exporter.h"
 #include <QFileInfo>
-#include <QDebug>
+#include "PDebug.h"
 #include <QEventLoop>
 
 DragOut::DragOut(SessionDB *db, Exporter *expo,
@@ -32,7 +32,9 @@ void DragOut::finish() {
 }
 
 void DragOut::cancel() {
+  pDebug() << "DragOut::Cancel";
   exporter->stop();
+  pDebug() << "DragOut::Back from exporter";
   QFile f(fn);
   f.remove();
 }
