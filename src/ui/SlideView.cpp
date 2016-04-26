@@ -11,9 +11,14 @@
 #include "Exif.h"
 #include "SlideOverlay.h"
 #include "SO_Grid.h"
+#include "ThreadedTransform.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
   setObjectName("SlideView");
+  threadedTransform = new ThreadedTransform(this);
+  connect(threadedTransform, SIGNAL(available(quint64, Image16)),
+          SLOT(setCMSImage(quint64, Image16)), Qt::QueuedConnection);
+  rqid = 0;
   fit = true;
   zoom = 1;
   vsnid = 0;
@@ -44,6 +49,8 @@ double SlideView::fittingZoom() const {
 }
 
 void SlideView::newImage(quint64 vsn, QSize nat) {
+  pDebug() << "SlideView::newImage" << vsn << nat;
+  rqid = 0;
   vsnid = vsn;
   naturalSize = nat;
   lastSize = PSize();
@@ -57,15 +64,29 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
 void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
   if (vsn!=vsnid) 
     return;
+  pDebug() << "updateImage" << vsn;
+  rqid = 0;
 
   if (force || img.isNull() || img1.size().exceeds(img.size())) {
     if (CMS::monitorTransform.isValid()) {
-      img = CMS::monitorTransform.apply(img1);
+      img = Image16();
+      pDebug() << "SV::uI: requesting";
+      rqid = threadedTransform->request(img1);
+      pDebug() << "SV::uI: requested" << rqid;
     } else {
       img = img1;
+      update();
     }
   }
-  update();
+}
+
+void SlideView::setCMSImage(quint64 id, Image16 img1) {
+  pDebug() << "SV::setCMSImage" << id << rqid;
+  if (id==rqid) {
+    img = img1;
+    rqid = 0;
+    update();
+  }
 }
 
 void SlideView::changeZoomLevel(QPoint, double delta, bool round) {
