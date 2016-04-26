@@ -131,6 +131,10 @@ private:
   bool dragging;
   Actions acts;
   mutable QList< QPointer<QObject> > overlays_;
+  class ThreadedTransform *threadedTransform;
+  quint64 rqid;
+private slots:
+  void setCMSImage(quint64, Image16);
 };
 
 #endif
