@@ -1,0 +1,127 @@
+{ "typ": "page",
+  "cre": "2016-04-25T05:59:33",
+  "mod": "2016-04-25T06:02:39",
+  "cui": "af35096950887d0b",
+  "stampTime": 0,
+  "startPage": 54,
+  "unlocked": false,
+  "uuid": "b9d75a1a",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-04-25T05:59:33",
+      "mod": "2016-04-25T05:59:33",
+      "uuid": "b7e51b0d"
+    },
+    { "typ": "title",
+      "cre": "2016-04-25T05:59:33",
+      "mod": "2016-04-25T05:59:40",
+      "uuid": "d792a5f8",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-25T05:59:33",
+          "mod": "2016-04-25T05:59:40",
+          "lines": [
+            0
+          ],
+          "text": "UI responsiveness",
+          "uuid": "ef790f34"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-25T05:59:40",
+      "mod": "2016-04-25T06:00:46",
+      "h": 119.83,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4040acf5",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-25T05:59:40",
+          "mod": "2016-04-25T06:00:46",
+          "lines": [
+            0,
+            68,
+            126,
+            186,
+            249
+          ],
+          "text": "When I drag a slider in the UI, not only does it take a fairly long time before the slideview changes—that is expected—but it also takes a long time before the slider becomes responsive again. And that is not expected. What is the main thread doing that takes so long?",
+          "uuid": "5dd30488"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-25T06:00:47",
+      "mod": "2016-04-25T06:00:58",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "9e86f97b",
+      "y0": 191.83,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-25T06:00:47",
+          "mod": "2016-04-25T06:00:58",
+          "lines": [
+            0
+          ],
+          "text": "I instrumented SlideView::event:",
+          "uuid": "9c8006b0"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-25T06:01:10",
+      "mod": "2016-04-25T06:01:18",
+      "h": 126.067,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e1352946",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-25T06:01:10",
+          "mod": "2016-04-25T06:01:13",
+          "lines": [
+            0,
+            35,
+            59,
+            98,
+            127,
+            182,
+            194
+          ],
+          "text": "bool SlideView::event(QEvent *e) {\n  QTime t0; t0.start();\n  pDebug() << \"SlideView::event\" << e;\n  bool r = QFrame::event(e);\n  pDebug() << \"  SlideView::endEvent\" << t0.elapsed();\n  return r;\n}",
+          "uuid": "973d8b41"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-04-25T06:01:19",
+      "mod": "2016-04-25T06:02:39",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "59820d4d",
+      "y0": 345.063,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-04-25T06:01:19",
+          "mod": "2016-04-25T06:02:39",
+          "lines": [
+            0,
+            58
+          ],
+          "text": "and discovered that no individual event takes longer than 19 ms, even the paint event.",
+          "uuid": "c28e2aab"
+        }
+      ]
+    }
+  ]
+}

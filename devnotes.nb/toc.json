@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2016-04-16T21:47:54",
+  "mod": "2016-04-25T05:59:40",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -311,12 +311,21 @@
     },
     { "typ": "entry",
       "cre": "2016-04-16T21:47:49",
-      "mod": "2016-04-16T21:47:54",
-      "seen": "2016-04-16T21:47:49",
+      "mod": "2016-04-25T05:59:30",
+      "seen": "2016-04-25T05:59:30",
       "sheetCount": 1,
       "startPage": 53,
       "title": "Exporter and export dialog",
       "uuid": "30ad65b2"
+    },
+    { "typ": "entry",
+      "cre": "2016-04-25T05:59:33",
+      "mod": "2016-04-25T05:59:40",
+      "seen": "2016-04-25T05:59:33",
+      "sheetCount": 1,
+      "startPage": 54,
+      "title": "UI responsiveness",
+      "uuid": "b9d75a1a"
     }
   ]
 }
