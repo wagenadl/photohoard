@@ -10,6 +10,7 @@
 #include <QApplication>
 
 bool Slide::mayStartDrag = false;
+constexpr int SLIDEMARGINS = 8;
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
@@ -38,8 +39,10 @@ void Slide::updateImage(Image16 const &img1, bool chgd) {
   }
   pm = QPixmap();
   if (isVisible()) {
+    int ims = tilesize - SLIDEMARGINS;
     if (CMS::monitorTransform.isValid())
-      img = CMS::monitorTransform.apply(img1);
+      img = CMS::monitorTransform
+        .apply(img1.scaledToFitSnuglyIn(PSize(ims, ims)));
     else
       img = img1;
     update();
@@ -165,7 +168,7 @@ void Slide::paint(QPainter *painter,
     painter->setFont(f0);
   }
   
-  int ims = tilesize - 8;
+  int ims = tilesize - SLIDEMARGINS;
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
