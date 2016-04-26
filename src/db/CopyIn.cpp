@@ -94,7 +94,7 @@ void CopyIn::run() {
   int nok=0, nmov=0, nfail=0;
   int ntot = imgSources.size() + movSources.size();
   QString lbl = ntot==1 ? "file" : "files";
-  QList<QString> disposableSources;
+  QStringList disposableSources;
   
   for (QString s: imgSources) {
     if (cancel_) {
@@ -138,10 +138,39 @@ void CopyIn::run() {
                        .arg(nok + nmov).arg(ntot).arg(lbl));
   }
 
-  if (!disposableSources.isEmpty() && srcdisp!=SourceDisposition::Leave) {
-    COMPLAIN("CopyIn: Source disposition NYI");
-  }
+  disposeSources(disposableSources);
   Messenger::message(this, "Copying complete");
   emit completed(nok + nmov, nfail);
 }
 
+void CopyIn::setBackupLocation(QString s) {
+  bkloc = s;
+}
+
+void CopyIn::disposeSources(QStringList ss) {
+  if (ss.isEmpty())
+    return;
+
+  switch (srcdisp) {
+  case SourceDisposition::Leave:
+    break;
+  case SourceDisposition::Backup:
+    backupSources(ss);
+    break;
+  case SourceDisposition::Delete:
+    deleteSources(ss);
+    break;
+  }
+}
+
+void CopyIn::backupSources(QStringList) {
+  if (bkloc.isEmpty()) {
+    COMPLAIN("Backup location not set");
+    return;
+  }
+  COMPLAIN("Backup NYI");
+}
+
+void CopyIn::deleteSources(QStringList) {
+  COMPLAIN("Delete NYI");
+}
