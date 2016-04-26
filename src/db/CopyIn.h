@@ -44,6 +44,11 @@ public slots:
      where action is one of Leave, Backup, or Delete, determines what happens.
      Note: If there are any errors, this action is not executed.
   */
+  void setBackupLocation(QString);
+  /* SETBACKUPLOCATION - Set backup location for sources
+     Only used when SOURCEDISPOSITION is BACKUP, this determines where the
+     source files will be moved to.
+  */
   void setMovieSources(QStringList);
   void setMovieDestination(QString);
   /* SETMOVIEDESTINATION - Set destination for movie files
@@ -72,12 +77,16 @@ signals:
   */
 private:
   virtual void run() override;
+  void disposeSources(QStringList ss);
+  void backupSources(QStringList ss);
+  void deleteSources(QStringList ss);
 private:
   QStringList imgSources;
   QStringList movSources;
   QString dest;
   QString moviedest;
   SourceDisposition srcdisp;
+  QString bkloc;
 private:
   bool cancel_;
 };
