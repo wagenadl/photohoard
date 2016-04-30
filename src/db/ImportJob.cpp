@@ -14,7 +14,7 @@ ImportJob::ImportJob(class SessionDB *db,
                      QObject *parent): QObject(parent),
                                        db(db), scanner_(scanner),
                                        copyin(0), collector(0),
-                                       sources_(sources) {
+                                       srcinfo(sources) {
   op = Operation::Import; // GUI will change
   autodest = true;
   srcdisp = CopyIn::SourceDisposition::Leave;
@@ -35,7 +35,7 @@ void ImportJob::countSources() {
   connect(collector, SIGNAL(progress(int,int)),
           SIGNAL(countsUpdated(int,int)));
   connect(collector, SIGNAL(complete()), SLOT(markFinalSourceCount()));
-  collector->collect(sources_);
+  collector->collect(srcinfo.sources());
 }
 
 void ImportJob::setAutoCollection() {
@@ -160,6 +160,8 @@ void ImportJob::startCopy() {
   copyin->setMovieSources(movies);
 
   copyin->setSourceDisposition(srcdisp);
+  if (srcdisp==CopyIn::SourceDisposition::Backup)
+    copyin->setBackupLocation(srcinfo.fsRoot() + "/photohoard-backup");
 
   copyin->start();
 }
@@ -178,45 +180,6 @@ void ImportJob::cancel() {
   emit canceled();
 }
 
-QString ImportJob::commonRoot() const {
-  return commonRoot(sources_);
-}
-
-QString ImportJob::commonRoot(QList<QUrl> const &urls) {
-  QStringList paths;
-  for (QUrl const &url: urls) {
-    if (url.isLocalFile()) {
-      paths << url.path();
-    }
-  }
-  return commonRoot(paths);
-}
-
-QString ImportJob::commonRoot(QStringList const &paths) {
-  QStringList parts;
-  bool any = false;
-  for (QString const &path: paths) {
-    QStringList p0 = path.split("/");
-    if (!p0.isEmpty() && p0.last().contains("."))
-      p0.takeLast();
-    if (any) {
-      while (p0.size()>parts.size())
-        p0.takeLast();
-      while (parts.size()>p0.size())
-        parts.takeLast();
-      while (!parts.isEmpty()) {
-        if (p0==parts)
-          break;
-        p0.takeLast();
-        parts.takeLast();
-      }
-    } else {
-      parts = p0;
-      any = true;
-    }
-  }
-  return parts.join("/");
-}
 
 QString ImportJob::autoDest(QString path) {
   QString sub = QDate::currentDate().toString("yyyy/yyMMdd");
@@ -227,3 +190,8 @@ QString ImportJob::autoDest(QString path) {
   else
     return path + "/" + sub;
 }
+
+SourceInfo const &ImportJob::sourceInfo() const {
+  return srcinfo;
+}
+

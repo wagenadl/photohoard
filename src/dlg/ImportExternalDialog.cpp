@@ -6,6 +6,7 @@
 #include "Tags.h"
 #include "PDebug.h"
 #include "ImportJob.h"
+#include "SourceInfo.h"
 
 ImportExternalDialog::ImportExternalDialog(ImportJob *job,
                                            QStringList collections,
@@ -15,7 +16,8 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   ui->setupUi(this);
   what = ui->what->text();
   movieWhat = ui->copyMovies->text();
-  ui->source->setText(ui->source->text() + ": " + job->commonRoot());
+  ui->source->setText(ui->source->text() + ": "
+                      + job->sourceInfo().commonRoot());
   QString home = QString(qgetenv("HOME"));
   ui->movieDestination->setText(ImportJob::autoDest(home + "/Pictures/movies"));
   ui->movieContainer->hide();
