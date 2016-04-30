@@ -8,6 +8,7 @@
 #include <QList>
 #include <QUrl>
 #include "CopyIn.h"
+#include "SourceInfo.h"
 
 class ImportJob: public QObject {
   Q_OBJECT;
@@ -54,18 +55,11 @@ public:
   bool hasSourceCount() const;
   int sourceCount(); // -1 if not available; will wait if needed
   int preliminarySourceCount() const;
-  bool sourceIsExternalMedia() const;
-  //  bool sourceIsWritableLocation() const;
-  //  bool sourceIsSingleFolder() const;
-  //  bool sourceInvolvesOnlyFiles() const;
 public:
   class SessionDB *database() const { return db; }
   class Scanner *scanner() const { return scanner_; }
 public:
-  QString commonRoot() const;
-  static QString commonRoot(QList<QUrl> const &);
-  static QString commonRoot(QStringList const &);
-  static bool pathIsExternalMedia(QString);
+  SourceInfo const &sourceInfo() const;
   static QString autoDest(QString path="");
   /* AUTODEST - Calculate automatic destination based on date
      AUTODEST() returns a string of the form "YYYY/YYMMDD", to be used
@@ -83,7 +77,7 @@ private:
   class CopyIn *copyin;
   class Collector *collector;
 private:
-  QList<QUrl> sources_;
+  SourceInfo srcinfo;
   Operation op;
   QString dest;
   bool autodest;

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ImportLocalDialog</class>
- <widget class="QDialog" name="ImportLocalDialog">
+ <widget class="QWidget" name="ImportLocalDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>351</width>
-    <height>296</height>
+    <width>357</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -282,54 +282,6 @@ pictures into:</string>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>ImportLocalDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>191</x>
-     <y>331</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>174</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>accept</sender>
-   <signal>clicked()</signal>
-   <receiver>ImportLocalDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>292</x>
-     <y>327</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>356</x>
-     <y>325</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>copy</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ImportLocalDialog</receiver>
-   <slot>setCopyInstead(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>84</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>134</x>
-     <y>223</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>copy</sender>
    <signal>toggled(bool)</signal>
    <receiver>widget_3</receiver>
@@ -340,14 +292,29 @@ pictures into:</string>
      <y>163</y>
     </hint>
     <hint type="destinationlabel">
-     <x>14</x>
-     <y>212</y>
+     <x>23</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>ImportLocalDialog</receiver>
+   <slot>browseDestination()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>311</x>
+     <y>228</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>changeDestination()</slot>
-  <slot>setCopyInstead(bool)</slot>
+  <slot>browseDestination()</slot>
  </slots>
 </ui>

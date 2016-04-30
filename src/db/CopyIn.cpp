@@ -163,14 +163,34 @@ void CopyIn::disposeSources(QStringList ss) {
   }
 }
 
-void CopyIn::backupSources(QStringList) {
+void CopyIn::backupSources(QStringList ss) {
   if (bkloc.isEmpty()) {
     COMPLAIN("Backup location not set");
     return;
   }
-  COMPLAIN("Backup NYI");
+  
+  QFileInfo bkinfo(bkloc);
+  if (!bkinfo.exists()) {
+    QDir root(bkinfo.path());
+    root.mkdir(bkinfo.fileName());
+    if (!QDir(bkloc).exists()) {
+      COMPLAIN("Cannot create backup location " + bkloc);
+    }
+  }
+  
+  QDir bkdir(bkloc);
+  for (QString const &s: ss) {
+    QFile f(s);
+    QFileInfo fi(f);
+    if (!f.rename(bkdir.filePath(fi.fileName())))
+      COMPLAIN("Cannot move source " + s + " to backup location " + bkloc);
+  }
 }
 
-void CopyIn::deleteSources(QStringList) {
-  COMPLAIN("Delete NYI");
+void CopyIn::deleteSources(QStringList ss) {
+  for (QString const &s: ss) {
+    QFile f(s);
+    if (!f.remove())
+      COMPLAIN("Cannot remove source " + s);
+  }
 }

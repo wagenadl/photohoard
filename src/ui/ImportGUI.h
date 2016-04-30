@@ -25,6 +25,8 @@ private slots:
 private:
   class ImportJob *job;
   class ImportExternalDialog *extDlg;
+  class ImportOtherUserDialog *othUserDlg;
+  class ImportLocalDialog *locDlg;
   class QProgressDialog *progressDlg; // our responsibility, but not our child
 };
 

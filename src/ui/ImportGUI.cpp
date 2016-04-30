@@ -3,6 +3,8 @@
 #include "ImportGUI.h"
 #include "ImportJob.h"
 #include "ImportExternalDialog.h"
+#include "ImportOtherUserDialog.h"
+#include "ImportLocalDialog.h"
 #include "PDebug.h"
 #include <QProgressDialog>
 #include "Tags.h"
@@ -13,8 +15,12 @@ ImportGUI::ImportGUI(class SessionDB *db,
                      QList<QUrl> const &sources,
                      QObject *parent): QObject(parent) {
   extDlg = 0;
+  othUserDlg = 0;
+  locDlg = 0;
   progressDlg = 0;
+  
   job = new ImportJob(db, scanner, sources, this);
+
   connect(job, SIGNAL(complete(QString)),
           SLOT(finishUpCompletedJob(QString)));
   connect(job, SIGNAL(canceled()),
@@ -23,11 +29,13 @@ ImportGUI::ImportGUI(class SessionDB *db,
 
 ImportGUI::~ImportGUI() {
   delete extDlg;
+  delete othUserDlg;
+  delete locDlg;
   delete job;
 }
 
 void ImportGUI::showAndGo() {
-  if (true || job->sourceIsExternalMedia()) {
+  if (job->sourceInfo()->isExternalMedia()) {
     job->setOperation(ImportJob::Operation::Import);
     job->setAutoCollection();
     extDlg = new ImportExternalDialog(job, Tags(job->database()).collections());
@@ -35,7 +43,7 @@ void ImportGUI::showAndGo() {
     connect(extDlg, SIGNAL(accepted()), SLOT(dlgAccept()));
     connect(extDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
     extDlg->show();
-  }
+  } else if (
 }
 
 void ImportGUI::finishUpCompletedJob(QString errmsg) {
