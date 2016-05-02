@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SUBDIRS="corelib cms db adj ui"
+SUBDIRS="corelib cms db adj ui dlg"
 APP=photohoard
 
 cd `dirname $0`

@@ -14,13 +14,10 @@ ImportLocalDialog::ImportLocalDialog(class ImportJob *job,
   QWidget(parent), job(job) {
   ui = new Ui_ImportLocalDialog;
   ui->setupUi(this);
-  what = ui->what->text();
   ui->source->setText(ui->source->text() + ": "
                       + job->sourceInfo().commonRoot());
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
-
-  connect(job, SIGNAL(countsUpdated(int,int)), SLOT(updateCounts(int,int)));
 
   ui->collection->clear();
   for (auto s: collections)
@@ -50,27 +47,11 @@ void ImportLocalDialog::changeCollection(QString coll) {
   ui->destination->setText(job->destination());
 }
 
-void ImportLocalDialog::updateCounts(int ntotal, int nmov) {
-  int nimg = ntotal - nmov;
-  if (nimg==1) 
-    ui->what->setText(what.arg("one").arg(""));
-  else
-    ui->what->setText(what.arg(nimg).arg("s"));
-}
-
 void ImportLocalDialog::browseDestination() {
   COMPLAIN("NYI");
 }
 
-QString ImportLocalDialog::destination() const {
-  return ui->destination->text();
-}
-  
-QString ImportLocalDialogcollection() const {
-  return ui->collection->currentText();
-}
-
 bool ImportLocalDialog::importInstead() const {
-  return ui->import->isChecked();
+  return ui->copy->isChecked();
 }
 

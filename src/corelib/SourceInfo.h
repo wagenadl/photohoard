@@ -15,9 +15,11 @@ public:
   QString commonRoot() const;
   QString fsRoot() const;
   bool isExternalMedia() const;
+  bool isTemporaryLike() const; // e.g., /tmp and ~/Downloads
+  bool isOtherUser() const;
   bool isWritableLocation() const;
   bool isSingleFolder() const;
-  bool involvesOnlyFiles() const;
+  bool isOnlyFiles() const;
 public:
   static QString fsRoot(QString fn); // finds top dir in same fs
   static QString commonRoot(QList<QUrl> const &);

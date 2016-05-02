@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Import from external media</string>
+   <string>Import (Photohoard)</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

@@ -10,6 +10,7 @@
 #include "CopyIn.h"
 
 class ImportOtherUserDialog: public QWidget {
+  Q_OBJECT;
 public:
   ImportOtherUserDialog(class ImportJob *job,
                        QStringList collections,
@@ -27,10 +28,10 @@ private slots:
   void changeCollection(QString);
   void browseDestination();
 private:
-  class Ui_ImportExternalDialog *ui;
+  class Ui_ImportOtherUserDialog *ui;
 private:
   ImportJob *job;
-  QString what;
+  QString what, multi1, multi2, refer;
 };
 
 #endif

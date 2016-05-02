@@ -6,8 +6,12 @@
 #include <unistd.h>
 #include <QFileInfo>
 #include <QStringList>
+#include "PDebug.h"
 
-SourceInfo::SourceInfo(QList<QUrl> const &urls): sources_(urls) {
+SourceInfo::SourceInfo(QList<QUrl> const &urls) {
+  for (QUrl const &url: urls) 
+    if (url.isLocalFile())
+      sources_ << url;
   commonroot_ = commonRoot(urls);
 }
 
@@ -43,11 +47,8 @@ QString SourceInfo::commonRoot() const {
 
 QString SourceInfo::commonRoot(QList<QUrl> const &urls) {
   QStringList paths;
-  for (QUrl const &url: urls) {
-    if (url.isLocalFile()) {
-      paths << url.path();
-    }
-  }
+  for (QUrl const &url: urls) 
+    paths << url.path();
   return commonRoot(paths);
 }
 
@@ -80,4 +81,49 @@ QString SourceInfo::commonRoot(QStringList const &paths) {
 bool SourceInfo::isExternalMedia() const {
   return commonroot_.startsWith("/media/")
     && commonroot_.count("/")>=3;
+}
+
+bool SourceInfo::isTemporaryLike() const {
+  return commonroot_.startsWith("/tmp")
+    || commonroot_.contains("/Downloads");
+}
+
+bool SourceInfo::isOtherUser() const {
+  QByteArray ba = commonroot_.toLatin1();
+  struct stat s;
+  if (::stat(ba.data(), &s) < 0) {
+    perror("stat failed");
+    COMPLAIN("stat failed");
+    return false;
+  }
+  uid_t theiruid = s.st_uid;
+
+  ba = qgetenv("HOME");
+  if (::stat(ba.data(), &s) < 0) {
+    perror("stat failed");
+    COMPLAIN("stat failed");
+    return false;
+  }
+  uid_t myuid = s.st_uid;
+
+  return theiruid != myuid;
+}
+
+bool SourceInfo::isWritableLocation() const {
+  QFileInfo fi(commonroot_);
+  return fi.isWritable();
+}
+
+bool SourceInfo::isSingleFolder() const {
+  if (sources_.size() == 1)
+    return QFileInfo(sources_.first().path()).isDir();
+  else
+    return false;
+}
+
+bool SourceInfo::isOnlyFiles() const {
+  for (QUrl const &url: sources_)
+    if (!QFileInfo(url.path()).isFile())
+      return false;
+  return true;
 }

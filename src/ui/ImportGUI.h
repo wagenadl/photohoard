@@ -20,13 +20,19 @@ public:
 private slots:
   void finishUpCompletedJob(QString errmsg); 
   void cleanUpCanceledJob();
-  void dlgAccept();
+  void dlgAcceptExternal();
+  void dlgAcceptLocal();
+  void dlgAcceptOtherUser();
   void dlgCancel();
+private:
+  void showAndGoExternal();
+  void showAndGoLocal();
+  void showAndGoOtherUser();
 private:
   class ImportJob *job;
   class ImportExternalDialog *extDlg;
-  class ImportOtherUserDialog *othUserDlg;
-  class ImportLocalDialog *locDlg;
+  class ImportOtherUserDialog *otherUserDlg;
+  class ImportLocalDialog *localDlg;
   class QProgressDialog *progressDlg; // our responsibility, but not our child
 };
 

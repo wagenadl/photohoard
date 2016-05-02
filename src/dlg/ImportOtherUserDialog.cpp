@@ -14,7 +14,12 @@ ImportOtherUserDialog::ImportOtherUserDialog(class ImportJob *job,
   QWidget(parent), job(job) {
   ui = new Ui_ImportOtherUserDialog;
   ui->setupUi(this);
+  if (job->sourceInfo().isTemporaryLike())
+    ui->refer->hide();
   what = ui->what->text();
+  multi1 = ui->multi1->text();
+  multi2 = ui->multi2->text();
+  refer = ui->refer->text();
   ui->source->setText(ui->source->text() + ": "
                       + job->sourceInfo().commonRoot());
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
@@ -61,15 +66,7 @@ void ImportOtherUserDialog::updateCounts(int ntotal, int nmov) {
 void ImportOtherUserDialog::browseDestination() {
   COMPLAIN("NYI");
 }
-
-QString ImportOtherUserDialog::destination() const {
-  return ui->destination->text();
-}
   
-QString ImportOtherUserDialogcollection() const {
-  return ui->collection->currentText();
-}
-
 bool ImportOtherUserDialog::incorporateInstead() const {
   return ui->refer->isChecked();
 }
