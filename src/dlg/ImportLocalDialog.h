@@ -24,14 +24,12 @@ public:
   QString collection() const;
   bool importInstead() const;
 private slots:
-  void updateCounts(int ntotal, int nmov);
   void changeCollection(QString);
   void browseDestination();
 private:
   class Ui_ImportLocalDialog *ui;
 private:
   ImportJob *job;
-  QString what;
 };
 
 #endif

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Incorporate local source</string>
+   <string>Import (Photohoard)</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -254,14 +254,14 @@ pictures into:</string>
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="cancel">
         <property name="text">
          <string>Cancel</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="accept">
+       <widget class="QPushButton" name="ok">
         <property name="text">
          <string>Incorporate</string>
         </property>
@@ -273,11 +273,11 @@ pictures into:</string>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>accept</tabstop>
+  <tabstop>ok</tabstop>
   <tabstop>collection</tabstop>
   <tabstop>copy</tabstop>
   <tabstop>toolButton_4</tabstop>
-  <tabstop>pushButton_2</tabstop>
+  <tabstop>cancel</tabstop>
  </tabstops>
  <resources/>
  <connections>

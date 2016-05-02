@@ -15,8 +15,8 @@ ImportGUI::ImportGUI(class SessionDB *db,
                      QList<QUrl> const &sources,
                      QObject *parent): QObject(parent) {
   extDlg = 0;
-  othUserDlg = 0;
-  locDlg = 0;
+  otherUserDlg = 0;
+  localDlg = 0;
   progressDlg = 0;
   
   job = new ImportJob(db, scanner, sources, this);
@@ -29,22 +29,54 @@ ImportGUI::ImportGUI(class SessionDB *db,
 
 ImportGUI::~ImportGUI() {
   delete extDlg;
-  delete othUserDlg;
-  delete locDlg;
+  delete otherUserDlg;
+  delete localDlg;
   delete job;
 }
 
 void ImportGUI::showAndGo() {
-  if (job->sourceInfo()->isExternalMedia()) {
-    job->setOperation(ImportJob::Operation::Import);
-    job->setAutoCollection();
-    extDlg = new ImportExternalDialog(job, Tags(job->database()).collections());
-    job->countSources();
-    connect(extDlg, SIGNAL(accepted()), SLOT(dlgAccept()));
-    connect(extDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
-    extDlg->show();
-  } else if (
+  if (job->sourceInfo().isExternalMedia()) {
+    showAndGoExternal();
+  } else if (job->sourceInfo().isOtherUser()
+	     || job->sourceInfo().isTemporaryLike()
+	     || job->sourceInfo().isOnlyFiles()) {
+    showAndGoOtherUser();
+  } else {
+    showAndGoLocal();
+  }
 }
+
+void ImportGUI::showAndGoOtherUser() {
+  job->setOperation(ImportJob::Operation::Import);
+  job->setAutoCollection();
+  otherUserDlg = new ImportOtherUserDialog(job,
+					 Tags(job->database()).collections());
+  job->countSources();
+  connect(otherUserDlg, SIGNAL(accepted()), SLOT(dlgAcceptOtherUser()));
+  connect(otherUserDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
+  otherUserDlg->show();
+}
+
+void ImportGUI::showAndGoLocal() {
+  job->setOperation(ImportJob::Operation::Incorporate);
+  job->setAutoCollection();
+  localDlg = new ImportLocalDialog(job,
+				   Tags(job->database()).collections());
+
+  connect(localDlg, SIGNAL(accepted()), SLOT(dlgAcceptLocal()));
+  connect(localDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
+  localDlg->show();
+}
+
+void ImportGUI::showAndGoExternal() {
+  job->setOperation(ImportJob::Operation::Import);
+  job->setAutoCollection();
+  extDlg = new ImportExternalDialog(job, Tags(job->database()).collections());
+  job->countSources();
+  connect(extDlg, SIGNAL(accepted()), SLOT(dlgAcceptExternal()));
+  connect(extDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
+  extDlg->show();
+}  
 
 void ImportGUI::finishUpCompletedJob(QString errmsg) {
   qDebug() << "finishUpCompletedJob" << errmsg;
@@ -56,26 +88,31 @@ void ImportGUI::cleanUpCanceledJob() {
   deleteLater();
 }
 
-void ImportGUI::dlgAccept() {
-  if (extDlg) {
-    job->setCollection(extDlg->collection());
-    job->setDestination(extDlg->destination());
-    job->setSourceDisposition(extDlg->sourceDisposition());
-    if (extDlg->hasMovieDestination())
-      job->setMovieDestination(extDlg->movieDestination());
-    else
-      job->setNoMovieDestination();
-    extDlg->hide();
-  } else {
-    CRASH("No dialog");
-  }
+void ImportGUI::dlgAcceptOtherUser() {
+  COMPLAIN("NYI");
+}
+
+void ImportGUI::dlgAcceptLocal() {
+  COMPLAIN("NYI");
+}
+
+void ImportGUI::dlgAcceptExternal() {
+  ASSERT(extDlg);
+  job->setCollection(extDlg->collection());
+  job->setDestination(extDlg->destination());
+  job->setSourceDisposition(extDlg->sourceDisposition());
+  if (extDlg->hasMovieDestination())
+    job->setMovieDestination(extDlg->movieDestination());
+  else
+    job->setNoMovieDestination();
+  extDlg->hide();
 
   if (job->operation()==ImportJob::Operation::Import) {
     progressDlg = new QProgressDialog("Copying...", "Cancel",
-                                      0, job->preliminarySourceCount());
+				      0, job->preliminarySourceCount());
     connect(progressDlg, SIGNAL(canceled()), job, SLOT(cancel()));
     connect(job, SIGNAL(countsUpdated(int, int)),
-            progressDlg, SLOT(setMaximum(int)));
+	    progressDlg, SLOT(setMaximum(int)));
     connect(job, SIGNAL(progress(int)), progressDlg, SLOT(setValue(int)));
   }
 
