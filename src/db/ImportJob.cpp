@@ -15,7 +15,7 @@ ImportJob::ImportJob(class SessionDB *db,
                                        db(db), scanner_(scanner),
                                        copyin(0), collector(0),
                                        srcinfo(sources) {
-  op = Operation::Import; // GUI will change
+  op = Operation::Import; // GUI may change
   autodest = true;
   srcdisp = CopyIn::SourceDisposition::Leave;
   authorized_ = false;
@@ -130,7 +130,7 @@ void ImportJob::authorize() {
       startCopy();
     break;
   case Operation::Incorporate:
-    CRASH("NYI");
+    startIncorporate(); // we don't have to wait for source count
     break;
   }
 }
@@ -138,6 +138,12 @@ void ImportJob::authorize() {
 void ImportJob::markFinalSourceCount() {
   if (authorized_ && op==Operation::Import)
     startCopy();
+}
+
+void ImportJob::startIncorporate() {
+  for (QUrl const &url: sourceInfo().sources())
+    scanner_->addTree(url.path(), coll);
+  emit complete("");
 }
 
 void ImportJob::startCopy() {

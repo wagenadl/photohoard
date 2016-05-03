@@ -204,9 +204,8 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e) {
     e->accept();
   } else if (data->hasFormat("text/uri-list")) {
     QList<QUrl> urls = data->urls();
-    for (auto const &url: urls)
-      if (!url.isLocalFile())
-        return;
+    if (!ImportGUI::acceptable(urls))
+      return;
     dragin = true;
     e->accept();
   }
@@ -236,7 +235,10 @@ void MainWindow::dropEvent(QDropEvent *e) {
   //  Qt::DropAction act = e->dropAction();
   QMimeData const *data = e->mimeData();
   QList<QUrl> urls = data->urls();
-
+  if (!ImportGUI::acceptable(urls))
+    return;
+  
+  e->accept();
   auto *gui = new ImportGUI(db, scanner, urls);
   gui->showAndGo();
 

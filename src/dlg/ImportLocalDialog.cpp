@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "ImportJob.h"
 #include "SourceInfo.h"
+#include <QKeyEvent>
 
 ImportLocalDialog::ImportLocalDialog(class ImportJob *job,
                                              QStringList collections,
@@ -14,8 +15,12 @@ ImportLocalDialog::ImportLocalDialog(class ImportJob *job,
   QWidget(parent), job(job) {
   ui = new Ui_ImportLocalDialog;
   ui->setupUi(this);
-  ui->source->setText(ui->source->text() + ": "
-                      + job->sourceInfo().commonRoot());
+  if (job->sourceInfo().isSingleFolder())
+    ui->source->setText(ui->source->text() + ": "
+			+ job->sourceInfo().simplifiedRoot());
+  else
+    ui->source->setText(QString("%1 local folders")
+			.arg(job->sourceInfo().sources().count()));
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 
@@ -27,14 +32,16 @@ ImportLocalDialog::ImportLocalDialog(class ImportJob *job,
   if (idx>=0)
     ui->collection->setCurrentIndex(idx);
 
-  ui->destination->setText(job->destination());
+  ui->destination->setText(SourceInfo::simplified(job->destination()));
+
+  resize(minimumSizeHint());  
 }
 
 ImportLocalDialog::~ImportLocalDialog() {
 }
 
 QString ImportLocalDialog::destination() const {
-  return ui->destination->text();
+  return SourceInfo::reconstructed(ui->destination->text());
 }
 
 QString ImportLocalDialog::collection() const {
@@ -55,3 +62,16 @@ bool ImportLocalDialog::importInstead() const {
   return ui->copy->isChecked();
 }
 
+void ImportLocalDialog::keyPressEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_Escape)
+    emit canceled();
+  else
+    QWidget::keyPressEvent(e);
+}
+
+void ImportLocalDialog::changeMode(bool b) {
+  if (b)
+    ui->ok->setText("Import");
+  else
+    ui->ok->setText("Incorporate");
+}
