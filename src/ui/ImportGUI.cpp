@@ -8,7 +8,9 @@
 #include "PDebug.h"
 #include <QProgressDialog>
 #include "Tags.h"
+#include "Extensions.h"
 #include "SessionDB.h"
+#include <QFileInfo>
 
 ImportGUI::ImportGUI(class SessionDB *db,
                      class Scanner *scanner,
@@ -35,15 +37,23 @@ ImportGUI::~ImportGUI() {
 }
 
 void ImportGUI::showAndGo() {
-  if (job->sourceInfo().isExternalMedia()) {
-    showAndGoExternal();
-  } else if (job->sourceInfo().isOtherUser()
-	     || job->sourceInfo().isTemporaryLike()
-	     || job->sourceInfo().isOnlyFiles()) {
+  if (job->sourceInfo().isEmpty())
+    cleanUpCanceledJob();
+  else if (job->sourceInfo().isOtherUser()) 
     showAndGoOtherUser();
-  } else {
+  else if (job->sourceInfo().isExternalMedia()
+      || job->sourceInfo().isTemporaryLike()) 
+    showAndGoExternal();
+  else if (job->sourceInfo().isOnlyFolders()) 
     showAndGoLocal();
-  }
+  else 
+    showAndGoAltLocal();
+}
+
+void ImportGUI::showAndGoAltLocal() {
+  showAndGoOtherUser();
+  // This is not perfect, obviously, because Delete should be an option
+  // for source disposition
 }
 
 void ImportGUI::showAndGoOtherUser() {
@@ -89,11 +99,52 @@ void ImportGUI::cleanUpCanceledJob() {
 }
 
 void ImportGUI::dlgAcceptOtherUser() {
-  COMPLAIN("NYI");
+  ASSERT(otherUserDlg);
+  job->setCollection(otherUserDlg->collection());
+  job->setDestination(otherUserDlg->destination());
+  job->setSourceDisposition(CopyIn::SourceDisposition::Leave);
+  if (otherUserDlg->hasMovieDestination())
+    job->setMovieDestination(otherUserDlg->movieDestination());
+  else
+    job->setNoMovieDestination();
+  if (otherUserDlg->incorporateInstead())
+    job->setOperation(ImportJob::Operation::Incorporate);
+  
+  otherUserDlg->hide();
+
+  if (job->operation()==ImportJob::Operation::Import) {
+    progressDlg = new QProgressDialog("Copying...", "Cancel",
+				      0, job->preliminarySourceCount());
+    connect(progressDlg, SIGNAL(canceled()), job, SLOT(cancel()));
+    connect(job, SIGNAL(countsUpdated(int, int)),
+	    progressDlg, SLOT(setMaximum(int)));
+    connect(job, SIGNAL(progress(int)), progressDlg, SLOT(setValue(int)));
+  }
+
+  job->authorize();
 }
 
 void ImportGUI::dlgAcceptLocal() {
-  COMPLAIN("NYI");
+  ASSERT(localDlg);
+  job->setCollection(localDlg->collection());
+  job->setDestination(localDlg->destination());
+  job->setSourceDisposition(CopyIn::SourceDisposition::Leave);
+  job->setNoMovieDestination();
+  if (localDlg->importInstead())
+    job->setOperation(ImportJob::Operation::Import);
+  
+  localDlg->hide();
+
+  if (job->operation()==ImportJob::Operation::Import) {
+    progressDlg = new QProgressDialog("Copying...", "Cancel",
+				      0, job->preliminarySourceCount());
+    connect(progressDlg, SIGNAL(canceled()), job, SLOT(cancel()));
+    connect(job, SIGNAL(countsUpdated(int, int)),
+	    progressDlg, SLOT(setMaximum(int)));
+    connect(job, SIGNAL(progress(int)), progressDlg, SLOT(setValue(int)));
+  }
+
+  job->authorize();
 }
 
 void ImportGUI::dlgAcceptExternal() {
@@ -121,4 +172,19 @@ void ImportGUI::dlgAcceptExternal() {
 
 void ImportGUI::dlgCancel() {
   deleteLater();
+}
+
+bool ImportGUI::acceptable(QList<QUrl> const &urls) {
+  for (auto const &url: urls) {
+    if (!url.isLocalFile())
+        return false;
+    QFileInfo fi(url.path());
+    if (fi.isDir())
+      continue;
+    else if (Extensions::imageExtensions().contains(fi.suffix().toLower()))
+      continue;
+    else
+      return false;
+  }
+  return true;
 }

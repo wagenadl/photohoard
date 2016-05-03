@@ -25,6 +25,8 @@ public:
   QString movieDestination() const;
   QString collection() const;
   CopyIn::SourceDisposition sourceDisposition() const;
+protected:
+  virtual void keyPressEvent(QKeyEvent *);
 private slots:
   void updateCounts(int ntotal, int nmov);
   void changeCollection(QString);
@@ -36,6 +38,7 @@ private:
   ImportJob *job;
   QString what;
   QString movieWhat;
+  bool bkremoved;
 };
 
 #endif

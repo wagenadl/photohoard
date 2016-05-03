@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>357</width>
-    <height>298</height>
+    <width>326</width>
+    <height>273</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -147,8 +147,8 @@
         </property>
         <property name="text">
          <string>
-Instead of adding a new root, copy the
-pictures into:</string>
+Instead of adding %1new root%2, copy the
+images into:</string>
         </property>
        </widget>
       </item>
@@ -292,8 +292,8 @@ pictures into:</string>
      <y>163</y>
     </hint>
     <hint type="destinationlabel">
-     <x>23</x>
-     <y>239</y>
+     <x>32</x>
+     <y>215</y>
     </hint>
    </hints>
   </connection>
@@ -304,17 +304,34 @@ pictures into:</string>
    <slot>browseDestination()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>311</x>
-     <y>228</y>
+     <x>298</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
+     <x>325</x>
      <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>copy</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ImportLocalDialog</receiver>
+   <slot>changeMode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>265</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>323</x>
+     <y>201</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>browseDestination()</slot>
+  <slot>changeMode(bool)</slot>
  </slots>
 </ui>
