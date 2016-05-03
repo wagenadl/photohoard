@@ -23,9 +23,12 @@ public:
   QString destination() const;
   QString collection() const;
   bool importInstead() const;
+protected:
+  virtual void keyPressEvent(QKeyEvent *);
 private slots:
   void changeCollection(QString);
   void browseDestination();
+  void changeMode(bool);
 private:
   class Ui_ImportLocalDialog *ui;
 private:

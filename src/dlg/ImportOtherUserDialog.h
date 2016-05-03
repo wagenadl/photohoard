@@ -21,8 +21,12 @@ signals:
   void canceled();
 public:
   QString destination() const;
+  bool hasMovieDestination() const;
+  QString movieDestination() const;
   QString collection() const;
   bool incorporateInstead() const;
+protected:
+  virtual void keyPressEvent(QKeyEvent *);
 private slots:
   void updateCounts(int ntotal, int nmov);
   void changeCollection(QString);
@@ -31,7 +35,7 @@ private:
   class Ui_ImportOtherUserDialog *ui;
 private:
   ImportJob *job;
-  QString what, multi1, multi2, refer;
+  QString what, multi1, multi2, refer, copymov;
 };
 
 #endif

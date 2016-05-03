@@ -15,6 +15,13 @@ SourceInfo::SourceInfo(QList<QUrl> const &urls) {
   commonroot_ = commonRoot(urls);
 }
 
+bool SourceInfo::isAllLocal(QList<QUrl> const &urls) {
+  for (QUrl const &url: urls) 
+    if (!url.isLocalFile())
+      return false;
+  return true;
+}  
+
 QString SourceInfo::fsRoot(QString fn) {
   dev_t dev0 = 0;
   QFileInfo fi(fn);
@@ -88,25 +95,62 @@ bool SourceInfo::isTemporaryLike() const {
     || commonroot_.contains("/Downloads");
 }
 
+QString SourceInfo::homeDirectory() {
+  static QString home(QString(qgetenv("HOME")));
+  return home;
+}
+
+static uid_t myUid() {
+  static bool have = false;
+  static uid_t uid = 0;
+  if (!have) {
+    struct stat s;
+    QByteArray ba = SourceInfo::homeDirectory().toLatin1();
+    if (::stat(ba.data(), &s) < 0) {
+      perror("stat failed");
+      CRASH("stat failed");
+    }
+    uid = s.st_uid;
+    have = true;
+  }
+  return uid;
+}
+
 bool SourceInfo::isOtherUser() const {
-  QByteArray ba = commonroot_.toLatin1();
-  struct stat s;
-  if (::stat(ba.data(), &s) < 0) {
-    perror("stat failed");
-    COMPLAIN("stat failed");
-    return false;
+  for (QUrl const &url: sources_) {
+    QByteArray ba = url.path().toLatin1();
+    struct stat s;
+    if (::stat(ba.data(), &s) < 0) {
+      perror("stat failed");
+      COMPLAIN("stat failed");
+      return false;
+    } else {
+      if (s.st_uid != myUid())
+	return true;
+    }
   }
-  uid_t theiruid = s.st_uid;
+  return false;
+}
 
-  ba = qgetenv("HOME");
-  if (::stat(ba.data(), &s) < 0) {
-    perror("stat failed");
-    COMPLAIN("stat failed");
-    return false;
-  }
-  uid_t myuid = s.st_uid;
+QString SourceInfo::simplifiedRoot() const {
+  return simplified(commonroot_);
+}
 
-  return theiruid != myuid;
+QString SourceInfo::reconstructed(QString fn) {
+  if (fn.startsWith("/"))
+    return fn;
+  else
+    return homeDirectory() + "/" + fn;
+}
+
+QString SourceInfo::simplified(QString fn) {
+  QString home = homeDirectory();
+  if (fn==home)
+    return "Home directory";
+  else if (fn.startsWith(home))
+    return fn.mid(home.size() + 1);
+  else
+    return fn;
 }
 
 bool SourceInfo::isWritableLocation() const {
@@ -121,9 +165,27 @@ bool SourceInfo::isSingleFolder() const {
     return false;
 }
 
+bool SourceInfo::isOnlyFolders() const {
+  for (QUrl const &url: sources_)
+    if (!QFileInfo(url.path()).isDir())
+      return false;
+  return true;
+}
+  
+bool SourceInfo::isSingleFile() const {
+  if (sources_.size() == 1)
+    return QFileInfo(sources_.first().path()).isFile();
+  else
+    return false;
+}
+
 bool SourceInfo::isOnlyFiles() const {
   for (QUrl const &url: sources_)
     if (!QFileInfo(url.path()).isFile())
       return false;
   return true;
+}
+
+bool SourceInfo::isEmpty() const {
+  return sources_.isEmpty();
 }

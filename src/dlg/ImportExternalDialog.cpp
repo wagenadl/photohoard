@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "ImportJob.h"
 #include "SourceInfo.h"
+#include <QKeyEvent>
 
 ImportExternalDialog::ImportExternalDialog(ImportJob *job,
                                            QStringList collections,
@@ -14,10 +15,17 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   QWidget(parent), job(job) {
   ui = new Ui_ImportExternalDialog;
   ui->setupUi(this);
+
+  if (job->sourceInfo().isTemporaryLike()) {
+    ui->disposition->removeItem(1);
+    ui->source->setText("Temporary location");
+    bkremoved = true;
+  }
+  
   what = ui->what->text();
   movieWhat = ui->copyMovies->text();
   ui->source->setText(ui->source->text() + ": "
-                      + job->sourceInfo().commonRoot());
+                      + job->sourceInfo().simplifiedRoot());
   QString home = QString(qgetenv("HOME"));
   ui->movieDestination->setText(ImportJob::autoDest(home + "/Pictures/movies"));
   ui->movieContainer->hide();
@@ -34,26 +42,27 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   if (idx>=0)
     ui->collection->setCurrentIndex(idx);
 
-  ui->destination->setText(job->destination());
+  ui->destination->setText(SourceInfo::simplified(job->destination()));
 
   switch (job->sourceDisposition()) {
   case CopyIn::SourceDisposition::Leave:
     ui->disposition->setCurrentIndex(0);
     break;
   case CopyIn::SourceDisposition::Backup:
-    ui->disposition->setCurrentIndex(1);
+    ui->disposition->setCurrentIndex(bkremoved ? 0 : 1);
     break;
   case CopyIn::SourceDisposition::Delete:
-    ui->disposition->setCurrentIndex(2);
+    ui->disposition->setCurrentIndex(bkremoved ? 1 : 2);
     break;
   }
+  resize(minimumSizeHint());
 }
 
 ImportExternalDialog::~ImportExternalDialog() {
 }
 
 QString ImportExternalDialog::destination() const {
-  return ui->destination->text();
+  return SourceInfo::reconstructed(ui->destination->text());
 }
 
 QString ImportExternalDialog::movieDestination() const {
@@ -73,7 +82,9 @@ CopyIn::SourceDisposition ImportExternalDialog::sourceDisposition() const {
   case 0:
     return CopyIn::SourceDisposition::Leave;
   case 1:
-    return CopyIn::SourceDisposition::Backup;
+    return bkremoved
+      ? CopyIn::SourceDisposition::Delete
+      : CopyIn::SourceDisposition::Backup;
   case 2:
     return CopyIn::SourceDisposition::Delete;
   default:
@@ -108,4 +119,11 @@ void ImportExternalDialog::browseDestination() {
 
 void ImportExternalDialog::browseMovieDestination() {
   COMPLAIN("NYI");
+}
+
+void ImportExternalDialog::keyPressEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_Escape)
+    emit canceled();
+  else
+    QWidget::keyPressEvent(e);
 }
