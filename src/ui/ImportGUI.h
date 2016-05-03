@@ -17,6 +17,8 @@ public:
 	    QObject *parent=0);
   virtual ~ImportGUI();
   void showAndGo();
+public:
+  static bool acceptable(QList<QUrl> const &);
 private slots:
   void finishUpCompletedJob(QString errmsg); 
   void cleanUpCanceledJob();
@@ -27,6 +29,7 @@ private slots:
 private:
   void showAndGoExternal();
   void showAndGoLocal();
+  void showAndGoAltLocal();
   void showAndGoOtherUser();
 private:
   class ImportJob *job;
