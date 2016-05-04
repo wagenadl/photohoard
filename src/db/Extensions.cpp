@@ -14,5 +14,6 @@ namespace Extensions {
     static QSet<QString> exts;
     if (exts.isEmpty())
       exts << "mp4" << "mov";
+    return exts;
   }
 }

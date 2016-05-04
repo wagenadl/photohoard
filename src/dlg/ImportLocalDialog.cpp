@@ -15,12 +15,18 @@ ImportLocalDialog::ImportLocalDialog(class ImportJob *job,
   QWidget(parent), job(job) {
   ui = new Ui_ImportLocalDialog;
   ui->setupUi(this);
-  if (job->sourceInfo().isSingleFolder())
+  QString copy = ui->copy->text();
+  if (job->sourceInfo().isSingleFolder()) {
     ui->source->setText(ui->source->text() + ": "
 			+ job->sourceInfo().simplifiedRoot());
-  else
+    copy = copy.arg("a ").arg("");
+  } else {
     ui->source->setText(QString("%1 local folders")
 			.arg(job->sourceInfo().sources().count()));
+    copy = copy.arg("").arg("s");
+  }
+  ui->copy->setText(copy);
+
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 
