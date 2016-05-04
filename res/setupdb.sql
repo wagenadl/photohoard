@@ -107,7 +107,7 @@ create table adjustments (
        foreign key(version) references versions(id)
                on delete cascade
                on update cascade );
-
+	       
 create table undo (
 -- Table of undo steps
        stepid integer primary key,
@@ -157,6 +157,28 @@ create table photostoscan (
 create table cachefn (
        fn string );
 
+create table layers (
+-- Table of layers
+       id integer primary key,
+       version integer,
+       stacking integer,
+       active boolean default true,
+       typ integer,
+       dat,
+       foreign key(version) references versions(id)
+       	       on delete cascade
+	       on update cascade );
+
+create table layeradjustments (
+-- Table of layer-specific adjustments
+       layer integer,
+       k text,
+       v,
+       unique(layer, k) on conflict replace,
+       foreign key(layer) references layers(id)
+       	       on delete cascade,
+	       on update cascade );
+       
 -- ======================================================================
 
 insert into filetypes(stdext) values ("jpeg");

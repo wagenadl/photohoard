@@ -121,7 +121,15 @@ void Adjustments::readFromDB(quint64 vsn, PhotoDB &db) {
   while (q.next())
     set(q.value(0).toString(), q.value(1).toDouble());
 }
-  
+
+void Adjustments::readFromDBForLayer(quint64 layer, PhotoDB &db) {
+  reset();
+  QSqlQuery q = db.query("select k, v from layeradjustments where layer==:a",
+                         layer);
+  while (q.next())
+    set(q.value(0).toString(), q.value(1).toDouble());
+}
+
 void Adjustments::writeToDB(quint64 vsn, PhotoDB &db) const {
   for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
     QString k = it.key();
@@ -133,6 +141,20 @@ void Adjustments::writeToDB(quint64 vsn, PhotoDB &db) const {
     else
       db.query("insert or replace into adjustments(version, k, v)"
                " values(:a,:b,:c)", vsn, k, v);
+  }
+}  
+
+void Adjustments::writeToDBForLayer(quint64 layer, PhotoDB &db) const {
+  for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
+    QString k = it.key();
+    double v0 = it.value();
+    double v = get(k);
+    if (v==v0)
+      db.query("delete from layeradjustments where layer==:a and k==:b",
+               layer, k);
+    else
+      db.query("insert or replace into layeradjustments(layer, k, v)"
+               " values(:a,:b,:c)", layer, k, v);
   }
 }  
 

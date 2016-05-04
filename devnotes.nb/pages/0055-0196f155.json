@@ -1,0 +1,87 @@
+{ "typ": "page",
+  "cre": "2016-05-02T07:50:40",
+  "mod": "2016-05-02T07:54:55",
+  "cui": "9b713b3720603e53",
+  "stampTime": 0,
+  "startPage": 55,
+  "unlocked": false,
+  "uuid": "0196f155",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-05-02T07:50:40",
+      "mod": "2016-05-02T07:54:49",
+      "uuid": "9f6558a9",
+      "cc": [
+        { "typ": "res",
+          "cre": "2016-05-02T07:50:46",
+          "mod": "2016-05-02T07:50:47",
+          "archive": "1_-99a8e954.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "1",
+          "title": "",
+          "uuid": "99a8e954"
+        },
+        { "typ": "res",
+          "cre": "2016-05-02T07:54:49",
+          "mod": "2016-05-02T07:54:49",
+          "archive": "2_-f1fdad50.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "2",
+          "title": "",
+          "uuid": "f1fdad50"
+        }
+      ]
+    },
+    { "typ": "title",
+      "cre": "2016-05-02T07:50:40",
+      "mod": "2016-05-02T07:50:45",
+      "uuid": "01981019",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-05-02T07:50:40",
+          "mod": "2016-05-02T07:50:45",
+          "lines": [
+            0
+          ],
+          "text": "Import actions",
+          "uuid": "7e62c852"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2016-05-02T07:50:46",
+      "mod": "2016-05-02T07:54:55",
+      "h": 333.606,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "e76c3a19",
+      "xref": 0.0,
+      "y0": 72.0,
+      "yref": -8.5041,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2016-05-02T07:54:49",
+          "mod": "2016-05-02T07:54:55",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 366.0,
+          "res": [
+            "2"
+          ],
+          "resName": "2",
+          "scale": 0.862312,
+          "uuid": "105e9c79",
+          "width": 593.0,
+          "x": -59.4861,
+          "y": 0.495902
+        }
+      ]
+    }
+  ]
+}

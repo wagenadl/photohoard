@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2016-04-25T05:59:40",
+  "mod": "2016-05-03T18:58:08",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -320,12 +320,30 @@
     },
     { "typ": "entry",
       "cre": "2016-04-25T05:59:33",
-      "mod": "2016-04-25T05:59:40",
-      "seen": "2016-04-25T05:59:33",
+      "mod": "2016-05-02T07:50:36",
+      "seen": "2016-05-02T07:50:36",
       "sheetCount": 1,
       "startPage": 54,
       "title": "UI responsiveness",
       "uuid": "b9d75a1a"
+    },
+    { "typ": "entry",
+      "cre": "2016-05-02T07:50:40",
+      "mod": "2016-05-02T07:50:45",
+      "seen": "2016-05-02T07:50:40",
+      "sheetCount": 1,
+      "startPage": 55,
+      "title": "Import actions",
+      "uuid": "0196f155"
+    },
+    { "typ": "entry",
+      "cre": "2016-05-03T18:19:09",
+      "mod": "2016-05-03T18:58:08",
+      "seen": "2016-05-03T18:19:09",
+      "sheetCount": 5,
+      "startPage": 56,
+      "title": "Layers",
+      "uuid": "ad443b3f"
     }
   ]
 }

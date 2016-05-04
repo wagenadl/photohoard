@@ -59,14 +59,16 @@ void Collector::run() {
       emit canceled();
       return;
     }
+    QSet<QString> const &imgext = Extensions::imageExtensions();
+    QSet<QString> const &movext = Extensions::imageExtensions();
     if (url.isLocalFile()) {
-      
       QFileInfo fi(url.path());
+      qDebug() << "Collector: " << fi.absoluteFilePath();
       if (fi.isDir())
         sourceDirs << url.path();
-      else if (Extensions::imageExtensions().contains(fi.suffix().toLower()))
+      else if (imgext.contains(fi.suffix().toLower()))
         imgFiles << fi.absoluteFilePath();
-      else if (Extensions::movieExtensions().contains(fi.suffix().toLower()))
+      else if (movext.contains(fi.suffix().toLower()))
         movFiles << fi.absoluteFilePath();
       else
         qDebug() << "Collector: Ignoring unknown filetype" << fi.suffix();

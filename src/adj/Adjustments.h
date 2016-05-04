@@ -25,6 +25,8 @@ public:
      rows are deleted from the table.)
      This function does not create a TRANSACTION. The caller should do that.
   */
+  void readFromDBForLayer(quint64 layer,  class PhotoDB &db);
+  void writeToDBForLayer(quint64 layer, class PhotoDB &db) const;
   QString getAll() const;
   bool set(QString k, double v);
   double get(QString k) const;
