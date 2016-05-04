@@ -23,6 +23,7 @@
   <file alias="icons/rescan.svg">../res/icons/rescan.svg</file>
   <file alias="icons/sliders.svg">../res/icons/sliders.svg</file>
   <file alias="icons/crop.svg">../res/icons/crop.svg</file>
+  <file alias="icons/layers.svg">../res/icons/layers.svg</file>
  </qresource> 
 </RCC>
 

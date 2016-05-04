@@ -4,12 +4,14 @@
 #include "Action.h"
 #include "ControlSliders.h"
 #include "CropControls.h"
+#include "LayerDialog.h"
 
 AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
   sliders = new ControlSliders(ro);
   addTab(sliders, QIcon(":/icons/sliders.svg"), "Sliders");
   connect(sliders, SIGNAL(valuesChanged()),
 	  SLOT(changeFromSliders()));
+
   if (ro) {
     cropper = 0;
   } else {
@@ -18,6 +20,9 @@ AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
     connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
 	    SLOT(changeFromCropper(QRect, QSize)));
   }
+
+  layers = new LayerDialog();
+  addTab(layers, QIcon(":/icons/layers.svg"), "Layers");
 }
 
 AllControls::~AllControls() {

@@ -71,6 +71,7 @@ private slots:
   void doneCopying(int, int);
 private:
   void startCopy();
+  void startIncorporate();
 private:
   class SessionDB *db;
   class Scanner *scanner_;

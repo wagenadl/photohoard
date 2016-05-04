@@ -17,16 +17,25 @@ public:
 	    QObject *parent=0);
   virtual ~ImportGUI();
   void showAndGo();
+public:
+  static bool acceptable(QList<QUrl> const &);
 private slots:
   void finishUpCompletedJob(QString errmsg); 
   void cleanUpCanceledJob();
-  void dlgAccept();
+  void dlgAcceptExternal();
+  void dlgAcceptLocal();
+  void dlgAcceptOtherUser();
   void dlgCancel();
+private:
+  void showAndGoExternal();
+  void showAndGoLocal();
+  void showAndGoAltLocal();
+  void showAndGoOtherUser();
 private:
   class ImportJob *job;
   class ImportExternalDialog *extDlg;
-  class ImportOtherUserDialog *othUserDlg;
-  class ImportLocalDialog *locDlg;
+  class ImportOtherUserDialog *otherUserDlg;
+  class ImportLocalDialog *localDlg;
   class QProgressDialog *progressDlg; // our responsibility, but not our child
 };
 

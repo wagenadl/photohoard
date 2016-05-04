@@ -32,6 +32,7 @@ private slots:
 private:
   class ControlSliders *sliders;
   class CropControls *cropper;
+  class LayerDialog *layers;
 };
 
 #endif
