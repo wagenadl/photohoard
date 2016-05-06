@@ -5,8 +5,14 @@
 #include "ControlSliders.h"
 #include "CropControls.h"
 #include "LayerDialog.h"
+#include "PhotoDB.h"
 
-AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
+AllControls::AllControls(PhotoDB *db, QWidget *parent):
+  QTabWidget(parent), db(db) {
+  vsn = 0;
+
+  bool ro = db->isReadOnly();
+  
   sliders = new ControlSliders(ro);
   addTab(sliders, QIcon(":/icons/sliders.svg"), "Sliders");
   connect(sliders, SIGNAL(valuesChanged()),
@@ -28,24 +34,36 @@ AllControls::AllControls(bool ro, QWidget *parent): QTabWidget(parent) {
 AllControls::~AllControls() {
 }
 
-Adjustments const &AllControls::getAll() const {
-  return sliders->getAll();
+Adjustments const *AllControls::getAll(quint64 v) const {
+  if (v==vsn)
+    return &sliders->getAll();
+  else
+    return 0;
 }  
 
-void AllControls::setAll(Adjustments const &a, QSize origsize) {
-  sliders->setAll(a);
-  if (cropper)
-    cropper->setAll(a, origsize);
+void AllControls::setVersion(quint64 v) {
+  vsn = v;
+  if (vsn) {
+    Adjustments a(Adjustments::fromDB(v, *db));
+    QSize s(db->originalSize(vsn));
+    sliders->setAll(a);
+    if (cropper)
+      cropper->setAll(a, s);
+    setEnabled(true);
+  } else {
+    setEnabled(false);
+  }
 }
 
 void AllControls::changeFromSliders() {
-  emit valuesChanged();
+  Adjustments adj = sliders->getAll();
+  emit valuesChanged(vsn, adj);
   if (cropper)
-    cropper->setAll(sliders->getAll());
+    cropper->setAll(adj);
 }
 
 void AllControls::changeFromCropper(QRect croprect, QSize osize) {
-  Adjustments adj0 = getAll();
+  Adjustments adj0 = sliders->getAll();
   Adjustments adj = adj0;
   adj.cropl = croprect.left();
   adj.cropr = osize.width() - croprect.right();
@@ -57,7 +75,7 @@ void AllControls::changeFromCropper(QRect croprect, QSize osize) {
       || adj.cropb!=adj0.cropb)
     sliders->setAll(adj);
 
-  emit valuesChanged();
+  emit valuesChanged(vsn, adj);
 }
 
 QSize AllControls::sizeHint() const {

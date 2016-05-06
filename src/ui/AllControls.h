@@ -11,19 +11,22 @@
 class AllControls: public QTabWidget {
   Q_OBJECT;
 public:
-  AllControls(bool ro, QWidget *parent=0);
+  AllControls(PhotoDB *db, QWidget *parent=0);
   virtual ~AllControls();
-  Adjustments const &getAll() const;
+  Adjustments const *getAll(quint64 vsn) const;
+  /* GETALL - Get values of all sliders
+     VSN must be passed in to ensure we are talking about the same version.
+  */
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
 signals:
-  void valuesChanged();
+  void valuesChanged(quint64 vsn, Adjustments adj);
   /* VALUECHANGED - Emitted when the user changes a value.
      Use GETALL to get the new values
   */
 public slots:
-  void setAll(Adjustments const &vv, QSize osize);
-  /* SETALL - Sets all sliders and controls
+  void setVersion(quint64 vsn);
+  /* SETVERSION - Sets all sliders and controls
      Does not signal VALUECHANGED.
   */
 private slots:
@@ -33,6 +36,9 @@ private:
   class ControlSliders *sliders;
   class CropControls *cropper;
   class LayerDialog *layers;
+private:
+  class PhotoDB *db;
+  quint64 vsn;
 };
 
 #endif
