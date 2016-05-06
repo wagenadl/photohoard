@@ -2,7 +2,6 @@
 
 #include "LiveAdjuster.h"
 #include "Adjustments.h"
-#include "AllControls.h"
 #include "InterruptableAdjuster.h"
 #include "Adjuster.h"
 #include "OriginalFinder.h"
@@ -10,16 +9,13 @@
 #include "PDebug.h"
 
 LiveAdjuster::LiveAdjuster(PhotoDB *db, 
-                           class AllControls *controls,
                            class AutoCache *cache,
                            QObject *parent):
-  QObject(parent), db(db), controls(controls), cache(cache) {
+  QObject(parent), db(db), cache(cache) {
   ofinder = new OriginalFinder(db, this);
   adjuster = new InterruptableAdjuster(this);
   connect(adjuster, SIGNAL(ready(Image16, quint64)),
           SLOT(provideAdjusted(Image16, quint64)));
-  connect(controls, SIGNAL(valuesChanged()),
-          SLOT(reloadSliders()));
   connect(ofinder, SIGNAL(originalAvailable(quint64, Image16)),
           SLOT(provideOriginal(quint64, Image16)));
   connect(ofinder, SIGNAL(scaledOriginalAvailable(quint64, QSize, Image16)),
@@ -27,23 +23,19 @@ LiveAdjuster::LiveAdjuster(PhotoDB *db,
   version = 0;
   mustoffermod = false;
   mustshowupdate = false;
-  controls->setEnabled(false);
 }
 
 void LiveAdjuster::clear() {
   version = 0;
   adjuster->clear();
-  controls->setEnabled(false);
 }
 
 void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   bool newvsn = version!=v;
   mustshowupdate = true;
   if (newvsn) {
-    originalSize = ofinder->originalSize(v);
+    originalSize = db->originalSize(v);
     sliders.readFromDB(v, *db);
-    controls->setAll(sliders, originalSize);
-    controls->setEnabled(true);
   }
   targetsize = s;
   version = v;
@@ -80,8 +72,11 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   }
 }
 
-void LiveAdjuster::reloadSliders() {
-  Adjustments sli = controls->getAll();
+void LiveAdjuster::reloadSliders(quint64 v, Adjustments sli) {
+  if (v!=version) {
+    pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
+    return;
+  }
   if (sli==sliders)
     return;
   

@@ -44,10 +44,11 @@ MainWindow::MainWindow(SessionDB *db,
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
   dock = new QDockWidget("Adjustments", this);
-  dock->setWidget(allControls = new AllControls(db->isReadOnly(), this));
+  dock->setWidget(allControls = new AllControls(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
-
+  allControls->setVersion(db->current());
+  
   dock = new QDockWidget("Metadata",this);
   dock->setWidget(metaViewer = new MetaViewer(db, this));
   dock->setTitleBarWidget(new QWidget());
@@ -63,7 +64,7 @@ MainWindow::MainWindow(SessionDB *db,
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
-  adjuster = new LiveAdjuster(db, allControls, autocache, this);
+  adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
   
@@ -124,6 +125,11 @@ MainWindow::MainWindow(SessionDB *db,
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
           histogram, SLOT(setVersion(quint64)));
+
+  connect(lightTable, SIGNAL(newCurrent(quint64)),
+	  allControls, SLOT(setVersion(quint64)));
+  connect(allControls, SIGNAL(valuesChanged(quint64, Adjustments)),
+	  adjuster, SLOT(reloadSliders(quint64, Adjustments)));
 
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));

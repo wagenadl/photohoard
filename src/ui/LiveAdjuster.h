@@ -13,7 +13,6 @@ class LiveAdjuster: public QObject {
   Q_OBJECT;
 public:
   LiveAdjuster(PhotoDB *db, 
-               class AllControls *controls,
                class AutoCache *cache,
                QObject *parent=0);
 public slots:
@@ -22,6 +21,7 @@ public slots:
   void markVersionAndSize(quint64 version, QSize size);
   /* The latter doesn't immediately request an image, but prepares for
      later setSlider calls that will need an image. */
+  void reloadSliders(quint64 vsn, Adjustments);
 signals:
   void imageAvailable(Image16 img, quint64 version);
   /* In addition, when a new adjustment is made, the image is offered
@@ -30,13 +30,11 @@ signals:
      before this signal is emitted.
   */
 private slots:
-  void reloadSliders();
   void provideOriginal(quint64, Image16);
   void provideScaledOriginal(quint64, QSize osize, Image16);
   void provideAdjusted(Image16, quint64 v);
 private:
   PhotoDB *db;
-  AllControls *controls; // we do not own
   AutoCache *cache;  // we do not own
   quint64 version;
   PSize targetsize;
