@@ -7,6 +7,11 @@
 LayerDialog::LayerDialog(QWidget *parent): QWidget(parent) {
   ui = new Ui_LayerDialog;
   ui->setupUi(this);
+  setVersion(0);
+}
+
+void LayerDialog::setVersion(quint64 vsn) {
+  // First, remove all stuff
   while (ui->table->rowCount() > 0)
     ui->table->removeRow(ui->table->rowCount()-1);
 }
@@ -18,6 +23,7 @@ void LayerDialog::addGradientLayer() {
 }
 
 void LayerDialog::addLayer() {
+  addGradientLayer();
 }
 
 void LayerDialog::deleteLayer() {

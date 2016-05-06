@@ -40,85 +40,91 @@ QImage Layer::mask(QSize origSize, class Adjustments const &) const {
 }
   
 Layers::Layers(quint64 vsn, PhotoDB *db): db(db), vsn(vsn) {
-  QSqlQuery q = db->constQuery("select id, stacking, active, typ, dat"
-			       " from layers where version==:a"
-			       " order by stacking", vsn);
-  int expectedord = 0;
-  while (q.next()) {
-    expectedord++;
-    Layer l;
-    l.id = q.value(0).toULongLong();
-    int ord = q.value(1).toInt();
-    ASSERT(ord==expectedord);
-    l.active = q.value(2).toBool();
-    l.type = Layer::Type(q.value(3).toInt());
-    l.data = q.value(4).toByteArray();
-    layers << l;
-  }
 }
 
 int Layers::size() const {
-  return layers.size();
+  return db->simpleQuery("select count(1)"
+			 " from layers where version==:a"
+			 " order by stacking", vsn).toInt();
 }
 
-Layer const &Layers::layer(int n) const {
+Layer Layers::layer(int n) const {
   ASSERT(n>=1 && n<=size());
-  return layers[n-1];
+
+  QSqlQuery q = db->constQuery("select id, active, typ, dat"
+			       " from layers where version==:a"
+			       " and stacking==:b", vsn, n);
+  if (!q.next()) 
+    CRASH("LAYER NOT FOUND");
+
+  Layer l;
+  l.id = q.value(0).toULongLong();
+  l.active = q.value(1).toBool();
+  l.type = Layer::Type(q.value(2).toInt());
+  l.data = q.value(3).toByteArray();
+  return l;
 }
 
-template <class X> void autoTrans(X foo, Database *db, bool notrans) {
-  if (notrans) {
-    Untransaction t(db);
-    foo();
-  } else {
-    Transaction t(db);
-    foo();
-    t.commit();
-  }    
-}  
 
-void Layers::addLayer(Layer const &l, bool notrans) {
-  layers << l;
+void Layers::addLayer(Layer const &l) {
+  int N = size();
+  Transaction t(db);
+  db->query("insert layers(version, stacking, active, typ, dat)"
+	    " values(:a,:b,:c,:d,:e)",
+	    vsn, N+1, l.active, int(l.type), l.data);
+  t.commit();
   COMPLAIN("write to db!");
 }
 
-void Layers::raiseLayer(int n, bool notrans) {
+void Layers::raiseLayer(int n) {
   ASSERT(n>=1 && n<=size());
   if (n==size())
     return;
-  Layer l0 = layers[n-1];
-  Layer l1 = layers[n];
-  layers[n-1] = l1;
-  layers[n] = l0;
-  COMPLAIN("Write to db!");
+  Transaction t(db);
+  quint64 idn = db->simpleQuery("select id from layers where version==:a"
+				" and stacking==:b", vsn, n).toULongLong();
+  quint64 idabove = db->simpleQuery("select id from layers where version==:a"
+				    " and stacking==:b", vsn, n+1)
+    .toULongLong();
+  db->query("update layers set stacking=:a where id==:b", n+1, idn);
+  db->query("update layers set stacking=:a where id==:b", n, idabove);
+  t.commit();
 }
 
-void Layers::lowerLayer(int n, bool notrans) {
+void Layers::lowerLayer(int n) {
   ASSERT(n>=1 && n<=size());
   if (n==1)
     return;
-  Layer l0 = layers[n-1];
-  Layer l1 = layers[n-2];
-  layers[n-1] = l1;
-  layers[n-2] = l0;
-  COMPLAIN("Write to db!");
+  Transaction t(db);
+  quint64 idn = db->simpleQuery("select id from layers where version==:a"
+				" and stacking==:b", vsn, n).toULongLong();
+  quint64 idbelow = db->simpleQuery("select id from layers where version==:a"
+				    " and stacking==:b", vsn, n-1)
+    .toULongLong();
+  db->query("update layers set stacking=:a where id==:b", n-1, idn);
+  db->query("update layers set stacking=:a where id==:b", n, idbelow);
+  t.commit();
 }
 
-void Layers::deleteLayer(int n, bool notrans) {
-  ASSERT(n>=1 && n<=size());
-  layers.removeAt(n-1);
-  COMPLAIN("Write to db!");
+void Layers::deleteLayer(int n) {
+  int N = size();
+  ASSERT(n>=1 && n<=N);
+  Transaction t(db);
+  db->query("delete from layers where version==:a and stacking==:b",
+	    vsn, n);
+  for (int k=n+1; k<=N; k++)
+    db->query("update layers set stacking=:a"
+	      " where version==:b and stacking==:c", vsn, k-1, k);
+  t.commit();
 }
 
-void Layers::setLayer(int n, Layer const &l, bool notrans) {
+void Layers::setLayer(int n, Layer const &l) {
   ASSERT(n>=1 && n<=size());
-  layers[n-1] = l;
-  auto foo = [=]() {
-    db->query("update layers(active,typ,dat) values(:a,:b,:c)"
-	      " where version==:d and stacking==:e",
-	      l.active, int(l.type), l.data,
-	      vsn, n);
-  };
-  autoTrans(foo, db, notrans);
+  Transaction t(db);
+  db->query("update layers set active=:a, typ=:b, dat=:c"
+	    " where version==:d and stacking==:e",
+	    l.active, int(l.type), l.data,
+	    vsn, n);
+  t.commit();
 }
   

@@ -176,7 +176,7 @@ create table layeradjustments (
        v,
        unique(layer, k) on conflict replace,
        foreign key(layer) references layers(id)
-       	       on delete cascade,
+       	       on delete cascade
 	       on update cascade );
        
 -- ======================================================================

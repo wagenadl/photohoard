@@ -33,17 +33,16 @@ public:
   Layers(quint64 vsn, class PhotoDB *db);
   int size() const;
   // Note that layers are counted 1..N, N being topmost
-  Layer const &layer(int) const;
+  Layer layer(int) const;
 public: // Following create a transaction to modify the db
-  void addLayer(Layer const &, bool notrans=false);
-  void raiseLayer(int, bool notrans=false);
-  void lowerLayer(int, bool notrans=false);
-  void deleteLayer(int, bool notrans=false);
-  void setLayer(int, Layer const &, bool notrans=false);
+  void addLayer(Layer const &);
+  void raiseLayer(int);
+  void lowerLayer(int);
+  void deleteLayer(int);
+  void setLayer(int, Layer const &);
 private:
   PhotoDB *db;
   quint64 vsn;
-  QList<Layer> layers;
 };
 
 #endif

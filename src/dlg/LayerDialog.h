@@ -12,6 +12,7 @@ public:
   LayerDialog(QWidget *parent=0);
   virtual ~LayerDialog();
 public slots:
+  void setVersion(quint64);
   void addGradientLayer();
   void addLayer();
   void deleteLayer();

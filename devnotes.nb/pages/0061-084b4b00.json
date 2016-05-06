@@ -1,0 +1,135 @@
+{ "typ": "page",
+  "cre": "2016-05-05T19:15:24",
+  "mod": "2016-05-05T19:22:00",
+  "cui": "f2cbcfad82582076",
+  "stampTime": 0,
+  "startPage": 61,
+  "unlocked": false,
+  "uuid": "084b4b00",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-05-05T19:15:24",
+      "mod": "2016-05-05T19:15:24",
+      "uuid": "8dbf460d",
+      "cc": [
+        { "typ": "res",
+          "cre": "2016-05-05T19:15:24",
+          "mod": "2016-05-05T19:15:24",
+          "archive": "60_-6eb75e43",
+          "desc": "",
+          "preview": "60_-6eb75e43p.png",
+          "source": "page://60/ad443b3f/4",
+          "tag": "60",
+          "title": "",
+          "uuid": "6eb75e43"
+        }
+      ]
+    },
+    { "typ": "title",
+      "cre": "2016-05-05T19:15:24",
+      "mod": "2016-05-05T19:15:24",
+      "uuid": "ec0344e6",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-05-05T19:15:24",
+          "mod": "2016-05-05T19:15:24",
+          "lines": [
+            0
+          ],
+          "text": "Layers (cont’d)",
+          "uuid": "8ab00b67",
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2016-05-05T19:15:24",
+              "mod": "2016-05-05T19:15:24",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 450.0,
+              "uuid": "a773a3f0",
+              "x": -46.8281,
+              "y": 45.06,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2016-05-05T19:15:24",
+                  "mod": "2016-05-05T19:15:24",
+                  "lines": [
+                    0
+                  ],
+                  "text": "p. 60 >",
+                  "uuid": "7f28376c",
+                  "cc": [
+                    { "typ": "markup",
+                      "cre": "2016-05-05T19:15:24",
+                      "mod": "2016-05-05T19:15:24",
+                      "end": 5,
+                      "res": [
+                        "60"
+                      ],
+                      "start": 3,
+                      "style": 4,
+                      "uuid": "f802ceab"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-05-05T19:15:25",
+      "mod": "2016-05-05T19:22:00",
+      "h": 166.162,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b3d3dbbc",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-05-05T19:15:25",
+          "mod": "2016-05-05T19:22:00",
+          "lines": [
+            0,
+            68,
+            128,
+            188,
+            247,
+            311,
+            376
+          ],
+          "text": "I created the Layers tab, although none of it is functional. I also created a new layers table and a new layeradjustments table that contains the adjustments for a particular layer. I may eventually migrate all adjustments to the layeradjustments table which would involve creating a layer with type “Base” for any version that has any adjustments. But for now, it is easiest to develop layers as a more or less standalone feature.",
+          "uuid": "b5ccb6c9",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-05-05T19:15:50",
+              "mod": "2016-05-05T19:15:50",
+              "end": 88,
+              "start": 82,
+              "style": 1,
+              "uuid": "98129acd"
+            },
+            { "typ": "markup",
+              "cre": "2016-05-05T19:19:12",
+              "mod": "2016-05-05T19:19:12",
+              "end": 121,
+              "start": 105,
+              "style": 1,
+              "uuid": "14449c79"
+            },
+            { "typ": "markup",
+              "cre": "2016-05-05T19:20:10",
+              "mod": "2016-05-05T19:20:10",
+              "end": 210,
+              "start": 207,
+              "style": 1,
+              "uuid": "5f6f29a2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
