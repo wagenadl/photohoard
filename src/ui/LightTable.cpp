@@ -697,3 +697,7 @@ void LightTable::ensureDragExportComplete() {
   if (dragout)
     dragout->ensureComplete();
 }
+
+void LightTable::visualizeLayer(quint64 vsn, int lay) {
+  slide->visualizeLayer(vsn, lay);
+}

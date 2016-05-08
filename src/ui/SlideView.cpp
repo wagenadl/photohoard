@@ -11,6 +11,7 @@
 #include "Exif.h"
 #include "SlideOverlay.h"
 #include "SO_Grid.h"
+#include "SO_Layer.h"
 #include "ThreadedTransform.h"
 
 SlideView::SlideView(QWidget *parent): QFrame(parent) {
@@ -59,6 +60,7 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   zoom = 1;
   needLargerImage();
   // we _could_ update() now, which would cause a gray flash
+  visualizeLayer(vsn, 0);
 }  
 
 void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
@@ -145,21 +147,24 @@ void SlideView::wheelEvent(QWheelEvent *e) {
   changeZoomLevel(e->pos(), e->delta()/1000.0);
 }
 
+template<class X> X *findOverlay(QList<SlideOverlay *> const &overs) {
+  for (auto ptr: overs) {
+    X *so = dynamic_cast<X *>(ptr);
+    if (so)
+      return so;
+  }
+  return 0;
+}  
+
 void SlideView::makeActions() {
   acts
     << Action { {Qt::SHIFT + int('#'), Qt::SHIFT + Qt::Key_3},
       "Display grid of thirds",
 	[this]() {
-	bool got=false;
-	for (auto ptr: overlays()) {
-	  SO_Grid *so = dynamic_cast<SO_Grid *>(ptr);
-	  if (so) {
-	    removeOverlay(so);
-	    got = true;
-	    break;
-	  }
-	}
-	if (!got)
+	SO_Grid *so = findOverlay<SO_Grid>(overlays());
+	if (so) 
+	  removeOverlay(so);
+	else
 	  addOverlay(new SO_Grid(this));
 	update();
       }};
@@ -393,4 +398,19 @@ QList<SlideOverlay *> SlideView::overlays() const {
 
 void SlideView::needLargerImage() {
   emit needImage(vsnid, desiredSize());
+}
+
+void SlideView::visualizeLayer(quint64 vsn, int lay) {
+  if (vsn!=vsnid) {
+    COMPLAIN("SlideView::visualizeLayer: vsn mismatch");
+    return;
+  }
+  
+  qDebug() << "Visualize layer" << vsn << lay;
+
+  SO_Layer *so = findOverlay<SO_Layer>(overlays());
+  if (so) 
+    removeOverlay(so);
+
+
 }

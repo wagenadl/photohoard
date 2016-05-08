@@ -101,7 +101,7 @@ void AllControls::setLayer(int l) {
     cropper->setAll(adjs[lay]);
 
   if (currentWidget()==layers)
-    emit visualizeLayer(lay);
+    emit layerSelected(vsn, lay);
 }
 
 void AllControls::storeInDatabase(Adjustments const &adj) {
@@ -145,12 +145,12 @@ Actions const &AllControls::actions() {
 
 void AllControls::changeOfIndex() {
   if (currentWidget()==layers)
-    emit visualizeLayer(layers->selectedLayer());
+    emit layerSelected(vsn, layers->selectedLayer());
   else
-    emit visualizeLayer(0);
+    emit layerSelected(vsn, 0);
 }
 
-void AllControls::layersEdited() {
+void AllControls::layersEdited(int lowest) {
   pDebug() << "Layers changed" << vsn;
-  emit layersChanged(vsn);
+  emit layersChanged(vsn, lowest);
 }

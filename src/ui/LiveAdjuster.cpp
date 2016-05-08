@@ -39,17 +39,25 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
 
   if (newvsn) {
     originalSize = db->originalSize(v);
-    loadLayers();
+    loadLayers(0);
     adjuster->clear();
   }
 }
 
-void LiveAdjuster::loadLayers() {
+void LiveAdjuster::loadLayers(int lowest) {
   Layers ll(version, db);
   int N = ll.count();
-  adjs.clear();
+  if (lowest==0) {
+    adjs.clear();
+  } else {
+    for (auto k: adjs.keys())
+      if (k>N)
+	adjs.remove(k);
+  }
   adjs[0] = Adjustments::fromDB(version, *db);
-  for (int n=1; n<=N; n++)
+  if (lowest==0)
+    lowest=1;
+  for (int n=lowest; n<=N; n++)
     adjs[n] = Adjustments::fromDB(version, n, *db);
 }  
 
@@ -80,13 +88,13 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   }
 }
 
-void LiveAdjuster::reloadLayers(quint64 v) {
+void LiveAdjuster::reloadLayers(quint64 v, int lowest) {
   if (v!=version) {
     pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
     return;
   }
 
-  loadLayers();
+  loadLayers(lowest);
   forceUpdate();
 }
 

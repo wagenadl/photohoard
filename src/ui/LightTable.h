@@ -41,6 +41,7 @@ public slots:
   void updateSelectedTiles();
   void reloadVersion(quint64 vsn);
   void ensureDragExportComplete();
+  void visualizeLayer(quint64 vsn, int layer);
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);

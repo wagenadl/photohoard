@@ -88,6 +88,7 @@ public slots:
   void scaleToFit();
   /* SCALETOFIT - Zoom such that the image fits snugly
    */
+  void visualizeLayer(quint64 vsn, int lay);
 signals:
   void needImage(quint64 vsn, QSize desired);
   /* NEEDIMAGE - Emitted if a larger image is required

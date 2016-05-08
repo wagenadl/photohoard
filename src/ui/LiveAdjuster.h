@@ -23,7 +23,7 @@ public slots:
   /* The latter doesn't immediately request an image, but prepares for
      later setSlider calls that will need an image. */
   void reloadSliders(quint64 vsn, int layer, Adjustments a);
-  void reloadLayers(quint64 vsn);
+  void reloadLayers(quint64 vsn, int lowest);
 signals:
   void imageAvailable(Image16 img, quint64 version);
   /* In addition, when a new adjustment is made, the image is offered
@@ -37,7 +37,7 @@ private slots:
   void provideAdjusted(Image16, quint64 v);
 private:
   void forceUpdate();
-  void loadLayers();
+  void loadLayers(int lowest);
 private:
   PhotoDB *db;
   AutoCache *cache;  // we do not own

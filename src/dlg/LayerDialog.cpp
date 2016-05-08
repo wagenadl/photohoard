@@ -56,11 +56,10 @@ void LayerDialog::addGradientLayer() {
   QPolygon pp; pp << p0 << p1;
   l.setPoints(pp);
   ll.addLayer(l);
+  emit edited(ll.count());
 
   setVersion(vsn); // rebuild
   ui->table->selectRow(0); // select the new layer
-  
-  emit edited();
 }
 
 void LayerDialog::addLayer() {
@@ -77,12 +76,12 @@ void LayerDialog::deleteLayer() {
 
   Layers ll(vsn, db);
   ll.deleteLayer(lay);
+
+  emit edited(lay);
   
   setVersion(vsn);
   lastlay = -1;
-  ui->table->selectRow(ui->table->rowCount()-1); // force emission
-  
-  emit edited();
+  ui->table->selectRow(ui->table->rowCount()-1); // force emission  
 }
 
 void LayerDialog::raiseLayer() {
@@ -98,12 +97,11 @@ void LayerDialog::raiseLayer() {
     return;
   }
   ll.raiseLayer(lay);
-  lastlay = 0; // prevent spurior emission of layerselected signal
+  emit edited(lay);
+
   setVersion(vsn); // rebuild
   lay ++;
   ui->table->selectRow(N - lay); // select the new layer
-    
-  emit edited();
 }
 
 void LayerDialog::lowerLayer() {
@@ -119,10 +117,11 @@ void LayerDialog::lowerLayer() {
     return;
   }
   ll.lowerLayer(lay);
+  emit edited(lay-1);
+
   setVersion(vsn); // rebuild
   lay --;
   ui->table->selectRow(N - lay); // select the new layer
-  emit edited();
 }
 
 void LayerDialog::showHideLayer() {
@@ -135,13 +134,12 @@ void LayerDialog::showHideLayer() {
   Layer l = ll.layer(lay);
   l.setActive(!l.isActive());
   ll.setLayer(lay, l);
+  emit edited(lay);
 
   ui->table->item(ui->table->rowCount()-1-lay, 0)
     ->setText(l.isActive()
 	      ? QString::fromUtf8("☼")
 	      : QString::fromUtf8("☀"));
-
-  emit edited();
 }
 
 void LayerDialog::showHideMask() {
