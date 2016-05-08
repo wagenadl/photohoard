@@ -21,7 +21,7 @@ signals:
      layer in the dialog. LAYER=0 is the base layer.
      Not emitted when the layer is reset to zero because of SETVERSION.
   */
-  void edited();
+  void edited(int lowestaffected);
 private slots:
   void addGradientLayer();
   void addLayer();
