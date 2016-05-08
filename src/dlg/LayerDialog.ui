@@ -119,14 +119,14 @@
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QToolButton" name="toolButton">
+       <widget class="QToolButton" name="add">
         <property name="text">
          <string>+</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_2">
+       <widget class="QToolButton" name="raise">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -136,7 +136,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_3">
+       <widget class="QToolButton" name="lower">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -146,7 +146,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_5">
+       <widget class="QToolButton" name="showHide">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -156,7 +156,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_7">
+       <widget class="QToolButton" name="mask">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -166,7 +166,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="toolButton_4">
+       <widget class="QToolButton" name="del">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -183,8 +183,8 @@
  <resources/>
  <connections>
   <connection>
-   <sender>toolButton</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>add</sender>
+   <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
    <slot>addLayer()</slot>
    <hints>
@@ -199,8 +199,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolButton_2</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>raise</sender>
+   <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
    <slot>raiseLayer()</slot>
    <hints>
@@ -215,8 +215,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolButton_3</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>lower</sender>
+   <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
    <slot>lowerLayer()</slot>
    <hints>
@@ -231,8 +231,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolButton_5</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>showHide</sender>
+   <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
    <slot>showHideLayer()</slot>
    <hints>
@@ -247,8 +247,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolButton_7</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>mask</sender>
+   <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
    <slot>showHideMask()</slot>
    <hints>
@@ -263,8 +263,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>toolButton_4</sender>
-   <signal>triggered(QAction*)</signal>
+   <sender>del</sender>
+   <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
    <slot>deleteLayer()</slot>
    <hints>
