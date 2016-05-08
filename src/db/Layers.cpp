@@ -4,16 +4,62 @@
 #include "PDebug.h"
 #include "PhotoDB.h"
 
-Layer::Layer() {
-  id = 0;
-  active = false;
-  type = Type::Invalid;
+QString Layer::typeName(Layer::Type t) {
+  switch (t) {
+  case Type::Invalid:
+    return "Invalid";
+  case Type::Base:
+    return "(Base)";
+  case Type::LinearGradient:
+    return "Linear gradient";
+  case Type::Circular:
+    return "Circular area";
+  case Type::Curve:
+    return "Curved edge";
+  case Type::Area:
+    return "Curved area";
+  }
+  return "Invalid"; // not reached
 }
 
+QString Layer::typeName() const {
+  return typeName(typ);
+}
+
+Layer::Layer() {
+  active = false;
+  typ = Type::Invalid;
+}
+
+bool Layer::isActive() const {
+  return active;
+}
+
+void Layer::setActive(bool a) {
+  active = a;
+}
+
+Layer::Type Layer::type() const {
+  return typ;
+}
+
+void Layer::setType(Type t) {
+  typ = t;
+}
+
+QByteArray const &Layer::data() const {
+  return dat;
+}
+
+void Layer::setData(QByteArray const &d) {
+  dat = d;
+}
+
+
 QPolygon Layer::points() const {
-  char const *raw = data.data();
+  char const *raw = dat.data();
   quint16 const *pts = reinterpret_cast<quint16 const *>(raw);
-  int N = data.size() / 4;
+  int N = dat.size() / 4;
   QPolygon p(N);
   for (int n=0; n<N; n++) {
     p.setPoint(n, pts[0], pts[1]);
@@ -24,8 +70,8 @@ QPolygon Layer::points() const {
 
 void Layer::setPoints(QPolygon const &p) {
   int N = p.size();
-  data.resize(4*N);
-  char *raw = data.data();
+  dat.resize(4*N);
+  char *raw = dat.data();
   quint16 *pts = reinterpret_cast<quint16 *>(raw);
   for (int n=0; n<N; n++) {
     QPoint p0 = p[n];
@@ -34,22 +80,29 @@ void Layer::setPoints(QPolygon const &p) {
   }
 }
 
-QImage Layer::mask(QSize origSize, class Adjustments const &) const {
+QImage Layer::mask(QSize, class Adjustments const &) const {
   COMPLAIN("NYI");
   return QImage();
 }
-  
+
+//////////////////////////////////////////////////////////////////////
+
 Layers::Layers(quint64 vsn, PhotoDB *db): db(db), vsn(vsn) {
 }
 
-int Layers::size() const {
+int Layers::count() const {
   return db->simpleQuery("select count(1)"
 			 " from layers where version==:a"
 			 " order by stacking", vsn).toInt();
 }
 
+quint64 Layers::layerID(int n) const {
+  return db->simpleQuery("select id from layers where versions==:a"
+			 " and stacking==:b", vsn, n).toULongLong();
+}
+
 Layer Layers::layer(int n) const {
-  ASSERT(n>=1 && n<=size());
+  ASSERT(n>=1 && n<=count());
 
   QSqlQuery q = db->constQuery("select id, active, typ, dat"
 			       " from layers where version==:a"
@@ -58,27 +111,27 @@ Layer Layers::layer(int n) const {
     CRASH("LAYER NOT FOUND");
 
   Layer l;
-  l.id = q.value(0).toULongLong();
-  l.active = q.value(1).toBool();
-  l.type = Layer::Type(q.value(2).toInt());
-  l.data = q.value(3).toByteArray();
+  l.setActive(q.value(1).toBool());
+  l.setType(Layer::Type(q.value(2).toInt()));
+  l.setData(q.value(3).toByteArray());
   return l;
 }
 
 
 void Layers::addLayer(Layer const &l) {
-  int N = size();
+  int N = count();
   Transaction t(db);
   db->query("insert layers(version, stacking, active, typ, dat)"
 	    " values(:a,:b,:c,:d,:e)",
-	    vsn, N+1, l.active, int(l.type), l.data);
+	    vsn, N+1, l.isActive(), int(l.type()), l.data());
   t.commit();
   COMPLAIN("write to db!");
 }
 
 void Layers::raiseLayer(int n) {
-  ASSERT(n>=1 && n<=size());
-  if (n==size())
+  int N = count();
+  ASSERT(n>=1 && n<=N);
+  if (n==N)
     return;
   Transaction t(db);
   quint64 idn = db->simpleQuery("select id from layers where version==:a"
@@ -92,7 +145,7 @@ void Layers::raiseLayer(int n) {
 }
 
 void Layers::lowerLayer(int n) {
-  ASSERT(n>=1 && n<=size());
+  ASSERT(n>=1 && n<=count());
   if (n==1)
     return;
   Transaction t(db);
@@ -107,7 +160,7 @@ void Layers::lowerLayer(int n) {
 }
 
 void Layers::deleteLayer(int n) {
-  int N = size();
+  int N = count();
   ASSERT(n>=1 && n<=N);
   Transaction t(db);
   db->query("delete from layers where version==:a and stacking==:b",
@@ -119,11 +172,11 @@ void Layers::deleteLayer(int n) {
 }
 
 void Layers::setLayer(int n, Layer const &l) {
-  ASSERT(n>=1 && n<=size());
+  ASSERT(n>=1 && n<=count());
   Transaction t(db);
   db->query("update layers set active=:a, typ=:b, dat=:c"
 	    " where version==:d and stacking==:e",
-	    l.active, int(l.type), l.data,
+	    l.isActive(), int(l.type()), l.data(),
 	    vsn, n);
   t.commit();
 }

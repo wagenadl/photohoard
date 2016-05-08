@@ -211,7 +211,15 @@ PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
   return pr;
 }
 
-void PhotoDB::addUndoStep(quint64 versionid, QString key,
+
+void PhotoDB::addUndoStep(quint64 versionid,
+			  QString key,
+                          QVariant oldvalue, QVariant newvalue) {
+  addUndoStep(versionid, 0, key, oldvalue, newvalue);
+}
+
+void PhotoDB::addUndoStep(quint64 versionid, int layer,
+			  QString key,
                           QVariant oldvalue, QVariant newvalue) {
   if (ro) {
     COMPLAIN("Cannot add undo step in read only mode");
@@ -220,7 +228,7 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
   QDateTime now = QDateTime::currentDateTime();
   query("delete from undo where version==:a and undone==1", versionid);
   QSqlQuery q = query("select stepid, version,"
-                      " item, oldvalue, newvalue, created"
+                      " item, oldvalue, newvalue, created, layer"
                       " from undo"
                       " order by stepid desc limit 1");
   if (q.next()) {
@@ -230,7 +238,8 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
     QVariant ov = q.value(3);
     QVariant nv = q.value(4);
     QDateTime dt = q.value(5).toDateTime();
-    if (v==versionid && k==key && dt.msecsTo(now)<5000) {
+    int lyr = q.value(6).toInt();
+    if (v==versionid && k==key && lyr==layer && dt.msecsTo(now)<5000) {
       // probably overwrite or cancel
       if (k==".tag") {
         if (newvalue==ov && oldvalue==nv) {
@@ -247,9 +256,9 @@ void PhotoDB::addUndoStep(quint64 versionid, QString key,
       }
     }
   }
-  query("insert into undo (version, item, oldvalue, newvalue, created)"
-        " values (:a, :b, :c, :d, :e)",
-        versionid, key, oldvalue, newvalue, now);
+  query("insert into undo (version, item, oldvalue, newvalue, created, layer)"
+        " values (:a, :b, :c, :d, :e, :f)",
+        versionid, key, oldvalue, newvalue, now, layer);
 }
 
 void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {

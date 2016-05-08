@@ -128,8 +128,8 @@ MainWindow::MainWindow(SessionDB *db,
 
   connect(lightTable, SIGNAL(newCurrent(quint64)),
 	  allControls, SLOT(setVersion(quint64)));
-  connect(allControls, SIGNAL(valuesChanged(quint64, Adjustments)),
-	  adjuster, SLOT(reloadSliders(quint64, Adjustments)));
+  connect(allControls, SIGNAL(valuesChanged(quint64, int, Adjustments)),
+	  adjuster, SLOT(reloadSliders(quint64, int, Adjustments)));
 
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));

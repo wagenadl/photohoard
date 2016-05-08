@@ -114,6 +114,12 @@ Adjustments Adjustments::fromDB(quint64 vsn, class PhotoDB &db) {
   return s;
 }
 
+Adjustments Adjustments::fromDB(quint64 vsn, int layer, class PhotoDB &db) {
+  Adjustments s;
+  s.readFromDB(vsn, layer, db);
+  return s;
+}
+
 void Adjustments::readFromDB(quint64 vsn, PhotoDB &db) {
   reset();
   QSqlQuery q = db.query("select k, v from adjustments where version==:a",
@@ -122,10 +128,13 @@ void Adjustments::readFromDB(quint64 vsn, PhotoDB &db) {
     set(q.value(0).toString(), q.value(1).toDouble());
 }
 
-void Adjustments::readFromDBForLayer(quint64 layer, PhotoDB &db) {
+void Adjustments::readFromDB(quint64 vsn, int layer, PhotoDB &db) {
   reset();
+  quint64 layerid = db.simpleQuery("select id from layers"
+				   " where version==:a and stacking==:b",
+				   vsn, layer).toULongLong();
   QSqlQuery q = db.query("select k, v from layeradjustments where layer==:a",
-                         layer);
+                         layerid);
   while (q.next())
     set(q.value(0).toString(), q.value(1).toDouble());
 }
@@ -144,17 +153,20 @@ void Adjustments::writeToDB(quint64 vsn, PhotoDB &db) const {
   }
 }  
 
-void Adjustments::writeToDBForLayer(quint64 layer, PhotoDB &db) const {
+void Adjustments::writeToDB(quint64 vsn, int layer, PhotoDB &db) const {
+  quint64 layerid = db.simpleQuery("select id from layers"
+				   " where version==:a and stacking==:b",
+				   vsn, layer).toULongLong();
   for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
     QString k = it.key();
     double v0 = it.value();
     double v = get(k);
     if (v==v0)
       db.query("delete from layeradjustments where layer==:a and k==:b",
-               layer, k);
+               layerid, k);
     else
       db.query("insert or replace into layeradjustments(layer, k, v)"
-               " values(:a,:b,:c)", layer, k, v);
+               " values(:a,:b,:c)", layerid, k, v);
   }
 }  
 

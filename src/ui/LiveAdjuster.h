@@ -8,6 +8,7 @@
 #include "PhotoDB.h"
 #include "Image16.h"
 #include "Adjustments.h"
+#include <QMap>
 
 class LiveAdjuster: public QObject {
   Q_OBJECT;
@@ -21,7 +22,7 @@ public slots:
   void markVersionAndSize(quint64 version, QSize size);
   /* The latter doesn't immediately request an image, but prepares for
      later setSlider calls that will need an image. */
-  void reloadSliders(quint64 vsn, Adjustments);
+  void reloadSliders(quint64 vsn, int layer, Adjustments a);
 signals:
   void imageAvailable(Image16 img, quint64 version);
   /* In addition, when a new adjustment is made, the image is offered
@@ -38,7 +39,7 @@ private:
   AutoCache *cache;  // we do not own
   quint64 version;
   PSize targetsize;
-  Adjustments sliders;
+  QMap<int, Adjustments> adjs;
   class Adjuster *adj; // we own
   class InterruptableAdjuster *adjuster; // we own
   class OriginalFinder *ofinder; // we own

@@ -6,6 +6,8 @@
 #include "CropControls.h"
 #include "LayerDialog.h"
 #include "PhotoDB.h"
+#include "Layers.h"
+#include "PDebug.h"
 
 AllControls::AllControls(PhotoDB *db, QWidget *parent):
   QTabWidget(parent), db(db) {
@@ -27,8 +29,13 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
 	    SLOT(changeFromCropper(QRect, QSize)));
   }
 
-  layers = new LayerDialog();
+  layers = new LayerDialog(db);
   addTab(layers, QIcon(":/icons/layers.svg"), "Layers");
+  connect(layers, SIGNAL(layerSelected(int)),
+	  SLOT(setLayer(int)));
+
+  connect(this, SIGNAL(indexChanged(int)),
+	  SLOT(changeOfIndex()));
 }
 
 AllControls::~AllControls() {
@@ -42,9 +49,14 @@ Adjustments const *AllControls::getAll(quint64 v) const {
 }  
 
 void AllControls::setVersion(quint64 v) {
+  adjs.clear();
   vsn = v;
+  lay = 0;
   if (vsn) {
+    layers->setVersion(v);
     Adjustments a(Adjustments::fromDB(v, *db));
+    adjs[0] = a;
+    // Other layers?
     QSize s(db->originalSize(vsn));
     sliders->setAll(a);
     if (cropper)
@@ -57,7 +69,7 @@ void AllControls::setVersion(quint64 v) {
 
 void AllControls::changeFromSliders() {
   Adjustments adj = sliders->getAll();
-  emit valuesChanged(vsn, adj);
+  storeInDatabase(adj);
   if (cropper)
     cropper->setAll(adj);
 }
@@ -74,9 +86,52 @@ void AllControls::changeFromCropper(QRect croprect, QSize osize) {
       || adj.cropt!=adj0.cropt
       || adj.cropb!=adj0.cropb)
     sliders->setAll(adj);
-
-  emit valuesChanged(vsn, adj);
+  storeInDatabase(adj);
 }
+
+void AllControls::setLayer(int l) {
+  lay = l;
+  qDebug() << "setLayer" << lay;
+
+  if (!adjs.contains(lay))
+    adjs[lay] = Adjustments::fromDB(vsn, lay, *db);
+  sliders->setAll(adjs[lay]);
+  if (cropper)
+    cropper->setAll(adjs[lay]);
+
+  if (currentWidget()==layers)
+    emit visualizeLayer(lay);
+}
+
+void AllControls::storeInDatabase(Adjustments const &adj) {
+  Untransaction t(db);
+  quint64 layid = lay
+    ? Layers(vsn, db).layerID(lay)
+    : 0;
+  for (QString k: Adjustments::keys()) {
+    double v = adj.get(k);
+    if (v != adjs[lay].get(k)) {
+      db->addUndoStep(vsn, lay, k, adjs[lay].get(k), v);
+      if (lay==0) {
+	if (v==Adjustments::defaultFor(k))
+	  db->query("delete from adjustments where version==:a and k==:b",
+		    vsn, k);
+	else
+	  db->query("insert or replace into adjustments (version, k, v)"
+		    " values (:a, :b, :c)", vsn, k, v);
+      } else {
+	if (v==Adjustments::defaultFor(k))
+	  db->query("delete from layeradjustments where layer==:a and k==:b",
+		    layid, k);
+	else
+	  db->query("insert or replace into layeradjustments (layer, k, v)"
+		    " values (:a, :b, :c)", layid, k, v);
+      }
+    }
+  }
+  adjs[lay] = adj;
+  emit valuesChanged(vsn, lay, adj);
+}  
 
 QSize AllControls::sizeHint() const {
   return QTabWidget::sizeHint();
@@ -85,4 +140,11 @@ QSize AllControls::sizeHint() const {
 
 Actions const &AllControls::actions() {
   return ControlSliders::actions();
+}
+
+void AllControls::changeOfIndex() {
+  if (currentWidget()==layers)
+    emit visualizeLayer(layers->selectedLayer());
+  else
+    emit visualizeLayer(0);
 }

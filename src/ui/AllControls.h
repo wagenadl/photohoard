@@ -20,10 +20,10 @@ public:
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
 signals:
-  void valuesChanged(quint64 vsn, Adjustments adj);
+  void valuesChanged(quint64 vsn, int lay, Adjustments adj);
   /* VALUECHANGED - Emitted when the user changes a value.
-     Use GETALL to get the new values
   */
+  void visualizeLayer(int layer); // zero for none
 public slots:
   void setVersion(quint64 vsn);
   /* SETVERSION - Sets all sliders and controls
@@ -32,6 +32,10 @@ public slots:
 private slots:
   void changeFromSliders();
   void changeFromCropper(QRect rect, QSize osize);
+  void setLayer(int);
+  void changeOfIndex();
+private:
+  void storeInDatabase(Adjustments const &adj);
 private:
   class ControlSliders *sliders;
   class CropControls *cropper;
@@ -39,6 +43,8 @@ private:
 private:
   class PhotoDB *db;
   quint64 vsn;
+  int lay;
+  QMap<int, Adjustments> adjs; 
 };
 
 #endif

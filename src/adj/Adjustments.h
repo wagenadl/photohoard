@@ -16,8 +16,11 @@ public:
   void setAll(QString kv);
   void setAll(QMap<QString, double> const &);
   static Adjustments fromDB(quint64 vsn, class PhotoDB &db);
+  static Adjustments fromDB(quint64 vsn, int layer, class PhotoDB &db);
   void readFromDB(quint64 vsn, class PhotoDB &db);
+  void readFromDB(quint64 vsn, int layer, class PhotoDB &db);
   void writeToDB(quint64 vsn, class PhotoDB &db) const;
+  void writeToDB(quint64 vsn, int layer, class PhotoDB &db) const;
   /* WRITETODB - Write all values to DB
      WRITETODB(vsn, db) writes all values into the ADJUSTMENTS table of DB,
      for version VSN.
