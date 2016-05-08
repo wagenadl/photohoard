@@ -15,7 +15,8 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   setVersion(0);
 }
 
-void LayerDialog::setVersion(quint64 vsn) {
+void LayerDialog::setVersion(quint64 v) {
+  vsn = v;
   Layers layers(vsn, db);
   int N = layers.count();
 
@@ -45,26 +46,101 @@ LayerDialog::~LayerDialog() {
 }
 
 void LayerDialog::addGradientLayer() {
+  pDebug() << "addGradientLayer";
+  Layers ll(vsn, db);
+  Layer l;
+  l.setType(Layer::Type::LinearGradient);
+  PSize osize = db->originalSize(vsn);
+  QPoint p0(osize.width()/2, osize.height()/3);
+  QPoint p1(osize.width()/2, osize.height()*2/3);
+  QPolygon pp; pp << p0 << p1;
+  l.setPoints(pp);
+  ll.addLayer(l);
+
+  setVersion(vsn); // rebuild
+  ui->table->selectRow(0); // select the new layer
+  
   emit edited();
 }
 
 void LayerDialog::addLayer() {
+  qDebug() << "addlayer";
   addGradientLayer();
 }
 
 void LayerDialog::deleteLayer() {
+  int lay = selectedLayer();
+  if (lay==0) {
+    COMPLAIN("Cannot delete base layer");
+    return;
+  }
+
+  Layers ll(vsn, db);
+  ll.deleteLayer(lay);
+  
+  setVersion(vsn);
+  lastlay = -1;
+  ui->table->selectRow(ui->table->rowCount()-1); // force emission
+  
   emit edited();
 }
 
 void LayerDialog::raiseLayer() {
+  int lay = selectedLayer();
+  if (lay==0) {
+    COMPLAIN("CANNOT RAISE BASE LAYER");
+    return;
+  }
+  Layers ll(vsn, db);
+  int N = ll.count();
+  if (lay==N) {
+    COMPLAIN("CANNOT RAISE TOP LAYER");
+    return;
+  }
+  ll.raiseLayer(lay);
+  lastlay = 0; // prevent spurior emission of layerselected signal
+  setVersion(vsn); // rebuild
+  lay ++;
+  ui->table->selectRow(N - lay); // select the new layer
+    
   emit edited();
 }
 
 void LayerDialog::lowerLayer() {
+  int lay = selectedLayer();
+  if (lay==0) {
+    COMPLAIN("CANNOT RAISE BASE LAYER");
+    return;
+  }
+  Layers ll(vsn, db);
+  int N = ll.count();
+  if (lay==1) {
+    COMPLAIN("CANNOT LOWER BOTTOM LAYER");
+    return;
+  }
+  ll.lowerLayer(lay);
+  setVersion(vsn); // rebuild
+  lay --;
+  ui->table->selectRow(N - lay); // select the new layer
   emit edited();
 }
 
 void LayerDialog::showHideLayer() {
+  int lay = selectedLayer();
+  if (lay==0) {
+    COMPLAIN("CANNOT SHOW/HIDE BASE LAYER");
+    return;
+  }
+  Layers ll(vsn, db);
+  Layer l = ll.layer(lay);
+  l.setActive(!l.isActive());
+  ll.setLayer(lay, l);
+
+  ui->table->item(ui->table->rowCount()-1-lay, 0)
+    ->setText(l.isActive()
+	      ? QString::fromUtf8("☼")
+	      : QString::fromUtf8("☀"));
+
   emit edited();
 }
 
@@ -79,6 +155,11 @@ void LayerDialog::newSelection() {
     lastlay = lay;
     emit layerSelected(lay);
   }
+  ui->del->setEnabled(lay>0);
+  ui->raise->setEnabled(lay>0 && lay<Layers(vsn,db).count());
+  ui->lower->setEnabled(lay>1);
+  ui->showHide->setEnabled(lay>0);
+  ui->mask->setEnabled(lay>0);
 }
  
 int LayerDialog::selectedLayer() const {

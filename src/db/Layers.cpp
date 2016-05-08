@@ -27,7 +27,7 @@ QString Layer::typeName() const {
 }
 
 Layer::Layer() {
-  active = false;
+  active = true;
   typ = Type::Invalid;
 }
 
@@ -121,7 +121,7 @@ Layer Layers::layer(int n) const {
 void Layers::addLayer(Layer const &l) {
   int N = count();
   Transaction t(db);
-  db->query("insert layers(version, stacking, active, typ, dat)"
+  db->query("insert into layers(version, stacking, active, typ, dat)"
 	    " values(:a,:b,:c,:d,:e)",
 	    vsn, N+1, l.isActive(), int(l.type()), l.data());
   t.commit();

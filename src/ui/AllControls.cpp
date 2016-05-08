@@ -34,7 +34,7 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
   connect(layers, SIGNAL(layerSelected(int)),
 	  SLOT(setLayer(int)));
 
-  connect(this, SIGNAL(indexChanged(int)),
+  connect(this, SIGNAL(currentChanged(int)),
 	  SLOT(changeOfIndex()));
 }
 
