@@ -112,6 +112,7 @@ create table undo (
 -- Table of undo steps
        stepid integer primary key,
        version integer,
+       layer integer,
        item,
        oldvalue,
        newvalue,

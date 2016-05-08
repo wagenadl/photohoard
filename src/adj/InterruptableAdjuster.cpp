@@ -21,29 +21,29 @@ InterruptableAdjuster::~InterruptableAdjuster() {
   }
 }
 
-void InterruptableAdjuster::requestFull(Adjustments const &settings,
+void InterruptableAdjuster::requestFull(QMap<int, Adjustments> settings,
                                         quint64 id) {
   requestReducedROI(settings, QRect(), PSize(), id);
 }
 
-void InterruptableAdjuster::requestReduced(Adjustments const &settings,
+void InterruptableAdjuster::requestReduced(QMap<int, Adjustments> settings,
                                            PSize maxSize, quint64 id) {
   requestReducedROI(settings, QRect(), maxSize, id);
 }
   
-void InterruptableAdjuster::requestROI(Adjustments const &settings, QRect roi,
-                                       quint64 id) {
+void InterruptableAdjuster::requestROI(QMap<int, Adjustments> settings,
+				       QRect roi, quint64 id) {
   requestReducedROI(settings, roi, PSize(), id);
 }
 
-void InterruptableAdjuster::requestReducedROI(Adjustments const &settings,
+void InterruptableAdjuster::requestReducedROI(QMap<int, Adjustments> settings,
                                               QRect roi, PSize maxSize,
                                               quint64 id) {
   QMutexLocker l(&mutex);
   adjuster->cancel();
   newreq = true;
   cancel = false;
-  rqAdjustments = settings;
+  rqAdjustments = settings[0]; // ignore other layers for now
   rqRect = roi;
   rqSize = maxSize;
   rqId = id;

@@ -28,14 +28,15 @@ public:
   InterruptableAdjuster(QObject *parent=0);
   // CONSTRUCTOR
   virtual ~InterruptableAdjuster();
-  void requestFull(Adjustments const &settings, quint64 id);
+  void requestFull(QMap<int, Adjustments> settings, quint64 id);
   // REQUESTFULL - See Adjuster's RETRIEVEFULL
-  void requestReduced(Adjustments const &settings, PSize maxSize, quint64 id);
+  void requestReduced(QMap<int, Adjustments> settings,
+		      PSize maxSize, quint64 id);
   // REQUESTREDUCED - See Adjuster's RETRIEVEREDUCED
-  void requestROI(Adjustments const &settings, QRect roi, quint64 id);
+  void requestROI(QMap<int, Adjustments> settings, QRect roi, quint64 id);
   // REQUESTROI - See ADJUSTER's RETRIEVEROI
-  void requestReducedROI(Adjustments const &settings, QRect roi, PSize maxSize,
-                         quint64 id);
+  void requestReducedROI(QMap<int, Adjustments> settings,
+			 QRect roi, PSize maxSize, quint64 id);
   // REQUESTREDUCEDROI - See ADJUSTER's RETRIEVEREDUCEDROI
   void cancelRequest();
   /* CANCELREQUEST - Cancel outstanding request

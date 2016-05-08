@@ -1,4 +1,3 @@
-
 // PhotoDB.h
 
 #ifndef PHOTODB_H
@@ -68,6 +67,8 @@ public: // information about photos and versions
   void setColorLabel(quint64 versionid, ColorLabel label);
   void setStarRating(quint64 versionid, int stars);
   void setAcceptReject(quint64 versionid, AcceptReject label);
+  void addUndoStep(quint64 versionid, int layer, QString key,
+                   QVariant oldvalue, QVariant newvalue);
   void addUndoStep(quint64 versionid, QString key,
                    QVariant oldvalue, QVariant newvalue);
 public: // information about cameras and lenses
