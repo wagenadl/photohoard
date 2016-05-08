@@ -130,6 +130,8 @@ MainWindow::MainWindow(SessionDB *db,
 	  allControls, SLOT(setVersion(quint64)));
   connect(allControls, SIGNAL(valuesChanged(quint64, int, Adjustments)),
 	  adjuster, SLOT(reloadSliders(quint64, int, Adjustments)));
+  connect(allControls, SIGNAL(layersChanged(quint64)),
+	  adjuster, SLOT(reloadLayers(quint64)));
 
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));

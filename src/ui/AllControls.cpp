@@ -33,7 +33,8 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
   addTab(layers, QIcon(":/icons/layers.svg"), "Layers");
   connect(layers, SIGNAL(layerSelected(int)),
 	  SLOT(setLayer(int)));
-
+  connect(layers, SIGNAL(edited()),
+	  SLOT(layersEdited()));
   connect(this, SIGNAL(currentChanged(int)),
 	  SLOT(changeOfIndex()));
 }
@@ -147,4 +148,9 @@ void AllControls::changeOfIndex() {
     emit visualizeLayer(layers->selectedLayer());
   else
     emit visualizeLayer(0);
+}
+
+void AllControls::layersEdited() {
+  pDebug() << "Layers changed" << vsn;
+  emit layersChanged(vsn);
 }
