@@ -34,22 +34,24 @@ void LiveAdjuster::clear() {
 void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
   bool newvsn = version!=v;
   mustshowupdate = true;
-  if (newvsn) {
-    originalSize = db->originalSize(v);
-    Layers ll(v, db);
-    int N = ll.count();
-    adjs.clear();
-    adjs[0] = Adjustments::fromDB(v, *db);
-    for (int n=1; n<=N; n++)
-      adjs[n] = Adjustments::fromDB(v, n, *db);
-  }
   targetsize = s;
   version = v;
 
   if (newvsn) {
+    originalSize = db->originalSize(v);
+    loadLayers();
     adjuster->clear();
   }
 }
+
+void LiveAdjuster::loadLayers() {
+  Layers ll(version, db);
+  int N = ll.count();
+  adjs.clear();
+  adjs[0] = Adjustments::fromDB(version, *db);
+  for (int n=1; n<=N; n++)
+    adjs[n] = Adjustments::fromDB(version, n, *db);
+}  
 
 void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   bool newvsn = version!=v;
@@ -78,17 +80,17 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   }
 }
 
-void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
+void LiveAdjuster::reloadLayers(quint64 v) {
   if (v!=version) {
     pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
     return;
   }
-  ASSERT(adjs.contains(lay));
-  if (sli==adjs[lay])
-    return;
 
-  adjs[lay] = sli;
-  
+  loadLayers();
+  forceUpdate();
+}
+
+void LiveAdjuster::forceUpdate() {
   mustshowupdate = true;
   mustoffermod = true;
   if (adjuster->isEmpty()) {
@@ -99,6 +101,20 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
     else
       adjuster->requestReduced(adjs, targetsize, version);
   }
+}  
+
+void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
+  if (v!=version) {
+    pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
+    return;
+  }
+  ASSERT(adjs.contains(lay));
+  if (sli==adjs[lay])
+    return;
+
+  adjs[lay] = sli;
+
+  forceUpdate();
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img, quint64 v) {

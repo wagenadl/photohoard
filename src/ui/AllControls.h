@@ -23,6 +23,7 @@ signals:
   void valuesChanged(quint64 vsn, int lay, Adjustments adj);
   /* VALUECHANGED - Emitted when the user changes a value.
   */
+  void layersChanged(quint64 vsn);
   void visualizeLayer(int layer); // zero for none
 public slots:
   void setVersion(quint64 vsn);
@@ -34,6 +35,7 @@ private slots:
   void changeFromCropper(QRect rect, QSize osize);
   void setLayer(int);
   void changeOfIndex();
+  void layersEdited();
 private:
   void storeInDatabase(Adjustments const &adj);
 private:
