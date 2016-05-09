@@ -13,7 +13,7 @@
 class SlideView: public QFrame {
   Q_OBJECT;
 public:
-  SlideView(QWidget *parent=0);
+  SlideView(class PhotoDB *db, QWidget *parent=0);
   virtual ~SlideView();
   PSize desiredSize() const;
   /* DESIREDSIZE - Desired dimensions of current scaled image
@@ -106,6 +106,7 @@ protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;
   virtual void mouseMoveEvent(QMouseEvent *) override;
+  virtual void mouseReleaseEvent(QMouseEvent *) override;
   virtual void mouseDoubleClickEvent(QMouseEvent *) override;
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void paintEvent(QPaintEvent *) override;
@@ -119,6 +120,7 @@ private:
   QList<class SlideOverlay *> overlays() const;
   void needLargerImage();
 private:
+  PhotoDB *db;
   quint64 vsnid;
   PSize naturalSize;
   Image16 img;

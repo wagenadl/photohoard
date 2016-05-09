@@ -33,8 +33,8 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
   addTab(layers, QIcon(":/icons/layers.svg"), "Layers");
   connect(layers, SIGNAL(layerSelected(int)),
 	  SLOT(setLayer(int)));
-  connect(layers, SIGNAL(edited()),
-	  SLOT(layersEdited()));
+  connect(layers, SIGNAL(edited(int)),
+	  SLOT(layersEdited(int)));
   connect(this, SIGNAL(currentChanged(int)),
 	  SLOT(changeOfIndex()));
 }

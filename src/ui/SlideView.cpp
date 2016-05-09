@@ -13,8 +13,9 @@
 #include "SO_Grid.h"
 #include "SO_Layer.h"
 #include "ThreadedTransform.h"
+#include "PhotoDB.h"
 
-SlideView::SlideView(QWidget *parent): QFrame(parent) {
+SlideView::SlideView(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
   setObjectName("SlideView");
   threadedTransform = new ThreadedTransform(this);
   connect(threadedTransform, SIGNAL(available(quint64, Image16)),
@@ -179,6 +180,13 @@ void SlideView::keyPressEvent(QKeyEvent *e) {
 }
 
 void SlideView::mousePressEvent(QMouseEvent *e) {
+  for (auto *so: overlays()) {
+    if (so && so->handlePress(e)) {
+      e->accept();
+      return;
+    }
+  }
+  
   if (e->button()==Qt::LeftButton && !fit) {
     presspoint = e->pos();
     pressrelx = relx;
@@ -190,9 +198,26 @@ void SlideView::mousePressEvent(QMouseEvent *e) {
   }
 }
 
+void SlideView::mouseReleaseEvent(QMouseEvent *e) {
+  for (auto *so: overlays()) {
+    if (so && so->handleRelease(e)) {
+      e->accept();
+      return;
+    }
+  }
+}
+
 void SlideView::mouseMoveEvent(QMouseEvent *e) {
-  if (dragging) 
+  if (dragging) { 
     updateRelXY(e->pos());
+  } else {
+    for (auto *so: overlays()) {
+      if (so && so->handleMove(e)) {
+	e->accept();
+	return;
+      }
+    }
+  }    
 }
 
 void SlideView::mouseDoubleClickEvent(QMouseEvent *) {
@@ -412,5 +437,10 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
   if (so) 
     removeOverlay(so);
 
-
+  if (lay>0) {
+    so = new SO_Layer(db, this);
+    addOverlay(so);
+    so->setLayer(vsn, lay);
+  }
+  update();
 }

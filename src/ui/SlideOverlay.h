@@ -20,6 +20,9 @@ public:
      be repainted with whatever overlay is appropriate for the version
      currently shown in the parent SLIDEVIEW.
   */
+  virtual bool handlePress(QMouseEvent *) { return false; }
+  virtual bool handleMove(QMouseEvent *) { return false; }
+  virtual bool handleRelease(QMouseEvent *) { return false; }
 protected:
   SlideView *base();
   /* BASE - SlideView that we are drawing on top of.

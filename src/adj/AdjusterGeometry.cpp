@@ -10,6 +10,32 @@ QStringList AdjusterGeometry::fields() const {
   return flds;
 }
 
+QPointF AdjusterGeometry::map(QPointF p, QSize osize, Adjustments const &adj) {
+  double w = osize.width();
+  double h = osize.height();
+
+  if (adj.rotate) {
+    double phi = -M_PI*adj.rotate/180;
+    QPointF pc = p - QPointF(w/2, h/2);
+    pc = QPointF(pc.x()*cos(phi) - pc.y()*sin(phi),
+		 pc.x()*sin(phi) + pc.y()*cos(phi));
+    p = pc + QPointF(w/2, h/2);
+  }
+
+  if (adj.perspv || adj.persph || adj.shearv || adj.shearh) {
+    double dx = 2 * p.x() / w - 1;
+    double dy = 2 * p.y() / h - 1;
+    p += QPointF(w*(dx*dy*adj.perspv + dy*adj.shearh),
+		 h*(-dx*dy*adj.persph + dx*adj.shearv));
+    // is this correct?
+  }
+
+  if (adj.cropl || adj.cropt) 
+    p -= QPointF(adj.cropl, adj.cropt);
+
+  return p;
+}
+  
 AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
 				Adjustments const &final) {
   AdjusterTile tile = parent;
@@ -20,7 +46,6 @@ AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
   // ROTATE
   if (final.rotate)
     tile.image = tile.image.rotated(-M_PI*final.rotate/180);
-
 
   // PERSPECTIVE
   if (final.perspv || final.persph || final.shearv || final.shearh) {
