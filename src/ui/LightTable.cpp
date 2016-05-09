@@ -48,7 +48,7 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
 
   addWidget(strips);
 
-  slide = new SlideView();
+  slide = new SlideView(db);
   addWidget(slide);
 
   lastgridsize = strips->idealSize(Strip::Arrangement::Grid);
