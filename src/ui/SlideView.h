@@ -136,6 +136,7 @@ private:
   mutable QList< QPointer<QObject> > overlays_;
   class ThreadedTransform *threadedTransform;
   quint64 rqid;
+  PSize rqsize;
 private slots:
   void setCMSImage(quint64, Image16);
 };

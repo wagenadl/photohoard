@@ -67,16 +67,17 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
 void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
   if (vsn!=vsnid) 
     return;
-  pDebug() << "updateImage" << vsn;
-  rqid = 0;
+  pDebug() << "updateImage" << vsn << img1.size() << force;
 
-  if (force || img.isNull() || img1.size().exceeds(img.size())) {
+  if (force || img1.size().exceeds(rqid ? rqsize : img.size())) {
     if (CMS::monitorTransform.isValid()) {
       img = Image16();
       pDebug() << "SV::uI: requesting";
+      rqsize = img1.size();
       rqid = threadedTransform->request(img1);
       pDebug() << "SV::uI: requested" << rqid;
     } else {
+      rqid = 0;
       img = img1;
       update();
     }
@@ -84,7 +85,7 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
 }
 
 void SlideView::setCMSImage(quint64 id, Image16 img1) {
-  pDebug() << "SV::setCMSImage" << id << rqid;
+  pDebug() << "SV::setCMSImage" << id << rqid << img1.size();
   if (id==rqid) {
     img = img1;
     rqid = 0;
