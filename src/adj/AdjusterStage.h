@@ -9,7 +9,7 @@
 
 class AdjusterStage {
 public:
-  AdjusterStage() { }
+  AdjusterStage(int maxthreads=1): maxthreads(maxthreads) { }
   virtual ~AdjusterStage() { }
   virtual bool isDefault(Adjustments const &s) const {
     return isDefault(s, fields()); }
@@ -23,6 +23,12 @@ public:
   static bool isDefault(Adjustments const &, QStringList fields);
   static bool isEquivalent(Adjustments const &, Adjustments const &,
 			   QStringList fields);
+protected:
+  void doapply(std::function<void(quint16*,int)> foo,
+               quint16 *data, int X, int Y, int DL);
+protected:
+  int maxthreads;
 };
+
 
 #endif

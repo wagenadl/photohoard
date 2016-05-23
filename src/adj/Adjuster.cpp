@@ -12,9 +12,14 @@
 Adjuster::Adjuster(QObject *parent): QObject(parent) {
   caching = true;
   keeporiginal = true;
+  maxthreads = 1;
 }
 
 Adjuster::~Adjuster() {
+}
+
+void Adjuster::setMaxThreads(int n) {
+  maxthreads = n;
 }
 
 void Adjuster::clear() {
@@ -222,7 +227,8 @@ bool Adjuster::applyFirstXYZ(Adjustments const &final) {
   if (iparent<0)
     return false;
 
-  AdjusterXYZ adj; // we could store this somewhere to enable reuse of LUTs
+  AdjusterXYZ adj(maxthreads);
+  // we could store this somewhere to enable reuse of LUTs
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
   if (isCanceled())

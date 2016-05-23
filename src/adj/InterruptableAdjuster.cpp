@@ -8,6 +8,7 @@
 InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
   QThread(parent) {
   adjuster = new Adjuster(this);
+  adjuster->setMaxThreads(4);
   start();
 }
 

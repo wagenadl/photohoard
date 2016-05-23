@@ -31,9 +31,9 @@ public:
   static Image16 loadFromFile(QString const &);
   static Image16 loadFromMemory(QByteArray const &);
 public:
-  Image16 convertedTo(Format format) const;
-  void convertTo(Format format);
-  void convertFrom(Image16 const &other);
+  Image16 convertedTo(Format format, int maxthreads=1) const;
+  void convertTo(Format format, int maxthreads=1);
+  void convertFrom(Image16 const &other, int maxthreads=1);
 public:
   Image16 scaled(PSize s, Interpolation i=Interpolation::Linear) const;
   Image16 scaledToFitSnuglyIn(PSize s,
@@ -64,6 +64,15 @@ public:
      equals the source format.
      applyROI() is trivially fast if there is no ROI.
    */
+  Image16 subImage(QRect);
+  /* A sub-image is an Image16 that shares its memory with its source, without
+     copy-on-write semantics. All operations performed on the subimage will
+     directly affect the source image. The user is responsible for making
+     sure that the source image remains in existence. The following methods
+     must never be called on subimages or on parent images of subimages:
+     rotate90(C)CW, applyROI, convertTo (with a different bit depth),
+     operator=.
+   */
 public:
   inline int width() const { return d->width; }
   inline int height() const { return d->height; }
@@ -80,7 +89,7 @@ public:
   inline quint16 const *words() const { return (quint16 const *)bytes(); }
   inline quint16 *words() { return (quint16 *)bytes(); }
 private:
-  void convertFrom(Image16 const &other, Format otherformat);
+  void convertFrom(Image16 const &other, Format otherformat, int maxthreads=1);
   void setROI(QRect);
   Image16 scaleSigned(PSize s, Interpolation i) const;
   Image16 rotateSigned(double angle, CropMode c=CropMode::Same,
@@ -91,6 +100,7 @@ private:
   void flipSignedness();
   static int cvFormat(Format f);
   static int cvInterpolation(Interpolation i);
+  Image16(Image16 *src, QRect sub);
 private:
   QSharedDataPointer<Image16Data> d;
 };

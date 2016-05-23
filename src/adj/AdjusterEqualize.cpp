@@ -103,7 +103,8 @@ static float getScale(int maxdim, float scale) {
   return f;
 }
 
-static void applyLocalContrast(Image16 &target, double contrast, double scale) {
+static void applyLocalContrast(Image16 &target, double contrast, double scale,
+                               int /*maxthreads*/) {
   const int width = target.width();
   const int height = target.height();
   const int L = width*height;
@@ -124,6 +125,7 @@ static void applyLocalContrast(Image16 &target, double contrast, double scale) {
   const float contr = contrast/3.0;
   const int N = 3;
 
+  // This *could* be multithreaded...
   // horizontal
   float z = image[width-1];
   float *ptr = image + width-1;
@@ -190,8 +192,9 @@ AdjusterTile AdjusterEqualize::apply(AdjusterTile const &parent,
   tile.stage = Stage_Equalize;
 
   if (final.nlcontrast) {
-    tile.image.convertTo(Image16::Format::IPT16);
-    applyLocalContrast(tile.image, final.nlcontrast, final.nlcontrastscale);
+    tile.image.convertTo(Image16::Format::IPT16, maxthreads);
+    applyLocalContrast(tile.image, final.nlcontrast, final.nlcontrastscale,
+                       maxthreads);
   }
 
   tile.settings.nlcontrast = final.nlcontrast;

@@ -6,6 +6,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <QFile>
 #include "PPM16.h"
+#include <vector>
+#include <future>
+#include <algorithm>
 
 class Image16Foo {
 public:
@@ -85,93 +88,117 @@ Image16 Image16::fromQImage(QImage const &image) {
   return Image16(image);
 }
 
-void Image16::convertFrom(Image16 const &other) {
+void Image16::convertFrom(Image16 const &other, int maxthreads) {
   if (width()==other.width() && height()==other.height()) 
-    convertFrom(other, other.format());
+    convertFrom(other, other.format(), maxthreads);
   else
-    *this = other.convertedTo(format());
+    *this = other.convertedTo(format(), maxthreads);
 }
 
-template <typename SRC> void convertFromTemplate(Image16 *dst, SRC *src,
-                                                 int SB) {
+
+template <typename SRC, typename DST>
+void cftCore(SRC const *src, int W, int H, int SB,
+             DST *dst, int DB, int maxthreads=1) {
+  if (maxthreads>1 && W*H>5000000) {
+    std::vector< std::future<void> > futures;
+    int linesperrun = (H+maxthreads-1)/maxthreads;
+    while (H>0) {
+      int now = std::min(linesperrun, H);
+      futures.push_back(std::async(std::launch::async,
+                                   ColorSpaces::convertImage<SRC,DST>,
+                                   src, W, now, SB, dst, DB));
+      src = (SRC const *)((uint8_t const *)src + now*(W + SB));
+      dst = (DST *)((uint8_t *)dst + now*(W + DB));
+      H -= now;
+    }
+    for (auto &f: futures)
+      f.get();
+  } else {
+    ColorSpaces::convertImage(src, W, H, SB, dst, DB);
+  }
+}
+
+template <typename SRC> void convertFromTemplate(Image16 *dst, SRC const *src,
+                                                 int SB, int maxthreads=1) {
   int w = dst->width();
   int h = dst->height();
   uint8_t *d = dst->bytes();
   int db = dst->bytesPerLine();
   switch (dst->format()) {
   case Image16::Format::sRGB8:
-    ColorSpaces::convertImage(src, w, h, SB, (ColorSpaces::sRGB *)d, db);
+    cftCore(src, w, h, SB, (ColorSpaces::sRGB *)d, db, maxthreads);
     break;
   case Image16::Format::XYZ16:
-    ColorSpaces::convertImage(src, w, h, SB, (ColorSpaces::XYZ *)d, db);
+    cftCore(src, w, h, SB, (ColorSpaces::XYZ *)d, db, maxthreads);
     break;
   case Image16::Format::XYZp16:
-    ColorSpaces::convertImage(src, w, h, SB, (ColorSpaces::XYZp *)d, db);
+    cftCore(src, w, h, SB, (ColorSpaces::XYZp *)d, db, maxthreads);
     break;
   case Image16::Format::Lab16:
-    ColorSpaces::convertImage(src, w, h, SB, (ColorSpaces::Lab *)d, db);
+    cftCore(src, w, h, SB, (ColorSpaces::Lab *)d, db, maxthreads);
     break;
   case Image16::Format::LMS16:
-    ColorSpaces::convertImage(src, w, h, SB, (ColorSpaces::LMS *)d, db);
+    cftCore(src, w, h, SB, (ColorSpaces::LMS *)d, db, maxthreads);
     break;
   case Image16::Format::IPT16:
-    ColorSpaces::convertImage(src, w, h, SB, (ColorSpaces::IPT *)d, db);
+    cftCore(src, w, h, SB, (ColorSpaces::IPT *)d, db, maxthreads);
     break;
   }
 }
 
-void Image16::convertFrom(Image16 const &other, Image16::Format sfmt) {
+void Image16::convertFrom(Image16 const &other, Image16::Format sfmt,
+                          int maxthreads) {
   if (format()==sfmt) {
     memcpy(bytes(), other.bytes(), byteCount());
   } else {
     switch (sfmt) {
     case Format::sRGB8:
       convertFromTemplate(this, (ColorSpaces::sRGB const *)other.bytes(),
-                          other.bytesPerLine());
+                          other.bytesPerLine(), maxthreads);
       break;
     case Format::XYZ16:
       convertFromTemplate(this, (ColorSpaces::XYZ const *)other.bytes(),
-                          other.bytesPerLine());
+                          other.bytesPerLine(), maxthreads);
       break;
     case Format::XYZp16:
       convertFromTemplate(this, (ColorSpaces::XYZp const *)other.bytes(),
-                          other.bytesPerLine());
+                          other.bytesPerLine(), maxthreads);
       break;
     case Format::Lab16:
       convertFromTemplate(this, (ColorSpaces::Lab const *)other.bytes(),
-                          other.bytesPerLine());
+                          other.bytesPerLine(), maxthreads);
       break;
     case Format::LMS16:
       convertFromTemplate(this, (ColorSpaces::LMS const *)other.bytes(),
-                          other.bytesPerLine());
+                          other.bytesPerLine(), maxthreads);
       break;
     case Format::IPT16:
       convertFromTemplate(this, (ColorSpaces::IPT const *)other.bytes(),
-                          other.bytesPerLine());
+                          other.bytesPerLine(), maxthreads);
       break;
     }
   }
 }
 
-Image16 Image16::convertedTo(Format fmt) const {
+Image16 Image16::convertedTo(Format fmt, int maxthreads) const {
   if (format()==fmt)
     return Image16(*this);
 
   Image16 res(width(), height(), fmt);
-  res.convertFrom(*this);
+  res.convertFrom(*this, maxthreads);
   return res;
 }
 
-void Image16::convertTo(Format fmt) {
+void Image16::convertTo(Format fmt, int maxthreads) {
   if (format()==fmt)
     return;
   if (format()==Format::sRGB8 || fmt==Format::sRGB8) {
-    Image16 tmp = convertedTo(fmt);
+    Image16 tmp = convertedTo(fmt, maxthreads);
     *this = tmp;
   } else {
     Format oldfmt = format();
     d->format = fmt;
-    convertFrom(*this, oldfmt);
+    convertFrom(*this, oldfmt, maxthreads);
   }
 }
 
@@ -434,4 +461,47 @@ Image16 Image16::loadFromMemory(QByteArray const &ar) {
   Image16 res;
   res.d = new Image16Data(ppm.data(), Format::XYZ16);
   return res;
+}
+
+Image16 Image16::subImage(QRect sub) {
+  return Image16(this, sub);
+}
+
+Image16::Image16(Image16 *src, QRect sub):
+  d(new Image16Data(src->d, sub)) {
+}
+
+//////////////////////////////////////////////////////////////////////
+Image16Data::Image16Data(int w, int h,
+                         Image16Base::Format f):
+  width(w), height(h), format(f),
+  image(format==Image16Base::Format::sRGB8 ? w : 3*w, h,
+        format==Image16Base::Format::sRGB8 ? QImage::Format_RGB32
+        : QImage::Format_RGB16), roibyteoffset(0) {
+  bytesperline = image.bytesPerLine();
+}
+
+Image16Data::Image16Data(QImage const &img,
+                         Image16Base::Format f):
+  width(img.width()),
+  height(img.height()),
+  format(f),
+  image(f==Image16Base::Format::sRGB8
+        ? img.convertToFormat(QImage::Format_RGB32)
+        : img),
+  roibyteoffset(0) {
+  bytesperline = image.bytesPerLine();
+  if (f!=Image16Base::Format::sRGB8)
+    width = img.width()/3;
+}
+
+Image16Data::Image16Data(Image16Data *src, QRect subimg):
+  width(subimg.width()),
+  height(subimg.height()),
+  bytesperline(src->bytesperline),
+  format(src->format),
+  image(QImage(src->image.bits(), src->image.width(), src->image.height(),
+               src->image.format())) {
+  roibyteoffset = src->roibyteoffset + bytesperline*subimg.top()
+    + bytesPerPixel()*subimg.left();
 }

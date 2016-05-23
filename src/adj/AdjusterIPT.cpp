@@ -38,7 +38,7 @@ AdjusterTile AdjusterIPT::apply(AdjusterTile const &parent,
   AdjusterTile tile = parent;
   
   tile.stage = Stage_IPT;
-  tile.image.convertTo(Image16::Format::IPT16);
+  tile.image.convertTo(Image16::Format::IPT16, maxthreads);
 
   double shadows = pow(2, final.shadows);
   double highlights = pow(2, final.highlights);
@@ -56,14 +56,18 @@ AdjusterTile AdjusterIPT::apply(AdjusterTile const &parent,
   int X = tile.image.width();
   int Y = tile.image.height();
   int DL = tile.image.wordsPerLine() - 3*X;
-  for (int y=0; y<Y; y++) {
-    for (int x=0; x<X; x++) {
-      *words = ilut[*words];
-      words+=3;
-    }
-    words += DL;
-  }
 
+  auto doit = [ilut,X,DL](quint16 *words, int Y) {
+    for (int y=0; y<Y; y++) {
+      for (int x=0; x<X; x++) {
+        *words = ilut[*words];
+        words+=3;
+      }
+      words += DL;
+    }
+  };
+  doapply(doit, words, X, Y, DL);
+  
   if (final.saturation!=0 || final.vibrance!=0) {
     double sat = pow(2, final.saturation);
     double vib = pow(2, final.vibrance);
@@ -81,30 +85,35 @@ AdjusterTile AdjusterIPT::apply(AdjusterTile const &parent,
       double fac = y/x;
       clut[k] = scale * ((fac<maxfac) ? fac : maxfac);
     }
-    qint16 *words = (qint16*)tile.image.words();
+    quint16 *words = tile.image.words();
     int X = tile.image.width();
     int Y = tile.image.height();
     int DL = tile.image.wordsPerLine() - 3*X;
-    for (int y=0; y<Y; y++) {
-      for (int x=0; x<X; x++) {
-        int p = words[1];
-        int t = words[2];
-        int p2_ = p*p;
-        int t2_ = t*t;
-        float p2 = p2_;
-        float t2 = t2_;
-        int c = sqrtf(p2+t2);
-        int fac = clut[c];
-        p *= fac;
-        p /= scale;
-        t *= fac;
-        t /= scale;
-        words[1] = (p<-32767) ? -32767 : (p>32767) ? 32767 : p;
-        words[2] = (t<-32767) ? -32767 : (t>32767) ? 32767 : t;
-        words += 3;
+    
+    auto doit2 = [clut,scale,X,DL](quint16 *words0, int Y) {
+      qint16 *words = (qint16*)words0;
+      for (int y=0; y<Y; y++) {
+        for (int x=0; x<X; x++) {
+          int p = words[1];
+          int t = words[2];
+          int p2_ = p*p;
+          int t2_ = t*t;
+          float p2 = p2_;
+          float t2 = t2_;
+          int c = sqrtf(p2+t2);
+          int fac = clut[c];
+          p *= fac;
+          p /= scale;
+          t *= fac;
+          t /= scale;
+          words[1] = (p<-32767) ? -32767 : (p>32767) ? 32767 : p;
+          words[2] = (t<-32767) ? -32767 : (t>32767) ? 32767 : t;
+          words += 3;
+        }
+        words += DL;
       }
-      words += DL;
-    }
+    };
+    doapply(doit2, words, X, Y, DL);
   }
   
   tile.settings.shadows = final.shadows;
