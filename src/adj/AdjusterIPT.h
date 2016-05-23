@@ -8,7 +8,7 @@
 
 class AdjusterIPT: public AdjusterStage {
 public:
-  AdjusterIPT() { }
+  AdjusterIPT(int maxthreads=1): AdjusterStage(maxthreads) { }
   virtual ~AdjusterIPT() { }
   virtual QStringList fields() const override;
   virtual AdjusterTile apply(AdjusterTile const &, Adjustments const &) override;

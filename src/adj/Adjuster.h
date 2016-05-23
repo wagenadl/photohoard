@@ -27,7 +27,8 @@ public:
   // Constructor: Adjuster
   Adjuster(QObject *parent=0);
   virtual ~Adjuster();
-
+  void setMaxThreads(int);
+  // SETMAXTHREADS - Specfiy how many threads this adjuster may use
   void clear();
   // CLEAR - Drop entire stack
   bool isEmpty() const;
@@ -188,6 +189,7 @@ private:
      be used to cache various processing stages to speed up reprocessing.
   */
   bool caching, keeporiginal, canceled;
+  int maxthreads;
 };
 
 #endif

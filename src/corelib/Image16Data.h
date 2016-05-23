@@ -10,25 +10,12 @@
 class Image16Data: public QSharedData {
 public:
   Image16Data(int w=0, int h=0,
-	      Image16Base::Format f=Image16Base::Format::sRGB8):
-    width(w), height(h), format(f),
-    image(format==Image16Base::Format::sRGB8 ? w : 3*w, h,
-	  format==Image16Base::Format::sRGB8 ? QImage::Format_RGB32
-	  : QImage::Format_RGB16), roibyteoffset(0) {
-    bytesperline = image.bytesPerLine();
-  }
+	      Image16Base::Format f=Image16Base::Format::sRGB8);
   Image16Data(QImage const &img,
-              Image16Base::Format f=Image16Base::Format::sRGB8):
-    width(img.width()), height(img.height()),
-    format(f),
-    image(f==Image16Base::Format::sRGB8
-          ? img.convertToFormat(QImage::Format_RGB32)
-          : img),
-    roibyteoffset(0) {
-    bytesperline = image.bytesPerLine();
-    if (f!=Image16Base::Format::sRGB8)
-      width = img.width()/3;
-  }
+              Image16Base::Format f=Image16Base::Format::sRGB8);
+  Image16Data(Image16Data *src, QRect subimg);
+  inline int bytesPerPixel() const { return is8Bits() ? 4 : 6; }
+  inline bool is8Bits() const { return format == Image16Base::Format::sRGB8; }
 public:
   int width;
   int height;

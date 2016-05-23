@@ -1,6 +1,7 @@
 // AdjusterXYZ.cpp
 
 #include "AdjusterXYZ.h"
+#include "PDebug.h"
 
 QStringList AdjusterXYZ::fields() const {
   static QStringList flds
@@ -13,7 +14,7 @@ AdjusterTile AdjusterXYZ::apply(AdjusterTile const &parent,
   AdjusterTile tile = parent;
   
   tile.stage = Stage_XYZ;
-  tile.image.convertTo(Image16::Format::LMS16);
+  tile.image.convertTo(Image16::Format::LMS16, maxthreads);
   
   // expose is stored in stops
   double slope = pow(2, final.expose);
@@ -39,14 +40,19 @@ AdjusterTile AdjusterXYZ::apply(AdjusterTile const &parent,
   int X = tile.image.width();
   int Y = tile.image.height();
   int DL = tile.image.wordsPerLine() - 3*X;
-  for (int y=0; y<Y; y++) {
-    for (int x=0; x<X; x++) {
-      *words = xlut[*words]; words++;
-      *words = ylut[*words]; words++;
-      *words = zlut[*words]; words++;
+
+  auto doit = [xlut,ylut,zlut,X,DL](quint16 *words, int Y) {
+    for (int y=0; y<Y; y++) {
+      for (int x=0; x<X; x++) {
+        *words = xlut[*words]; words++;
+        *words = ylut[*words]; words++;
+        *words = zlut[*words]; words++;
+      }
+      words += DL;
     }
-    words += DL;
-  }
+  };
+
+  doapply(doit, words, X, Y, DL);
 
   tile.settings.expose = final.expose;
   tile.settings.black = final.black;

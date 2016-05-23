@@ -43,6 +43,7 @@ static void applyUMask(Image16 &image, PSize osize, QRect oroi,
   const int height = image.height();
   QVector<float> filtered(width*height);
   // filter in x-direction
+  // This could be multithreaded
   for (int y=0; y<height; y++) {
     quint16 const *pix = image.words() + image.wordsPerLine()*y;
     float *dst = filtered.data() + width*y;
@@ -88,7 +89,7 @@ AdjusterTile AdjusterUMask::apply(AdjusterTile const &parent,
   tile.stage = Stage_UMask;
 
   if (final.umask) {
-    tile.image.convertTo(Image16::Format::IPT16);
+    tile.image.convertTo(Image16::Format::IPT16, maxthreads);
     applyUMask(tile.image, tile.osize, tile.roi, final.umask, final.umaskr);
     // Do unsharp mask only on I channel?
     // Alternatively, I could work in LMS space and treat all channels

@@ -8,7 +8,7 @@
 
 class AdjusterEqualize: public AdjusterStage {
 public:
-  AdjusterEqualize() { }
+  AdjusterEqualize(int maxthreads=1): AdjusterStage(maxthreads) { }
   virtual ~AdjusterEqualize() { }
   virtual QStringList fields() const override;
   virtual AdjusterTile apply(AdjusterTile const &, Adjustments const &) override;
