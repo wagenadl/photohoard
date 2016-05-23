@@ -107,8 +107,8 @@ void cftCore(SRC const *src, int W, int H, int SB,
       futures.push_back(std::async(std::launch::async,
                                    ColorSpaces::convertImage<SRC,DST>,
                                    src, W, now, SB, dst, DB));
-      src = (SRC const *)((uint8_t const *)src + now*(W + SB));
-      dst = (DST *)((uint8_t *)dst + now*(W + DB));
+      src = (SRC const *)((uint8_t const *)src + now*SB);
+      dst = (DST *)((uint8_t *)dst + now*DB);
       H -= now;
     }
     for (auto &f: futures)
