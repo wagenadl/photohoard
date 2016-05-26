@@ -23,7 +23,8 @@ void SO_Layer::updateTransform() {
   adj = Adjustments::fromDB(vsn, *db);
 }
 
-void SO_Layer::render(QPainter *ptr, QRect const &) {
+void SO_Layer::paintEvent(QPaintEvent *) {
+  QPainter ptr(this);
   QTransform const &xf = base()->transformationFromImage();
   QPolygonF poly = layer.points();
   qDebug() << "SO_Layer::render" << poly;
@@ -34,23 +35,23 @@ void SO_Layer::render(QPainter *ptr, QRect const &) {
   bool first = true;
   QPen b(QColor(255,0,0));
   b.setWidth(3);
-  ptr->setPen(b);
+  ptr.setPen(b);
   for (auto const &p: poly) {
-    ptr->drawEllipse(p, 10.0, 10.0);
+    ptr.drawEllipse(p, 10.0, 10.0);
     if (first) {
       b.setColor(QColor(0,200,0));
-      ptr->setPen(b);
+      ptr.setPen(b);
       first = false;
     }
   }
 }
 
-bool SO_Layer::handleRelease(QMouseEvent *) {
+void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
   if (clickidx>=0) {
     clickidx = -1;
-    return true;
+    e->accept();
   } else {
-    return false;
+    e->ignore();
   }
 }
 
@@ -60,9 +61,11 @@ static inline double euclideanLength2(QPointF p) {
   return x*x + y*y;
 }
 
-bool SO_Layer::handlePress(QMouseEvent *e) {
-  if (e->button()!=Qt::LeftButton)
-    return false;
+void SO_Layer::mousePressEvent(QMouseEvent *e) {
+  if (e->button()!=Qt::LeftButton) {
+    e->ignore();
+    return;
+  }
 
   QTransform const &xf = base()->transformationFromImage();
   QPolygonF poly0 = layer.points();
@@ -78,16 +81,19 @@ bool SO_Layer::handlePress(QMouseEvent *e) {
       origpt = poly0[idx];
       origpos = poly[idx];
       layer = Layers(vsn, db).layer(lay); // in case something changed
-      return true;
+      e->accept();
+      return;
     }
   }
-
-  return false;
+  
+  e->ignore();
 }
 
-bool SO_Layer::handleMove(QMouseEvent *e) {
-  if (clickidx<0)
-    return false;
+void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
+  if (clickidx<0) {
+    e->ignore();
+    return;
+  }
 
   QTransform const &ixf = base()->transformationToImage();
   QPointF p0 = ixf.map(clickpos);
@@ -100,8 +106,8 @@ bool SO_Layer::handleMove(QMouseEvent *e) {
   layer.setPoints(poly);
   Layers(vsn, db).setLayer(lay, layer);
 
-  base()->update();
+  update();
   emit layerMaskChanged(vsn, lay);
 
-  return true;
+  e->accept();
 }

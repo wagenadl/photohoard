@@ -19,11 +19,6 @@
 #include "CMSTransform.h"
 #include "SessionDB.h"
 
-namespace CMS {
-  CMSProfile monitorProfile;
-  CMSTransform monitorTransform;
-}
-
 void usage() {
   fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
   exit(1);

@@ -41,7 +41,7 @@ AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
   AdjusterTile tile = parent;
   
   tile.stage = Stage_Geometry;
-  tile.image.convertTo(Image16::Format::LMS16);
+  tile.image.convertTo(Image16::Format::LMS16, maxthreads);
 
   // ROTATE
   if (final.rotate)

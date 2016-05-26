@@ -99,7 +99,7 @@ void Image16::convertFrom(Image16 const &other, int maxthreads) {
 template <typename SRC, typename DST>
 void cftCore(SRC const *src, int W, int H, int SB,
              DST *dst, int DB, int maxthreads=1) {
-  if (maxthreads>1 && W*H>5000000) {
+  if (maxthreads>1 && W*H>500000) {
     std::vector< std::future<void> > futures;
     int linesperrun = (H+maxthreads-1)/maxthreads;
     while (H>0) {

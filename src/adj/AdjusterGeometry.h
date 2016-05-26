@@ -9,7 +9,7 @@
 class AdjusterGeometry: public AdjusterStage {
   // We do not respect ROIs yet
 public:
-  AdjusterGeometry() { }
+  AdjusterGeometry(int maxthreads): AdjusterStage(maxthreads) { }
   virtual ~AdjusterGeometry() { }
   virtual QStringList fields() const override;
   virtual AdjusterTile apply(AdjusterTile const &,
