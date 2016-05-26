@@ -143,6 +143,12 @@ void SlideView::resizeEvent(QResizeEvent *) {
     update();
     emit newZoom(currentZoom());
   }
+  for (auto obj: overlays()) {
+    SlideOverlay *so = dynamic_cast<SlideOverlay *>(obj);
+    ASSERT(so);
+    so->resize(size());
+  }
+  
 }
 
 void SlideView::wheelEvent(QWheelEvent *e) {
@@ -164,6 +170,7 @@ void SlideView::makeActions() {
       "Display grid of thirds",
 	[this]() {
 	SO_Grid *so = findOverlay<SO_Grid>(overlays());
+        qDebug() << "SV:so=" << so;
 	if (so) 
 	  removeOverlay(so);
 	else
@@ -181,13 +188,6 @@ void SlideView::keyPressEvent(QKeyEvent *e) {
 }
 
 void SlideView::mousePressEvent(QMouseEvent *e) {
-  for (auto *so: overlays()) {
-    if (so && so->handlePress(e)) {
-      e->accept();
-      return;
-    }
-  }
-  
   if (e->button()==Qt::LeftButton && !fit) {
     presspoint = e->pos();
     pressrelx = relx;
@@ -200,25 +200,12 @@ void SlideView::mousePressEvent(QMouseEvent *e) {
 }
 
 void SlideView::mouseReleaseEvent(QMouseEvent *e) {
-  for (auto *so: overlays()) {
-    if (so && so->handleRelease(e)) {
-      e->accept();
-      return;
-    }
-  }
 }
 
 void SlideView::mouseMoveEvent(QMouseEvent *e) {
   if (dragging) { 
     updateRelXY(e->pos());
-  } else {
-    for (auto *so: overlays()) {
-      if (so && so->handleMove(e)) {
-	e->accept();
-	return;
-      }
-    }
-  }    
+  }
 }
 
 void SlideView::mouseDoubleClickEvent(QMouseEvent *) {
@@ -336,11 +323,6 @@ void SlideView::paintEvent(QPaintEvent *) {
                      ? Image16::Interpolation::NearestNeighbor
                      : Image16::Interpolation::Linear);
     p.drawImage(destRect.topLeft(), im1.toQImage());
-  }
-  for (auto obj: overlays()) {
-    SlideOverlay *so = dynamic_cast<SlideOverlay *>(obj);
-    ASSERT(so);
-    so->render(&p, QRect());
   }
 }
     

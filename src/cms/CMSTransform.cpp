@@ -132,3 +132,7 @@ int CMSTransform::format(CMSProfile const &profile,
   return TYPE_RGB_8; // not executed
 }
 
+namespace CMS {
+  CMSProfile monitorProfile;
+  CMSTransform monitorTransform;
+}

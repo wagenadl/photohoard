@@ -23,7 +23,6 @@ bool AdjusterStage::isEquivalent(Adjustments const &a, Adjustments const &b,
 
 void AdjusterStage::doapply(std::function<void(quint16*,int)> foo,
                             quint16 *data, int X, int Y, int DL) {
-  qDebug() << "AS::doapply" << X << Y << maxthreads;
   if (maxthreads>1 && X*Y>1000000) {
     std::vector< std::future<void> > futures;
     int linesperrun = (Y + maxthreads - 1) / maxthreads;

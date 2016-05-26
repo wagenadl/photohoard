@@ -173,7 +173,7 @@ bool Adjuster::applyGeometry(Adjustments const &final) {
   if (iparent<0)
     return false;
 
-  AdjusterGeometry adj;
+  AdjusterGeometry adj(maxthreads);
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
   if (isCanceled())
@@ -191,7 +191,7 @@ bool Adjuster::applyEqualize(Adjustments const &final) {
   if (iparent<0)
     return false;
 
-  AdjusterEqualize adj;
+  AdjusterEqualize adj(maxthreads);
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
   if (isCanceled())
@@ -209,7 +209,7 @@ bool Adjuster::applyUMask(Adjustments const &final) {
   if (iparent<0)
     return false;
 
-  AdjusterUMask adj;
+  AdjusterUMask adj(maxthreads);
   if (ensureAlreadyGood(adj, iparent, final))
     return true;
   if (isCanceled())
@@ -242,7 +242,7 @@ bool Adjuster::applyIPT(Adjustments const &final) {
   int iparent = findParentStage(Stage_IPT);
   if (iparent<0)
     return false;
-  AdjusterIPT adj;
+  AdjusterIPT adj(maxthreads);
    if (ensureAlreadyGood(adj, iparent, final))
     return true;
   if (isCanceled())

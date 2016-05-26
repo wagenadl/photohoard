@@ -9,7 +9,7 @@
 class SO_Grid: public SlideOverlay {
 public:
   SO_Grid(class SlideView *parent=0);
-  virtual void render(class QPainter *ptr, class QRect const &rect);
+  virtual void paintEvent(QPaintEvent *) override;
 };
 
 #endif

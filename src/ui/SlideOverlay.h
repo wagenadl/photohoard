@@ -4,25 +4,15 @@
 
 #define SLIDEOVERLAY_H
 
-#include <QObject>
+#include <QWidget>
 #include "SlideView.h"
 #include <QPainter>
 #include <QPointer>
 
-class SlideOverlay: public QObject {
+class SlideOverlay: public QWidget {
   Q_OBJECT;
 public:
   SlideOverlay(class SlideView *parent=0);
-public:
-  virtual void render(class QPainter *ptr, class QRect const &rect)=0;
-  /* RENDER - Render this overlay
-     RENDER(ptr, rect) requests that the rectangle RECT (in widget coordinates)
-     be repainted with whatever overlay is appropriate for the version
-     currently shown in the parent SLIDEVIEW.
-  */
-  virtual bool handlePress(QMouseEvent *) { return false; }
-  virtual bool handleMove(QMouseEvent *) { return false; }
-  virtual bool handleRelease(QMouseEvent *) { return false; }
 protected:
   SlideView *base();
   /* BASE - SlideView that we are drawing on top of.

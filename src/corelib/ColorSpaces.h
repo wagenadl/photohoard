@@ -76,7 +76,8 @@ namespace ColorSpaces {
   template <typename SRC, typename DST>
   inline void convertImage(SRC const *src, int W, int H, int SB,
                            DST *dst, int DB) {
-    //    qDebug() << src << W << H << SB << dst << DB << sizeof(SRC) << sizeof(DST);
+    // SRC const *s0 = src;
+    // qDebug() << src << W << H << SB << dst << DB << sizeof(SRC) << sizeof(DST);
     int sb = SB - W*sizeof(SRC);
     int db = DB - W*sizeof(DST);
     for (int y=0; y<H; y++) {

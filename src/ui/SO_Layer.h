@@ -14,10 +14,10 @@ public:
   SO_Layer(class PhotoDB *db, class SlideView *parent=0);
   void setLayer(quint64 vsnid, int layer);
   void updateTransform();
-  virtual void render(class QPainter *ptr, class QRect const &rect);
-  virtual bool handlePress(QMouseEvent *) override;
-  virtual bool handleMove(QMouseEvent *) override;
-  virtual bool handleRelease(QMouseEvent *) override;
+  virtual void paintEvent(QPaintEvent *) override;
+  virtual void mousePressEvent(QMouseEvent *) override;
+  virtual void mouseMoveEvent(QMouseEvent *) override;
+  virtual void mouseReleaseEvent(QMouseEvent *) override;
 signals:
   void layerMaskChanged(quint64 vsn, int lay);
 private:
