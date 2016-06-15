@@ -162,12 +162,12 @@ signals:
   */
   void doneCaching();
 
-  void available(quint64 version, Image16 img, quint64 chgid);
+  void available(quint64 version, Image16 img, quint64 chgid, QSize fullsize);
   /* AVAILABLE - Emitted when a requested image is available.
      See AUTOCACHE::AVAILABLE for details.
   */
 private:
-  void makeAvailable(quint64 version, Image16 img);
+  void makeAvailable(quint64 version, Image16 img, QSize fullSize);
   /* MAKEAVAILABLE - Emit AVAILABLE signals for the given image.
   */
 

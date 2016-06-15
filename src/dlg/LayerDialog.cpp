@@ -80,8 +80,8 @@ void LayerDialog::deleteLayer() {
   emit edited(lay);
   
   setVersion(vsn);
-  lastlay = -1;
-  ui->table->selectRow(ui->table->rowCount()-1); // force emission  
+  pDebug() << "deleted layer" << lay << lastlay;
+  emit layerSelected(0);
 }
 
 void LayerDialog::raiseLayer() {
@@ -147,8 +147,8 @@ void LayerDialog::showHideMask() {
 }
 
 void LayerDialog::newSelection() {
-  pDebug() << "new selection";
   int lay = selectedLayer();
+  pDebug() << "new selection" << lay << lastlay;
   if (lay!=lastlay) {
     lastlay = lay;
     emit layerSelected(lay);

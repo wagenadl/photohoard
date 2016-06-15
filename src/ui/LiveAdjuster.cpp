@@ -15,8 +15,8 @@ LiveAdjuster::LiveAdjuster(PhotoDB *db,
   QObject(parent), db(db), cache(cache) {
   ofinder = new OriginalFinder(db, this);
   adjuster = new InterruptableAdjuster(this);
-  connect(adjuster, SIGNAL(ready(Image16, quint64)),
-          SLOT(provideAdjusted(Image16, quint64)));
+  connect(adjuster, SIGNAL(ready(Image16, quint64, QSize)),
+          SLOT(provideAdjusted(Image16, quint64, QSize)));
   connect(ofinder, SIGNAL(originalAvailable(quint64, Image16)),
           SLOT(provideOriginal(quint64, Image16)));
   connect(ofinder, SIGNAL(scaledOriginalAvailable(quint64, QSize, Image16)),
@@ -125,7 +125,7 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
   forceUpdate();
 }
 
-void LiveAdjuster::provideAdjusted(Image16 img, quint64 v) {
+void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
   if (v!=version) {
     pDebug() << "LiveAdjuster: version mismatch";
     return;
@@ -137,7 +137,7 @@ void LiveAdjuster::provideAdjusted(Image16 img, quint64 v) {
   if (mustshowupdate) {
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
-    emit imageAvailable(img, version);
+    emit imageAvailable(img, version, fs);
   }
 }
   
