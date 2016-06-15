@@ -20,7 +20,7 @@ public:
   static void setStatusMessage(QString msg, QWidget *src);
 public slots:
   void scrollToCurrent();
-  void updateImage(quint64 vsn, Image16 img, quint64 chgid);
+  void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
   void showShortcutHelp();
   void setStatusMessage(QString msg);
 protected:

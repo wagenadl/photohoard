@@ -62,12 +62,16 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   needLargerImage();
   // we _could_ update() now, which would cause a gray flash
   visualizeLayer(vsn, 0);
-}  
+}
 
-void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
+
+void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
+			    QSize fs) {
   if (vsn!=vsnid) 
     return;
-  pDebug() << "updateImage" << vsn << img1.size() << force;
+  pDebug() << "updateImage" << vsn << img1.size() << force << fs;
+  if (!fs.isNull())
+    naturalSize = fs;
 
   if (force || img1.size().exceeds(rqid ? rqsize : img.size())) {
     if (CMS::monitorTransform.isValid()) {
@@ -81,6 +85,8 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force) {
       img = img1;
       update();
     }
+  } else if (!fs.isNull()) {
+    update();
   }
 }
 
@@ -155,8 +161,8 @@ void SlideView::wheelEvent(QWheelEvent *e) {
   changeZoomLevel(e->pos(), e->delta()/1000.0);
 }
 
-template<class X> X *findOverlay(QList<SlideOverlay *> const &overs) {
-  for (auto ptr: overs) {
+template<class X> X *findOverlay(SlideView *sv) {
+  for (auto ptr: sv->children()) {
     X *so = dynamic_cast<X *>(ptr);
     if (so)
       return so;
@@ -169,12 +175,12 @@ void SlideView::makeActions() {
     << Action { {Qt::SHIFT + int('#'), Qt::SHIFT + Qt::Key_3},
       "Display grid of thirds",
 	[this]() {
-	SO_Grid *so = findOverlay<SO_Grid>(overlays());
+	SO_Grid *so = findOverlay<SO_Grid>(this);
         qDebug() << "SV:so=" << so;
 	if (so) 
-	  removeOverlay(so);
+	  delete so;
 	else
-	  addOverlay(new SO_Grid(this));
+	  new SO_Grid(this);
 	update();
       }};
 }
@@ -199,7 +205,7 @@ void SlideView::mousePressEvent(QMouseEvent *e) {
   }
 }
 
-void SlideView::mouseReleaseEvent(QMouseEvent *e) {
+void SlideView::mouseReleaseEvent(QMouseEvent *) {
 }
 
 void SlideView::mouseMoveEvent(QMouseEvent *e) {
@@ -284,6 +290,7 @@ void SlideView::paintEvent(QPaintEvent *) {
     PSize showSize = naturalSize*zoom;
     PSize availSize = r.size();
     double effZoom = img.size().scaleFactorToSnuglyFitIn(showSize);
+    pDebug() << "slideview paint" << showSize << availSize << img.size() << effZoom << effZoom*img.size() << naturalSize;
     QRectF sourceRect;
     QRectF destRect;
     if (!img.size().isLargeEnoughFor(showSize)
@@ -354,11 +361,13 @@ QTransform SlideView::transformationFromImage() const {
   if (fit) {
     double scl = nat_s.scaleFactorToSnuglyFitIn(av_s);
     PSize render_s = nat_s.scaledToFitSnuglyIn(av_s);
+    pDebug() << "SlideView" << scl << render_s;
     xf.translate((av_r.left() + av_r.right())/2 - render_s.width()/2,
 		 (av_r.top() + av_r.bottom())/2 - render_s.height()/2);
     xf.scale(scl, scl);
   } else {
     PSize render_s = nat_s * zoom;
+    pDebug() << "SlideView" << zoom << render_s;
     if (render_s.width() <= av_s.width())
       xf.translate((av_r.left() + av_r.right())/2 - render_s.width()/2, 0);
     else
@@ -372,34 +381,13 @@ QTransform SlideView::transformationFromImage() const {
   return xf;
 }
 
-void SlideView::addOverlay(SlideOverlay *over) {
-  for (auto ptr: overlays())
-    if (ptr==over)
-      return; // don't add twice
-  overlays_ << over;
-}
-
-void SlideView::removeOverlay(SlideOverlay *over) {
-  auto i = overlays_.begin();
-  while (i!=overlays_.end()) {
-    auto j = i;
-    ++i;
-    if (*j == over)
-      overlays_.erase(j);
-  }
-}
 
 QList<SlideOverlay *> SlideView::overlays() const {
   QList<SlideOverlay *> out;
-  auto i = overlays_.begin();
-  while (i!=overlays_.end()) {
-    auto j = i;
-    ++i;
-    QObject *obj = *j;
-    if (obj == 0)
-      overlays_.erase(j);
-    else
-      out << dynamic_cast<SlideOverlay *>(obj);
+  for (auto *c: children()) {
+    SlideOverlay *so = dynamic_cast<SlideOverlay *>(c);
+    if (so)
+      out << so;
   }
   return out;
 }
@@ -416,13 +404,13 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
   
   qDebug() << "Visualize layer" << vsn << lay;
 
-  SO_Layer *so = findOverlay<SO_Layer>(overlays());
+  SO_Layer *so = findOverlay<SO_Layer>(this);
+  qDebug() << "old layer" << so;
   if (so) 
-    removeOverlay(so);
+    delete so;
 
   if (lay>0) {
     so = new SO_Layer(db, this);
-    addOverlay(so);
     so->setLayer(vsn, lay);
   }
   update();
