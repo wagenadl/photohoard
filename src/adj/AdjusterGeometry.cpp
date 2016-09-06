@@ -15,7 +15,7 @@ QPointF AdjusterGeometry::map(QPointF p, QSize osize, Adjustments const &adj) {
   double h = osize.height();
 
   if (adj.rotate) {
-    double phi = -M_PI*adj.rotate/180;
+    double phi = M_PI*adj.rotate/180;
     QPointF pc = p - QPointF(w/2, h/2);
     pc = QPointF(pc.x()*cos(phi) - pc.y()*sin(phi),
 		 pc.x()*sin(phi) + pc.y()*cos(phi));

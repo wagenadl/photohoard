@@ -75,13 +75,15 @@ public:
      depends both on the size of the original (as per SETREDUCED) and on
      the SETTINGS. (Especially, of course, crop and rotation settings.)
   */     
+  static PSize mapCropSize(PSize osize, Adjustments const &settings);
   static PSize mapCropSize(PSize osize, Adjustments const &settings,
                            PSize scaledOSize);
   /* MAPCROPSIZE - Determine size of cropped and scaled image
      MAPCROPSIZE(osize, settings, scaledOSize) calculates the size of a
      cropped version of an original image of size OSIZE if SETTINGS would
-     be applied to it and if a scaling would be applied that would reduce
-     the size of the original (uncropped) image to SCALEDOSIZE.
+     be applied to it. The second form further assumes that a scaling would
+     be applied that would reduce the size of the original (uncropped) image
+     to SCALEDOSIZE.
   */
   static QRect mapCropRect(PSize osize, Adjustments const &settings,
                            PSize scaledOSize);

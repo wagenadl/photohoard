@@ -102,6 +102,7 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
   // AdjusterGeometry::revmap(ixf.map(e->pos() + origpos - clickpos))
 
   QPolygon poly = layer.points();
+  QPointF oldpt = poly[clickidx];
   poly[clickidx] = newpt.toPoint();
   layer.setPoints(poly);
   Layers(vsn, db).setLayer(lay, layer);

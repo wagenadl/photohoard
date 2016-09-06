@@ -204,7 +204,7 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   
   if (!hushup.contains(id)
       && (!invalidatedWhileLoading.contains(id) || requests.contains(id))) 
-    makeAvailable(id, img);
+    makeAvailable(id, img, fullSize);
 
   beingLoaded.remove(id);
   onlyPreviewLoaded.remove(id);
@@ -288,7 +288,7 @@ void AC_Worker::storeLoadedInDB() {
 void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
   if (loaded.contains(version)) {
     Image16 res = loaded[version].scaledDownToFitIn(desired);
-    emit available(version, res, cache->isOutdated(version) ? 1 : 0);
+    emit available(version, res, cache->isOutdated(version) ? 1 : 0, QSize());
     return;
   }
   PSize best=cache->bestSize(version, desired);
@@ -297,7 +297,7 @@ void AC_Worker::requestIfEasy(quint64 version, QSize desired) {
   bool od;
   Image16 img = cache->get(version, best, &od).scaledDownToFitIn(desired);
   if (!img.isNull() && !od)
-    emit available(version, img, 0);
+    emit available(version, img, 0, QSize());
 }
 
 void AC_Worker::requestImage(quint64 version, QSize desired) {
@@ -307,7 +307,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
   PSize actual;
   if (loaded.contains(version)) {
     Image16 res = loaded[version].scaledDownToFitIn(desired);
-    emit available(version, res, false);
+    emit available(version, res, false, QSize());
     actual = res.size();
   } else {
     actual=cache->bestSize(version, desired);
@@ -319,7 +319,7 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
         // can this happen?
         actual = PSize();
       } else {
-        emit available(version, img, false);
+        emit available(version, img, false, QSize());
       }
       if (outdated)
         actual = PSize();
@@ -354,12 +354,13 @@ void AC_Worker::requestImage(quint64 version, QSize desired) {
   }
 }
 
-void AC_Worker::makeAvailable(quint64 version, Image16 img) {
+void AC_Worker::makeAvailable(quint64 version, Image16 img, QSize fullsize) {
   if (img.isNull()) 
     img = Image16(PSize(1, 1));
   PSize s = requests[version];
   img = img.scaledDownToFitIn(s);
-  emit available(version, img.scaledDownToFitIn(s), cache->isOutdated(version));
+  emit available(version, img.scaledDownToFitIn(s),
+		 cache->isOutdated(version), fullsize);
   requests.remove(version);
 }
 
