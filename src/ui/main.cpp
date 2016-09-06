@@ -16,6 +16,7 @@
 #include "ExifReport.h"
 #include <sqlite3.h>
 #include <QDesktopWidget>
+#include "CMS.h"
 #include "CMSTransform.h"
 #include "SessionDB.h"
 
