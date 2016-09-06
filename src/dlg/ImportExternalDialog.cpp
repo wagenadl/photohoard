@@ -106,9 +106,9 @@ void ImportExternalDialog::updateCounts(int ntotal, int nmov) {
   else
     ui->what->setText(what.arg(nimg).arg("s"));
   if (nmov==1)
-    ui->copyMovies->setText(what.arg("one").arg(""));
+    ui->copyMovies->setText(movieWhat.arg("one").arg(""));
   else
-    ui->copyMovies->setText(what.arg(nmov).arg("s"));
+    ui->copyMovies->setText(movieWhat.arg(nmov).arg("s"));
   if (nmov)
     ui->movieContainer->show();
 }
