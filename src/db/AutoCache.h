@@ -144,11 +144,11 @@ signals:
   */
   void doneCaching();
 
-  void available(quint64 version, Image16 image, quint64 chgid);
+  void available(quint64 version, Image16 image, quint64 chgid, QSize fullsize);
   /* AVAILABLE - Emitted whenever a version is newly available
-     AVAILABLE(version, image, chgid) is emitted to report that the given
-     VERSION has just been added to the cache, or has been successfully
-     retrieved from the cache.
+     AVAILABLE(version, image, chgid, fullsize) is emitted to report that
+     the given VERSION has just been added to the cache, or has been
+     successfully retrieved from the cache.
      The IMAGE may be full size or smaller,
      depending on whether it was retrieved from the cache, newly generated,
      or just offered through CACHEMODIFIED. Normally, only one AVAILABLE

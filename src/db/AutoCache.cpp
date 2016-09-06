@@ -27,8 +27,8 @@ AutoCache::AutoCache(SessionDB *db, QString rootdir, QObject *parent):
 	  this, SIGNAL(progressed(int,int)));
   connect(worker, SIGNAL(doneCaching()),
 	  this, SIGNAL(doneCaching()));
-  connect(worker, SIGNAL(available(quint64, Image16, quint64)),
-	  this, SIGNAL(available(quint64, Image16, quint64)));
+  connect(worker, SIGNAL(available(quint64, Image16, quint64, QSize)),
+	  this, SIGNAL(available(quint64, Image16, quint64, QSize)));
   connect(this, SIGNAL(forwardCachePreview(quint64, Image16)),
           worker, SLOT(cachePreview(quint64, Image16)));
   connect(this, SIGNAL(forwardCacheModified(quint64)),
@@ -44,7 +44,7 @@ AutoCache::~AutoCache() {
 }
 
 void AutoCache::cachePreview(quint64 id, Image16 img) {
-  emit available(id, img, 1);
+  emit available(id, img, 1, QSize());
   emit forwardCachePreview(id, img);
 }
           
@@ -63,7 +63,7 @@ void AutoCache::recache(quint64 id) {
 
 void AutoCache::cacheModified(quint64 id, Image16 img, quint64 chgid) {
   holder->setImage(id, img);
-  emit available(id, img, chgid);
+  emit available(id, img, chgid, QSize());
   emit forwardCacheModified(id);
 }
 

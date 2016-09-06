@@ -29,7 +29,7 @@ public slots:
   void setLayout(LayoutBar::Layout ar);
   void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);
   void select(quint64 vsn, Qt::KeyboardModifiers=Qt::NoModifier);
-  void updateImage(quint64 vsn, Image16 img, quint64 chgid);
+  void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
   void rescan(bool rebuildFilter=true);
   void clearSelection();
   void selectAll();
@@ -52,7 +52,7 @@ signals:
   void newCollection(QString);
   void recacheReoriented(QSet<quint64>);
 private slots:
-  void updateAdjusted(Image16, quint64);
+  void updateAdjusted(Image16, quint64, QSize fullsize);
   void applyFilterFromDialog();
   void resizeStrip();
   void startDrag(quint64);

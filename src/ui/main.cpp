@@ -18,6 +18,7 @@
 #include <QDesktopWidget>
 #include "CMS.h"
 #include "CMSTransform.h"
+#include "CMS.h"
 #include "SessionDB.h"
 
 void usage() {

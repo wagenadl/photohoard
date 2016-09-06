@@ -100,8 +100,8 @@ MainWindow::MainWindow(SessionDB *db,
           autocache, SLOT(requestIfEasy(quint64, QSize)));
   connect(lightTable, SIGNAL(recacheReoriented(QSet<quint64>)),
 	  autocache, SLOT(recache(QSet<quint64>)));
-  connect(autocache, SIGNAL(available(quint64, Image16, quint64)),
-          SLOT(updateImage(quint64, Image16, quint64)));
+  connect(autocache, SIGNAL(available(quint64, Image16, quint64, QSize)),
+          SLOT(updateImage(quint64, Image16, quint64, QSize)));
   if (scanner) {
     connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
 	    lightTable, SLOT(rescan()));
@@ -158,8 +158,8 @@ void MainWindow::scrollToCurrent() {
   lightTable->scrollToCurrent();
 }
 
-void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid) {
-  lightTable->updateImage(i, img, chgid);
+void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
+  lightTable->updateImage(i, img, chgid, fs);
   if (i==db->current())
     histogram->setImage(img); // this is *bad*
 }

@@ -26,6 +26,7 @@ signals:
   */
 public slots:
   void setAll(Adjustments const &vv); // does not signal VALUECHANGED
+  void setLayer(int); // enable or disable geometry group
 protected slots:
   void goNext(QString);
   void goPrevious(QString);
