@@ -34,7 +34,7 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
       lbl = "Mark 1 star";
     else
       lbl = "Remove stars";
-    acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_0 + n, lbl,
+    acts << Action{Qt::ALT + Qt::Key_0 + n, lbl,
         [=]() {
         db->query("update versions set starrating=:a where id in "
                   " (select version from selection)", n);
