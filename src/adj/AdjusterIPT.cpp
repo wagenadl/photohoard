@@ -1,6 +1,7 @@
 // AdjusterIPT.cpp
 
 #include "AdjusterIPT.h"
+#include <math.h>
 
 QStringList AdjusterIPT::fields() const {
   static QStringList flds

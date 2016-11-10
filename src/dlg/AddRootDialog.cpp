@@ -28,7 +28,7 @@ QString AddRootDialog::defaultCollection() const {
   return ui->collection->currentText();
 }
 
-QDialog::DialogCode AddRootDialog::exec() {
+int AddRootDialog::exec() {
   prepCollections();
   DialogCode c = DialogCode(QDialog::exec());
   return c;

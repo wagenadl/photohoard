@@ -15,6 +15,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include "ControlSliders.h"
+#include <math.h>
 
 SliderClipboard::SliderClipboard(SessionDB *db, AutoCache *ac, QWidget *parent):
   QDialog(parent), db(db), ac(ac) {

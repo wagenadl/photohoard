@@ -2,6 +2,7 @@
 
 #include "AdjusterXYZ.h"
 #include "PDebug.h"
+#include <math.h>
 
 QStringList AdjusterXYZ::fields() const {
   static QStringList flds
