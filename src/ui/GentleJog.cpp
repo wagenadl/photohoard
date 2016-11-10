@@ -7,6 +7,7 @@
 #include <QWheelEvent>
 #include <QTimer>
 #include "PSize.h"
+#include <math.h>
 
 GentleJog::GentleJog(QString s, QWidget *parent): GentleJog(parent) {
   setLabel(s);

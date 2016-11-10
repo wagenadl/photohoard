@@ -6,6 +6,8 @@
 #include "PDebug.h"
 #include "Slide.h"
 #include <QKeyEvent>
+#include <QDrag>
+#include <QMimeData>
 
 StripView::StripView(SessionDB *db, QWidget *parent):
   QGraphicsView(parent), db(db) {

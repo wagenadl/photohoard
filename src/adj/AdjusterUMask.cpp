@@ -2,6 +2,7 @@
 
 #include "AdjusterUMask.h"
 #include "Adjuster.h"
+#include <math.h>
 
 QStringList AdjusterUMask::fields() const {
   static QStringList flds

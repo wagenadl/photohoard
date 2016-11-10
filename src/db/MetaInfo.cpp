@@ -6,6 +6,7 @@
 #include <QStringList>
 #include "PDebug.h"
 #include "Adjustments.h"
+#include <math.h>
 
 inline double inbetween(double a, double b) {
   return sqrt(a*b);

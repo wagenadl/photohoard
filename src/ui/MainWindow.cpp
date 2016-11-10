@@ -29,6 +29,7 @@
 #include <QDragMoveEvent>
 #include <QDragLeaveEvent>
 #include <QDropEvent>
+#include <QMimeData>
 #include "ImportGUI.h"
 
 MainWindow::MainWindow(SessionDB *db,

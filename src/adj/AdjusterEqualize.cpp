@@ -2,6 +2,7 @@
 
 #include "AdjusterEqualize.h"
 #include "Adjuster.h"
+#include <math.h>
 
 QStringList AdjusterEqualize::fields() const {
   static QStringList flds

@@ -124,12 +124,20 @@ CMSProfile &CMSProfile::operator=(CMSProfile const &o) {
 }
 
 CMSProfile CMSProfile::displayProfile() {
+#if 0
+  // Qt4
   QDesktopWidget *desktop = QApplication::desktop();
   if (!desktop)
     return CMSProfile();
   QX11Info const &x11 = desktop->x11Info();
   Display *display = x11.display();
   int screen = x11.screen();
+#else
+  // Qt5
+  Display *display = QX11Info::display();
+  int screen = QX11Info::appScreen();
+#endif
+  
   Window root = RootWindow(display, screen);
   QString atomname = "_ICC_PROFILE";
   if (screen>0)

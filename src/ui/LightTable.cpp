@@ -17,6 +17,8 @@
 #include "DragOut.h"
 #include "MultiDragDialog.h"
 #include "Adjuster.h"
+#include <QMimeData>
+#include <QDrag>
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, Exporter *expo,

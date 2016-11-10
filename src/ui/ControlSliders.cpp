@@ -14,6 +14,7 @@
 #include <QEvent>
 #include "SliderGroups.h"
 #include "Action.h"
+#include <math.h>
 
 ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
