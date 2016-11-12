@@ -35,9 +35,10 @@ void InterruptableReader::stop() {
 }
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
-  qDebug() << "IR::request" << fn << request << original << running; 
+  pDebug() << "IR::request" << fn << request << original << running; 
   QMutexLocker l(&mutex);  
   if (current==fn && cSize==request) {
+    COMPLAIN("Same request again");
     // same as previous, that's easy
     if (running) {
       // Is it OK that the signal will be emitted only once? I hope so.
