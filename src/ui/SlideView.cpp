@@ -59,10 +59,9 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   img = Image16(); // might invalidate more gently
   fit = true;
   zoom = 1;
-  needLargerImage();
   pDebug() << "SV::nI: needLargerImage";
-  // we _could_ update() now, which would cause a gray flash
-  visualizeLayer(vsn, 0);
+
+  visualizeLayer(vsn, 0); // this calls update
   pDebug() << "SV::nI: done";
 }
 
@@ -263,9 +262,7 @@ void SlideView::paintEvent(QPaintEvent *) {
 
   if (img.isNull()) {
     pDebug() << "SV:paintEvent" << img.isNull();
-    //needLargerImage();
-    // I don't think we need to do this; the request should have been
-    // posted already.
+    needLargerImage();
     return;
   }
   
