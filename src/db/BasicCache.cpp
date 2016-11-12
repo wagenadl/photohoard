@@ -82,7 +82,7 @@ void BasicCache::create(QString rootdir) {
 
 
   if (!QDir("/").mkpath(root.absolutePath()))
-    CRASH("BasicCache::create: Could not create directory.");
+    CRASH("BasicCache::create: Could not create directory: " + root.absolutePath());
 
   Database db;
   db.open(rootdir + "/cache.db");

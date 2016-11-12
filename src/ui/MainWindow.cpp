@@ -90,9 +90,9 @@ MainWindow::MainWindow(SessionDB *db,
   if (!db->isReadOnly())
     shortcutHelp->addSection("Slider panel", allControls->actions());
   
-  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           histogram, SLOT(setImage(Image16))); // is this ok?
-  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           metaViewer, SLOT(setImage(Image16, quint64)));
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),

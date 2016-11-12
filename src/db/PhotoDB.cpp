@@ -50,10 +50,8 @@ void PhotoDB::create(QString fn) {
       db.query(c);
 
     QString cachefn = fn;
-    if (fn.endsWith(".db"))
-      fn.replace(".db", ".cache");
-    else
-      fn += ".cache";
+    cachefn = (fn.endsWith(".db")) ? fn.left(fn.length()-3) : fn;
+    cachefn += ".cache";
     db.query("insert into cachefn values (:a)", cachefn);
 
     t.commit();
