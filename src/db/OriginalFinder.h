@@ -10,6 +10,7 @@
 #include "PSize.h"
 #include "Image16.h"
 #include "Exif.h"
+#include "InterruptableReader.h"
 
 class OriginalFinder: public QObject {
   Q_OBJECT;
@@ -25,7 +26,7 @@ signals:
   void scaledOriginalAvailable(quint64 version, QSize osize, Image16 img);
   void exception(QString);
 private slots:
-  void provide(QString fn);
+  void provide(QString fn, InterruptableReader::Result res);
 private:
   void fixOrientation(Image16 &);
 private:
