@@ -21,7 +21,12 @@ AddRootDialog::~AddRootDialog() {
 }
 
 QString AddRootDialog::path() const {
-  return ui->location->text();
+  QString p = ui->location->text();
+  if (p.startsWith("~/")) {
+    QString home = QString(qgetenv("HOME"));
+    p = home + p.mid(1);
+  }
+  return p;
 }
 
 QString AddRootDialog::defaultCollection() const {
@@ -30,6 +35,12 @@ QString AddRootDialog::defaultCollection() const {
 
 int AddRootDialog::exec() {
   prepCollections();
+  if (db->rootFolders().isEmpty()) {
+    // We don't have a collection anywhere yet
+    ui->location->setText(QString(qgetenv("HOME")) + "/Pictures");
+    if (Tags(db).collections().isEmpty())
+      ui->collection->addItem("Family photos");
+  }
   DialogCode c = DialogCode(QDialog::exec());
   return c;
 }

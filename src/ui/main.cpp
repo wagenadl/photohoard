@@ -20,6 +20,7 @@
 #include "CMSTransform.h"
 #include "CMS.h"
 #include "SessionDB.h"
+#include "ErrorDialog.h"
 
 void usage() {
   fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
@@ -65,9 +66,11 @@ int main(int argc, char **argv) {
 
   if (newdb==QFile(dbfn).exists()) {
     if (newdb) 
-      pDebug() << "Database not found at " << dbfn;
+      ErrorDialog::fatal("A database already exists at " + dbfn
+	      + ". Cannot create a new one.");
     else
-      pDebug() << "Database already exists at " << dbfn;
+      ErrorDialog::fatal("No database found at " + dbfn
+	      + ". You may create a new one using “photohoard -new”.");
     return 2;
   }
   
