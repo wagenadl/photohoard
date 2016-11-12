@@ -36,7 +36,20 @@ void InterruptableReader::stop() {
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
   qDebug() << "IR::request" << fn << request << original << running; 
-  QMutexLocker l(&mutex);
+  QMutexLocker l(&mutex);  
+  if (current==fn && cSize==request) {
+    // same as previous, that's easy
+    if (running) {
+      // Is it OK that the signal will be emitted only once? I hope so.
+      return;
+    } else if (res.ok) {
+      Result r = res;
+      l.unlock();
+      emit ready(fn, r);
+      return;
+    }
+  }
+
   newreq = fn;
   rqSize = request;
   oriSize = original;
@@ -113,10 +126,11 @@ void InterruptableReader::lNewReq() {
   res = Result("Incomplete");
   offset = 0;
   current = newreq;
+  cSize = rqSize;
   newreq = "";
   canceling = false;
   running = true;
-  lPrepSource(current, rqSize, oriSize);
+  lPrepSource(current, cSize, oriSize);
   
   mutex.unlock();
 
@@ -213,7 +227,6 @@ void InterruptableReader::lComplete() {
 
   QString c = current;
   Result r = res;
-  res = Result();
   mutex.unlock();
   pDebug() << "Interruptable reader ready" << c;
   emit ready(c, r);
