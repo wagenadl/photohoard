@@ -70,6 +70,7 @@ private:
   QString newreq;
   QSize rqSize, oriSize;
   QString current;
+  QSize cSize;
   bool running, canceling, stopsoon;
   Result res;
   qint64 offset, estsize;
