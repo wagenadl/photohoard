@@ -11,16 +11,17 @@ OriginalFinder::OriginalFinder(PhotoDB *db,
   QObject(parent), db(db) {
   filereader = new InterruptableFileReader(this);
   rawreader = new InterruptableRawReader(this);
-  connect(filereader, SIGNAL(ready(QString)),
-          SLOT(provide(QString)));
-  connect(rawreader, SIGNAL(ready(QString)),
-          SLOT(provide(QString)));
+  connect(filereader, SIGNAL(ready(QString, InterruptableReader::Result)),
+          SLOT(provide(QString, InterruptableReader::Result)));
+  connect(rawreader, SIGNAL(ready(QString, InterruptableReader::Result)),
+          SLOT(provide(QString, InterruptableReader::Result)));
 }
 
 OriginalFinder::~OriginalFinder() {
 }
 
 void OriginalFinder::requestOriginal(quint64 version) {
+  pDebug() << "OF::requestOriginal" << version;
   requestScaledOriginal(version, PSize(0, 0));
 }
 
@@ -29,6 +30,7 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
+  pDebug() << "OF::requestScaledOriginal" << vsn << ds;
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "
                 " from versions"
@@ -78,14 +80,12 @@ void OriginalFinder::fixOrientation(Image16 &img) {
   }
 }  
 
-void OriginalFinder::provide(QString fn) {
+void OriginalFinder::provide(QString fn, InterruptableReader::Result res) {
+  pDebug() << "OF::provide" << fn << res.ok << res.error;
   if (fn!=filepath)
     return;
-  InterruptableReader::Result res = filereader->result(fn);
-  QString e0 = res.error;
-  if (!res.ok)
-    res = rawreader->result(fn);
   if (!res.ok) {
+    pDebug() << "OF::provide: " << res.error << " on " << fn;
     COMPLAIN("OriginalFinder: got no result for " + fn);
     return;
   }

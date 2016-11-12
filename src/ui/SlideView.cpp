@@ -69,8 +69,8 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
 			    QSize fs) {
   if (vsn!=vsnid) 
     return;
-  pDebug() << "updateImage" << vsn << img1.size() << force << fs;
-  if (!fs.isNull())
+  pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs << fs.isEmpty();
+  if (!fs.isEmpty())
     naturalSize = fs;
 
   if (force || img1.size().exceeds(rqid ? rqsize : img.size())) {

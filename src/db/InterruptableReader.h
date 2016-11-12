@@ -28,7 +28,6 @@ public:
   // Starts thread.
   virtual ~InterruptableReader();
   // Stops thread canceling outstanding requests.
-  Result result(QString fn); // Results may only be fetched once!
 public slots:
   void request(QString fn, QSize desired=QSize(), QSize original=QSize());
   // Posts a new request canceling any current or pending requests.
@@ -37,7 +36,7 @@ public slots:
   // Has no effect if FN is not the current or pending request.
   void cancel(); // Cancels everything
 signals:
-  void ready(QString fn);
+  void ready(QString fn, InterruptableReader::Result res);
   void failed(QString fn);
   // Each request results in either a ready or a failed signal, unless it
   // gets canceled first. The signals are emitted while the mutex is unlocked.
@@ -86,5 +85,7 @@ private:
      and---if not running---res.
   */
 };
+
+Q_DECLARE_METATYPE(InterruptableReader::Result);
 
 #endif

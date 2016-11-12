@@ -7,6 +7,7 @@
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QThread(parent) {
+  qRegisterMetaType<InterruptableReader::Result>();
   running = false;
   canceling = false;
   stopsoon = false;
@@ -34,6 +35,7 @@ void InterruptableReader::stop() {
 }
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
+  qDebug() << "IR::request" << fn << request << original << running; 
   QMutexLocker l(&mutex);
   newreq = fn;
   rqSize = request;
@@ -76,17 +78,6 @@ void InterruptableReader::cancel(QString fn) {
 	res = Result("Canceled");
     }
   }
-}
-
-InterruptableReader::Result InterruptableReader::result(QString fn) {
-  QMutexLocker l(&mutex);
-  if (running)
-    return Result("Incomplete");
-  if (fn!=current)
-    return Result("Not current");
-  Result r = res;
-  res = Result();
-  return r;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -143,6 +134,7 @@ void InterruptableReader::lNewReq() {
     lUnprepSource();
     QString c = current;
     mutex.unlock();
+    pDebug() << "Interruptable reader failed" << c;
     emit failed(c);
     mutex.lock();
   }
@@ -179,6 +171,7 @@ void InterruptableReader::lReadSome() {
       running = false;
       QString c = current;
       mutex.unlock();
+      pDebug() << "Interruptable reader failed1" << c;
       emit failed(c);
       mutex.lock();
     } else if (n==0) {
@@ -219,7 +212,10 @@ void InterruptableReader::lComplete() {
   running = false;
 
   QString c = current;
+  Result r = res;
+  res = Result();
   mutex.unlock();
-  emit ready(c);
+  pDebug() << "Interruptable reader ready" << c;
+  emit ready(c, r);
   mutex.lock();
 }
