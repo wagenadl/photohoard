@@ -14,7 +14,7 @@ Settings::~Settings() {
 
 void Settings::set(QString key, QVariant value) {
   data->setValue(key, value);
-  data->sync();
+  //  data->sync();
 }
   
 QVariant Settings::get(QString key) const {

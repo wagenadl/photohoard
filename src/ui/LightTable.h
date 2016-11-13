@@ -56,6 +56,7 @@ private slots:
   void applyFilterFromDialog();
   void resizeStrip();
   void startDrag(quint64);
+  void saveSplitterPos();
 private:
   void makeActions();
 protected:
