@@ -7,6 +7,7 @@
 #include "SessionDB.h"
 #include "Tags.h"
 #include "TagDialog.h"
+#include "Dialog.h"
 
 FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   QDialog(parent), db(db), f0(db) {
@@ -16,6 +17,7 @@ FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
   starting = false;
+  Dialog::ensureSize(this);
 }
 
 void FilterDialog::prepCombos() {
