@@ -8,14 +8,14 @@
 
 class ScreenResolution {
 public:
-  ScreenResolution(class QApplication *);
+  ScreenResolution();
   QSize pixelCount() const;
   QSizeF millimeterSize() const;
-  int dpi() const;
+  double dpi() const;
 private:
   static QSize &pc();
   static QSizeF &ms();
-  static int &dpi_();
+  static double &dpi_();
   static bool &ready();
 private:
   static void ensure();
