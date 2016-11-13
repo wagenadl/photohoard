@@ -1,6 +1,7 @@
 // main.cpp
 
 #include "BasicCache.h"
+#include "ScreenResolution.h"
 #include <QTime>
 #include "PDebug.h"
 #include "Application.h"
@@ -21,6 +22,7 @@
 #include "CMS.h"
 #include "SessionDB.h"
 #include "ErrorDialog.h"
+#include <thread>
 
 void usage() {
   fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
@@ -55,6 +57,11 @@ int main(int argc, char **argv) {
   }
 
   Application app(argc, argv);
+  pDebug() << "Application constructed";
+  ScreenResolution sr(&app);
+  std::thread sr_thread([&sr]() { sr.dpi(); });
+  /* Experimentally, calculating the screen reso in a separate thread
+     saves 50 ms startup time on hirudo. */
 
   CMSProfile rgb(CMSProfile::srgbProfile());
   if (icc=="")
@@ -120,7 +127,16 @@ int main(int argc, char **argv) {
   if (scan)
     scan->start(); // doing this here ensures that the mainwindow can open 1st
 
+  sr_thread.join();
+  QSizeF mmsize = sr.millimeterSize();
+  pDebug() << "mmsize: " << mmsize;
+
+  // START APPLICATION
+
   int res = app.exec();
+
+  // END APPLICATION
+
   if (scan) {
     scan->stopAndWait(1000);
     delete scan;

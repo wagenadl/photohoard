@@ -31,6 +31,7 @@ LIBS += -lexiv2
 LIBS += -llcms2
 LIBS += -lopencv_imgproc -lopencv_core
 LIBS += -lX11
+LIBS += -lxcb-randr -lxcb
 
 include(photohoard.pri)
 DEPENDPATH +=  . $$sourcedirs
