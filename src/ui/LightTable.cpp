@@ -19,6 +19,7 @@
 #include "Adjuster.h"
 #include <QMimeData>
 #include <QDrag>
+#include "Settings.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, Exporter *expo,
@@ -54,7 +55,9 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   slide = new SlideView(db);
   addWidget(slide);
 
-  lastgridsize = strips->idealSize(Strip::Arrangement::Grid);
+  lastgridsize = Settings()
+    .get("gridsize", strips->idealSize(Strip::Arrangement::Grid))
+    .toInt();
   setStretchFactor(0, 0);
   setStretchFactor(1, 100);
   setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
@@ -69,6 +72,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   connect(strips, SIGNAL(dragStarted(quint64)),
           this, SLOT(startDrag(quint64)));
   connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
+  connect(this, SIGNAL(splitterMoved(int, int)),
+	  SLOT(saveSplitterPos()));
   connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
@@ -422,6 +427,7 @@ void LightTable::resizeStrip() {
 
 void LightTable::increaseTileSize(double factor) {
   strips->setTileSize(factor*strips->tileSize());
+  Settings().set("tilesize", strips->tileSize());
 }
 
 void LightTable::openFilterDialog() {
@@ -695,4 +701,19 @@ void LightTable::ensureDragExportComplete() {
 
 void LightTable::visualizeLayer(quint64 vsn, int lay) {
   slide->visualizeLayer(vsn, lay);
+}
+
+void LightTable::saveSplitterPos() {
+  switch (lay) {
+  case LayoutBar::Layout::HGrid:
+    qDebug() << "saveSplitterPos H" << strips->width() << strips->height();
+    Settings().set("gridsize", strips->height());
+    break;
+  case LayoutBar::Layout::VGrid:
+    qDebug() << "saveSplitterPos V" << strips->width() << strips->height();
+    Settings().set("gridsize", strips->width());
+    break;
+  default:
+    break;
+  }
 }
