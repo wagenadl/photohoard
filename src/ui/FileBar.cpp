@@ -13,8 +13,8 @@
 
 FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
+  setObjectName("File");
   sliderclip = new SliderClipboard(db, ac);
-  setWindowTitle("File");
 
   if (!db->isReadOnly()) {
     acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",

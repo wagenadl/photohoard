@@ -7,7 +7,7 @@
 ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
                              QWidget *parent):
   ActionBar(parent) {
-  setWindowTitle("Color label");
+  setObjectName("Color label");
 
   QStringList clrs
     = QString("None Red Yellow Green Blue Purple").split(" ");

@@ -6,7 +6,7 @@
 
 LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
   ActionBar(parent) {
-  setWindowTitle("Layout");
+  setObjectName("Layout");
 
   acts << Action{Qt::Key_F1, "Full grid",
       [=]() { lighttable->setLayout(Layout::FullGrid); }};
