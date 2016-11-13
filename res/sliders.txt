@@ -8,11 +8,11 @@ black: Black point
 0 20 / 0.01 0.1 0.5
 Black point (absolute)
 
-blackyb: Y-B adjust
+blackyb: ~~↳ Y-B adjust
 -50 50 / 1 5 20
 Adjustment of black point along yellow-blue axis
 
-blackrg: R-G adjust
+blackrg: ~~↳ R-G adjust
 -50 50 / 1 5 20
 Adjustment of black point along red-green axis
 
@@ -20,7 +20,7 @@ wb: White balance
 -10 10 / .02 .1 .5
 White balance adjustment (blue-yellow)
 
-wbg: Green adjust
+wbg: ~~↳ Green adjust
 -10 10 / .02 .1 .5
 Adjustment of white point along green-red axis
 # Is that in fact what I want to offer?
@@ -98,7 +98,7 @@ umask: Unsharp mask
 0 5 / 0.01 0.05 0.25
 Unsharp mask strength
 
-umaskr: ~ Radius
+umaskr: ~~↳ Radius
 0 5 / 0.1 0.2 0.5
 Unsharp mask radius (pixels)
 
@@ -106,6 +106,6 @@ nlc_strength: Local contrast
 0 5 / 0.01 0.05 0.25
 Strength of local contrast enhancement
 
-nlc_localness: ~ Localness
+nlc_localness: ~~↳ Localness
 0 1 / 0.01 0.1 0.25
 Degree of localness for local contrast enhancement
