@@ -11,6 +11,7 @@
 #include "PhotoDB.h"
 #include <QProgressDialog>
 #include "RestoreDialog.h"
+#include "Dialog.h"
 
 PurgeDialog::PurgeDialog(PhotoDB *db, Purge const *purge):
   db(db), purge(purge) {
@@ -113,6 +114,8 @@ PurgeDialog::PurgeDialog(PhotoDB *db, Purge const *purge):
   connect(ui->purgeCheck, SIGNAL(toggled(bool)), SLOT(deleteToggled()));
   connect(ui->deleteCheck, SIGNAL(toggled(bool)), SLOT(deleteToggled()));
   connect(ui->deleteOldCheck, SIGNAL(toggled(bool)), SLOT(deleteToggled()));
+
+  Dialog::ensureSize(this);
 }
 
 PurgeDialog::~PurgeDialog() {

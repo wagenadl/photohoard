@@ -9,12 +9,14 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include "Dialog.h"
 
 AddRootDialog::AddRootDialog(PhotoDB *db, QWidget *parent):
   QDialog(parent), db(db) {
   ui = new Ui_addRootDialog();
   ui->setupUi(this);
   prepCollections();
+  Dialog::ensureSize(this);
 }
 
 AddRootDialog::~AddRootDialog() {
