@@ -31,6 +31,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include "ImportGUI.h"
+#include "Settings.h"
 
 MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -40,27 +41,32 @@ MainWindow::MainWindow(SessionDB *db,
   setWindowTitle("Photohoard");
   
   QDockWidget *dock = new QDockWidget("Histogram", this);
+  dock->setObjectName("Histogram");
   dock->setWidget(histogram = new HistoWidget(this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
   dock = new QDockWidget("Adjustments", this);
+  dock->setObjectName("Adjustments");  
   dock->setWidget(allControls = new AllControls(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   allControls->setVersion(db->current());
   
   dock = new QDockWidget("Metadata",this);
+  dock->setObjectName("MetaData");
   dock->setWidget(metaViewer = new MetaViewer(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
   dock = new QDockWidget("Tags",this);
+  dock->setObjectName("Tags");
   dock->setWidget(tagList = new AppliedTagList(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
   dock = new QDockWidget("Status",this);
+  dock->setObjectName("Status");
   dock->setWidget(statusBar = new StatusBar(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
@@ -150,6 +156,12 @@ MainWindow::MainWindow(SessionDB *db,
   dragout = false;
   dragin = false;
   setAcceptDrops(true);
+
+  Settings s;
+  if (s.contains("mwgeom"))
+    restoreGeometry(s.get("mwgeom").toByteArray());
+  if (s.contains("mwstate"))
+    restoreState(s.get("mwstate").toByteArray());
 }
 
 MainWindow::~MainWindow() {
@@ -204,6 +216,9 @@ void MainWindow::reloadVersion(quint64 vsn) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
+  Settings s;
+  s.set("mwgeom", saveGeometry());
+  s.set("mwstate", saveState());
   QApplication::quit();
 }
 

@@ -117,19 +117,15 @@ int main(int argc, char **argv) {
 
   MainWindow *mw = new MainWindow(&db, scan, ac, expo);
 
-  QDesktopWidget *dw = app.desktop();
-  mw->resize(dw->width()*8/10, dw->height()*8/10);
-  mw->move(dw->width()/10, dw->height()/10);
+  //QDesktopWidget *dw = app.desktop();
+  //mw->resize(dw->width()*8/10, dw->height()*8/10);
+  //mw->move(dw->width()/10, dw->height()/10);
   mw->show();
 
   mw->scrollToCurrent();
 
   if (scan)
     scan->start(); // doing this here ensures that the mainwindow can open 1st
-
-  sr_thread.join();
-  QSizeF mmsize = sr.millimeterSize();
-  pDebug() << "mmsize: " << mmsize;
 
   // START APPLICATION
 
@@ -149,5 +145,6 @@ int main(int argc, char **argv) {
     
   db.close();
 
+  sr_thread.join();
   return res;
 }
