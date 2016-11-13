@@ -11,8 +11,9 @@
 #include <xcb/randr.h>
 #include <stdlib.h>
 #include <math.h>
+#include <QMutexLocker>
 
-ScreenResolution::ScreenResolution(class QApplication *) {
+ScreenResolution::ScreenResolution() {
 }
 
 QSize ScreenResolution::pixelCount() const {
@@ -25,7 +26,7 @@ QSizeF ScreenResolution::millimeterSize() const {
   return ms();
 }
 
-int ScreenResolution::dpi() const {
+double ScreenResolution::dpi() const {
   ensure();
   return dpi_();
 }
@@ -40,8 +41,8 @@ QSizeF &ScreenResolution::ms() {
   return m;
 }
 
-int &ScreenResolution::dpi_() {
-  static int d;
+double &ScreenResolution::dpi_() {
+  static double d;
   return d;
 }
 
@@ -51,6 +52,10 @@ bool &ScreenResolution::ready() {
 }
 
 void ScreenResolution::ensure() {
+  // This mutex guarantees that once we are calculating, we won't start again.
+  static QMutex mutex;
+  QMutexLocker l(&mutex);
+  
   if (ready())
     return;
 
@@ -112,7 +117,7 @@ void ScreenResolution::ensure() {
 
   double xdpi = pc().width()/(ms().width()/25.4);
   double ydpi = pc().height()/(ms().height()/25.4);
-  dpi_() = int(sqrt(xdpi*ydpi) + 0.5);
+  dpi_() = sqrt(xdpi*ydpi);
   ready() = true;
 }
 

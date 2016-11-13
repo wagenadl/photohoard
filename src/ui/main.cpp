@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
   Application app(argc, argv);
   pDebug() << "Application constructed";
-  ScreenResolution sr(&app);
+  ScreenResolution sr;
   std::thread sr_thread([&sr]() { sr.dpi(); });
   /* Experimentally, calculating the screen reso in a separate thread
      saves 50 ms startup time on hirudo. */
