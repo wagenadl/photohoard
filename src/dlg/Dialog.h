@@ -4,15 +4,10 @@
 
 #define DIALOG_H
 
-#include <QDialog>
 
-class Dialog: public QDialog {
+class Dialog {
 public:
-  static void ensureSize(QWidget *dlg);
-public:
-  Dialog(QWidget *parent=0);
-protected:
-  void ensureSize();
+  static void ensureSize(class QWidget *dlg);
 };
 
 #endif

@@ -115,19 +115,15 @@ int main(int argc, char **argv) {
   Exporter *expo = new Exporter(&db, 0);
   expo->start();
 
-  MainWindow *mw = new MainWindow(&db, scan, ac, expo);
-
-  //QDesktopWidget *dw = app.desktop();
-  //mw->resize(dw->width()*8/10, dw->height()*8/10);
-  //mw->move(dw->width()/10, dw->height()/10);
-  mw->show();
-
-  mw->scrollToCurrent();
-
   if (scan)
     scan->start(); // doing this here ensures that the mainwindow can open 1st
 
+  app.setFont(ScreenResolution::defaultFont());
+  
   // START APPLICATION
+  MainWindow *mw = new MainWindow(&db, scan, ac, expo);
+  mw->show();
+  mw->scrollToCurrent();
 
   int res = app.exec();
 
