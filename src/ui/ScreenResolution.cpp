@@ -13,24 +13,31 @@
 #include <math.h>
 #include <QMutexLocker>
 
-ScreenResolution::ScreenResolution() {
-}
-
-QSize ScreenResolution::pixelCount() const {
+QSize ScreenResolution::pixelCount() {
   ensure();
   return pc();
 }
 
-QSizeF ScreenResolution::millimeterSize() const {
+QSizeF ScreenResolution::millimeterSize() {
   ensure();
   return ms();
 }
 
-double ScreenResolution::dpi() const {
+double ScreenResolution::dpi() {
   ensure();
   return dpi_();
 }
 
+QFont ScreenResolution::defaultFont() {
+  static QFont f("Lato");
+  static bool first = true;
+  if (first) 
+    f.setPixelSize(0.1 * dpi() * pow(millimeterSize().width()/250, 0.3));
+  return f;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Internal functions
 QSize &ScreenResolution::pc() {
   static QSize p;
   return p;

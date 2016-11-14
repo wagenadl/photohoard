@@ -1,13 +1,8 @@
 // Dialog.cpp
 
 #include "Dialog.h"
-
-Dialog::Dialog(QWidget *parent): QDialog(parent) {
-}
-
-void Dialog::ensureSize() {
-  ensureSize(this);
-}
+#include "ScreenResolution.h"
+#include <QWidget>
 
 void Dialog::ensureSize(QWidget *dlg) {
   QSize current = dlg->size();
