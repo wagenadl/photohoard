@@ -6,6 +6,7 @@
 #include "PDebug.h"
 
 Filter::Filter(SessionDB *db): db(db) {
+  qRegisterMetaType<Filter>("Filter");
   reset();
 }
 
@@ -117,6 +118,7 @@ void Filter::unsetTags() {
 }
 
 int Filter::count() const {
+  ASSERT(db);
   return db->simpleQuery("select count(*) from versions "
 			+ joinClause()
 			+ " where " + whereClause()).toInt();
@@ -130,6 +132,7 @@ QString Filter::joinClause() const {
 }
 
 QString Filter::whereClause() const {
+  ASSERT(db);
   QStringList clauses;
   if (hascollection)
     clauses << collectionClause();
@@ -139,6 +142,7 @@ QString Filter::whereClause() const {
     clauses << starRatingClause();
   if (hasstatus)
     clauses << statusClause();
+  pDebug() << "filter: whereclause hascamera" << hascamera;
   if (hascamera)
     clauses << cameraClause();
   if (hasdaterange)
@@ -216,6 +220,8 @@ QString Filter::statusClause() const {
 QString Filter::cameraClause() const {
   QStringList bits;
 
+  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
+	   << cameramake << cameramodel;
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
     // select on camera
     QSqlQuery q;
@@ -235,6 +241,7 @@ QString Filter::cameraClause() const {
     QStringList cameraids;
     while (q.next())
       cameraids << QString::number(q.value(0).toInt());
+    pDebug() << "cameraids" << cameraids.size();
     if (cameraids.isEmpty())
       return "0>1";
     if (cameraids.size()==1)
@@ -329,6 +336,7 @@ bool Filter::isTrivial() const {
 }
 
 void Filter::saveToDb() const {
+  ASSERT(db);
   Transaction t(db);
   db->query("delete from filtersettings");
   QString q = "insert into filtersettings values (:a, :b)";
@@ -361,6 +369,7 @@ void Filter::saveToDb() const {
 }
 
 void Filter::loadFromDb() {
+  ASSERT(db);
   reset();
   QSqlQuery q = db->query("select k, v from filtersettings");
   while (q.next()) {

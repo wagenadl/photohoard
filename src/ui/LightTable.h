@@ -42,6 +42,8 @@ public slots:
   void reloadVersion(quint64 vsn);
   void ensureDragExportComplete();
   void visualizeLayer(quint64 vsn, int layer);
+  void applyFilter(Filter);
+  void applyFilterFromDialog();
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);
@@ -53,7 +55,6 @@ signals:
   void recacheReoriented(QSet<quint64>);
 private slots:
   void updateAdjusted(Image16, quint64, QSize fullsize);
-  void applyFilterFromDialog();
   void resizeStrip();
   void startDrag(quint64);
   void saveSplitterPos();

@@ -13,7 +13,7 @@ inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 
 class Filter {
 public:
-  Filter(class SessionDB *);
+  Filter(class SessionDB *=0);
   void reset();
   bool isTrivial() const;
   void saveToDb() const;
@@ -98,5 +98,7 @@ private:
   bool hastags;
   QStringList tags_;
 };
+
+Q_DECLARE_METATYPE(Filter);
 
 #endif

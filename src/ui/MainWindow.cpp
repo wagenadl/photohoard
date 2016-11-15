@@ -153,6 +153,9 @@ MainWindow::MainWindow(SessionDB *db,
   connect(fileBar->sliderClipboard(), SIGNAL(modified(quint64)),
           SLOT(reloadVersion(quint64)));
 
+  connect(metaViewer, SIGNAL(filterModified(Filter)),
+	  lightTable, SLOT(applyFilter(Filter)));
+
   dragout = false;
   dragin = false;
   setAcceptDrops(true);
