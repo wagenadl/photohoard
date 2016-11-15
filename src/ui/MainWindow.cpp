@@ -147,14 +147,16 @@ MainWindow::MainWindow(SessionDB *db,
   
   tagList->setCurrent(db->current());
   metaViewer->setVersion(db->current());
-  if (lightTable->filter().hasCollection())
-    statusBar->setCollection(lightTable->filter().collection());
+  { Filter flt(db); flt.loadFromDb();
+    if (flt.hasCollection())
+      statusBar->setCollection(flt.collection());
+  }
 
   connect(fileBar->sliderClipboard(), SIGNAL(modified(quint64)),
           SLOT(reloadVersion(quint64)));
 
-  connect(metaViewer, SIGNAL(filterModified(Filter)),
-	  lightTable, SLOT(applyFilter(Filter)));
+  connect(metaViewer, SIGNAL(filterModified()),
+	  lightTable, SLOT(updateFilterAndDialog()));
 
   dragout = false;
   dragin = false;

@@ -25,7 +25,6 @@ public:
   virtual ~LightTable();
   PSize displaySize() const;
   Actions const &actions() const;
-  class Filter const &filter() const;
 public slots:
   void setLayout(LayoutBar::Layout ar);
   void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);
@@ -43,8 +42,7 @@ public slots:
   void reloadVersion(quint64 vsn);
   void ensureDragExportComplete();
   void visualizeLayer(quint64 vsn, int layer);
-  void applyFilter(Filter);
-  void applyFilterFromDialog();
+  void updateFilterAndDialog();
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);
@@ -59,13 +57,14 @@ private slots:
   void resizeStrip();
   void startDrag(quint64);
   void saveSplitterPos();
+  void updateFilter();
 private:
   void makeActions();
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   void updateSlide(quint64 id);
   void ensureReasonableGridSize();
-  void populateFilterFromDialog();
+  void applyFilterSettings();
   void selectNearestInFilter(quint64 vsn);
   void toggleSelection(quint64 i);
   void extendOrShrinkSelection(quint64 i);

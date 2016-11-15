@@ -17,7 +17,7 @@ public slots:
   void setImage(class Image16 const &, quint64 version);
   void handleClick(QUrl const &);
 signals:
-  void filterModified(Filter);
+  void filterModified();
 private:
   SessionDB *db;
 };

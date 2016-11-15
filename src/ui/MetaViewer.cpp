@@ -34,7 +34,8 @@ void MetaViewer::handleClick(QUrl const &url) {
   flt.loadFromDb();
   if (MetaInfo::modifyFilterWithLink(flt, url)) {
     pDebug() << "Filter now" << flt.whereClause();
-    emit filterModified(flt);
+    flt.saveToDb();
+    emit filterModified();
   }
 }
 

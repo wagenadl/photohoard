@@ -36,6 +36,7 @@ public:
   void remove(quint64 versionid, int tagid);
   QSet<int> applied(quint64 versionid);
   bool couldBeNew(QString tag);
+  QString interpretation(QStringList ss);
   static QString normalCase(QString);
 private:
   QSet<int> ancestorfind(QString anc, QString dec);

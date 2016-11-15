@@ -44,7 +44,7 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
 
   dragout = 0;
   filterDialog = new FilterDialog(db);
-  populateFilterFromDialog();
+  applyFilterSettings();
 
   selection = new Selection(db);
 
@@ -90,8 +90,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           SLOT(updateAdjusted(Image16, quint64, QSize)));
 
-  connect(filterDialog, SIGNAL(apply()),
-	  SLOT(applyFilterFromDialog()));
+  connect(filterDialog, SIGNAL(applied()),
+	  SLOT(updateFilter()));
   
   quint64 c = db->current();
   if (c)
@@ -398,7 +398,7 @@ void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
 
 void LightTable::rescan(bool rebuildFilter) {
   if (rebuildFilter)
-    populateFilterFromDialog();
+    applyFilterSettings();
   strips->rescan();
 }
 
@@ -474,12 +474,12 @@ void LightTable::scrollToCurrent() {
   strips->scrollToCurrent();
 }
 
-void LightTable::applyFilter(Filter flt) {
-  filterDialog->populate(flt);
-  applyFilterFromDialog();
+void LightTable::updateFilterAndDialog() {
+  filterDialog->populate();
+  updateFilter();
 }
 
-void LightTable::applyFilterFromDialog() {
+void LightTable::updateFilter() {
   int oldcur = db->current();
   select(0);
   rescan(true);
@@ -496,12 +496,10 @@ void LightTable::selectNearestInFilter(quint64 vsn) {
     select(0);
 }
 
-Filter const &LightTable::filter() const {
-  return filterDialog->filter();
-}
-
-void LightTable::populateFilterFromDialog() {
-  Filter f = filterDialog->filter();
+void LightTable::applyFilterSettings() {
+  // was populatefilterfromdialog
+  Filter f(db);
+  f.loadFromDb();
   Untransaction t(db);
   db->query("delete from filter");
   db->query("insert into filter select versions.id, photos.id from versions "
