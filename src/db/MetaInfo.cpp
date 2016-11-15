@@ -7,6 +7,8 @@
 #include "PDebug.h"
 #include "Adjustments.h"
 #include <math.h>
+#include <QUrl>
+#include "Filter.h"
 
 inline double inbetween(double a, double b) {
   return sqrt(a*b);
@@ -178,14 +180,21 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   QString camlens = "";
   if (prec.cameraid) {
     QString cam = db->camera(prec.cameraid);
-    camlens = ("<a href=\"camera:%1\">" + cam + "</a>").arg(prec.cameraid);
+    camlens = QString("<a href=\"camera:%1:%2:%3\">%4</a>")
+      .arg(prec.cameraid)
+      .arg(db->make(prec.cameraid))
+      .arg(db->model(prec.cameraid))
+      .arg(db->cameraAlias(prec.cameraid));
   }
   QString lens = "";
   if (prec.lensid) {
+    lens = db->lensAlias(prec.lensid);
     if (!camlens.isEmpty())
       camlens += ", ";
-    lens = db->lensAlias(prec.lensid);
-    camlens += ("<a href=\"lens:%1\">" + lens + "</a>").arg(prec.lensid);
+    camlens += QString("<a href=\"lens:%1:%2\">%3</a>")
+      .arg(prec.lensid)
+      .arg(db->lens(prec.lensid))
+      .arg(lens);
   }
   if (camlens.isEmpty()) 
     camlens = "<i>unknown camera</i>";
@@ -213,3 +222,44 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   txt += ")";
 }  
   
+bool MetaInfo::modifyFilterWithLink(Filter &filter, QUrl const &url) {
+  QString str = url.toString();
+  QStringList bits = str.split(":");
+  pDebug() << "modifyFilterWithLink" << bits;
+  if (bits.isEmpty())
+    return false;
+  QString key = bits.takeFirst();
+  if (key=="camera") {
+    pDebug() << "had camera" << filter.hasCamera();
+    pDebug() << "bits1" << bits[1] << "bits2" << bits[2];
+    if (filter.hasCamera()) {
+      if (filter.cameraMake().isEmpty() && filter.cameraModel().isEmpty()) 
+	// so far, we only had a lens
+	filter.setCamera(bits[1], bits[2], filter.cameraLens());
+      else
+	filter.unsetCamera();
+    } else {
+      pDebug() << "setting camera";
+      filter.setCamera(bits[1], bits[2], "");
+    }
+    pDebug() << "Filter:" << filter.whereClause();
+    return true;
+  } else if (key=="lens") {
+    if (filter.hasCamera()) {
+      if (filter.cameraLens().isEmpty()) 
+	// So far, we had a camera, but no lens
+	filter.setCamera(filter.cameraMake(), filter.cameraModel(),
+			  bits[1]);
+      else
+	filter.unsetCamera();
+    } else {
+      filter.setCamera("", "", bits[1]);
+    }
+    return true;
+  } else if (key=="date") {
+    pDebug() << "Date filter nyi";
+  } else if (key=="year") {
+    pDebug() << "Year filter nyi";
+  }
+  return false;
+}

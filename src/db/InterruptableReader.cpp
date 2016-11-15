@@ -7,7 +7,7 @@
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QThread(parent) {
-  qRegisterMetaType<InterruptableReader::Result>();
+  qRegisterMetaType<InterruptableReader::Result>("InterruptableReader::Result");
   running = false;
   canceling = false;
   stopsoon = false;

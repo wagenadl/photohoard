@@ -474,6 +474,11 @@ void LightTable::scrollToCurrent() {
   strips->scrollToCurrent();
 }
 
+void LightTable::applyFilter(Filter flt) {
+  filterDialog->populate(flt);
+  applyFilterFromDialog();
+}
+
 void LightTable::applyFilterFromDialog() {
   int oldcur = db->current();
   select(0);
