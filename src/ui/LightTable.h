@@ -13,6 +13,7 @@
 #include "ColorLabelBar.h"
 #include "FilterBar.h"
 #include "LiveAdjuster.h"
+#include "Filter.h"
 #include "Action.h"
 
 class LightTable: public QSplitter {
