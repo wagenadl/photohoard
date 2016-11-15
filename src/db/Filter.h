@@ -13,7 +13,7 @@ inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 
 class Filter {
 public:
-  Filter(class SessionDB *=0);
+  Filter(class SessionDB *db=0);
   void reset();
   bool isTrivial() const;
   void saveToDb() const;
