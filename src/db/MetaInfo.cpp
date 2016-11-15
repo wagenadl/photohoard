@@ -225,41 +225,50 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
 bool MetaInfo::modifyFilterWithLink(Filter &filter, QUrl const &url) {
   QString str = url.toString();
   QStringList bits = str.split(":");
-  pDebug() << "modifyFilterWithLink" << bits;
   if (bits.isEmpty())
     return false;
   QString key = bits.takeFirst();
   if (key=="camera") {
-    pDebug() << "had camera" << filter.hasCamera();
-    pDebug() << "bits1" << bits[1] << "bits2" << bits[2];
     if (filter.hasCamera()) {
-      if (filter.cameraMake().isEmpty() && filter.cameraModel().isEmpty()) 
-	// so far, we only had a lens
-	filter.setCamera(bits[1], bits[2], filter.cameraLens());
-      else
+      if (filter.cameraMake()==bits[1]
+	  && filter.cameraModel()==bits[2]) 
 	filter.unsetCamera();
+      else
+	filter.setCamera(bits[1], bits[2], filter.cameraLens());
     } else {
-      pDebug() << "setting camera";
       filter.setCamera(bits[1], bits[2], "");
     }
-    pDebug() << "Filter:" << filter.whereClause();
     return true;
   } else if (key=="lens") {
     if (filter.hasCamera()) {
-      if (filter.cameraLens().isEmpty()) 
-	// So far, we had a camera, but no lens
+      if (filter.cameraLens()==bits[1])
+	filter.unsetCamera();
+      else
 	filter.setCamera(filter.cameraMake(), filter.cameraModel(),
 			  bits[1]);
-      else
-	filter.unsetCamera();
     } else {
       filter.setCamera("", "", bits[1]);
     }
     return true;
   } else if (key=="date") {
-    pDebug() << "Date filter nyi";
+    QDate dt = QDate::fromString(bits[0], "yyyyMMdd");
+    if (filter.hasDateRange()
+	&& filter.startDate()==dt
+	&& filter.endDate()==dt)
+      filter.unsetDateRange();
+    else
+      filter.setDateRange(dt, dt);
+    return true;
   } else if (key=="year") {
-    pDebug() << "Year filter nyi";
+    QDate dt0 = QDate::fromString(bits[0]+"0101", "yyyyMMdd");
+    QDate dt1 = QDate::fromString(bits[0]+"1231", "yyyyMMdd");
+    if (filter.hasDateRange()
+	&& filter.startDate()==dt0
+	&& filter.endDate()==dt1)
+      filter.unsetDateRange();
+    else
+      filter.setDateRange(dt0, dt1);
+    return true;
   }
   return false;
 }
