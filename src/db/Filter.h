@@ -14,6 +14,9 @@ inline uint qHash(PhotoDB::ColorLabel cl) { return qHash(int(cl)); }
 class Filter {
 public:
   Filter(class SessionDB *db=0);
+  /* FILTER - Construct an empty filter for us on a database
+     The filtersettings are _not_ loaded from the db. 
+   */
   void reset();
   bool isTrivial() const;
   void saveToDb() const;
@@ -66,7 +69,6 @@ public:
   void unsetTags();
   bool hasTags() const { return hastags; }
   QStringList tags() const { return tags_; }
-  QString tagsInterpretation(QStringList);
 public:
   int count() const;
   QString joinClause() const;
@@ -98,7 +100,5 @@ private:
   bool hastags;
   QStringList tags_;
 };
-
-Q_DECLARE_METATYPE(Filter);
 
 #endif

@@ -6,7 +6,6 @@
 #include "PDebug.h"
 
 Filter::Filter(SessionDB *db): db(db) {
-  qRegisterMetaType<Filter>("Filter");
   reset();
 }
 
@@ -287,26 +286,6 @@ QString Filter::fileLocationClause() const {
   for (int f: folders)
     ss << QString::number(f);
   return "folder in ( " + ss.join(", ") + " )";
-}
-
-QString Filter::tagsInterpretation(QStringList ss) {
-  Tags tags(db);
-  QStringList res;
-  for (auto s: ss) {
-    s = s.simplified();
-    QStringList alts;
-    for (int t: tags.smartFindAll(s))
-      alts << tags.smartName(t);
-    if (alts.isEmpty())
-      res << QString::fromUtf8("–");
-    else if (alts.size()==1)
-      res << alts.first();
-    else
-      res << "{" + alts.join(", ") + "}"; // This could be smarter:
-    // If some of these alts actually occur in appliedtags and others do not,
-    // only the occurring ones need to be shown. Right?
-  }
-  return res.join("\n");
 }
 
 QString Filter::tagsClause() const {

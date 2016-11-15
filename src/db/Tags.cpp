@@ -327,3 +327,23 @@ int Tags::findCollection(QString tag) {
                           tag, collectionRoot());
   return q.next() ? q.value(0).toInt() : 0;
 }
+
+QString Tags::interpretation(QStringList ss) {
+  Tags tags(db);
+  QStringList res;
+  for (auto s: ss) {
+    s = s.simplified();
+    QStringList alts;
+    for (int t: tags.smartFindAll(s))
+      alts << tags.smartName(t);
+    if (alts.isEmpty())
+      res << QString::fromUtf8("–");
+    else if (alts.size()==1)
+      res << alts.first();
+    else
+      res << "{" + alts.join(", ") + "}"; // This could be smarter:
+    // If some of these alts actually occur in appliedtags and others do not,
+    // only the occurring ones need to be shown. Right?
+  }
+  return res.join("\n");
+}
