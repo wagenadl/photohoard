@@ -73,11 +73,12 @@ QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
  
 void AC_Worker::markReadyToLoad(QSet<quint64> versions) {
   for (auto v: versions) {
-    if (beingLoaded.contains(v)) 
+    if (beingLoaded.contains(v)) {
       invalidatedWhileLoading << v;
-    else if (loaded.contains(v))
+    } else if (loaded.contains(v)) {
       loadedmemsize -= loaded[v].byteCount();
       loaded.remove(v);
+    }
     if (!readyToLoad.contains(v)) {
       readyToLoad << v;
       mustCache << v;
