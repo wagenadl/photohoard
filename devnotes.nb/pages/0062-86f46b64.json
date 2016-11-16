@@ -1,0 +1,150 @@
+{ "typ": "page",
+  "cre": "2016-11-15T20:00:57",
+  "mod": "2016-11-15T20:10:12",
+  "cui": "9b2dd75b82882974",
+  "stampTime": 0,
+  "startPage": 62,
+  "unlocked": false,
+  "uuid": "86f46b64",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2016-11-15T20:00:57",
+      "mod": "2016-11-15T20:00:57",
+      "uuid": "1f71397b"
+    },
+    { "typ": "title",
+      "cre": "2016-11-15T20:00:57",
+      "mod": "2016-11-15T20:00:59",
+      "uuid": "4507664b",
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-11-15T20:00:57",
+          "mod": "2016-11-15T20:00:59",
+          "lines": [
+            0
+          ],
+          "text": "Layers",
+          "uuid": "1e9d5240"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-11-15T20:01:02",
+      "mod": "2016-11-15T20:03:34",
+      "h": 166.162,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "76efe215",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-11-15T20:01:02",
+          "mod": "2016-11-15T20:03:34",
+          "lines": [
+            0,
+            58,
+            119,
+            179,
+            238,
+            302,
+            359
+          ],
+          "text": "I determined that the way adjustments are handled is that LiveAdjuster sends a request to InterruptableAdjuster, which has a continuously running worker thread. The worker thread gets woken up by the new request, and delegates the actual work to Adjuster. LiveAdjuster also tells InterruptableAdjuster about new images, and in fact feeds the new image to the InterruptableAdjuster.",
+          "uuid": "f5182217"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-11-15T20:04:33",
+      "mod": "2016-11-15T20:08:43",
+      "h": 212.494,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "5e638d6f",
+      "y0": 238.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-11-15T20:04:33",
+          "mod": "2016-11-15T20:08:43",
+          "lines": [
+            0,
+            57,
+            112,
+            173,
+            237,
+            302,
+            364,
+            428,
+            491
+          ],
+          "text": "At the moment, IA’s newRequest only takes a single layer worth of Adjustments and passes those on to the single Adjuster that it keeps. I think what needs to happen is that there will be one Adjuster for each layer. The final product of layer n will serve as the base image for layer n+1. In the first iteration, we can be stupid and perform the calculations over an entire image, even if there is a restrictive mask. The whole retrieveROI code is probably badly broken anyway. [In fact, it simply says “NYI”.]",
+          "uuid": "10b1b8e4",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2016-11-15T20:05:42",
+              "mod": "2016-11-15T20:05:42",
+              "end": 244,
+              "start": 243,
+              "style": 1,
+              "uuid": "5ff813ef"
+            },
+            { "typ": "markup",
+              "cre": "2016-11-15T20:05:50",
+              "mod": "2016-11-15T20:05:50",
+              "end": 285,
+              "start": 284,
+              "style": 1,
+              "uuid": "c005831b"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-11-15T20:06:36",
+      "mod": "2016-11-15T20:06:48",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "93822342",
+      "y0": 450.656,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-11-15T20:06:36",
+          "mod": "2016-11-15T20:06:48",
+          "lines": [
+            0
+          ],
+          "text": "Applying the mask can be done by InterruptableAdjuster.",
+          "uuid": "2732a2be"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2016-11-15T20:09:24",
+      "mod": "2016-11-15T20:10:12",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4efd7773",
+      "y0": 477.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2016-11-15T20:09:24",
+          "mod": "2016-11-15T20:10:12",
+          "lines": [
+            0,
+            61,
+            125
+          ],
+          "text": "The Adjuster has a cancel() function that may be called from outside of its thread, and that is in fact exactly what IA does when a new request comes in.",
+          "uuid": "4e15fdb3"
+        }
+      ]
+    }
+  ]
+}
