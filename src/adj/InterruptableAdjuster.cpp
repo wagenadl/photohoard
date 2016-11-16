@@ -177,6 +177,20 @@ void InterruptableAdjuster::handleNewRequest() {
 Image16 InterruptableAdjuster::hnrFull(QMap<int, Adjustments> const &sli) {
   ASSERT(adjuster.contains(0));
   Image16 img = adjuster[0]->retrieveFull(sli[0]);
+#if 0
+  // WORK IN PROGRESS
+  if (sli.size()>1) {
+    /* If there are more layers, we must set and retrieve all those
+       layers and alphablend with their masks. */
+    QList<int> lays = sli.keys();
+    lays.deleteFirst(); // drop base layer
+    for (int lay: lays) {
+      ASSERT(adjuster.contains(lay));
+      adjuster[lay]->setImage(img); // in many cases, this is overkill
+      // we should have some way to preserve unchanged images
+      Image16 ovr = adjuster[lay]->retrieveFull(sli[lay]);
+  }
+#endif
   return img;
 }
 
