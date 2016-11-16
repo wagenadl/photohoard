@@ -44,7 +44,6 @@ private:
   quint64 version;
   PSize targetsize;
   QMap<int, Adjustments> adjs;
-  class Adjuster *adj; // we own
   class InterruptableAdjuster *adjuster; // we own
   class OriginalFinder *ofinder; // we own
   bool mustshowupdate;
