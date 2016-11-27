@@ -43,6 +43,7 @@ public slots:
   void ensureDragExportComplete();
   void visualizeLayer(quint64 vsn, int layer);
   void updateFilterAndDialog();
+  void restoreSizes();
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);
