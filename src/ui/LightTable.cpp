@@ -55,12 +55,9 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   slide = new SlideView(db);
   addWidget(slide);
 
-  lastgridsize = Settings()
-    .get("gridsize", strips->idealSize(Strip::Arrangement::Grid))
-    .toInt();
   setStretchFactor(0, 0);
   setStretchFactor(1, 100);
-  setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+  restoreSizes();
   setLayout(lay);
 
   connect(strips, SIGNAL(pressed(quint64,
@@ -103,6 +100,14 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
 
   makeActions();
 }
+
+void LightTable::restoreSizes() {
+  lastgridsize = Settings()
+    .get("gridsize", strips->idealSize(Strip::Arrangement::Grid))
+    .toInt();
+  setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+  qDebug() <<"restoresizes" << lastgridsize << width()-lastgridsize;
+}  
 
 LightTable::~LightTable() {
   delete filterDialog;
@@ -406,7 +411,7 @@ void LightTable::updateSelectedTiles() {
   if (selection->count() > 10) {
     strips->scene()->update();
   } else {
-    QSet<quint64> cc = selection->current();
+    QSet<quint64> cc = Selection(db).current();
     for (auto vsn: cc) {
       Slide *s = strips->strip()->slideByVersion(vsn);
       if (s)
@@ -510,7 +515,7 @@ void LightTable::applyFilterSettings() {
 }
 
 void LightTable::rotateSelected(int dphi) {
-  QSet<quint64> vsns = selection->current();
+  QSet<quint64> vsns = Selection(db).current();
 
   for (auto id: vsns)
     strips->quickRotate(id, dphi);

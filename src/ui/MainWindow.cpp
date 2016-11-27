@@ -74,9 +74,10 @@ MainWindow::MainWindow(SessionDB *db,
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
-  
+
   setCentralWidget(lightTable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
+
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
   addToolBar(area, fileBar = new FileBar(db, autocache,
                                          exporter, scanner, this));
@@ -167,6 +168,9 @@ MainWindow::MainWindow(SessionDB *db,
     restoreGeometry(s.get("mwgeom").toByteArray());
   if (s.contains("mwstate"))
     restoreState(s.get("mwstate").toByteArray());
+  qDebug() << "Mainwindow" << geometry();
+  lightTable->resize(size());
+  lightTable->restoreSizes();
 }
 
 MainWindow::~MainWindow() {
