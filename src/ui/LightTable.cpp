@@ -91,8 +91,10 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
 	  SLOT(updateFilter()));
   
   quint64 c = db->current();
-  if (c)
+  if (c) {
     selectNearestInFilter(c);
+    Selection(db).add(c);
+  }
 
   { Untransaction t(db);
     db->query("delete from starting");
