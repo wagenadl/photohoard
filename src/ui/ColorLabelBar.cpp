@@ -3,6 +3,7 @@
 #include "ColorLabelBar.h"
 #include "PhotoDB.h"
 #include "LightTable.h"
+#include <QDebug>
 
 ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
                              QWidget *parent):
@@ -43,38 +44,34 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
     parent->addAction(new PAction(acts.last(), this));
   }
 
+  auto foo = [db](int n) {
+      db->query("update versions set acceptreject=:a where id in "
+                " (select version from selection)", n);
+  };
   acts << Action{Qt::CTRL + Qt::Key_U, "Mark undecided",
       [=]() {
-      db->query("update versions set acceptreject=:a where id in "
-                " (select version from selection)",
-                int(PhotoDB::AcceptReject::Undecided));
+      foo(int(PhotoDB::AcceptReject::Undecided));;
       lighttable->updateSelectedTiles();
     }};
   parent->addAction(new PAction(acts.last(), this));
 
   acts << Action{Qt::CTRL + Qt::Key_G, "Mark accepted",
       [=]() {
-      db->query("update versions set acceptreject=:a where id in "
-                " (select version from selection)",
-                int(PhotoDB::AcceptReject::Accept));
+      foo(int(PhotoDB::AcceptReject::Accept));;
       lighttable->updateSelectedTiles();
     }};
   parent->addAction(new PAction(acts.last(), this));
 
   acts << Action{Qt::CTRL + Qt::Key_X, "Mark rejected",
       [=]() {
-      db->query("update versions set acceptreject=:a where id in "
-                " (select version from selection)",
-                int(PhotoDB::AcceptReject::Reject));
+      foo(int(PhotoDB::AcceptReject::Reject));
       lighttable->updateSelectedTiles();
     }};
   parent->addAction(new PAction(acts.last(), this));
   
   acts << Action{Qt::CTRL + Qt::Key_J, "Mark new import",
       [=]() {
-      db->query("update versions set acceptreject=:a where id in "
-                " (select version from selection)",
-                int(PhotoDB::AcceptReject::NewImport));
+      foo(int(PhotoDB::AcceptReject::NewImport));
       lighttable->updateSelectedTiles();
 
     }};
