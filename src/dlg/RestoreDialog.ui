@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>345</width>
-    <height>272</height>
+    <width>660</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,15 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="mainLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
      <property name="text">
       <string>About to restore #q photos that #were previously rejected and purged.</string>
      </property>
@@ -35,7 +44,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>2</height>
+       <height>4</height>
       </size>
      </property>
     </spacer>
@@ -68,7 +77,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>2</height>
+       <height>4</height>
       </size>
      </property>
     </spacer>
