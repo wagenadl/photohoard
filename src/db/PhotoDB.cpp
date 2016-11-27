@@ -216,6 +216,13 @@ void PhotoDB::addUndoStep(quint64 versionid,
   addUndoStep(versionid, 0, key, oldvalue, newvalue);
 }
 
+void PhotoDB::addUndoStep(quint64, int,
+			  QString,
+                          QVariant, QVariant) {
+  return;
+}
+
+/*
 void PhotoDB::addUndoStep(quint64 versionid, int layer,
 			  QString key,
                           QVariant oldvalue, QVariant newvalue) {
@@ -258,6 +265,7 @@ void PhotoDB::addUndoStep(quint64 versionid, int layer,
         " values (:a, :b, :c, :d, :e, :f)",
         versionid, key, oldvalue, newvalue, now, layer);
 }
+  */
 
 void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
   if (ro) {
