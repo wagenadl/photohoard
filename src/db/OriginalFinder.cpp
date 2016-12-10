@@ -12,9 +12,11 @@ OriginalFinder::OriginalFinder(PhotoDB *db,
   filereader = new InterruptableFileReader(this);
   rawreader = new InterruptableRawReader(this);
   connect(filereader, SIGNAL(ready(QString, InterruptableReader::Result)),
-          SLOT(provide(QString, InterruptableReader::Result)));
+          SLOT(provide(QString, InterruptableReader::Result)),
+          Qt::QueuedConnection);
   connect(rawreader, SIGNAL(ready(QString, InterruptableReader::Result)),
-          SLOT(provide(QString, InterruptableReader::Result)));
+          SLOT(provide(QString, InterruptableReader::Result)),
+          Qt::QueuedConnection);
 }
 
 OriginalFinder::~OriginalFinder() {
@@ -49,13 +51,16 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   QString path = db->folder(folder) + "/" + fn;
   QString ext = db->ftype(ftype);
   InterruptableReader *reader = 0;
-  if (ext=="nef" || ext=="cr2")
+  if (ext=="nef" || ext=="cr2") {
     reader = rawreader;
-  else if (ext=="jpeg" || ext=="png" || ext=="tiff")
+    filereader->cancel();
+  } else if (ext=="jpeg" || ext=="png" || ext=="tiff") {
     reader = filereader;
-  ASSERT(reader);
-  rawreader->cancel();
-  filereader->cancel();
+    rawreader->cancel();
+  } else {
+    pDebug() << "OriginalFinder: Do not know how to handle " << ext;
+    ASSERT(reader);
+  }
   desired = ds;
   version = vsn;
   filepath = path;

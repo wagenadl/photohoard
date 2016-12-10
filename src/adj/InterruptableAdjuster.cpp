@@ -115,7 +115,7 @@ void InterruptableAdjuster::adjustLayerCount(QList<int> newlayers) {
     if (droppable.contains(lay)) {
       droppable.remove(lay);
     } else {
-      adjuster[lay] = new Adjuster(this);
+      adjuster[lay] = new Adjuster;
       adjuster[lay]->setMaxThreads(4);
     }
   }
@@ -232,6 +232,9 @@ void InterruptableAdjuster::run() {
       waitcond.wait(&mutex);
     }
   }
+  for (auto adj: adjuster)
+    delete adj;
+  adjuster.clear();
   mutex.unlock();
 }
 
