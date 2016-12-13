@@ -16,6 +16,7 @@
 #include <QUrl>
 #include "DragOut.h"
 #include "MultiDragDialog.h"
+#include "Adjuster.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, Exporter *expo,
@@ -79,8 +80,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   connect(slide, SIGNAL(newZoom(double)),
           this, SIGNAL(newZoom(double)));
 
-  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
-          SLOT(updateAdjusted(Image16, quint64)));
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
+          SLOT(updateAdjusted(Image16, quint64, QSize)));
 
   connect(filterDialog, SIGNAL(apply()),
 	  SLOT(applyFilterFromDialog()));
@@ -341,16 +342,8 @@ void LightTable::makeCurrent(quint64 i) {
 void LightTable::updateMainSlide() {
   int cur = db->current();
   if (cur>0 && slide->isVisibleTo(this)) {
-    QSqlQuery q = db->query("select width, height, orient"
-			    " from versions"
-			    " inner join photos on versions.photo==photos.id"
-			    " where versions.id==:a", cur);
-    ASSERT(q.next());
-    int w = q.value(0).toInt();
-    int h =  q.value(1).toInt();
-    Exif::Orientation ori = Exif::Orientation(q.value(2).toInt());
-    q.finish();
-    QSize ns = (ori==Exif::CW || ori==Exif::CCW) ? QSize(h, w): QSize(w, h);
+    QSize osize = db->originalSize(cur);
+    QSize ns = Adjuster::mapCropSize(osize, Adjustments::fromDB(cur, *db));
     adjuster->markVersionAndSize(cur, ns);
     slide->newImage(cur, ns);
     emit newZoom(slide->currentZoom());
@@ -384,16 +377,16 @@ PSize LightTable::displaySize() const {
     return PSize::square(strips->strip()->tileSize());
 }
 
-void LightTable::updateAdjusted(Image16 img, quint64 i) {
+void LightTable::updateAdjusted(Image16 img, quint64 i, QSize fs) {
   if (img.isNull())
     return;
   strips->updateImage(i, img, false);
-  slide->updateImage(i, img, false);
+  slide->updateImage(i, img, false, fs);
 }
 
-void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid) {
+void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
   strips->updateImage(i, img, chgid>0);
-  slide->updateImage(i, img, chgid>0);
+  slide->updateImage(i, img, chgid>0, fs);
 }
 
 void LightTable::rescan(bool rebuildFilter) {

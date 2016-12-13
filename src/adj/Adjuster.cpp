@@ -276,6 +276,11 @@ PSize Adjuster::maxAvailableSize(Adjustments const &settings) const {
   return mapCropSize(stages[0].osize, settings, stages[0].image.size());
 }
 
+PSize Adjuster::mapCropSize(PSize osize, Adjustments const &settings) {
+  /* static */
+  return mapCropRect(osize, settings, osize).size();
+}
+
 PSize Adjuster::mapCropSize(PSize osize, Adjustments const &settings,
                             PSize scaledOSize) { /* static */
   return mapCropRect(osize, settings, scaledOSize).size();

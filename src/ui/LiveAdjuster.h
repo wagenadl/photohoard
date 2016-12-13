@@ -25,7 +25,7 @@ public slots:
   void reloadSliders(quint64 vsn, int layer, Adjustments a);
   void reloadLayers(quint64 vsn, int lowest);
 signals:
-  void imageAvailable(Image16 img, quint64 version);
+  void imageAvailable(Image16 img, quint64 version, QSize fullsize);
   /* In addition, when a new adjustment is made, the image is offered
      to the autocache through CACHEMODIFIED, which will immediately cause an
      AVAILABLE signal to be emitted with a non-zero CHGID. That happens
@@ -34,7 +34,7 @@ signals:
 private slots:
   void provideOriginal(quint64, Image16);
   void provideScaledOriginal(quint64, QSize osize, Image16);
-  void provideAdjusted(Image16, quint64 v);
+  void provideAdjusted(Image16, quint64 v, QSize fullsize);
 private:
   void forceUpdate();
   void loadLayers(int lowest);

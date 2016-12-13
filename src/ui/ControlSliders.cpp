@@ -307,3 +307,8 @@ Actions const &ControlSliders::actions() {
   }
   return acts;
 }
+
+void ControlSliders::setLayer(int l) {
+  ControlGroup *recomp = groups["recompose"];
+  recomp->setEnabled(l==0);
+}

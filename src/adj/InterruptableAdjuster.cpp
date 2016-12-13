@@ -136,8 +136,9 @@ void InterruptableAdjuster::handleNewRequest() {
     }
   } else {
     quint64 id = oId;
+    QSize fs = Adjuster::mapCropSize(oSize, sli);
     mutex.unlock();
-    emit ready(img, id);
+    emit ready(img, id, fs);
     mutex.lock();
   }
 }  

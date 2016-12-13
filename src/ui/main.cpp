@@ -17,6 +17,7 @@
 #include <sqlite3.h>
 #include <QDesktopWidget>
 #include "CMSTransform.h"
+#include "CMS.h"
 #include "SessionDB.h"
 
 void usage() {

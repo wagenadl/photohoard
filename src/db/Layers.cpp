@@ -97,7 +97,7 @@ int Layers::count() const {
 }
 
 quint64 Layers::layerID(int n) const {
-  return db->simpleQuery("select id from layers where versions==:a"
+  return db->simpleQuery("select id from layers where version==:a"
 			 " and stacking==:b", vsn, n).toULongLong();
 }
 

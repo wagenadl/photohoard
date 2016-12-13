@@ -47,10 +47,6 @@ public:
      t = TRANSFORMATIONFROMIMAGE() returns a transformation matrix that can
      be used to map image coordinates to widget coordinates.
   */
-  void addOverlay(class SlideOverlay *over);
-  /* ADDOVERLAY - Experimental interface */
-  void removeOverlay(class SlideOverlay *over);
-  /* REMOVEOVERLAY - Experimental interface */
 public slots:
   void newImage(quint64 vsn, QSize natSize);
   /* NEWIMAGE - Prepare for new version
@@ -61,11 +57,12 @@ public slots:
   /* CLEAR - Drop image
      CLEAR clears the display and forgets about the previously displayed version
    */
-  void updateImage(quint64 vsn, Image16 const &img, bool force=false);
+  void updateImage(quint64 vsn, Image16 const &img, bool force,
+		   QSize fullsize);
   /* UPDATEIMAGE - Offer a new image for the currently displayed version.
-     UPDATEIMAGE(vsn, img, force) offers the image IMG for display as version
-     VSN. If VSN doesn't match our current version (see NEWIMAGE), this
-     call is ignored.
+     UPDATEIMAGE(vsn, img, force, fullsize) offers the image IMG for display
+     as version VSN. If VSN doesn't match our current version (see NEWIMAGE),
+     this call is ignored.
      If IMG is smaller than the image we currently have in memory, the
      update is only performed if FORCE is true. (This facility is used when
      sliders are changed, and not, e.g., when the slide strip requests a

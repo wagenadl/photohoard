@@ -66,7 +66,7 @@ public:
      is assumed to be the full original image.
   */
 signals:
-  void ready(Image16 img, quint64 id);
+  void ready(Image16 img, quint64 id, QSize fullsize);
   /* READY - Emitted once retrieval has finished
      READY(img) is emitted when calculation of the final
      image has been completed.

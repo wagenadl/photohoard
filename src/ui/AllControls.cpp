@@ -60,8 +60,11 @@ void AllControls::setVersion(quint64 v) {
     // Other layers?
     QSize s(db->originalSize(vsn));
     sliders->setAll(a);
-    if (cropper)
+    sliders->setLayer(0);
+    if (cropper) {
+      setTabEnabled(1, lay==0);
       cropper->setAll(a, s);
+    }
     setEnabled(true);
   } else {
     setEnabled(false);
@@ -97,8 +100,11 @@ void AllControls::setLayer(int l) {
   if (!adjs.contains(lay))
     adjs[lay] = Adjustments::fromDB(vsn, lay, *db);
   sliders->setAll(adjs[lay]);
-  if (cropper)
+  sliders->setLayer(lay);
+  if (cropper) {
     cropper->setAll(adjs[lay]);
+    setTabEnabled(1, lay==0);
+  }
 
   if (currentWidget()==layers)
     emit layerSelected(vsn, lay);
