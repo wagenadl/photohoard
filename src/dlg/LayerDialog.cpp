@@ -7,12 +7,14 @@
 #include "Layers.h"
 #include <QTableWidget>
 #include <QTableWidgetSelectionRange>
+#include "Dialog.h"
 
 LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   QWidget(parent), db(db) {
   ui = new Ui_LayerDialog;
   ui->setupUi(this);
   setVersion(0);
+  Dialog::ensureSize(this);
 }
 
 void LayerDialog::setVersion(quint64 v) {

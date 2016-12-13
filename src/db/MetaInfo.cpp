@@ -6,6 +6,9 @@
 #include <QStringList>
 #include "PDebug.h"
 #include "Adjustments.h"
+#include <math.h>
+#include <QUrl>
+#include "Filter.h"
 
 inline double inbetween(double a, double b) {
   return sqrt(a*b);
@@ -177,14 +180,21 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   QString camlens = "";
   if (prec.cameraid) {
     QString cam = db->camera(prec.cameraid);
-    camlens = ("<a href=\"camera:%1\">" + cam + "</a>").arg(prec.cameraid);
+    camlens = QString("<a href=\"camera:%1:%2:%3\">%4</a>")
+      .arg(prec.cameraid)
+      .arg(db->make(prec.cameraid))
+      .arg(db->model(prec.cameraid))
+      .arg(db->cameraAlias(prec.cameraid));
   }
   QString lens = "";
   if (prec.lensid) {
+    lens = db->lensAlias(prec.lensid);
     if (!camlens.isEmpty())
       camlens += ", ";
-    lens = db->lensAlias(prec.lensid);
-    camlens += ("<a href=\"lens:%1\">" + lens + "</a>").arg(prec.lensid);
+    camlens += QString("<a href=\"lens:%1:%2\">%3</a>")
+      .arg(prec.lensid)
+      .arg(db->lens(prec.lensid))
+      .arg(lens);
   }
   if (camlens.isEmpty()) 
     camlens = "<i>unknown camera</i>";
@@ -212,3 +222,53 @@ MetaInfo::MetaInfo(PhotoDB *db, quint64 version) {
   txt += ")";
 }  
   
+bool MetaInfo::modifyFilterWithLink(Filter &filter, QUrl const &url) {
+  QString str = url.toString();
+  QStringList bits = str.split(":");
+  if (bits.isEmpty())
+    return false;
+  QString key = bits.takeFirst();
+  if (key=="camera") {
+    if (filter.hasCamera()) {
+      if (filter.cameraMake()==bits[1]
+	  && filter.cameraModel()==bits[2]) 
+	filter.unsetCamera();
+      else
+	filter.setCamera(bits[1], bits[2], filter.cameraLens());
+    } else {
+      filter.setCamera(bits[1], bits[2], "");
+    }
+    return true;
+  } else if (key=="lens") {
+    if (filter.hasCamera()) {
+      if (filter.cameraLens()==bits[1])
+	filter.unsetCamera();
+      else
+	filter.setCamera(filter.cameraMake(), filter.cameraModel(),
+			  bits[1]);
+    } else {
+      filter.setCamera("", "", bits[1]);
+    }
+    return true;
+  } else if (key=="date") {
+    QDate dt = QDate::fromString(bits[0], "yyyyMMdd");
+    if (filter.hasDateRange()
+	&& filter.startDate()==dt
+	&& filter.endDate()==dt)
+      filter.unsetDateRange();
+    else
+      filter.setDateRange(dt, dt);
+    return true;
+  } else if (key=="year") {
+    QDate dt0 = QDate::fromString(bits[0]+"0101", "yyyyMMdd");
+    QDate dt1 = QDate::fromString(bits[0]+"1231", "yyyyMMdd");
+    if (filter.hasDateRange()
+	&& filter.startDate()==dt0
+	&& filter.endDate()==dt1)
+      filter.unsetDateRange();
+    else
+      filter.setDateRange(dt0, dt1);
+    return true;
+  }
+  return false;
+}

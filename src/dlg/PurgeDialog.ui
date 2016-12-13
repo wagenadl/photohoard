@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>289</height>
+    <width>620</width>
+    <height>788</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="mainLabelLong">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>About to purge #k version#s of #n photo#t of which other versions will remain.</string>
      </property>
@@ -26,6 +32,12 @@
    </item>
    <item>
     <widget class="QLabel" name="mainLabelShort">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>About to purge #m photo#s of which no versions will remain.</string>
      </property>
@@ -101,6 +113,12 @@
       </item>
       <item>
        <widget class="ClickLabel" name="purgeLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Also purge #m photo#s of which no other versions would remain.</string>
         </property>
@@ -198,6 +216,12 @@
       </item>
       <item>
        <widget class="ClickLabel" name="deleteLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Delete the image file#s associated with #those photo#q.</string>
         </property>
@@ -227,6 +251,12 @@
    </item>
    <item>
     <widget class="QLabel" name="oldLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>There #are #q photo#s in your database that have no associated versions, because they were previously rejected and purged. </string>
      </property>
@@ -302,6 +332,12 @@
       </item>
       <item>
        <widget class="ClickLabel" name="deleteOldLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Delete the image file#s associated with #those photo#t.</string>
         </property>
@@ -394,7 +430,16 @@
    <item>
     <widget class="QWidget" name="buttonbox1" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>

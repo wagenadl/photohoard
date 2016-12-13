@@ -9,7 +9,7 @@ Selection::Selection(PhotoDB *db): db(db) {
 
 void Selection::add(quint64 vsn) {
   Untransaction t(db);
-  db->query("insert into M.selection values (:i)", vsn);
+  db->query("insert into selection values (:a)", vsn);
 }
 
 void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
@@ -38,27 +38,27 @@ void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
   
 void Selection::remove(quint64 vsn) {
   Untransaction t(db);
-  db->query("delete from M.selection where version==:i", vsn);
+  db->query("delete from selection where version==:a", vsn);
 }
   
 void Selection::clear() {
   Untransaction t(db);
-  db->query("delete from M.selection");
+  db->query("delete from selection");
 }
 
 void Selection::selectAll() {
   Untransaction t(db);
-  db->query("insert into M.selection select version from filter");
+  db->query("insert into selection select version from filter");
 }
 
 bool Selection::contains(quint64 vsn) {
-  return db->simpleQuery("select count(*) from M.selection "
+  return db->simpleQuery("select count(*) from selection "
                         " where version==:v limit 1",
                         vsn).toInt() > 0;
 }
 
 int Selection::count() {
-  return db->simpleQuery("select count(*) from M.selection").toInt();
+  return db->simpleQuery("select count(*) from selection").toInt();
 }
 
 QSet<quint64> Selection::current() {

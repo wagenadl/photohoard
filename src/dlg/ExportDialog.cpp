@@ -24,7 +24,7 @@ ExportDialog::~ExportDialog() {
   delete ui;
 }
 
-QDialog::DialogCode ExportDialog::exec() {
+int ExportDialog::exec() {
   while (true) {
     DialogCode res = DialogCode(QDialog::exec());
     if (!res) 

@@ -2,6 +2,7 @@
 
 #include "AdjusterGeometry.h"
 #include "Adjuster.h"
+#include <math.h>
 
 QStringList AdjusterGeometry::fields() const {
   static QStringList flds

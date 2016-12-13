@@ -3,7 +3,7 @@
 TEMPLATE = app
 TARGET = ../photohoard
 CONFIG += debug_and_release
-QT += sql
+QT += sql widgets x11extras
 QMAKE_CXXFLAGS += -std=c++11
 
 QMAKE_CXXFLAGS_DEBUG += -fPIE -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
@@ -31,6 +31,7 @@ LIBS += -lexiv2
 LIBS += -llcms2
 LIBS += -lopencv_imgproc -lopencv_core
 LIBS += -lX11
+LIBS += -lxcb-randr -lxcb
 
 include(photohoard.pri)
 DEPENDPATH +=  . $$sourcedirs

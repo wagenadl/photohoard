@@ -29,7 +29,9 @@
 #include <QDragMoveEvent>
 #include <QDragLeaveEvent>
 #include <QDropEvent>
+#include <QMimeData>
 #include "ImportGUI.h"
+#include "Settings.h"
 
 MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
@@ -39,27 +41,32 @@ MainWindow::MainWindow(SessionDB *db,
   setWindowTitle("Photohoard");
   
   QDockWidget *dock = new QDockWidget("Histogram", this);
+  dock->setObjectName("Histogram");
   dock->setWidget(histogram = new HistoWidget(this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
   dock = new QDockWidget("Adjustments", this);
+  dock->setObjectName("Adjustments");  
   dock->setWidget(allControls = new AllControls(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
   allControls->setVersion(db->current());
   
   dock = new QDockWidget("Metadata",this);
+  dock->setObjectName("MetaData");
   dock->setWidget(metaViewer = new MetaViewer(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
   dock = new QDockWidget("Tags",this);
+  dock->setObjectName("Tags");
   dock->setWidget(tagList = new AppliedTagList(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
 
   dock = new QDockWidget("Status",this);
+  dock->setObjectName("Status");
   dock->setWidget(statusBar = new StatusBar(db, this));
   dock->setTitleBarWidget(new QWidget());
   addDockWidget(Qt::RightDockWidgetArea, dock);
@@ -67,9 +74,10 @@ MainWindow::MainWindow(SessionDB *db,
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
-  
+
   setCentralWidget(lightTable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
+
   constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
   addToolBar(area, fileBar = new FileBar(db, autocache,
                                          exporter, scanner, this));
@@ -89,9 +97,9 @@ MainWindow::MainWindow(SessionDB *db,
   if (!db->isReadOnly())
     shortcutHelp->addSection("Slider panel", allControls->actions());
   
-  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           histogram, SLOT(setImage(Image16))); // is this ok?
-  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64)),
+  connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           metaViewer, SLOT(setImage(Image16, quint64)));
 
   connect(lightTable, SIGNAL(needImage(quint64, QSize)),
@@ -140,15 +148,29 @@ MainWindow::MainWindow(SessionDB *db,
   
   tagList->setCurrent(db->current());
   metaViewer->setVersion(db->current());
-  if (lightTable->filter().hasCollection())
-    statusBar->setCollection(lightTable->filter().collection());
+  { Filter flt(db); flt.loadFromDb();
+    if (flt.hasCollection())
+      statusBar->setCollection(flt.collection());
+  }
 
   connect(fileBar->sliderClipboard(), SIGNAL(modified(quint64)),
           SLOT(reloadVersion(quint64)));
 
+  connect(metaViewer, SIGNAL(filterModified()),
+	  lightTable, SLOT(updateFilterAndDialog()));
+
   dragout = false;
   dragin = false;
   setAcceptDrops(true);
+
+  Settings s;
+  if (s.contains("mwgeom"))
+    restoreGeometry(s.get("mwgeom").toByteArray());
+  if (s.contains("mwstate"))
+    restoreState(s.get("mwstate").toByteArray());
+  qDebug() << "Mainwindow" << geometry();
+  lightTable->resize(size());
+  lightTable->restoreSizes();
 }
 
 MainWindow::~MainWindow() {
@@ -203,6 +225,9 @@ void MainWindow::reloadVersion(quint64 vsn) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
+  Settings s;
+  s.set("mwgeom", saveGeometry());
+  s.set("mwstate", saveState());
   QApplication::quit();
 }
 

@@ -8,7 +8,7 @@
 
 FilterBar::FilterBar(LightTable *lighttable, QWidget *parent):
   ActionBar(parent) {
-  setWindowTitle("Filter");
+  setObjectName("Filter");
 
   acts << Action{Qt::CTRL + Qt::Key_F, "Filter",
                     [=]() { lighttable->openFilterDialog(); }};

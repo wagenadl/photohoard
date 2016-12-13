@@ -505,3 +505,86 @@ Image16Data::Image16Data(Image16Data *src, QRect subimg):
   roibyteoffset = src->roibyteoffset + bytesperline*subimg.top()
     + bytesPerPixel()*subimg.left();
 }
+
+Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
+  /* This is a prime candidate for multithreading */
+  
+  Format fmt = format();
+  if (fmt==Format::sRGB8)
+    fmt = Format::XYZp16;
+  Image16 out = convertedTo(fmt);
+     
+  if (ontop.size() != size() || mask.size() != size()) {
+    COMPLAIN("Alphablend: size mismatch");
+    return *this;
+  }
+  ontop.convertTo(fmt);
+  int X = out.width();
+  int X3 = 3*X;
+  int Y = out.height();
+  int DL = out.wordsPerLine() - X3;
+  uint16_t *dst = out.words();
+  uint16_t const *src = ontop.words();
+  switch (fmt) {
+  case Format::sRGB8:
+    CRASH("RGB8 format should not happen here");
+    break;
+  case Format::XYZ16:
+  case Format::XYZp16:
+  case Format::LMS16: {
+    /* All uint16 */
+    for (int y=0; y<Y; y++) {
+      uint8_t const *msk = mask.constScanLine(y);
+      for (int x=0; x<X3; x++) {
+	unsigned int pix = *dst;
+	unsigned int m = *msk++;
+	pix *= 255-m;
+	unsigned int opix = *src++;
+	opix *= m;
+	*dst++ = (pix + opix) / 255;
+      }
+      src += DL;
+      dst += DL;
+    }
+  } break;
+  case Format::Lab16:
+  case Format::IPT16: {
+    /* uint16, int16, int16 */
+    int16_t *dst1 = reinterpret_cast<int16_t *>(dst+1);
+    int16_t const *src1 = reinterpret_cast<int16_t const *>(src+1);
+    for (int y=0; y<Y; y++) {
+      uint8_t const *msk = mask.constScanLine(y);
+      for (int x=0; x<X; x++) {
+	unsigned int pix = *dst;
+	unsigned int m = *msk++;
+	pix *= 255-m;
+	unsigned int opix = *src;
+	opix *= m;
+	*dst = (pix + opix) / 255;
+	src+=3;
+	dst+=3;
+
+	int pix1 = *dst1;
+	int m1 = *msk++;
+	pix1 *= 255-m1;
+	int opix1 = *src1++;
+	opix1 *= m1;
+	*dst1++ = (pix1 + opix1) / 255;
+
+	pix1 = *dst1;
+	m1 = *msk++;
+	pix1 *= 255-m1;
+	opix1 = *src1;
+	opix1 *= m;
+	*dst1 = (pix1 + opix1) / 255;
+
+	src1+=2;
+	dst1+=2;
+      }
+      src += DL;
+      dst += DL;
+    }
+  } break;
+  }
+  return out;
+}

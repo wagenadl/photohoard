@@ -17,6 +17,9 @@
 #include "DragOut.h"
 #include "MultiDragDialog.h"
 #include "Adjuster.h"
+#include <QMimeData>
+#include <QDrag>
+#include "Settings.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, Exporter *expo,
@@ -41,7 +44,7 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
 
   dragout = 0;
   filterDialog = new FilterDialog(db);
-  populateFilterFromDialog();
+  applyFilterSettings();
 
   selection = new Selection(db);
 
@@ -52,10 +55,9 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   slide = new SlideView(db);
   addWidget(slide);
 
-  lastgridsize = strips->idealSize(Strip::Arrangement::Grid);
   setStretchFactor(0, 0);
   setStretchFactor(1, 100);
-  setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+  restoreSizes();
   setLayout(lay);
 
   connect(strips, SIGNAL(pressed(quint64,
@@ -67,6 +69,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   connect(strips, SIGNAL(dragStarted(quint64)),
           this, SLOT(startDrag(quint64)));
   connect(strips, SIGNAL(idealSizeChanged()), SLOT(resizeStrip()));
+  connect(this, SIGNAL(splitterMoved(int, int)),
+	  SLOT(saveSplitterPos()));
   connect(strips->scene(),
           SIGNAL(pressed(Qt::MouseButton, Qt::KeyboardModifiers)),
           this, SLOT(bgPress(Qt::MouseButton, Qt::KeyboardModifiers)));
@@ -83,12 +87,14 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           SLOT(updateAdjusted(Image16, quint64, QSize)));
 
-  connect(filterDialog, SIGNAL(apply()),
-	  SLOT(applyFilterFromDialog()));
+  connect(filterDialog, SIGNAL(applied()),
+	  SLOT(updateFilter()));
   
   quint64 c = db->current();
-  if (c)
+  if (c) {
     selectNearestInFilter(c);
+    Selection(db).add(c);
+  }
 
   { Untransaction t(db);
     db->query("delete from starting");
@@ -96,6 +102,14 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
 
   makeActions();
 }
+
+void LightTable::restoreSizes() {
+  lastgridsize = Settings()
+    .get("gridsize", strips->idealSize(Strip::Arrangement::Grid))
+    .toInt();
+  setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
+  qDebug() <<"restoresizes" << lastgridsize << width()-lastgridsize;
+}  
 
 LightTable::~LightTable() {
   delete filterDialog;
@@ -391,7 +405,7 @@ void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
 
 void LightTable::rescan(bool rebuildFilter) {
   if (rebuildFilter)
-    populateFilterFromDialog();
+    applyFilterSettings();
   strips->rescan();
 }
 
@@ -399,7 +413,7 @@ void LightTable::updateSelectedTiles() {
   if (selection->count() > 10) {
     strips->scene()->update();
   } else {
-    QSet<quint64> cc = selection->current();
+    QSet<quint64> cc = Selection(db).current();
     for (auto vsn: cc) {
       Slide *s = strips->strip()->slideByVersion(vsn);
       if (s)
@@ -420,6 +434,7 @@ void LightTable::resizeStrip() {
 
 void LightTable::increaseTileSize(double factor) {
   strips->setTileSize(factor*strips->tileSize());
+  Settings().set("tilesize", strips->tileSize());
 }
 
 void LightTable::openFilterDialog() {
@@ -466,7 +481,12 @@ void LightTable::scrollToCurrent() {
   strips->scrollToCurrent();
 }
 
-void LightTable::applyFilterFromDialog() {
+void LightTable::updateFilterAndDialog() {
+  filterDialog->populate();
+  updateFilter();
+}
+
+void LightTable::updateFilter() {
   int oldcur = db->current();
   select(0);
   rescan(true);
@@ -483,12 +503,10 @@ void LightTable::selectNearestInFilter(quint64 vsn) {
     select(0);
 }
 
-Filter const &LightTable::filter() const {
-  return filterDialog->filter();
-}
-
-void LightTable::populateFilterFromDialog() {
-  Filter f = filterDialog->filter();
+void LightTable::applyFilterSettings() {
+  // was populatefilterfromdialog
+  Filter f(db);
+  f.loadFromDb();
   Untransaction t(db);
   db->query("delete from filter");
   db->query("insert into filter select versions.id, photos.id from versions "
@@ -499,7 +517,7 @@ void LightTable::populateFilterFromDialog() {
 }
 
 void LightTable::rotateSelected(int dphi) {
-  QSet<quint64> vsns = selection->current();
+  QSet<quint64> vsns = Selection(db).current();
 
   for (auto id: vsns)
     strips->quickRotate(id, dphi);
@@ -693,4 +711,19 @@ void LightTable::ensureDragExportComplete() {
 
 void LightTable::visualizeLayer(quint64 vsn, int lay) {
   slide->visualizeLayer(vsn, lay);
+}
+
+void LightTable::saveSplitterPos() {
+  switch (lay) {
+  case LayoutBar::Layout::HGrid:
+    qDebug() << "saveSplitterPos H" << strips->width() << strips->height();
+    Settings().set("gridsize", strips->height());
+    break;
+  case LayoutBar::Layout::VGrid:
+    qDebug() << "saveSplitterPos V" << strips->width() << strips->height();
+    Settings().set("gridsize", strips->width());
+    break;
+  default:
+    break;
+  }
 }

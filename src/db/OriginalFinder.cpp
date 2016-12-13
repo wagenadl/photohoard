@@ -11,16 +11,19 @@ OriginalFinder::OriginalFinder(PhotoDB *db,
   QObject(parent), db(db) {
   filereader = new InterruptableFileReader(this);
   rawreader = new InterruptableRawReader(this);
-  connect(filereader, SIGNAL(ready(QString)),
-          SLOT(provide(QString)));
-  connect(rawreader, SIGNAL(ready(QString)),
-          SLOT(provide(QString)));
+  connect(filereader, SIGNAL(ready(QString, InterruptableReader::Result)),
+          SLOT(provide(QString, InterruptableReader::Result)),
+          Qt::QueuedConnection);
+  connect(rawreader, SIGNAL(ready(QString, InterruptableReader::Result)),
+          SLOT(provide(QString, InterruptableReader::Result)),
+          Qt::QueuedConnection);
 }
 
 OriginalFinder::~OriginalFinder() {
 }
 
 void OriginalFinder::requestOriginal(quint64 version) {
+  pDebug() << "OF::requestOriginal" << version;
   requestScaledOriginal(version, PSize(0, 0));
 }
 
@@ -29,6 +32,7 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
+  pDebug() << "OF::requestScaledOriginal" << vsn << ds;
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "
                 " from versions"
@@ -47,13 +51,16 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   QString path = db->folder(folder) + "/" + fn;
   QString ext = db->ftype(ftype);
   InterruptableReader *reader = 0;
-  if (ext=="nef" || ext=="cr2")
+  if (ext=="nef" || ext=="cr2") {
     reader = rawreader;
-  else if (ext=="jpeg" || ext=="png" || ext=="tiff")
+    filereader->cancel();
+  } else if (ext=="jpeg" || ext=="png" || ext=="tiff") {
     reader = filereader;
-  ASSERT(reader);
-  rawreader->cancel();
-  filereader->cancel();
+    rawreader->cancel();
+  } else {
+    pDebug() << "OriginalFinder: Do not know how to handle " << ext;
+    ASSERT(reader);
+  }
   desired = ds;
   version = vsn;
   filepath = path;
@@ -78,14 +85,12 @@ void OriginalFinder::fixOrientation(Image16 &img) {
   }
 }  
 
-void OriginalFinder::provide(QString fn) {
+void OriginalFinder::provide(QString fn, InterruptableReader::Result res) {
+  pDebug() << "OF::provide" << fn << res.ok << res.error;
   if (fn!=filepath)
     return;
-  InterruptableReader::Result res = filereader->result(fn);
-  QString e0 = res.error;
-  if (!res.ok)
-    res = rawreader->result(fn);
   if (!res.ok) {
+    pDebug() << "OF::provide: " << res.error << " on " << fn;
     COMPLAIN("OriginalFinder: got no result for " + fn);
     return;
   }

@@ -7,6 +7,7 @@
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QThread(parent) {
+  qRegisterMetaType<InterruptableReader::Result>("InterruptableReader::Result");
   running = false;
   canceling = false;
   stopsoon = false;
@@ -34,7 +35,26 @@ void InterruptableReader::stop() {
 }
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
-  QMutexLocker l(&mutex);
+  pDebug() << "IR::request" << fn << request << original << running; 
+  QMutexLocker l(&mutex);  
+  if (current==fn && cSize==request) {
+    pDebug() << "Same request again" << canceling;
+    // same as previous, that's easy
+    if (running) {
+      pDebug() << "IR::req returning";
+      // Is it OK that the signal will be emitted only once? I hope so.
+      return;
+    } else if (res.ok) {
+      pDebug() << "IR::req emitting";
+      Result r = res;
+      l.unlock();
+      emit ready(fn, r);
+      return;
+    } else {
+      pDebug() << "IR::req res not ok";
+    }
+  }
+
   newreq = fn;
   rqSize = request;
   oriSize = original;
@@ -49,6 +69,7 @@ void InterruptableReader::request(QString fn, QSize request, QSize original) {
 }
 
 void InterruptableReader::cancel() {
+  pDebug() << "IR::cancel";
   QMutexLocker l(&mutex);
   newreq = "";
   if (running) {
@@ -63,6 +84,7 @@ void InterruptableReader::cancel() {
 
 
 void InterruptableReader::cancel(QString fn) {
+  pDebug() << "IR::cancel" << fn;
   QMutexLocker l(&mutex);
   if (fn==newreq) {
     newreq = "";
@@ -76,17 +98,6 @@ void InterruptableReader::cancel(QString fn) {
 	res = Result("Canceled");
     }
   }
-}
-
-InterruptableReader::Result InterruptableReader::result(QString fn) {
-  QMutexLocker l(&mutex);
-  if (running)
-    return Result("Incomplete");
-  if (fn!=current)
-    return Result("Not current");
-  Result r = res;
-  res = Result();
-  return r;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -119,14 +130,16 @@ void InterruptableReader::lNewReq() {
     }
   }
 
+  pDebug() << "IR::lNR" << newreq << rqSize;
   res = Result("Incomplete");
   offset = 0;
   current = newreq;
+  cSize = rqSize;
   newreq = "";
   canceling = false;
   running = true;
-  lPrepSource(current, rqSize, oriSize);
-  
+  lPrepSource(current, cSize, oriSize);
+  pDebug() << "IR: source prepped";
   mutex.unlock();
 
   if (uOpen()) {
@@ -135,6 +148,7 @@ void InterruptableReader::lNewReq() {
       res.data.resize(estsize);
     else
       res.data.resize(8*1024*1024);
+    pDebug() << "IR: resized with estsize " << estsize;
     mutex.lock();
   } else {
     mutex.lock();
@@ -143,6 +157,7 @@ void InterruptableReader::lNewReq() {
     lUnprepSource();
     QString c = current;
     mutex.unlock();
+    pDebug() << "Interruptable reader failed" << c;
     emit failed(c);
     mutex.lock();
   }
@@ -164,6 +179,7 @@ void InterruptableReader::lReadSome() {
   qint64 chunksize = 512*1024;
   if (estsize>0 && offset+chunksize>estsize)
     chunksize = estsize - offset;
+  pDebug() << " IR::lRS" << offset << chunksize;
   if (chunksize>0 && !tSource().atEnd()) {
     while (offset+chunksize>res.data.size()) 
       res.data.resize(2*res.data.size());
@@ -179,6 +195,7 @@ void InterruptableReader::lReadSome() {
       running = false;
       QString c = current;
       mutex.unlock();
+      pDebug() << "Interruptable reader failed1" << c;
       emit failed(c);
       mutex.lock();
     } else if (n==0) {
@@ -195,20 +212,25 @@ void InterruptableReader::lReadSome() {
 }
 
 void InterruptableReader::lComplete() {
+  pDebug() << "IR::lC";
   mutex.unlock();
   tSource().close();
   mutex.lock();
   if (canceling) {
+    pDebug() << "IR::LC->cancel";
     lCancel();
     return;
   }
 
   mutex.unlock();
+  pDebug() << "IR::lC will load";
   res.image = Image16::loadFromMemory(res.data);
+  pDebug() << "IR::LC loaded";
   res.data.clear();
   mutex.lock();
 
   if (canceling) {
+    pDebug() << "IR::LC->cancel 2";
     lCancel();
     return;
   }
@@ -216,10 +238,15 @@ void InterruptableReader::lComplete() {
   res.ok = true;
   res.error = "";
   lUnprepSource();
+  pDebug() << "IR::lC ->unprep";
   running = false;
 
   QString c = current;
+  Result r = res;
   mutex.unlock();
-  emit ready(c);
+  pDebug() << "Interruptable reader ready" << c;
+  emit ready(c, r);
+  pDebug() << "Back from ready";
   mutex.lock();
+  pDebug() << "IR: Got mutex again";
 }

@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include "ExportDialog.h"
+#include "Dialog.h"
 
 bool MultiDragDialog::dontshow = false;
 
@@ -32,6 +33,7 @@ MultiDragDialog::MultiDragDialog(SessionDB *db,
   }
   ui->label->setText(msg);
   ui->dropParentFolder->setMustBeDir(true);
+  Dialog::ensureSize(this);
 }
 
 MultiDragDialog::~MultiDragDialog() {

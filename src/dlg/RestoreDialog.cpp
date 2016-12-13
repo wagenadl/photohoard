@@ -4,6 +4,7 @@
 #include "ui_RestoreDialog.h"
 #include <QDebug>
 #include "PhotoDB.h"
+#include "Dialog.h"
 
 RestoreDialog::RestoreDialog(int N, QWidget *parent): QDialog(parent) {
   ui = new Ui_RestoreDialog;
@@ -26,6 +27,8 @@ RestoreDialog::RestoreDialog(int N, QWidget *parent): QDialog(parent) {
   txt = ui->colorCheck->text();
   txt.replace("#s", N==1 ? "" : "s");
   ui->colorCheck->setText(txt);
+
+  Dialog::ensureSize(this);
 }
 
 RestoreDialog::~RestoreDialog() {

@@ -9,27 +9,40 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include "Dialog.h"
 
 AddRootDialog::AddRootDialog(PhotoDB *db, QWidget *parent):
   QDialog(parent), db(db) {
   ui = new Ui_addRootDialog();
   ui->setupUi(this);
   prepCollections();
+  Dialog::ensureSize(this);
 }
 
 AddRootDialog::~AddRootDialog() {
 }
 
 QString AddRootDialog::path() const {
-  return ui->location->text();
+  QString p = ui->location->text();
+  if (p.startsWith("~/")) {
+    QString home = QString(qgetenv("HOME"));
+    p = home + p.mid(1);
+  }
+  return p;
 }
 
 QString AddRootDialog::defaultCollection() const {
   return ui->collection->currentText();
 }
 
-QDialog::DialogCode AddRootDialog::exec() {
+int AddRootDialog::exec() {
   prepCollections();
+  if (db->rootFolders().isEmpty()) {
+    // We don't have a collection anywhere yet
+    ui->location->setText(QString(qgetenv("HOME")) + "/Pictures");
+    if (Tags(db).collections().isEmpty())
+      ui->collection->addItem("Family photos");
+  }
   DialogCode c = DialogCode(QDialog::exec());
   return c;
 }

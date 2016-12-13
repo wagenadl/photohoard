@@ -3,6 +3,9 @@
 #include "Layers.h"
 #include "PDebug.h"
 #include "PhotoDB.h"
+#include <QPainter>
+#include <QLinearGradient>
+#include "Adjuster.h"
 
 QString Layer::typeName(Layer::Type t) {
   switch (t) {
@@ -80,9 +83,35 @@ void Layer::setPoints(QPolygon const &p) {
   }
 }
 
-QImage Layer::mask(QSize, class Adjustments const &) const {
-  COMPLAIN("NYI");
-  return QImage();
+QImage Layer::mask(QSize os, class Adjustments const &adj0) const {
+  QImage msk(os, QImage::Format_Grayscale8);
+  switch (typ) {
+  case Type::Invalid:
+    msk.fill(0);
+    break;
+  case Type::Base:
+    msk.fill(255);
+    break;
+  case Type::LinearGradient: {
+    QPolygon pts(points());
+    ASSERT(pts.size()==2);
+    QPainter ptr(&msk);
+    QLinearGradient gr(pts[0], pts[1]);
+    gr.setColorAt(0, QColor(0,0,0));
+    gr.setColorAt(1, QColor(255,255,255));
+    ptr.fillRect(QRect(QPoint(0,0), msk.size()), gr);
+  } break;
+  case Type::Circular:
+  case Type::Curve:
+  case Type::Area:
+    COMPLAIN("NYI");
+    break;
+  }
+  QRect crop = Adjuster::mapCropRect(os, adj0, os);
+  if (crop.size()==msk.size())
+    return msk;
+  else
+    return msk.copy(crop);
 }
 
 //////////////////////////////////////////////////////////////////////

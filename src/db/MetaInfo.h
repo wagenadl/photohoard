@@ -18,6 +18,8 @@ public:
   static QString easyRatio(PSize);
   static QString mpix(int w, int h);
   static QString mpix(PSize);
+  static bool modifyFilterWithLink(class Filter &filter, class QUrl const &url);
+  /* The URL must be from our own bit of html; returns true iff changed. */
 private:
   QString txt;
 };

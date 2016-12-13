@@ -14,7 +14,7 @@ public:
   virtual ~ExportDialog();
   void setup(ExportSettings const &);
   ExportSettings settings() const;
-  DialogCode exec();
+  int exec();
 public:
   static void standalone(class Exporter *expo, bool now=false);
 public slots:

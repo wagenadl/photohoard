@@ -1,6 +1,7 @@
 // main.cpp
 
 #include "BasicCache.h"
+#include "ScreenResolution.h"
 #include <QTime>
 #include "PDebug.h"
 #include "Application.h"
@@ -16,9 +17,12 @@
 #include "ExifReport.h"
 #include <sqlite3.h>
 #include <QDesktopWidget>
+#include "CMS.h"
 #include "CMSTransform.h"
 #include "CMS.h"
 #include "SessionDB.h"
+#include "ErrorDialog.h"
+#include <thread>
 
 void usage() {
   fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
@@ -53,6 +57,11 @@ int main(int argc, char **argv) {
   }
 
   Application app(argc, argv);
+  pDebug() << "Application constructed";
+  ScreenResolution sr;
+  std::thread sr_thread([&sr]() { sr.dpi(); });
+  /* Experimentally, calculating the screen reso in a separate thread
+     saves 50 ms startup time on hirudo. */
 
   CMSProfile rgb(CMSProfile::srgbProfile());
   if (icc=="")
@@ -64,9 +73,11 @@ int main(int argc, char **argv) {
 
   if (newdb==QFile(dbfn).exists()) {
     if (newdb) 
-      pDebug() << "Database not found at " << dbfn;
+      ErrorDialog::fatal("A database already exists at " + dbfn
+	      + ". Cannot create a new one.");
     else
-      pDebug() << "Database already exists at " << dbfn;
+      ErrorDialog::fatal("No database found at " + dbfn
+	      + ". You may create a new one using “photohoard -new”.");
     return 2;
   }
   
@@ -104,19 +115,20 @@ int main(int argc, char **argv) {
   Exporter *expo = new Exporter(&db, 0);
   expo->start();
 
-  MainWindow *mw = new MainWindow(&db, scan, ac, expo);
-
-  QDesktopWidget *dw = app.desktop();
-  mw->resize(dw->width()*8/10, dw->height()*8/10);
-  mw->move(dw->width()/10, dw->height()/10);
-  mw->show();
-
-  mw->scrollToCurrent();
-
   if (scan)
     scan->start(); // doing this here ensures that the mainwindow can open 1st
 
+  app.setFont(ScreenResolution::defaultFont());
+  
+  // START APPLICATION
+  MainWindow *mw = new MainWindow(&db, scan, ac, expo);
+  mw->show();
+  mw->scrollToCurrent();
+
   int res = app.exec();
+
+  // END APPLICATION
+
   if (scan) {
     scan->stopAndWait(1000);
     delete scan;
@@ -129,5 +141,6 @@ int main(int argc, char **argv) {
     
   db.close();
 
+  sr_thread.join();
   return res;
 }

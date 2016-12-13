@@ -6,10 +6,13 @@
 #include "PDebug.h"
 #include "Slide.h"
 #include <QKeyEvent>
+#include <QDrag>
+#include <QMimeData>
+#include "Settings.h"
 
 StripView::StripView(SessionDB *db, QWidget *parent):
   QGraphicsView(parent), db(db) {
-  tilesize = 96;
+  tilesize = Settings().get("tilesize", 96).toInt();
 
   useFolders = false;
 
