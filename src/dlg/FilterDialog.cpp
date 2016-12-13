@@ -7,15 +7,16 @@
 #include "SessionDB.h"
 #include "Tags.h"
 #include "TagDialog.h"
+#include "Dialog.h"
 
 FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
-  QDialog(parent), db(db), f0(db) {
+  QDialog(parent), db(db) {
 
   starting = true;
-  f0.loadFromDb();
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
   starting = false;
+  Dialog::ensureSize(this);
 }
 
 void FilterDialog::prepCombos() {
@@ -240,7 +241,9 @@ QStringList FilterDialog::splitTags() const {
   return res;
 }
 
-void FilterDialog::populate(Filter const &f) {
+void FilterDialog::populate() {
+  Filter f(db);
+  f.loadFromDb();
   starting = true;
   prepCombos();
 
@@ -329,12 +332,12 @@ void FilterDialog::recolorTags() {
   if (starting)
     return;
   QStringList tt = splitTags();
-  ui->tagInterpretation->setText(f0.tagsInterpretation(tt));
+  ui->tagInterpretation->setText(Tags(db).interpretation(tt));
   recount();
 }
 
 void FilterDialog::showEvent(QShowEvent *e) {
-  populate(f0);
+  populate();
   QDialog::showEvent(e);
 }
 
@@ -343,13 +346,12 @@ void FilterDialog::buttonClick(QAbstractButton *b) {
   switch (role) {
   case QDialogButtonBox::AcceptRole:
   case QDialogButtonBox::ApplyRole:
-    f0 = extract();
-    f0.saveToDb();
-    emit apply();
+    extract().saveToDb();
+    emit applied();
     break;
   case QDialogButtonBox::ResetRole:
-    f0 = Filter(db);
-    populate(f0);
+    Filter(db).saveToDb();
+    populate();
     break;
   case QDialogButtonBox::RejectRole:
     // cancel

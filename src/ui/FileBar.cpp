@@ -13,8 +13,8 @@
 
 FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
+  setObjectName("File");
   sliderclip = new SliderClipboard(db, ac);
-  setWindowTitle("File");
 
   if (!db->isReadOnly()) {
     acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
@@ -58,7 +58,13 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
         ExportDialog::standalone(exporter, true);
     }};
   parent->addAction(new PAction(acts.last(), this));
-
+  
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_2, "Email exported images",
+      [exporter,this]() {
+      exporter->sendEmail();
+    }};
+  parent->addAction(new PAction(acts.last(), this));
+  
   if (!db->isReadOnly()) {
     acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
 	[this]() { this->sliderclip->show(); }};

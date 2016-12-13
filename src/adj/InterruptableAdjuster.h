@@ -96,12 +96,16 @@ protected:
 private:
   void handleNewRequest();
   void handleNewImage();
+  void adjustLayerCount(QList<int> layers);
 private:
-  class Adjuster *adjuster;
+  Image16 hnrFull(QMap<int, Adjustments> const &sli);
+  Image16 hnrReduced(QMap<int, Adjustments> const &sli, PSize s);
+private:
+  QMap<int, class Adjuster *> adjuster;
   QMutex mutex;
   QWaitCondition waitcond;
   bool cancel, newreq, clear_;
-  Adjustments rqAdjustments;
+  QMap<int, Adjustments> rqAdjustments;
   QRect rqRect;
   PSize rqSize;
   quint64 rqId;

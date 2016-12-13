@@ -117,6 +117,7 @@ void Filter::unsetTags() {
 }
 
 int Filter::count() const {
+  ASSERT(db);
   return db->simpleQuery("select count(*) from versions "
 			+ joinClause()
 			+ " where " + whereClause()).toInt();
@@ -130,6 +131,7 @@ QString Filter::joinClause() const {
 }
 
 QString Filter::whereClause() const {
+  ASSERT(db);
   QStringList clauses;
   if (hascollection)
     clauses << collectionClause();
@@ -139,6 +141,7 @@ QString Filter::whereClause() const {
     clauses << starRatingClause();
   if (hasstatus)
     clauses << statusClause();
+  pDebug() << "filter: whereclause hascamera" << hascamera;
   if (hascamera)
     clauses << cameraClause();
   if (hasdaterange)
@@ -216,6 +219,8 @@ QString Filter::statusClause() const {
 QString Filter::cameraClause() const {
   QStringList bits;
 
+  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
+	   << cameramake << cameramodel;
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
     // select on camera
     QSqlQuery q;
@@ -235,6 +240,7 @@ QString Filter::cameraClause() const {
     QStringList cameraids;
     while (q.next())
       cameraids << QString::number(q.value(0).toInt());
+    pDebug() << "cameraids" << cameraids.size();
     if (cameraids.isEmpty())
       return "0>1";
     if (cameraids.size()==1)
@@ -282,26 +288,6 @@ QString Filter::fileLocationClause() const {
   return "folder in ( " + ss.join(", ") + " )";
 }
 
-QString Filter::tagsInterpretation(QStringList ss) {
-  Tags tags(db);
-  QStringList res;
-  for (auto s: ss) {
-    s = s.simplified();
-    QStringList alts;
-    for (int t: tags.smartFindAll(s))
-      alts << tags.smartName(t);
-    if (alts.isEmpty())
-      res << QString::fromUtf8("–");
-    else if (alts.size()==1)
-      res << alts.first();
-    else
-      res << "{" + alts.join(", ") + "}"; // This could be smarter:
-    // If some of these alts actually occur in appliedtags and others do not,
-    // only the occurring ones need to be shown. Right?
-  }
-  return res.join("\n");
-}
-
 QString Filter::tagsClause() const {
   QStringList bits;
   Tags tdb(db);
@@ -329,6 +315,7 @@ bool Filter::isTrivial() const {
 }
 
 void Filter::saveToDb() const {
+  ASSERT(db);
   Transaction t(db);
   db->query("delete from filtersettings");
   QString q = "insert into filtersettings values (:a, :b)";
@@ -361,6 +348,7 @@ void Filter::saveToDb() const {
 }
 
 void Filter::loadFromDb() {
+  ASSERT(db);
   reset();
   QSqlQuery q = db->query("select k, v from filtersettings");
   while (q.next()) {

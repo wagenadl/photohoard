@@ -4,6 +4,7 @@
 #include <QPainter>
 #include "PDebug.h"
 #include <QTimer>
+#include <math.h>
 
 constexpr int SB_Height = 20;
 

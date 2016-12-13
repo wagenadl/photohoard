@@ -1,6 +1,7 @@
 // CropCalc.cpp
 
 #include "CropCalc.h"
+#include <math.h>
 
 inline double clip(double v, double minv, double maxv) {
   if (v<minv)

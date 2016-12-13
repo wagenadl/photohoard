@@ -29,6 +29,7 @@ public:
   void setup(ExportSettings const &);
   ExportSettings const &settings() const { return settings_; }
   void addSelection();
+  void sendEmail();
   void add(QSet<quint64> const &vsns);
   void add(quint64 vsn, QString ofn);
   void start();
@@ -40,8 +41,8 @@ signals:
 protected:
   virtual void run();
 private:
-  bool doExport(quint64 vsn, ExportSettings const &settings,
-                QString ovr=QString());
+  QString doExport(quint64 vsn, ExportSettings const &settings,
+                   QString ovr=QString()); // returns output filename or "" if failed
 private:
   SessionDB *db0; // calling thread
   QMutex mutex;
@@ -51,6 +52,7 @@ private:
   QList<Job> jobs;
   bool stopsoon;
   class IF_Worker *worker;
+  QSet<QString> emailready;
 };
 
 

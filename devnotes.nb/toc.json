@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2016-05-05T19:15:24",
+  "mod": "2016-11-15T20:00:59",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -353,6 +353,15 @@
       "startPage": 61,
       "title": "Layers (cont’d)",
       "uuid": "084b4b00"
+    },
+    { "typ": "entry",
+      "cre": "2016-11-15T20:00:57",
+      "mod": "2016-11-15T20:00:59",
+      "seen": "2016-11-15T20:00:57",
+      "sheetCount": 1,
+      "startPage": 62,
+      "title": "Layers",
+      "uuid": "86f46b64"
     }
   ]
 }

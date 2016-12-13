@@ -12,7 +12,7 @@ class AddRootDialog: public QDialog {
 public:
   AddRootDialog(class PhotoDB *db, QWidget *parent=0);
   virtual ~AddRootDialog();
-  DialogCode exec();
+  virtual int exec();
   QString path() const;
   QString defaultCollection() const;
   QStringList exclusions() const;

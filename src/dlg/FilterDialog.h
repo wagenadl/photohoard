@@ -12,11 +12,11 @@ class FilterDialog: public QDialog {
 public:
   FilterDialog(class SessionDB *db, QWidget *parent=0);
   virtual ~FilterDialog() { }
-  void populate(Filter const &);
   Filter extract() const; // currently shown in dialog
-  Filter const &filter() const { return f0; } // accepted or applied
+public slots:
+  void populate();
 signals:
-  void apply();
+  void applied();
 private slots: 
   friend class Ui_FilterDialog;
   void recount();
@@ -42,7 +42,6 @@ private:
 private:
   class Ui_FilterDialog *ui;
   class SessionDB *db;
-  Filter f0;
   bool starting;
 };
 

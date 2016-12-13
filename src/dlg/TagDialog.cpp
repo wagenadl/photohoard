@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include "PDebug.h"
 #include <QPushButton>
+#include "Dialog.h"
 
 TagDialog::TagDialog(PhotoDB *db, bool ro): db(db), tags(db) {
   readonly = ro;
@@ -72,6 +73,7 @@ TagDialog::TagDialog(PhotoDB *db, bool ro): db(db), tags(db) {
   setWindowTitle("Tag manager");
 
   rebuild(0);
+  Dialog::ensureSize(this);
 }
 
 TagDialog::~TagDialog() {

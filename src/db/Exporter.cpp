@@ -1,6 +1,7 @@
 // Exporter.cpp
 
 #include "Exporter.h"
+#include <QProcess>
 #include <QMutexLocker>
 #include "PDebug.h"
 #include "IF_Worker.h"
@@ -114,13 +115,16 @@ void Exporter::run() {
       QString ovr = job.fnoverride.contains(vsn)
         ? job.fnoverride[vsn] : QString();
       mutex.unlock();
-      bool ok = doExport(vsn, job.settings, ovr);
+      QString ofn = doExport(vsn, job.settings, ovr);
+      bool ok = !ofn.isEmpty();
       mutex.lock();
 
-      if (ok)
+      if (ok) {
         job.completed << vsn;
-      else
+        emailready.insert(ofn);
+      } else {
         job.failed << vsn;
+      }
       job.todo.remove(vsn);
       
       if (t0.elapsed()>=1000 || job.todo.isEmpty()) {
@@ -141,8 +145,8 @@ void Exporter::run() {
   pDebug() << "Exporter end run";
 }
 
-bool Exporter::doExport(quint64 vsn, ExportSettings const &settings,
-                        QString fnoverride) {
+QString Exporter::doExport(quint64 vsn, ExportSettings const &settings,
+                           QString fnoverride) {
   PhotoDB::VersionRecord vrec = db.versionRecord(vsn);
   PhotoDB::PhotoRecord prec = db.photoRecord(vrec.photo);
   Adjustments adjs = Adjustments::fromDB(vsn, db);
@@ -153,7 +157,7 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings,
     ->findImageNow(path, db.ftype(prec.filetype), vrec.orient, prec.filesize,
                    adjs, 0, true);
   if (img.isNull())
-    return false;
+    return "";
 
   // Current scaling system is primitive. We should do bicubic.
   // And of course, we should support higher bit depths.
@@ -212,8 +216,23 @@ bool Exporter::doExport(quint64 vsn, ExportSettings const &settings,
   
 
   if (settings.fileFormat == ExportSettings::FileFormat::JPEG)
-    return img.toQImage().save(ofn, 0, settings.jpegQuality);
+    return img.toQImage().save(ofn, 0, settings.jpegQuality) ? ofn : "";
   else
-    return img.toQImage().save(ofn);
+    return img.toQImage().save(ofn) ? ofn : "";
 }
 
+void Exporter::sendEmail() {
+  mutex.lock();
+  QSet<QString> fns = emailready;
+  emailready.clear();
+  mutex.unlock();
+  if (fns.isEmpty()) {
+    qDebug() << "Nothing to email";
+    return;
+  }
+
+  QStringList args;
+  for (QString fn: fns)
+    args << "--attach" << fn;
+  QProcess::startDetached("xdg-email", args);
+}

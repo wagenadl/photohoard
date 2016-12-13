@@ -59,9 +59,10 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   img = Image16(); // might invalidate more gently
   fit = true;
   zoom = 1;
-  needLargerImage();
-  // we _could_ update() now, which would cause a gray flash
-  visualizeLayer(vsn, 0);
+  pDebug() << "SV::nI: needLargerImage";
+
+  visualizeLayer(vsn, 0); // this calls update
+  pDebug() << "SV::nI: done";
 }
 
 
@@ -69,8 +70,8 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
 			    QSize fs) {
   if (vsn!=vsnid) 
     return;
-  pDebug() << "updateImage" << vsn << img1.size() << force << fs;
-  if (!fs.isNull())
+  pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs << fs.isEmpty();
+  if (!fs.isEmpty())
     naturalSize = fs;
 
   if (force || img1.size().exceeds(rqid ? rqsize : img.size())) {
@@ -258,7 +259,9 @@ void SlideView::paintEvent(QPaintEvent *) {
   if (vsnid==0)
     return;
 
+
   if (img.isNull()) {
+    pDebug() << "SV:paintEvent" << img.isNull();
     needLargerImage();
     return;
   }

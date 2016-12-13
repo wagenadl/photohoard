@@ -9,6 +9,7 @@
 #include <QBuffer>
 #include <QImageReader>
 #include "PDebug.h"
+#include <math.h>
 
 void exifLogHandler(int level, char const *message) {
   pDebug() << "Exif msg (" << level << "): " << message;
