@@ -332,6 +332,7 @@ QString BasicCache::constructFilename(quint64 vsn, int d) {
 }
 
 void BasicCache::markOutdated(quint64 vsn) {
+  // may be called inside a transaction
   db.query("update cache set outdated=1 where version==:a", vsn);
 }
 
