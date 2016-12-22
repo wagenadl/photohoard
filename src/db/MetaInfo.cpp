@@ -26,7 +26,7 @@ QString MetaInfo::ratio(int w, int h) {
       return "/" + rat;
     } else {
       QStringList bits = rat.split(":");
-      return rat[1] + ":" + rat[0];
+      return bits[1] + ":" + bits[0];
     }
   } else {
     double marg = 1./w + 1./h;
