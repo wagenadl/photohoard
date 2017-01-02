@@ -20,6 +20,8 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
     ui->disposition->removeItem(1);
     ui->source->setText("Temporary location");
     bkremoved = true;
+  } else {
+    bkremoved = false;
   }
   
   what = ui->what->text();
