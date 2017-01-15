@@ -402,7 +402,7 @@ void Scanner::scanPhoto(quint64 id) {
   QString model = exif.model();
   QString make = exif.make();
   quint64 camid = 0;
-  if (!model.isNull()) {
+  if (!model.isEmpty()) {
     QSqlQuery q
       = db.query("select id from cameras where camera==:a and make==:b",
                  model, make);
@@ -418,7 +418,7 @@ void Scanner::scanPhoto(quint64 id) {
 
   QString lens = exif.lens();
   quint64 lensid = 0;
-  if (!lens.isNull()) {
+  if (!lens.isEmpty()) {
     QSqlQuery q = db.query("select id from lenses where lens==:a", lens);
     if (q.next()) {
       lensid = q.value(0).toULongLong();

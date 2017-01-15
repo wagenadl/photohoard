@@ -39,7 +39,7 @@ bool InterruptableRawReader::uOpen() {
 
   QString cmd = "dcraw";
   QStringList args;
-  if (!rqs.isNull() && !oris.isNull()
+  if (!rqs.isEmpty() && !oris.isEmpty()
       && rqs.width()*2<=oris.width() && rqs.height()*2<=oris.height())
     args << "-h";
   args << QString("-c -t 0 -w -4 -o 5").split(" ");
