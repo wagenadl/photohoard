@@ -14,6 +14,7 @@
 #include "SO_Layer.h"
 #include "ThreadedTransform.h"
 #include "PhotoDB.h"
+#include <unistd.h>
 
 SlideView::SlideView(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
   setObjectName("SlideView");
@@ -70,7 +71,7 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
 			    QSize fs) {
   if (vsn!=vsnid) 
     return;
-  pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs << fs.isEmpty();
+  pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs;
   if (!fs.isEmpty())
     naturalSize = fs;
 
@@ -82,11 +83,13 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
       rqid = threadedTransform->request(img1);
       pDebug() << "SV::uI: requested" << rqid;
     } else {
+      pDebug() << "SV::uI: will update";
       rqid = 0;
       img = img1;
       update();
     }
-  } else if (!fs.isNull()) {
+  } else if (!fs.isEmpty()) {
+    pDebug() << "SV::uI: will update (2)";
     update();
   }
 }
