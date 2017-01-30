@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "ExportDialog.h"
 #include "AddRootDialog.h"
+#include "ImportGUI.h"
 #include <QDir>
 #include "MainWindow.h"
 #include "SliderClipboard.h"
@@ -40,7 +41,8 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
     new PAction(acts.last(), QIcon(":icons/rescan.svg"), this);
     
     acts << Action{Qt::CTRL + Qt::Key_I, "Import from camera or card",
-	[]() { COMPLAIN("Import: Not yet implemented"); }};
+	[db, scanner, parent]() { ImportGUI::clickImportButton(db, scanner,
+                                                               parent); }};
     new PAction(acts.last(), QIcon(":icons/cameraImport.svg"), this);
   }
   

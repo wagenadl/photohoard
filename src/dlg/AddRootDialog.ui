@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>514</height>
+    <width>545</width>
+    <height>532</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -216,8 +216,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>371</y>
+     <x>275</x>
+     <y>513</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -232,8 +232,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>282</x>
-     <y>371</y>
+     <x>300</x>
+     <y>513</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -248,8 +248,8 @@
    <slot>browse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>205</x>
-     <y>93</y>
+     <x>324</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>284</x>
@@ -264,8 +264,8 @@
    <slot>editExclusion(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>227</y>
+     <x>92</x>
+     <y>381</y>
     </hint>
     <hint type="destinationlabel">
      <x>8</x>
@@ -275,13 +275,13 @@
   </connection>
   <connection>
    <sender>addExcluded</sender>
-   <signal>triggered(QAction*)</signal>
+   <signal>clicked()</signal>
    <receiver>addRootDialog</receiver>
    <slot>addExclusion()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>41</x>
-     <y>304</y>
+     <x>85</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
      <x>2</x>
@@ -291,13 +291,13 @@
   </connection>
   <connection>
    <sender>removeExcluded</sender>
-   <signal>triggered(QAction*)</signal>
+   <signal>clicked()</signal>
    <receiver>addRootDialog</receiver>
    <slot>removeExclusion()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>293</y>
+     <x>139</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
      <x>99</x>
