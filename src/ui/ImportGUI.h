@@ -19,6 +19,8 @@ public:
   void showAndGo();
 public:
   static bool acceptable(QList<QUrl> const &);
+  static void clickImportButton(class SessionDB *db, class Scanner *scanner,
+                                class QWidget *parent=0);
 private slots:
   void finishUpCompletedJob(QString errmsg); 
   void cleanUpCanceledJob();

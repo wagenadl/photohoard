@@ -128,6 +128,8 @@ void ImportJob::authorize() {
   case Operation::Import:
     if (hasSourceCount())
       startCopy();
+    else
+      countSources();
     break;
   case Operation::Incorporate:
     startIncorporate(); // we don't have to wait for source count
