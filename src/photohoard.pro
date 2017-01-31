@@ -3,7 +3,7 @@
 TEMPLATE = app
 TARGET = ../photohoard
 CONFIG += debug_and_release
-QT += sql widgets x11extras
+QT += sql widgets x11extras dbus
 QMAKE_CXXFLAGS += -std=c++11
 
 QMAKE_CXXFLAGS_DEBUG += -fPIE -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
