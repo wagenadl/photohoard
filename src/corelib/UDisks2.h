@@ -4,23 +4,125 @@
 #include <QObject>
 #include <QtDBus>
 
-class UDisks2Block;
-class UDisks2Drive;
-class UDisks2Filesystem;
+/* Forked from https://github.com/cmdrkotori/udisks2.
+   Retrieved 1/30/2017.
+   Licensed under GPL-2.0.
+ */
 
-class UDisks2 : public QObject {
+namespace UDisks2 {
+  class Drive: public QObject {
     Q_OBJECT
-public:
-    explicit UDisks2(QObject *parent = NULL);
+  public:
+    explicit Drive(const QString &node, QObject *parent=0);
+  public:
+    QString name() const { return name_; }
+    qulonglong size() const { return size_; }
+    QString vendor() const { return vendor_; }
+    QString model() const { return model_; }
+    QString serial() const { return serial_; }
+    QString id() const { return id_; }
+    QString media() const { return media_; }
+    bool isOptical() const { return optical_; }
+    bool isRemovable() const { return removable_; }
+    bool isAvailable() const { return available_; }
+    QString toString() const;
+  public slots:
+    void update();
+  signals:
+    void changed(const QString &node);
+  private slots:
+    void propertiesChanged(const QString &interface,
+                           const QVariantMap &changed,
+                           const QStringList &invalidated);
+  private:
+    QDBusInterface *dbus;
+    QString name_;
+    qulonglong size_;
+    QString vendor_;
+    QString model_;
+    QString serial_;
+    QString id_;
+    QString media_;
+    bool optical_;
+    bool removable_;
+    bool available_;
+  };
+
+  class FileSystem: public QObject {
+    Q_OBJECT
+  public:
+    FileSystem(const QString &node, QObject *parent=0);
+  public slots:
+    QString mount();
+    void unmount();
+    void update();
+  public:
+    bool isValid() const;
+    QString name() const { return name_; }
+    QStringList mountPoints() const;
+  private:
+    QDBusInterface *dbus;
+    QDBusInterface *dbusProp;
+    QStringList mountPoints_;
+    QString name_;
+  };
+
+  class Block: public QObject {
+    Q_OBJECT
+  public:
+    explicit Block(const QString &node, QObject *parent=0);
+  public:
+    QString name() const { return name_; }
+    QString dev() const { return dev_; }
+    QString id() const { return id_; }
+    QString drive() const { return drive_; }
+    qulonglong size() const { return size_; }
+    bool isReadOnly() const { return readonly_; }
+    QString usage() const { return usage_; }
+    QString type() const { return type_; }
+    QString toString() const;
+    FileSystem *fileSystem() const;
+  public slots:
+    void update();
+    void updateFileSystem();
+    void addFileSystem();
+    void removeFileSystem();
+  signals:
+    void fileSystemAdded(const QString &node);
+    void fileSystemRemoved(const QString &node);
+    void fileSystemChanged(const QString &node);
+    void changed(const QString &node);
+
+  private slots:
+    void propertiesChanged(const QString &interface,
+                           const QVariantMap &changedProp,
+                           const QStringList &invalidatedProp);
+  private:
+    QDBusInterface *dbus;
+    QString name_;
+    QString dev_;
+    QString id_;
+    QString drive_;
+    qulonglong size_;
+    bool readonly_;
+    QString usage_;
+    QString type_;
+    FileSystem *fs;
+  };
+
+  class UDisks2: public QObject {
+    Q_OBJECT
+  public:
+    explicit UDisks2(QObject *parent=0);
     ~UDisks2();
 
     QStringList blockDevices();
-    UDisks2Block *blockDevice(const QString &node);
+    Block *blockDevice(const QString &node) const;
 
     QStringList drives();
-    UDisks2Drive *drive(const QString &node);
+    Drive *drive(const QString &node) const;
 
-signals:
+  signals:
     void deviceInformationChanged(QString node, QVariantMap info);
     void driveAdded(const QString& node);
     void driveRemoved(const QString& node);
@@ -28,109 +130,26 @@ signals:
     void blockDeviceAdded(const QString& node);
     void blockDeviceRemoved(const QString &node);
     void blockDeviceChanged(const QString &node);
-    void filesystemAdded(const QString& node);
-    void filesystemRemoved(const QString &node);
-    void filesystemChanged(const QString &node);
+    void fileSystemAdded(const QString& node);
+    void fileSystemRemoved(const QString &node);
+    void fileSystemChanged(const QString &node);
 
-private:
+  private:
     void addDrive(const QString &node);
     void addBlock(const QString &node);
     void removeDrive(const QString &node);
     void removeBlock(const QString &node);
 
-private slots:
-    void dbus_interfaceAdded(const QDBusObjectPath &path, const QMap<QString, QVariant> &interfaces);
-    void dbus_interfaceRemoved(const QDBusObjectPath &path, const QStringList &interfaces);
+  private slots:
+    void dbusIFaceAdded(const QDBusObjectPath &path,
+                             const QMap<QString, QVariant> &ifaces);
+    void dbusIFaceRemoved(const QDBusObjectPath &path,
+                               const QStringList &ifaces);
 
-private:
-    QMap<QString,UDisks2Drive*> drives_;
-    QMap<QString,UDisks2Block*> blocks_;
+  private:
+    QMap<QString, Drive *> drives_;
+    QMap<QString, Block *> blocks_;
+  };
 };
-
-
-
-class UDisks2Block : public QObject {
-    Q_OBJECT
-public:
-    explicit UDisks2Block(const QString &node, QObject *parent = NULL);
-
-public:
-    QString name;
-    QString dev;
-    QString id;
-    QString drive;
-    qulonglong size;
-    bool readonly;
-    QString usage;
-    QString type;
-    QString toString();
-
-    void update();
-    void updateFilesystem();
-    void addFilesystem();
-    void removeFilesystem();
-    UDisks2Filesystem *fileSystem();
-
-signals:
-    void filesystemAdded(const QString& node);
-    void filesystemRemoved(const QString &node);
-    void filesystemChanged(const QString &node);
-    void changed(const QString &node);
-
-private slots:
-    void self_propertiesChanged(const QString &interface, const QVariantMap &changedProp, const QStringList &invalidatedProp);
-
-private:
-    QDBusInterface *dbus;
-    UDisks2Filesystem* fs;
-};
-
-class UDisks2Filesystem : public QObject {
-    Q_OBJECT
-public:
-    UDisks2Filesystem(const QString &node, QObject *parent = NULL);
-    QStringList mountPoints() const;
-    QString mount();
-    void unmount();
-    void update();
-    bool isValid();
-
-    QString name;
-
-private:
-    QDBusInterface *dbus;
-    QDBusInterface *dbusProp;
-    QStringList mountPoints_;
-};
-
-class UDisks2Drive : public QObject {
-    Q_OBJECT
-public:
-    explicit UDisks2Drive(const QString &node, QObject *parent = NULL);
-
-    QString name;
-    qulonglong size;
-    QString vendor;
-    QString model;
-    QString serial;
-    QString id;
-    QString media;
-    bool optical;
-    bool removable;
-    bool available;
-    QString toString();
-
-    void update();
-
-signals:
-    void changed(const QString &node);
-
-private slots:
-    void self_propertiesChanged(const QString &interface, const QVariantMap &changed, const QStringList &invalidated);
-
-private:
-    QDBusInterface *dbus;
-};
-
 
 #endif // UDISKS2_H
