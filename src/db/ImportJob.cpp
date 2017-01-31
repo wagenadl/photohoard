@@ -169,9 +169,13 @@ void ImportJob::startCopy() {
 
   copyin->setSourceDisposition(srcdisp);
   if (srcdisp==CopyIn::SourceDisposition::Backup)
-    copyin->setBackupLocation(srcinfo.fsRoot() + "/photohoard-backup");
+    copyin->setBackupLocation(backupPath());
 
   copyin->start();
+}
+
+QString ImportJob::backupPath() const {
+  return srcinfo.fsRoot() + "/photohoard-backup";
 }
 
 void ImportJob::doneCopying(int,int) {

@@ -8,6 +8,7 @@
 #include "ImportJob.h"
 #include "SourceInfo.h"
 #include <QKeyEvent>
+#include <QFileDialog>
 
 ImportOtherUserDialog::ImportOtherUserDialog(class ImportJob *job,
                                              QStringList collections,
@@ -96,7 +97,11 @@ void ImportOtherUserDialog::updateCounts(int ntotal, int nmov) {
 }
 
 void ImportOtherUserDialog::browseDestination() {
-  COMPLAIN("NYI");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Select destination"),
+                                                  ui->destination->text(),
+                                                  QFileDialog::ShowDirsOnly);
+  if (!dir.isEmpty())
+    ui->destination->setText(dir);
 }
   
 bool ImportOtherUserDialog::incorporateInstead() const {

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>551</width>
-    <height>629</height>
+    <width>765</width>
+    <height>733</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -228,6 +228,33 @@
     </widget>
    </item>
    <item>
+    <widget class="QWidget" name="backupContainer" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <property name="leftMargin">
+       <number>24</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="backupPath">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>⇒ /home/foo</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="movieContainer" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
@@ -391,8 +418,8 @@
    <slot>changeCollection(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>97</y>
+     <x>246</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
@@ -407,12 +434,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>264</y>
+     <x>106</x>
+     <y>524</y>
     </hint>
     <hint type="destinationlabel">
-     <x>27</x>
-     <y>309</y>
+     <x>45</x>
+     <y>572</y>
     </hint>
    </hints>
   </connection>
@@ -423,8 +450,8 @@
    <slot>browseDestination()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>301</x>
-     <y>165</y>
+     <x>514</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
      <x>345</x>
@@ -439,12 +466,28 @@
    <slot>browseMovieDestination()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>293</y>
+     <x>514</x>
+     <y>568</y>
     </hint>
     <hint type="destinationlabel">
      <x>347</x>
      <y>289</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>disposition</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ImportExternalDialog</receiver>
+   <slot>changeDisposition()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>548</x>
+     <y>438</y>
     </hint>
    </hints>
   </connection>
@@ -454,5 +497,6 @@
   <slot>changeCollection(QString)</slot>
   <slot>cancel()</slot>
   <slot>browseMovieDestination()</slot>
+  <slot>changeDisposition()</slot>
  </slots>
 </ui>
