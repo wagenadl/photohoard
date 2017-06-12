@@ -503,8 +503,8 @@
    <slot>setResolutionMode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>83</y>
+     <x>118</x>
+     <y>159</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -519,8 +519,8 @@
    <slot>setResolutionMode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>116</y>
+     <x>160</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
      <x>263</x>
@@ -535,8 +535,8 @@
    <slot>setResolutionMode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>146</y>
+     <x>140</x>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
      <x>307</x>
@@ -551,8 +551,8 @@
    <slot>setResolutionMode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>45</x>
-     <y>176</y>
+     <x>89</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>290</x>
@@ -567,8 +567,8 @@
    <slot>setResolutionMode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>217</y>
+     <x>117</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>302</x>
@@ -583,8 +583,8 @@
    <slot>setFormat(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>24</y>
+     <x>278</x>
+     <y>43</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -599,8 +599,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>338</x>
-     <y>519</y>
+     <x>545</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>353</x>
@@ -615,8 +615,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>224</x>
-     <y>531</y>
+     <x>243</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>229</x>
@@ -631,8 +631,8 @@
    <slot>exportNow()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
-     <y>529</y>
+     <x>448</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>171</x>
@@ -647,12 +647,28 @@
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>531</y>
+     <x>60</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
      <y>546</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>browse</sender>
+   <signal>clicked()</signal>
+   <receiver>exportDialog</receiver>
+   <slot>browse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>514</x>
+     <y>602</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>556</x>
+     <y>510</y>
     </hint>
    </hints>
   </connection>
