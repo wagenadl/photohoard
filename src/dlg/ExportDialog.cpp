@@ -127,7 +127,9 @@ void ExportDialog::browse() {
     if (dir.isEmpty())
       return;
     QFileInfo fi(dir);
-    if (fi.isDir() && fi.isWritable()) {
+    if (fi.isDir()
+        && fi.isWritable()) {
+      ui->destination->setText(dir);
       return;
     }
 
