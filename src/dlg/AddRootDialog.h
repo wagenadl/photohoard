@@ -31,6 +31,7 @@ protected slots:
   void editExclusion(QModelIndex);
 private:
   void prepCollections();
+  QString reasonableStartingPoint();
 private:
   class Ui_addRootDialog *ui;
   class PhotoDB *db;

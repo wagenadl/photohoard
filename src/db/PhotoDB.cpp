@@ -110,7 +110,7 @@ PSize PhotoDB::photoSize(quint64 p) const {
 QString PhotoDB::camera(int id) const {
   QString m = make(id);
   QString c = model(id);
-  return m.isNull() ? c : m + " " + c;
+  return m.isEmpty() ? c : m + " " + c;
 
 }
 

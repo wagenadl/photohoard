@@ -37,12 +37,9 @@ QString AddRootDialog::defaultCollection() const {
 
 int AddRootDialog::exec() {
   prepCollections();
-  if (db->rootFolders().isEmpty()) {
-    // We don't have a collection anywhere yet
-    ui->location->setText(QString(qgetenv("HOME")) + "/Pictures");
-    if (Tags(db).collections().isEmpty())
-      ui->collection->addItem("Family photos");
-  }
+  ui->location->setText(QString(qgetenv("HOME")) + "/Pictures");
+  if (Tags(db).collections().isEmpty())
+    ui->collection->addItem("Family photos");
   DialogCode c = DialogCode(QDialog::exec());
   return c;
 }
@@ -65,10 +62,16 @@ void AddRootDialog::keyPressEvent(QKeyEvent *e) {
   }    
 }
 
+QString AddRootDialog::reasonableStartingPoint() {
+  QDir dir(ui->location->text());
+  return dir.exists() ? dir.absolutePath() : QDir::homePath();
+}
+   
+
 void AddRootDialog::browse() {
   QString dir
     = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                        QDir::homePath(),
+                                        reasonableStartingPoint(),
                                         QFileDialog::ShowDirsOnly);
   if (!dir.isEmpty())
     ui->location->setText(dir);
@@ -78,22 +81,26 @@ void AddRootDialog::editExclusion(QModelIndex) {
   QListWidgetItem *item = ui->excluded->currentItem();
   if (!item)
     return;
-  if (item->text()=="(none)")
-    return;
+  QString start = item->text();
+  if (start=="(none)")
+    start = reasonableStartingPoint();
   QString fn
     = QFileDialog::getExistingDirectory(this,
-                                        "Select root of tree to exclude",
-                                        item->text());
+                                        tr("Select root of tree to exclude"),
+                                        start,
+                                        QFileDialog::ShowDirsOnly);
   if (fn.isEmpty())
     return;
   item->setText(fn);
 }
 
 void AddRootDialog::addExclusion() {
+  pDebug() << "AddExclusion";
   QString fn
     = QFileDialog::getExistingDirectory(this,
-                                        "Select root of tree to exclude",
-                                        path());
+                                        tr("Select root of tree to exclude"),
+                                        path(),
+                                        QFileDialog::ShowDirsOnly);
   if (fn.isEmpty())
     return;
 
@@ -105,6 +112,7 @@ void AddRootDialog::addExclusion() {
 }
 
 void AddRootDialog::removeExclusion() {
+  pDebug() << "RemoveExclusion";
   int n = ui->excluded->currentRow();
   if (n>=0 && n<ui->excluded->count())
     ui->excluded->removeItemWidget(ui->excluded->item(n));

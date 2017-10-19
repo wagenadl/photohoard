@@ -100,7 +100,7 @@ void OriginalFinder::provide(QString fn, InterruptableReader::Result res) {
     return;
   }
 
-  if (desired.isNull()) {
+  if (desired.isEmpty()) {
     fixOrientation(img);
     emit originalAvailable(version, img);
   } else {

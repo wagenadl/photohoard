@@ -131,13 +131,19 @@ void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
     return;
   }
   if (mustoffermod) {
+    pDebug() << "LiveAdj: must offer mod";
     mustoffermod = false;
     cache->cacheModified(version, img);
-  } 
+  } else {
+    pDebug() << "LiveAdj: not offering mod";
+  }
   if (mustshowupdate) {
+    pDebug() << "LiveAdj: mustshowupdate";
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
     emit imageAvailable(img, version, fs);
+  } else {
+    pDebug() << "LiveAdj: not showing update";
   }
 }
   

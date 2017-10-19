@@ -8,6 +8,7 @@
 #include "ImportJob.h"
 #include "SourceInfo.h"
 #include <QKeyEvent>
+#include <QFileDialog>
 
 ImportLocalDialog::ImportLocalDialog(class ImportJob *job,
                                              QStringList collections,
@@ -61,7 +62,12 @@ void ImportLocalDialog::changeCollection(QString coll) {
 }
 
 void ImportLocalDialog::browseDestination() {
-  COMPLAIN("NYI");
+  QString dirname
+    = QFileDialog::getExistingDirectory(this, tr("Select destination"),
+                                        ui->destination->text(),
+                                        QFileDialog::ShowDirsOnly);
+  if (!dirname.isEmpty())
+    ui->destination->setText(dirname);
 }
 
 bool ImportLocalDialog::importInstead() const {

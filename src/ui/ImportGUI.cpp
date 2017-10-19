@@ -11,6 +11,9 @@
 #include "Extensions.h"
 #include "SessionDB.h"
 #include <QFileInfo>
+#include <QDir>
+#include <QMessageBox>
+#include "ImportSelectorDialog.h"
 
 ImportGUI::ImportGUI(class SessionDB *db,
                      class Scanner *scanner,
@@ -188,3 +191,45 @@ bool ImportGUI::acceptable(QList<QUrl> const &urls) {
   }
   return true;
 }
+
+void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
+                                  QWidget *parent) {
+  pDebug() << "importbutton";
+  QDir media("/media/" + qgetenv("USER"));
+  if (!media.exists()) {
+    qDebug() << "No media folder";
+    return;
+  }
+  QStringList disks = media.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                      QDir::Name);
+  QStringList usedisks;
+  for (auto d: disks) {
+    qDebug() << "Disk: " << d;
+    QDir dcim(media.absoluteFilePath(d + "/DCIM"));
+    if (dcim.exists())
+      usedisks << d;
+  }
+
+  if (usedisks.isEmpty()) {
+    QMessageBox::information(parent, "Photohoard: No media found",
+                             "No removable media found: nothing to import."
+                             " (You may have to convince your operating system"
+                             " to mount your media.)",
+                             QMessageBox::Close, QMessageBox::Close);
+    return;
+  }
+  QString choice = usedisks[0];
+  if (usedisks.size() > 1) 
+    choice = ImportSelectorDialog::choose(usedisks);
+  pDebug() << "choice is " << choice;
+  QString path = media.absoluteFilePath(choice + "/DCIM");
+  QList<QUrl> urls;
+  urls << QUrl::fromLocalFile(path);
+  qDebug() << urls;
+  auto *gui = new ImportGUI(db, scanner, urls);
+  gui->showAndGo();
+}
+
+
+    
+  
