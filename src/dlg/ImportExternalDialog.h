@@ -32,6 +32,7 @@ private slots:
   void changeCollection(QString);
   void browseDestination();
   void browseMovieDestination();
+  void changeDisposition();
 private:
   class Ui_ImportExternalDialog *ui;
 private:

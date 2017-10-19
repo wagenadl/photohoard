@@ -26,7 +26,7 @@ QString MetaInfo::ratio(int w, int h) {
       return "/" + rat;
     } else {
       QStringList bits = rat.split(":");
-      return rat[1] + ":" + rat[0];
+      return bits[1] + ":" + bits[0];
     }
   } else {
     double marg = 1./w + 1./h;
@@ -69,10 +69,23 @@ QString MetaInfo::easyRatio(int w, int h) {
 
   if (w<h) {
     QString rat = easyRatio(h, w);
-    if (rat=="1:1+") 
+    if (rat=="1:1+") {
       return "1:1-";
-    else
-      return rat;
+    } else if (rat.indexOf(":")<0) {
+      return "/" + rat;
+    } else {
+      QStringList bits = rat.split(":");
+      QString sfx = "";
+      if (bits[1].endsWith("+")) {
+        bits[1] = bits[1].left(bits[1].length()-1);
+        sfx = "-";
+      } else if (bits[1].endsWith("-")) {
+        bits[1] = bits[1].left(bits[1].length()-1);
+        sfx = "-";
+      } 
+      return bits[1] + ":" + bits[0] + sfx;
+    }
+ return rat;
   } else {
     double r = double(w)/double(h);
     if (r<inbetween(1, 5/4.))

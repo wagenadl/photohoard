@@ -8,6 +8,7 @@
 #include "ImportJob.h"
 #include "SourceInfo.h"
 #include <QKeyEvent>
+#include <QFileDialog>
 
 ImportExternalDialog::ImportExternalDialog(ImportJob *job,
                                            QStringList collections,
@@ -20,7 +21,10 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
     ui->disposition->removeItem(1);
     ui->source->setText("Temporary location");
     bkremoved = true;
+  } else {
+    bkremoved = false;
   }
+  changeDisposition();
   
   what = ui->what->text();
   movieWhat = ui->copyMovies->text();
@@ -114,11 +118,19 @@ void ImportExternalDialog::updateCounts(int ntotal, int nmov) {
 }
 
 void ImportExternalDialog::browseDestination() {
-  COMPLAIN("NYI");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Select destination"),
+                                                  ui->destination->text(),
+                                                  QFileDialog::ShowDirsOnly);
+  if (!dir.isEmpty())
+    ui->destination->setText(dir);
 }
 
 void ImportExternalDialog::browseMovieDestination() {
-  COMPLAIN("NYI");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Select destination"),
+                                                  ui->movieDestination->text(),
+                                                  QFileDialog::ShowDirsOnly);
+  if (!dir.isEmpty())
+    ui->movieDestination->setText(dir);
 }
 
 void ImportExternalDialog::keyPressEvent(QKeyEvent *e) {
@@ -126,4 +138,14 @@ void ImportExternalDialog::keyPressEvent(QKeyEvent *e) {
     emit canceled();
   else
     QWidget::keyPressEvent(e);
+}
+
+void ImportExternalDialog::changeDisposition() {
+  if (sourceDisposition()==CopyIn::SourceDisposition::Backup) {
+    ui->backupContainer->show();
+    ui->backupPath->setText(QString::fromUtf8("⇒ ") + job->backupPath());
+    // set backup path
+  } else {
+    ui->backupContainer->hide();
+  }
 }

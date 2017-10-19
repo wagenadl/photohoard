@@ -80,7 +80,7 @@ void CropCalc::setAspect(double a) {
   
   calcDxy();
 
-  if (osize.isNull())
+  if (osize.isEmpty())
     return;
   
   QPointF center = rect.center();

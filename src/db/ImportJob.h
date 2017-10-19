@@ -49,6 +49,7 @@ public:
   QString collection() const { return coll; }
   bool isAuthorized() const { return authorized_; }
   bool isComplete() const { return complete_; }
+  QString backupPath() const;
 public:
   QList<QUrl> statedSources() const;
   bool isAnySourceNonlocal() const;

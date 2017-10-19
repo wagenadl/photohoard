@@ -128,6 +128,8 @@ void ImportJob::authorize() {
   case Operation::Import:
     if (hasSourceCount())
       startCopy();
+    else
+      countSources();
     break;
   case Operation::Incorporate:
     startIncorporate(); // we don't have to wait for source count
@@ -167,9 +169,13 @@ void ImportJob::startCopy() {
 
   copyin->setSourceDisposition(srcdisp);
   if (srcdisp==CopyIn::SourceDisposition::Backup)
-    copyin->setBackupLocation(srcinfo.fsRoot() + "/photohoard-backup");
+    copyin->setBackupLocation(backupPath());
 
   copyin->start();
+}
+
+QString ImportJob::backupPath() const {
+  return srcinfo.fsRoot() + "/photohoard-backup";
 }
 
 void ImportJob::doneCopying(int,int) {
