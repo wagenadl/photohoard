@@ -6,6 +6,27 @@
 #include <system_error>
 #include <QSqlQuery>
 
+static bool execWithRetry(QSqlQuery &q) {
+  if (q.exec())
+    return true;
+  if (q.lastError().type()!=QSqlError::ConnectionError)
+    return false;
+  /* This is a completely horrible hack that prevents some crashes when
+     AC_Worker tries to read from the DB while something else is writing.
+     This happens on rare occasions, and I cannot figure out why. */
+  pDebug() << "Retrying query " << q.lastQuery();
+  int n = 0;
+  while (n<10) {
+    if (q.exec())
+      return true;
+    if (q.lastError().type()!=QSqlError::ConnectionError)
+      return false;
+    ++n;
+  }
+  return false;
+}
+
+
 Database::Database(QString id0): id(id0), transWait(new QAtomicInt()) {
   if (id.isEmpty())
     id = autoid();
@@ -122,7 +143,7 @@ QSqlQuery Database::constQuery(QString s) const {
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
   q.prepare(s);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -139,7 +160,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a) const {
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -157,7 +178,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -177,7 +198,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
   q.bindValue(":a", a);
   q.bindValue(":b", b);
   q.bindValue(":c", c);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -199,7 +220,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":b", b);
   q.bindValue(":c", c);
   q.bindValue(":d", d);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -222,7 +243,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":c", c);
   q.bindValue(":d", d);
   q.bindValue(":e", e);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -246,7 +267,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":d", d);
   q.bindValue(":e", e);
   q.bindValue(":f", f);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";

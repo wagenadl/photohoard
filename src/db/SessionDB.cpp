@@ -75,8 +75,9 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
 	    + sessionfn);
   }
   QString pdbfn = simpleQuery("select fn from photodb").toString();
+  pdbfn = QFileInfo(pdbfn).canonicalFilePath();
   if (pdbfn != QFileInfo(photodbfn).canonicalFilePath())
-    CRASH("Session refers to different photo db");
+    CRASH("Session refers to different photo db: " + pdbfn + " vs " + QFileInfo(photodbfn).canonicalFilePath());
 
   query("pragma synchronous = 0");
   query("pragma foreign_keys = on");
