@@ -103,6 +103,6 @@ void crashdb(QSqlDatabase const &db, QString msg, char const *file, int line) {
 
 void crashq(QSqlQuery const &q, char const *file, int line) {
   QString msg = q.lastQuery() + ": " + q.lastError().databaseText()
-    + " (" + q.lastError().driverText() + ")";
+    + " (" + q.lastError().driverText() + " / " + q.lastError().type() + ")";
   crash(msg, file, line);
 }
