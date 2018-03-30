@@ -135,7 +135,7 @@ QSqlQuery Database::query(QString s, QVariant a) {
 
 QSqlQuery Database::constQuery(QString s, QVariant a) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -152,7 +152,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -171,7 +171,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -192,7 +192,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c << d;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -214,7 +214,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d, QVariant e) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c << d << e;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -237,7 +237,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d, QVariant e, QVariant f) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c << d << e << f;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);

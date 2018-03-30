@@ -189,6 +189,7 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   q.finish();
 
   if (wid!=fs.width() || hei!=fs.height()) {
+    pDebug() << "ensureDBSizeCorrect" << vsn << siz << fs << photo << " - " << wid << "." << hei;
     Untransaction ut(db);
     db->query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
@@ -202,7 +203,9 @@ void AC_Worker::handleFoundImage(quint64 id, Image16 img, QSize fullSize) {
   // Reactivate the IF_Bank if it is partially idle and we have more.
 
   if (!fullSize.isEmpty())
-    ensureDBSizeCorrect(id, fullSize); // Why should this be needed?
+    ensureDBSizeCorrect(id, fullSize);
+  /* Above is needed, because images without EXIF data may not have their
+   * size information stored in the DB yet. */
   
   if (!hushup.contains(id)
       && (!invalidatedWhileLoading.contains(id) || requests.contains(id))) 
