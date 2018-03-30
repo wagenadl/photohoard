@@ -12,3 +12,4 @@ build
 ndoc
 .ndocproject
 photohoard0
+.qmake.stash
