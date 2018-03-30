@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>256</width>
-    <height>274</height>
+    <width>442</width>
+    <height>275</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,7 +69,7 @@
        </font>
       </property>
       <property name="textAlignment">
-       <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+       <set>AlignCenter</set>
       </property>
      </column>
      <column>
@@ -83,7 +83,7 @@
        </font>
       </property>
       <property name="textAlignment">
-       <set>AlignHCenter|AlignVCenter|AlignCenter</set>
+       <set>AlignCenter</set>
       </property>
      </column>
      <column>
@@ -97,7 +97,7 @@
        </font>
       </property>
       <property name="textAlignment">
-       <set>AlignLeft|AlignVCenter</set>
+       <set>AlignLeading|AlignVCenter</set>
       </property>
      </column>
     </widget>
@@ -120,6 +120,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QToolButton" name="add">
+        <property name="toolTip">
+         <string>Add new layer</string>
+        </property>
         <property name="text">
          <string>+</string>
         </property>
@@ -129,6 +132,9 @@
        <widget class="QToolButton" name="raise">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Raise layer</string>
         </property>
         <property name="text">
          <string>↑</string>
@@ -140,6 +146,9 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>Lower layer</string>
+        </property>
         <property name="text">
          <string>↓</string>
         </property>
@@ -149,6 +158,9 @@
        <widget class="QToolButton" name="showHide">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Toggle layer visibility</string>
         </property>
         <property name="text">
          <string>☼</string>
@@ -160,6 +172,9 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="toolTip">
+         <string>Show/hide layer mask</string>
+        </property>
         <property name="text">
          <string>◪</string>
         </property>
@@ -169,6 +184,9 @@
        <widget class="QToolButton" name="del">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Delete layer</string>
         </property>
         <property name="text">
          <string>−</string>
