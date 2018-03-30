@@ -228,6 +228,7 @@ Filter FilterDialog::extract() const {
   f.setTags(splitTags());
   if (!ui->tags->isChecked())
     f.unsetTags();
+  qDebug() << f.tagsClause();
   return f;
 }
 
