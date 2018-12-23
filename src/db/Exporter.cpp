@@ -145,6 +145,7 @@ void Exporter::run() {
   pDebug() << "Exporter end run";
 }
 
+
 QString Exporter::doExport(quint64 vsn, ExportSettings const &settings,
                            QString fnoverride) {
   PhotoDB::VersionRecord vrec = db.versionRecord(vsn);
@@ -187,33 +188,9 @@ QString Exporter::doExport(quint64 vsn, ExportSettings const &settings,
     break;
   }
 
-  QString ofn;
-  if (fnoverride.isEmpty()) {
-    switch (settings.namingScheme) {
-    case ExportSettings::NamingScheme::Original:
-      ofn = prec.filename;
-      if (ofn.contains("."))
-        ofn = ofn.left(ofn.lastIndexOf("."));
-      break;
-    case ExportSettings::NamingScheme::DateTime:
-      ofn = prec.capturedate.toString("yyMMdd-hhmmss");
-      break;
-    case ExportSettings::NamingScheme::DateTimeDSC: {
-      ofn = prec.capturedate.toString("yyMMdd-hhmmss");
-      QRegExp dd("(\\d+)");
-      if (dd.indexIn(prec.filename)>=0)
-        ofn += "-" + dd.cap(1);
-      else
-        ofn += "_" + QString::number(vsn);
-    } break;
-    }
-    ofn = settings.destination + "/" + ofn + "." + settings.extension();
-  } else {
-    ofn = fnoverride;
-  }
-
-  //  QDir root(QDir::root());
-  
+  QString ofn = fnoverride.isEmpty()
+    ? settings.exportFilename(&db, vsn)
+    : fnoverride;
 
   if (settings.fileFormat == ExportSettings::FileFormat::JPEG)
     return img.toQImage().save(ofn, 0, settings.jpegQuality) ? ofn : "";

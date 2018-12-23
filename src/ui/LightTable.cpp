@@ -20,6 +20,9 @@
 #include <QMimeData>
 #include <QDrag>
 #include "Settings.h"
+#include <QApplication>
+#include <QClipboard>
+#include "Exporter.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, Exporter *expo,
@@ -622,7 +625,7 @@ void LightTable::makeActions() {
       db->newVersion(db->current(), true);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from photo",
+  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from original",
          [&]() {
       db->newVersion(db->current(), false);
       rescan();
@@ -632,6 +635,8 @@ void LightTable::makeActions() {
       PurgeDialog::purgeDialog(db, cache);
       rescan();
     }}
+  << Action {Qt::CTRL + Qt::Key_C, "Copy filename",
+         [&]() { filenameToClipboard(); }}
   ;
 }
 
@@ -725,5 +730,15 @@ void LightTable::saveSplitterPos() {
     break;
   default:
     break;
+  }
+}
+
+void LightTable::filenameToClipboard() {
+  if (exporter->settings().isValid()) {
+    QString fn = exporter->settings().exportFilename(db, db->current());
+    qDebug() << "filename: " << fn;
+    QApplication::clipboard()->setText(fn);
+  } else {
+    qDebug() << "Exporter settings not valid—nothing to copy";
   }
 }
