@@ -71,3 +71,28 @@ QString ExportSettings::extension() const {
   }
   return QString();
 }
+
+QString ExportSettings::exportFilename(PhotoDB *db, quint64 vsn) const {
+  PhotoDB::PhotoRecord prec = db->photoRecord(db->photoFromVersion(vsn));
+  QString ofn;
+  switch (namingScheme) {
+  case ExportSettings::NamingScheme::Original:
+    ofn = prec.filename;
+    if (ofn.contains("."))
+      ofn = ofn.left(ofn.lastIndexOf("."));
+    break;
+  case ExportSettings::NamingScheme::DateTime:
+    ofn = prec.capturedate.toString("yyMMdd-hhmmss");
+    break;
+  case ExportSettings::NamingScheme::DateTimeDSC: {
+    ofn = prec.capturedate.toString("yyMMdd-hhmmss");
+    QRegExp dd("(\\d+)");
+    if (dd.indexIn(prec.filename)>=0)
+      ofn += "-" + dd.cap(1);
+    else
+      ofn += "_" + QString::number(vsn);
+  } break;
+  }
+  ofn = destination + "/" + ofn + "." + extension();
+  return ofn;
+}
