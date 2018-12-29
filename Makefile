@@ -60,6 +60,7 @@ install: all
 	install -d $(SHAREPATH)/man/man1
 	install -d $(SHAREPATH)/applications
 	install -d $(DOCPATH)
+	install -d $(SHAREPATH)/pixmaps
 	install build/photohoard $(INSTALLPATH)/bin/photohoard
 	cp build-doc/photohoard.1 $(SHAREPATH)/man/man1/photohoard.1
 	cp res/photohoard.svg $(SHAREPATH)/pixmaps/photohoard.svg
