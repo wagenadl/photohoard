@@ -9,6 +9,7 @@ ui_*.h
 build
 build-doc
 *.pri
+debian
 
 ndoc
 .ndocproject
