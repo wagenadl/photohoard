@@ -1,17 +1,13 @@
-Makefile
-Makefile.*
-photohoard
-photohoard_debug
 *~
 .#*
-qexif
-ui_*.h
 build
 build-doc
-*.pri
-debian
 
 ndoc
 .ndocproject
-photohoard0
-.qmake.stash
+
+*debhelper*
+debian/photohoard
+debian/files
+debian/*.substvars
+
