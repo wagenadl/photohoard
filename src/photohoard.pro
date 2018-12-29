@@ -8,7 +8,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 QMAKE_CXXFLAGS_DEBUG += -fPIE -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
 QMAKE_CXXFLAGS_RELEASE -= -O2
-QMAKE_CXXFLAGS_RELEASE += -O3 -ffast-math -march=native
+QMAKE_CXXFLAGS_RELEASE += -O3 -ffast-math $$(PHOTOHOARD_CXXFLAGS)
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 

@@ -54,6 +54,11 @@ prep:
 	mkdir -p build
 	( cd build; $(SELECTQT) $(QMAKE) ../src/photohoard.pro )
 
+native:
+	mkdir -p build
+	( cd build; PHOTOHOARD_CXXFLAGS='-march=native' $(SELECTQT) $(QMAKE) ../src/photohoard.pro )
+	+make -C build release
+
 # Unix installation
 install: all
 	install -d $(INSTALLPATH)/bin

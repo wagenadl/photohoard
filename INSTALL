@@ -1,7 +1,7 @@
 To build PHOTOHOARD from the git sources:
 
   make update
-  make
+  make native
   make install
 
 Default installation root is /usr/local.
