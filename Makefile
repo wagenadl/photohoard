@@ -45,6 +45,7 @@ clean:
 	+rm -rf build
 	+rm -rf build-doc
 	+rm -rf .ndocproject ndoc
+	+rm -f test/Makefile*
 
 bin: prep
 	+make -C build release
