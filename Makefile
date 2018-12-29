@@ -44,6 +44,7 @@ update:
 clean:
 	+rm -rf build
 	+rm -rf build-doc
+	+rm -rf .ndocproject ndoc
 
 bin: prep
 	+make -C build release
