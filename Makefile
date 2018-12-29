@@ -60,7 +60,8 @@ install: all
 	install -d $(DOCPATH)
 	install build/photohoard $(INSTALLPATH)/bin/photohoard
 	cp build-doc/photohoard.1 $(SHAREPATH)/man/man1/photohoard.1
-	install src/photohoard.desktop $(SHAREPATH)/applications/photohoard.desktop
+	cp res/photohoard.svg $(SHAREPATH)/pixmaps/photohoard.svg
+	install res/photohoard.desktop $(SHAREPATH)/applications/photohoard.desktop
 
 	cp README.md $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
