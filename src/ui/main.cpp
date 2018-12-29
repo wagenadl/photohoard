@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
   QString icc;
   bool newdb = false;
   bool readonly = false;
+  bool customdb = false;
   
   QStringList args;
   for (int i=1; i<argc; i++)
@@ -44,6 +45,7 @@ int main(int argc, char **argv) {
     if (kwd=="-db") {
       Q_ASSERT(!args.isEmpty());
       dbfn = args.takeFirst();
+      customdb = true;
     } else if (kwd=="-icc") {
       Q_ASSERT(!args.isEmpty());
       icc = args.takeFirst();
@@ -71,14 +73,20 @@ int main(int argc, char **argv) {
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
 
-  if (newdb==QFile(dbfn).exists()) {
-    if (newdb) 
+  bool olddb = QFile(dbfn).exists();
+  if (olddb && newdb) {
       ErrorDialog::fatal("A database already exists at " + dbfn
 	      + ". Cannot create a new one.");
-    else
+      return 2;
+  }
+  if (!olddb && !newdb) {
+    if (customdb) {
       ErrorDialog::fatal("No database found at " + dbfn
-	      + ". You may create a new one using “photohoard -new”.");
-    return 2;
+                     + ". You may create a new one using “photohoard -new”.");
+      return 2;
+    } else {
+      newdb = true;
+    }
   }
   
   if (newdb) {
