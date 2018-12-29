@@ -97,38 +97,48 @@ QVariant Database::defaultQuery(QString s, QVariant a, QVariant dflt) const {
   
 QVariant Database::simpleQuery(QString s) const {
   QSqlQuery q = constQuery(s);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a) const {
   QSqlQuery q = constQuery(s, a);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) const {
   QSqlQuery q = constQuery(s, a, b);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
   QSqlQuery q = constQuery(s, a, b, c);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c, QVariant d) const {
   QSqlQuery q = constQuery(s, a, b, c, d);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
    
