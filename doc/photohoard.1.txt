@@ -1,0 +1,33 @@
+PHOTOHOARD(1)
+=============
+:doctype: manpage
+
+NAME
+----
+photohoard - Photography collection management
+
+SYNOPSIS
+--------
+*photohoard*
+
+DESCRIPTION
+-----------
+The *photohoard*(1) command starts the PHOTOHOARD Photography
+Collection Manager.
+
+OPTIONS
+-------
+None.
+
+BUGS
+----
+There may be bugs. Please contact the author if one bites you.
+
+AUTHOR
+------
+Daniel Wagenaar <daw@caltech.edu>. http://www.danielwagenaar.net.
+
+SEE ALSO
+--------
+More complete documentation of *photohoard* would be very useful.
+I'll get to it someday.
