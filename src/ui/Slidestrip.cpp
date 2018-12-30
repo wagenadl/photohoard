@@ -28,6 +28,10 @@ int Slidestrip::count() const {
   return  hasLatent ? latentVersions.size() : slideOrder.size();
 }
 
+bool Slidestrip::isSingleton() const {
+  return count() <= 1;
+}
+
 QRectF Slidestrip::subBoundingRect() const {
   if (!expanded)
     return QRectF();

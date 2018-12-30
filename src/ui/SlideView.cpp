@@ -53,6 +53,8 @@ double SlideView::fittingZoom() const {
 
 void SlideView::newImage(quint64 vsn, QSize nat) {
   pDebug() << "SlideView::newImage" << vsn << nat;
+  if (db->acceptReject(vsn)==PhotoDB::AcceptReject::NewImport)
+    db->setAcceptReject(vsn, PhotoDB::AcceptReject::Undecided);
   rqid = 0;
   vsnid = vsn;
   naturalSize = nat;

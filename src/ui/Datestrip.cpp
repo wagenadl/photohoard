@@ -298,8 +298,19 @@ void Datestrip::expand() {
   rebuilding ++;
   for (auto s: stripOrder)
     s->show();
-  if (thisFolderStrip)
-    thisFolderStrip->expand();
+  if (org==Organization::ByDate) {
+    if (isSingleton())
+      for (auto s: stripOrder)
+        s->expand();
+    else
+      for (auto s: stripOrder)
+        if (s->isSingleton())
+          s->expand();
+  } else {
+    if (thisFolderStrip)
+      thisFolderStrip->expand();
+    // should we expand singleton sub directories?
+  }
 
   recalcLabelRect();
   rebuilding --;
@@ -765,3 +776,6 @@ void Datestrip::unblock() {
     relayout();
 }
 
+bool Datestrip::isSingleton() const {
+  return stripOrder.size() == 1;
+}

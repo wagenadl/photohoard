@@ -61,7 +61,7 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
     }};
   parent->addAction(new PAction(acts.last(), this));
   
-  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_2, "Email exported images",
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_At, "Email exported images",
       [exporter,this]() {
       exporter->sendEmail();
     }};
@@ -72,10 +72,5 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
 	[this]() { this->sliderclip->show(); }};
     parent->addAction(new PAction(acts.last(), this));
   }
-  
-  acts << Action{Qt::CTRL + Qt::Key_H, "Shortcut help",
-      [this]() { auto w = dynamic_cast<MainWindow*>(this->parent());
-      Q_ASSERT(w); w->showShortcutHelp(); }};
-  parent->addAction(new PAction(acts.last(), this));
-}
+  }
 
