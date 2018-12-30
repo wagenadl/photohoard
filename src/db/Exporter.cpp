@@ -8,6 +8,8 @@
 #include <QRegExp>
 #include <QDir>
 #include "Adjustments.h"
+#include <QApplication>
+#include <QClipboard>
 
 Exporter::Exporter(SessionDB *db0, QObject *parent):
   QThread(parent), db0(db0) {
@@ -40,6 +42,18 @@ void Exporter::setup(ExportSettings const &s) {
   settings_ = s;
 }
 
+void Exporter::copyFilenameToClipboard(quint64 vsn) {
+  /* To be called from parent thread only. */
+  if (settings().isValid()) {
+    QString fn = settings().exportFilename(db0, vsn);
+    qDebug() << "filename: " << fn;
+    QApplication::clipboard()->setText(fn);
+  } else {
+    qDebug() << "Exporter settings not valid—nothing to copy";
+  }
+}
+
+
 void Exporter::addSelection() {
   QSet<quint64> vsns;
   QSqlQuery q(db0->query("select version from selection"));
@@ -51,6 +65,8 @@ void Exporter::addSelection() {
 }
 
 void Exporter::add(QSet<quint64> const &vsns) {
+  if (vsns.size()>=1)
+    copyFilenameToClipboard(*vsns.begin());
   QMutexLocker l(&mutex);
   if (jobs.isEmpty()) {
     jobs << Job();
@@ -63,6 +79,7 @@ void Exporter::add(QSet<quint64> const &vsns) {
 }
 
 void Exporter::add(quint64 vsn, QString ofn) {
+  QApplication::clipboard()->setText(ofn);
   QMutexLocker l(&mutex);
   if (jobs.isEmpty()) {
     jobs << Job();

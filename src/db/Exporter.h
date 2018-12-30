@@ -41,6 +41,7 @@ signals:
 protected:
   virtual void run();
 private:
+  void copyFilenameToClipboard(quint64 vsn);
   QString doExport(quint64 vsn, ExportSettings const &settings,
                    QString ovr=QString()); // returns output filename or "" if failed
 private:

@@ -42,6 +42,7 @@ private:
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
   class FilterBar *filterBar;
+  class HelpBar *helpBar;
   class AllControls *allControls;
   class HistoWidget *histogram;
   class LiveAdjuster *adjuster;

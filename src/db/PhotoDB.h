@@ -58,20 +58,21 @@ public: // information about photos and versions
      and returns the size of the image before cropping.
      ORIGINALSIZE(vrec, prec) uses preloaded version and photo records.
      This does not need database lookup. */
+  void setColorLabel(quint64 versionid, ColorLabel label);
+  void setStarRating(quint64 versionid, int stars);
+  void setAcceptReject(quint64 versionid, AcceptReject label);
+  AcceptReject acceptReject(quint64 versionid) const;
+  void addUndoStep(quint64 versionid, int layer, QString key,
+                   QVariant oldvalue, QVariant newvalue);
+  void addUndoStep(quint64 versionid, QString key,
+                   QVariant oldvalue, QVariant newvalue);
+public: // information about cameras and lenses
   QString make(int cameraid) const;
   QString camera(int cameraid) const; // i.e., make and model
   QString cameraAlias(int cameraid) const;
   QString model(int cameraid) const;
   QString lens(int lensid) const;
   QString lensAlias(int lensid) const;
-  void setColorLabel(quint64 versionid, ColorLabel label);
-  void setStarRating(quint64 versionid, int stars);
-  void setAcceptReject(quint64 versionid, AcceptReject label);
-  void addUndoStep(quint64 versionid, int layer, QString key,
-                   QVariant oldvalue, QVariant newvalue);
-  void addUndoStep(quint64 versionid, QString key,
-                   QVariant oldvalue, QVariant newvalue);
-public: // information about cameras and lenses
   void setLensAlias(int lensid, QString alias);
   void setCameraAlias(int cameraid, QString alias);
 public: // exploration functions

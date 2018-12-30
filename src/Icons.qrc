@@ -24,6 +24,7 @@
   <file alias="icons/sliders.svg">../res/icons/sliders.svg</file>
   <file alias="icons/crop.svg">../res/icons/crop.svg</file>
   <file alias="icons/layers.svg">../res/icons/layers.svg</file>
+  <file alias="icons/help.svg">../res/icons/help.svg</file>
  </qresource> 
 </RCC>
 

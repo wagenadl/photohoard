@@ -11,6 +11,8 @@ HEADERS += \
      ui/SlideView.h  \
      ui/SO_Layer.h  \
      ui/Slide.h  \
+     ui/BuildDate.h  \
+     ui/Version.h  \
      ui/AppliedTagWidget.h  \
      ui/AppliedTagList.h  \
      ui/SliderClipboard.h  \
@@ -20,6 +22,7 @@ HEADERS += \
      ui/AppliedTagEditor.h  \
      ui/GentleJog.h  \
      ui/Action.h  \
+     ui/HelpBar.h  \
      ui/Strip.h  \
      ui/ClickLabel.h  \
      ui/LightTable.h  \
@@ -51,6 +54,7 @@ SOURCES += \
      ui/AllControls.cpp  \
      ui/Slide.cpp  \
      ui/BoldButton.cpp  \
+     ui/BuildDate.cpp  \
      ui/ActionBar.cpp  \
      ui/SO_Layer.cpp  \
      ui/SlideView.cpp  \
@@ -67,6 +71,7 @@ SOURCES += \
      ui/CropControls.cpp  \
      ui/ClickLabel.cpp  \
      ui/ControlSliders.cpp  \
+     ui/HelpBar.cpp  \
      ui/ProgressWidget.cpp  \
      ui/ImportGUI.cpp  \
      ui/SliderClipboard.cpp  \
@@ -76,6 +81,7 @@ SOURCES += \
      ui/SO_Grid.cpp  \
      ui/LayoutBar.cpp  \
      ui/LiveAdjuster.cpp  \
+     ui/Version.cpp  \
      ui/Tristate.cpp  \
      ui/StripView.cpp  \
      ui/LightTable.cpp  \

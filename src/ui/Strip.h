@@ -102,6 +102,7 @@ public:
   QString longLabelFor(QDateTime t0, TimeScale scl);
   static int labelHeight(int tilesize);
   void requestImage(quint64);
+  virtual bool isSingleton() const=0;
 protected:
   virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;

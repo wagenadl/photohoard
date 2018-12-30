@@ -73,7 +73,6 @@ protected:
   void makeCurrent(quint64 i);
   void ensureSlideShown();
   void updateMainSlide();
-  void filenameToClipboard();
 protected:
   SessionDB *db;
   AutoCache *cache;
