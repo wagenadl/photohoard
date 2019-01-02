@@ -42,6 +42,7 @@ void Adjuster::setReduced(Image16 const &image, PSize originalSize) {
 
 
 Image16 Adjuster::retrieveFull(Adjustments const &settings) {
+  qDebug() << "RetrieveFull" << settings.getAll();
   resetCanceled();
 
   if (stages.isEmpty())
@@ -69,6 +70,7 @@ bool Adjuster::applySettings(Adjustments const &settings) {
 
 Image16 Adjuster::retrieveReduced(Adjustments const &settings,
                                   PSize maxSize) {
+  qDebug() << "RetrieveReduced" << maxSize << settings.getAll();
   resetCanceled();
 
   if (stages.isEmpty() || !stages[0].roi.isEmpty() || stages[0].image.isNull())
@@ -117,13 +119,13 @@ void Adjuster::dropFrom(int k) {
 }
 
 Image16 Adjuster::retrieveROI(Adjustments const &, QRect) {
-  // NYI
+  qDebug() << "Adjuster::retrieveROI NYI";
   return Image16();
 }
 
 Image16 Adjuster::retrieveReducedROI(Adjustments const &,
                                      QRect, PSize) {
-  // NYI
+  qDebug() << "Adjuster::retrieveReducedROI NYI";
   return Image16();
 }
 
