@@ -38,6 +38,9 @@ void InterruptableAdjuster::requestROI(QMap<int, Adjustments> settings,
 void InterruptableAdjuster::requestReducedROI(QMap<int, Adjustments> settings,
                                               QRect roi, PSize maxSize,
                                               quint64 id) {
+  pDebug() << "IA:requestReducedROI" << id;
+  for (int k: settings.keys())
+    pDebug() << " settings" << k << "::" << settings[k].getAll();
   QMutexLocker l(&mutex);
   for (auto adj: adjuster)
     adj->cancel();
@@ -138,6 +141,10 @@ void InterruptableAdjuster::handleNewRequest() {
 
   mutex.unlock();
 
+  pDebug() << "handlenewrequest" << rqId << oId << r << s;
+  for (int k: sli.keys())
+    pDebug() << " settings" << k << "::" << sli[k].getAll();
+  
   Image16 img;
   if (cando) {
     if (r.isEmpty()) {
@@ -176,6 +183,8 @@ void InterruptableAdjuster::handleNewRequest() {
 
 Image16 InterruptableAdjuster::hnrFull(QMap<int, Adjustments> const &sli) {
   ASSERT(adjuster.contains(0));
+  if (sli.size()>1)
+    pDebug() << "hnrReduced: Layers NYI";
   Image16 img = adjuster[0]->retrieveFull(sli[0]);
 #if 0
   // WORK IN PROGRESS
@@ -197,6 +206,8 @@ Image16 InterruptableAdjuster::hnrFull(QMap<int, Adjustments> const &sli) {
 Image16 InterruptableAdjuster::hnrReduced(QMap<int, Adjustments> const &sli,
 					  PSize s) {
   ASSERT(adjuster.contains(0));
+  if (sli.size()>1)
+    pDebug() << "hnrReduced: Layers NYI";
   Image16 img = adjuster[0]->retrieveReduced(sli[0], s);
   return img;
 }
