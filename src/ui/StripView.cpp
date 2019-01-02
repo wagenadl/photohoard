@@ -236,6 +236,8 @@ void StripView::keyPressEvent(QKeyEvent *e) {
     switch (e->key()) {
     case Qt::Key_Left: case Qt::Key_Right:
     case Qt::Key_Up: case Qt::Key_Down:
+    case Qt::Key_BracketLeft: case Qt::Key_BracketRight:
+    case Qt::Key_Period:
       e->ignore(); // let LightTable handle these
       return;
     default:
