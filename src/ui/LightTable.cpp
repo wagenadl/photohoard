@@ -605,6 +605,13 @@ void LightTable::makeActions() {
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
+  << Action { Qt::Key_Period, "Center on current image",
+      [&]() {
+      quint64 v = db->current();
+      db->setCurrent(0); // trick
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}         
   << Action { Qt::Key_BracketLeft, "Select previous image",
       [&]() {
       quint64 v = strips->strip()->versionBefore(db->current());
