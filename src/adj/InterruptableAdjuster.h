@@ -22,6 +22,9 @@ class InterruptableAdjuster: public QThread {
      One important difference is that most of our functions take an
      additional ID argument that is an arbitrary number intended to make
      sure that the READY signal corresponds to the intended request.
+     INTERRUPTABLEADJUSTER currently makes a feeble attempt to handle
+     layers. This implementation is doomed, because it doesn't know about
+     masks. Also, this is the wrong place to implement layers. See ADJUSTER.
    */
   Q_OBJECT;
 public:

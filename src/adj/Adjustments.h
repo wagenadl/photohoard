@@ -9,6 +9,12 @@
 #include "Exif.h"
 
 class Adjustments {
+  /* ADJUSTMENTS - Storage class for collection of slider settings
+     ADJUSTMENTS contains slider settings for any or all of the "adjustment"
+     sliders defined in AdjustmentDefs.h. An instance of ADJUSTMENTS is not
+     bound to a particular version or a particular layer.
+     Methods are provided to retrieve from/store in a PhotoDB database.
+   */
 public:
   Adjustments();
   explicit Adjustments(QString kv): Adjustments() { setAll(kv); }
@@ -23,10 +29,12 @@ public:
   void writeToDB(quint64 vsn, int layer, class PhotoDB &db) const;
   /* WRITETODB - Write all values to DB
      WRITETODB(vsn, db) writes all values into the ADJUSTMENTS table of DB,
-     for version VSN.
+     for the base layer of version VSN.
+     WRITETODB(vsn, layer, db) writes all values into the LAYERADJUSTMENTS
+     table of DB, for the given (nonbase) layer of version VSN.
      (In fact, only values that differ from the defaults are saved; other
      rows are deleted from the table.)
-     This function does not create a TRANSACTION. The caller should do that.
+     These functione do not create a TRANSACTION. The caller should do that.
   */
   void readFromDBForLayer(quint64 layer,  class PhotoDB &db);
   void writeToDBForLayer(quint64 layer, class PhotoDB &db) const;
