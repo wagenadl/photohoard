@@ -303,6 +303,12 @@ void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
         int(label), versionid);
 }
 
+PhotoDB::AcceptReject PhotoDB::acceptReject(quint64 versionid) const {
+  QVariant old = simpleQuery("select acceptreject from versions where id==:a",
+                             versionid);
+  return PhotoDB::AcceptReject(old.toInt());
+}
+
 quint64 PhotoDB::root(quint64 folderid) const {
   while (true) {
     bool ok;

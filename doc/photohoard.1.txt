@@ -1,0 +1,38 @@
+PHOTOHOARD(1)
+=============
+:doctype: manpage
+
+NAME
+----
+photohoard - Photography collection management
+
+SYNOPSIS
+--------
+*photohoard* -icc profile -ro -new -db database
+
+DESCRIPTION
+-----------
+The *photohoard*(1) command starts the PHOTOHOARD Photography
+Collection Manager.
+
+OPTIONS
+-------
+-icc PROFILE  Specifies an ICC profile to use. The default is to
+              use your monitor’s display profile.
+-ro  Open the database read-only. (This is not well-tested.)
+-new  Create a new database.
+-db DATABASE  Specifies a database file to use. The default is
+              $HOME/.local/photohoard/photodb.db.
+
+BUGS
+----
+There may be bugs. Please contact the author if one bites you.
+
+AUTHOR
+------
+Daniel Wagenaar <daw@caltech.edu>. http://www.danielwagenaar.net.
+
+SEE ALSO
+--------
+More complete documentation of *photohoard* would be very useful.
+I'll get to it someday.

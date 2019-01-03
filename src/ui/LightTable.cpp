@@ -605,6 +605,13 @@ void LightTable::makeActions() {
       if (v)
         slidePress(v, Qt::LeftButton, 0);
     }}
+  << Action { Qt::Key_Period, "Center on current image",
+      [&]() {
+      quint64 v = db->current();
+      db->setCurrent(0); // trick
+      if (v)
+        slidePress(v, Qt::LeftButton, 0);
+    }}         
   << Action { Qt::Key_BracketLeft, "Select previous image",
       [&]() {
       quint64 v = strips->strip()->versionBefore(db->current());
@@ -622,7 +629,7 @@ void LightTable::makeActions() {
       db->newVersion(db->current(), true);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from photo",
+  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from original",
          [&]() {
       db->newVersion(db->current(), false);
       rescan();
@@ -727,3 +734,4 @@ void LightTable::saveSplitterPos() {
     break;
   }
 }
+

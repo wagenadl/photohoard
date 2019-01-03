@@ -191,6 +191,7 @@ void AppliedTagList::editorAction() {
 void AppliedTagList::clickBrowse() {
   dialog->reset();
   dialog->show();
+  dialog->raise();
 }
 
 

@@ -96,11 +96,18 @@ void ImportJob::setAutoDestination() {
       root = q.value(0).toString();
   }
 
-  if (root.isEmpty())
-    root = db->simpleQuery("select pathname from folders"
-                           " order by length(pathname) limit 1").toString();
+  if (root.isEmpty()) {
+    QSqlQuery q
+      = db->constQuery("select pathname from folders"
+                       " order by length(pathname) limit 1");
+    if (q.next())
+      root = q.value(0).toString();
+  }
 
-  dest = autoDest(root + "/photohoard");
+  if (root.isEmpty())
+    dest = "";
+  else
+    dest = autoDest(root + "/photohoard");
 }
 
 int ImportJob::preliminarySourceCount() const {

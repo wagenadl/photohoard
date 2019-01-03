@@ -27,6 +27,7 @@ public:
   virtual Strip *lastExpandedStrip();
   static int threshold();
   int count() const;
+  virtual bool isSingleton() const override;
 public slots:
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);

@@ -25,6 +25,7 @@ public:
   virtual quint64 lastExpandedVersion();
   virtual Strip *firstExpandedStrip();
   virtual Strip *lastExpandedStrip();
+  virtual bool isSingleton() const override;
 public slots:
   virtual void setArrangement(Arrangement arr);
   virtual void setTileSize(int pix);
