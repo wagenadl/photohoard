@@ -6,22 +6,37 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include "PDebug.h"
+#include "Version.h"
+
+class SHEditor: public QTextEdit {
+public:
+  QSize sizeHint() const override {
+    return document()->size().toSize();
+  }
+  void setHtml(QString html) {
+    document()->setHtml(html);
+    document()->setDocumentMargin(12);
+    updateGeometry();
+  }
+};
 
 class SHPrivate {
 public:
   SHPrivate(ShortcutHelp *parent);
   void rebuild();
 public:
+  QVBoxLayout *layout;
   QStringList sectionNames;
   QList<Actions const *> sectionContents;
   ShortcutHelp *parent;
   QString html;
-  QTextEdit *editor;
+  SHEditor *editor;
 };
 
 SHPrivate::SHPrivate(ShortcutHelp *parent): parent(parent) {
-  auto layout = new QVBoxLayout;
-  editor = new QTextEdit;
+  layout = new QVBoxLayout;
+  layout->setMargin(0);
+  editor = new SHEditor;
   editor->setReadOnly(true);
   layout->addWidget(editor);
   parent->setLayout(layout);
@@ -43,6 +58,9 @@ void SHPrivate::rebuild() {
   
   html += "<body>";
 
+  html += "<h2>Photohoard " + Version::toString() + "</h2>\n";
+  html += "<p>(C) Daniel Wagenaar 2016–2018\n";
+
   html += "<h2>Keyboard shortcuts</h2>\n";
 
   int N = sectionNames.size();
@@ -59,9 +77,10 @@ void SHPrivate::rebuild() {
       if (doc.isEmpty())
         continue;
       QString kn = htmlify(a.keyName());
+      kn.replace("Ctrl+Shift", "Ctl+Sh.");
       html += "<tr>";
-      html += "<td width=\"120\">" + kn + "</td>";
-      html += "<td width=\"250\">" + doc + "</td>";
+      html += "<td width=\"160\">" + kn + "</td>";
+      html += "<td width=\"370\">" + doc + "</td>";
       html += "</tr>";
       count ++;
     }
@@ -92,16 +111,24 @@ void SHPrivate::rebuild() {
   html += "</table>";
   html += "</td></tr></table>";
 
+  html += "<h2>More information</h2>";
+  html += "More information, including a user manual, is available at www.danielwagenaar.net/photohoard.";
+
+  html += "<p><b>License terms</b>";
+
+  html += "<p><small>Photohoard is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.<br>\n";
+  html += "Photohoard is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.<br>\n";
+  html += "You should have received a copy of the GNU General Public License along with this program. If not, see www.gnu.org/licenses/gpl-3.0.en.html.\n";
   html += "</body></html>\n";
 
-  editor->document()->setHtml(html);
+  editor->setHtml(html);
 }
 
 //////////////////////////////////////////////////////////////////////
 
 ShortcutHelp::ShortcutHelp(QWidget *parent): QWidget(parent) {
   d = new SHPrivate(this);
-  resize(420*3, 550);
+  setWindowTitle("Photohoard Help");
 }
 
 ShortcutHelp::~ShortcutHelp() {
@@ -114,6 +141,13 @@ void ShortcutHelp::addSection(QString label, Actions const &contents) {
   d->rebuild();
 }
 
+QSize ShortcutHelp::sizeHint() const {
+  return QWidget::sizeHint();
+}
+
 void ShortcutHelp::resizeEvent(QResizeEvent *) {
   d->rebuild();
+  qDebug() << "shortcuthelp" << d->editor->size() << d->editor->sizeHint()
+           << d->editor->document()->size();
+  qDebug() << "lll" << d->layout->sizeHint() << sizeHint();
 }

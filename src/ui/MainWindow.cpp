@@ -5,6 +5,7 @@
 #include "LayoutBar.h"
 #include "FileBar.h"
 #include "FilterBar.h"
+#include "HelpBar.h"
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "AutoCache.h"
@@ -74,6 +75,7 @@ MainWindow::MainWindow(SessionDB *db,
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
+  qDebug() << "help sizehint" << shortcutHelp->sizeHint();
 
   setCentralWidget(lightTable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
@@ -86,6 +88,8 @@ MainWindow::MainWindow(SessionDB *db,
     addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
   addToolBar(area, filterBar = new FilterBar(lightTable, this));
   // etc.
+  addToolBarBreak(area);
+  addToolBar(area, helpBar = new HelpBar(this));
 
   shortcutHelp->addSection("General", fileBar->actions());
   shortcutHelp->addSection("General", filterBar->actions());
@@ -188,6 +192,9 @@ void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
 
 void MainWindow::showShortcutHelp() {
   shortcutHelp->show();
+  shortcutHelp->resize(shortcutHelp->sizeHint());
+  shortcutHelp->resize(shortcutHelp->sizeHint() + QSize(2, 2));
+  shortcutHelp->resize(shortcutHelp->sizeHint() + QSize(2, 2));
 }
 
 void MainWindow::reportExportResults(QString dst, int nOK, int nFail) {

@@ -31,6 +31,7 @@ public:
   bool isValid() const;
   void loadFromDB(class PhotoDB const *db);
   void saveToDB(class PhotoDB *db);
+  QString exportFilename(class PhotoDB *db, quint64 vsn) const;
 public:
   FileFormat fileFormat;
   ResolutionMode resolutionMode;

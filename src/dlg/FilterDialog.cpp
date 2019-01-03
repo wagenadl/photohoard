@@ -28,8 +28,12 @@ void FilterDialog::prepCombos() {
 
 void FilterDialog::prepCameras() {
   prepMakes();
-  prepModels();
-  prepLenses();
+  QString make = ui->cMake->currentIndex()==0 ? ""
+    : ui->cMake->currentText();
+  prepModels(make);
+  QString model = ui->cCamera->currentIndex()==0 ? ""
+    : ui->cCamera->currentText();
+  prepLenses(make, model);
 }
 
 void FilterDialog::prepMakes() {
@@ -228,6 +232,7 @@ Filter FilterDialog::extract() const {
   f.setTags(splitTags());
   if (!ui->tags->isChecked())
     f.unsetTags();
+  qDebug() << f.tagsClause();
   return f;
 }
 
@@ -277,8 +282,10 @@ void FilterDialog::populate() {
   ui->camera->setChecked(f.hasCamera());
   idx = ui->cMake->findText(f.cameraMake());
   ui->cMake->setCurrentIndex(idx>1 ? idx : 0);
+  prepModels(f.cameraMake());
   idx = ui->cCamera->findText(f.cameraModel());
   ui->cCamera->setCurrentIndex(idx>1 ? idx : 0);
+  prepLenses(f.cameraMake(), f.cameraModel());
   idx = ui->cLens->findText(f.cameraLens());
   ui->cLens->setCurrentIndex(idx>1 ? idx : 0);
 

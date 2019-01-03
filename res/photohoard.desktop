@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=photohoard
+GenericName=Photography Collection Manager
+Comment=Photography Collection Manager
+Exec=photohoard %f
+Terminal=false
+Type=Application
+Categories=Graphics
+Icon=/usr/share/pixmaps/photohoard.svg

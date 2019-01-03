@@ -16,12 +16,14 @@ FilterBar::FilterBar(LightTable *lighttable, QWidget *parent):
 
   acts << Action{Qt::CTRL + Qt::Key_Minus, "Reduce tile size", 
                      [=]() { lighttable->increaseTileSize(1/1.25); }};
-  new PAction{acts.last(), QIcon(":icons/scaleSmaller.svg"), this};
+  parent->addAction(new PAction{acts.last(), this});
+  /* QIcon(":icons/scaleSmaller.svg") */
 
   acts << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
                     "Increase tile size", 
                     [=]() { lighttable->increaseTileSize(1.25); }};
-  new PAction{acts.last(), QIcon(":icons/scaleLarger.svg"), this};
+  parent->addAction(new PAction{acts.last(), this});
+  /* QIcon(":icons/scaleLarger.svg") */
 
   acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", 
                     [=]() { lighttable->clearSelection(); }};

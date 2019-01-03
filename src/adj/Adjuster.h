@@ -20,7 +20,10 @@
 class Adjuster: public QObject {
   /* ADJUSTER - Workhorse for applying adjustments to an image
      ADJUSTER is a simple, nonthreaded factory for calculating adjusted
-     versions of a photo
+     versions of a photo.
+     At present, ADJUSTER doesn't know about layers. This will have to be
+     changed, because layers are important, not just for INTERRUPTABLEADJUSTER,
+     but for other clients of ADJUSTER as well.
    */
   Q_OBJECT;
 public:

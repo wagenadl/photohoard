@@ -6,6 +6,27 @@
 #include <system_error>
 #include <QSqlQuery>
 
+static bool execWithRetry(QSqlQuery &q) {
+  if (q.exec())
+    return true;
+  if (q.lastError().type()!=QSqlError::ConnectionError)
+    return false;
+  /* This is a completely horrible hack that prevents some crashes when
+     AC_Worker tries to read from the DB while something else is writing.
+     This happens on rare occasions, and I cannot figure out why. */
+  pDebug() << "Retrying query " << q.lastQuery();
+  int n = 0;
+  while (n<10) {
+    if (q.exec())
+      return true;
+    if (q.lastError().type()!=QSqlError::ConnectionError)
+      return false;
+    ++n;
+  }
+  return false;
+}
+
+
 Database::Database(QString id0): id(id0), transWait(new QAtomicInt()) {
   if (id.isEmpty())
     id = autoid();
@@ -76,38 +97,48 @@ QVariant Database::defaultQuery(QString s, QVariant a, QVariant dflt) const {
   
 QVariant Database::simpleQuery(QString s) const {
   QSqlQuery q = constQuery(s);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a) const {
   QSqlQuery q = constQuery(s, a);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) const {
   QSqlQuery q = constQuery(s, a, b);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
 
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
   QSqlQuery q = constQuery(s, a, b, c);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
    
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c, QVariant d) const {
   QSqlQuery q = constQuery(s, a, b, c, d);
-  if (!q.next())
+  if (!q.next()) {
+    qDebug() << "simpleQuery" << s;
     CRASH("No result");
+  }
   return q.value(0);
 }
    
@@ -122,7 +153,7 @@ QSqlQuery Database::constQuery(QString s) const {
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
   q.prepare(s);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -135,11 +166,11 @@ QSqlQuery Database::query(QString s, QVariant a) {
 
 QSqlQuery Database::constQuery(QString s, QVariant a) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -152,12 +183,12 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b) {
 
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -171,13 +202,13 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c) {
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
   q.bindValue(":c", c);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -192,14 +223,14 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c << d;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
   q.bindValue(":b", b);
   q.bindValue(":c", c);
   q.bindValue(":d", d);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -214,7 +245,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d, QVariant e) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c << d << e;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -222,7 +253,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":c", c);
   q.bindValue(":d", d);
   q.bindValue(":e", e);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";
@@ -237,7 +268,7 @@ QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
 QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
                                QVariant d, QVariant e, QVariant f) const {
   if (debugging())
-    pDebug() << "query" << (void*)this << s;
+    pDebug() << "query" << (void*)this << s << a << b << c << d << e << f;
   QSqlQuery q(db);
   q.prepare(s);
   q.bindValue(":a", a);
@@ -246,7 +277,7 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   q.bindValue(":d", d);
   q.bindValue(":e", e);
   q.bindValue(":f", f);
-  if (!q.exec())
+  if (!execWithRetry(q))
     CRASHQ(q);
   if (debugging())
     pDebug() << "query" << (void*)this << "executed";

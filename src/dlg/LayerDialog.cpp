@@ -145,7 +145,7 @@ void LayerDialog::showHideLayer() {
 }
 
 void LayerDialog::showHideMask() {
-  pDebug() << "NYI";
+  pDebug() << "show/hide mask NYI";
 }
 
 void LayerDialog::newSelection() {

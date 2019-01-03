@@ -356,10 +356,11 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
                              " where photos.capturedate>=:a"
                              " and photos.capturedate<:b"
                              " limit 1", d0, endFor(d0, scl));
-      if (q.next())
+      if (q.next()) {
         setHeaderID(q.value(0).toULongLong());
-      else
-        CRASH("Could not find header image");
+      } else {
+        COMPLAIN("Could not find header image");
+      }
     } break;
     case Organization::ByFolder:
       setHeaderID(db->firstVersionInTree(pathname));

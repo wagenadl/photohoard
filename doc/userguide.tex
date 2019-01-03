@@ -1,0 +1,313 @@
+\documentclass[11pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{mathptm}
+\usepackage{newcent}
+\usepackage[letterpaper]{geometry}
+\usepackage[perpage]{footmisc}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+\begin{document}
+\thispagestyle{empty}
+\begin{centering}
+  {\Huge Photohoard}
+  \vskip30pt
+
+  {\Large Keeping your digital photos together}
+  \vskip60pt
+
+  {\large By Daniel A. Wagenaar}
+  \vfill
+  
+  {Copyright (c) 2013--2018}
+  
+\end{centering}
+\pagebreak
+~
+\vfill
+\noindent Copyright (C) 2013--2018 Daniel A. Wagenaar\medskip
+
+``Photohoard'' is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see http://www.gnu.org/licenses.
+\pagebreak
+
+\chapter{Introduction}
+
+If you are like me, you take\footnote{And, if you are lucky
+  \emph{make} a few as well.} several thousand photos every year. You
+don't have the time (or inclination) to organize them in a particular
+way, so they end up in the digital equivalent of a shoebox. Then, your
+child's school needs a few family pictures for some project and you
+end up desparate searching through the folders. Very unpleasant,
+because even the thumbnails take time to load when you have thousands
+of them to look at.
+
+\section{Organization}
+
+Photohoard is primarily intended to ease this pain. It does not force
+you to spend any time organizing or tagging your photos (though you
+can), but simply presents them in a timeline. It also caches
+previews at various scales, so it is lightningly fast at scrolling
+through thousands of images.
+
+Photohoard allows you to apply ``color labels'', ``status flags'',
+``star ratings,'' and
+arbitrary ``tags'' to your images and even to organize them into
+``collections.''  To be honest, I use the facilities
+minimally. Just having all my photos in a timeline is the most
+important thing.
+
+\section{Nondestructive editing}
+
+In addition to organizing, Photohoard helps you develop your
+photos. It contains a fully nondestructive image editing pipeline with
+tools like:
+\begin{itemize}
+\item Cropping and rotating
+\item Perspective correction
+\item Exposure and curve correction
+\item White balance correction
+\item Unsharp masking and local contrast enhancement
+\end{itemize}
+All of the curve and color tools operate in appropriate color spaces,
+mostly IPT.\footnote{Ebner, Fritz, 1998. \emph{Derivation and modelling hue uniformity and
+development of the IPT color space.} Thesis. Rochester Institute
+of Technology. Accessed from ResearchGate.net.} Moreover, Photohoard is fully color managed.
+
+At present, Photohoard's tools are applied to the entire photo:
+Regional masks are not yet supported, though they are being worked on
+for a future release.
+
+\section{Alternatives}
+
+Of course, there are several alternatives to Photohoard. Just to
+mention a few that work with Linux:
+\begin{itemize}
+  \item {\bf Shotwell} is a default application for organizing photos
+    in Ubuntu and GNOME. At last check, its editing tools were limited.
+  \item {\bf Digikam} has excellent organization facilities. It also
+    has strong editing capabilities, but they are not nondestructive in the
+    usual sense: Edited versions must be saved to a new file.
+    \item {\bf Darktable} has the best editing capabilities, far more
+      advanced than Photohoard. It is less suitable for maintaining
+      large collections, because its thumbnailing system does not
+      cache arbitrarily large numbers of files.
+      \item {\bf Google Photos} offers organization and many of the
+        same editing tools as Photohoard, but keeps your photos in the
+        corporate cloud.
+  \end{itemize}
+
+\chapter{Installation}
+
+If you are using Ubuntu, you can probably simply install a
+``.deb'' package from the home page. To install from source, clone the
+git archive from github (http://www.github.com/wagenadl/photohoard)
+and install the requirements: qt5, lcms2, libexiv2, opencv-imgproc,
+x11-xcb, and asciidoc (for the man page). Then, simply type ``make''
+and ``sudo make install''.
+
+\chapter{Organizing and viewing your photos}
+
+\section{Establishing your library}
+Photohoard keeps metadata about your pictures (including timestamps,
+exposure information, and camera details) as well as all your edits in
+a database file. It does not touch your original image
+files.\footnote{Except during the ``Purge Rejects'' operation, which
+  is documented below.} This database needs to be setup the first time
+you use the program. We'll assume that you already have a set
+of shoeboxes full of photos. Perhaps they are stored in various
+subfolders of
+/home/me/Pictures as well as in /data/more/Photos. The first time you
+run Photohoard, you need to tell it about these locations by clicking
+the ``Add new folder tree'' icon in the top left of the window (or
+press Control+Shift+R). You can do this for as many locations as you
+want. Subfolders are automatically included. And you only have to do
+it once.
+
+Adding a large tree to Photohoard takes a while, because Photohoard
+reads every single image file to extract metadata and to create small
+preview images. This operation completes in the background, so you
+don't need to wait for it.
+
+Note that Photohoard does not copy or move your original image
+files. It simply creates references to them in its database. Just to
+be clear: That means that you must not delete the original files. (If
+you do delete them, Photohoard will drop them from its database next
+time you rescan the tree; more on this below.)
+
+\subsection{Adding more photos}
+
+There are several ways to add more photos to Photohoard.
+
+\subsubsection{From a camera}
+
+If your photos are on a card from a digital camera, the easiest thing
+to do is to insert that card in your computer, make sure it gets
+mounted (which GNOME and Cinnamon do automatically), and click the
+``Import from camera or card'' icon (or press Control+I). A dialog
+window pops up in which you can choose where the photos will be
+stored. (If Photohoard complains that ``No removable media can be
+found,'' it usually suffices to open the card in a Files window.)
+
+This same procedure also works for many cameras if you attach it to
+your computer with a USB cable.
+
+In the ``Import'' dialog, you can also specify that Photohoard should
+delete the files from the card after importing, or move them to a
+backup location. This location is a folder called
+``photohoard-backup'' in the root of your card. (This is my preferred
+method. I delete that backup just prior to the next time I import
+photos, in the secure knowledge that I have backed up my laptop since
+the time I previously imported photos.)
+
+Photohoard cannot handle movie files, but if there are any movie files
+on your card, it does offer to move them over to your computer. (I have
+to admit I still keep movie files in a digital cardboard box.)
+
+\subsubsection{From elsewhere}
+
+If your image files are already on your computer, you can simply drag
+them into Photohoard. You will be given the choice of adding their
+location to the set of ``folder trees,'' or to move them into one of
+the previously incorporated trees.
+
+Alternatively, you can place the images inside a folder tree that
+Photohoard already knows about. Photohoard will not automatically
+discover that you did that, but you can tell it to check all of its folder
+trees for new or modified files by clicking the ``Rescan folders''
+icon (or pressing Control+R). This operation will take a while to
+complete, but runs in the background so you don't have to wait for it.
+
+Of course, you can also add a new folder tree to Photohoard at any
+time.
+
+\section{Browsing: Using the date strip}
+
+In default mode, Photohoard displays a ``date strip'' of photos on the left,
+one ``current'' photo in the center, and a series of adjustment
+sliders on the right. The date strip is organized into ``epochs'' of
+various lengths. An epoch can be: a decade, a year, a month, a day, an
+hour, or ten minutes. To open an epoch, simply click on the tile  that
+represents that epoch. If an epoch contains more than a few photos,
+sub-epochs contained in it stay collapsed until you click on their
+tiles. To uncollapse an epoch all at once, hold Shift while
+clicking. To recollapse an epoch, simply click on the tab by the
+epoch. (Try it; it is easier to navigate than it sounds.)
+
+\section{Browsing: By folder}
+
+
+
+\section{Marking}
+
+Photohoard supports several methods to mark up your photos to aid
+organization. These methods are:
+\begin{description}
+  \item[Status]Each photo can be marked either ``new,'' ``undecided,''
+    ``accepted,'' or ``rejected.'' Photos are automatically marked
+    ``new'' upon import, and ``undecided'' upon first view. Press
+    Control+G to mark a photo as ``accepted,'' Control+X to mark a
+    photo as ``rejected,'' or Control+U to mark a photo as
+    ``undecided.'' Status is indicated by a small colored mark on the
+    top right of the image tile.
+  \item[Color label]Each photo can be marked with a color that is
+    applied to the border of the image tile. Use Control+1 through
+    Control+5 to apply a color label, Control+0 to remove it.
+  \item[Star rating]Each photo can be marked with a rating of 1
+    through 5 stars by pressing Alt+1 through Alt+5. Use Alt+0 to
+    remove the rating.
+    The star rating is indicated on the bottom left of the image tile.
+  \item[Tags]Any number of arbitrary textual tags can be attached to photos.
+\end{description}
+
+\subsection{Tagging}
+
+To apply a tag to an image or selection of images, simply type a tag
+name in the ``New tag...'' box near the bottom right of the
+window. While typing, the name of your tag will appear in deep red if it is
+truly new, in green if it is a unique abbreviation of an existing tag,
+or in black if it is not unique. Press Enter to apply the tag. This is
+only possible if what you typed is either truly new or a unique match to an
+existing tag. In the latter case, the tag name will be automatically expanded.
+
+Tags can be organized in a hierarchy as well. For instance, you might
+have a tag ``Places:Cities:Los Angeles.'' If such a tag exists, you
+could refer to it using abbreviations like ``Los Ang,'' ``Cit:Los,''
+``Pl:C:L,'' or ``Pla::Los,'' assuming you don't have a
+``Places:Cities:Los Alamos'' tag.
+
+The ``New tag...'' box is part of a larger ``Tags'' panel that
+can be used to manage tags more broadly. Any tag that applies to all
+images in the current selection are shown in black. Tags that apply to
+only some images in the current selection are shown in blue. If you
+hover over a tag, a small ``--'' icon appears that removes the tag
+from all images in the selection. For blue tags, there will also be a
+small ``+'' icon that applies the tag to all images in the selection.
+
+The ``Tags'' panel also features a small ``...'' icon at the bottom
+right. Click this to open the tag manager in which you can browse your
+tag hierarchy, apply or remove tags from images, and create or delete
+tags entirely. (Tags can only be deleted if they are not attached to
+any images.)
+
+\subsection{Collections}
+
+Photohoard keeps all of your photos in a single database. But you may
+have several very distinct bodies of photographic work. For instance, I have
+family pictures, work-related photos, and images related to my wife's
+art. Photohoard accommodates this situation by allowing you to group
+images into ``collections.'' A collection is nothing but a regular
+``tag'' inside the ``Collections'' tag group. When you first started
+Photohoard, a collection named ``Family photos'' was automatically
+created. This collection corresponds to a tag called
+``Collections:Family photos.''  New collections are created with the
+tag manager. There is nothing special about collections as opposed to
+other tags, except that the ``Filter'' dialog has a special section
+for filtering based on collection.
+
+\section{Viewing a subset of photos}
+
+Collapsing part of the date strip is one way to view only a subset
+of photos, but it may be helpful to show only photos that share a
+certain tag, where taken with a particular camera, or have a color label
+attached. These criteria (and several more) can all be used to limit which
+images are shown in the date strip. To do so, open the Filter dialog
+by clicking the Filter icon or pressing Control+F. Several criteria
+may be applied at once.
+
+At present, it is not possible to
+show photos \emph{not} made with a certain camera, or \emph{not}
+tagged with a certain tag.
+
+\chapter{Editing your photos}
+
+\chapter{Exporting your photos}
+
+
+\chapter{Technical information}
+The first time you start Photohoard, it creates a database in
+\$\{HOME\}/.local/photohoard/photodb.db. At present, it is not possible to change
+that location, although you can move the file somewhere else and use a
+link to help Photohoard find it. The database file doesn't get overly
+big: 14 MB for my collection of 55,000 photos.
+
+Photohoard also creates a cache for previews in
+\$\{HOME\}/.local/photohoard/photodb.cache. This does get fairly big:
+6 GB for my collection. Nevertheless, it is helpful to have the cache
+on a fast medium like an SSD.
+
+Photohoard can, in principle, reconstruct the cache if it gets lost,
+though it can take many hours. The database file is irreplaceable
+and should be included in regular backups.
+
