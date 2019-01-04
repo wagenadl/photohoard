@@ -50,6 +50,30 @@ void Layer::setType(Type t) {
   typ = t;
 }
 
+double Layer::alpha() const {
+  return alph;
+}
+
+void Layer::setAlpha(double a) {
+  alph = a;
+}
+
+double Layer::feather() const {
+  return feath;
+}
+
+void Layer::setFeather(double f) {
+  feath = f;
+}
+
+QString Layer::name() const {
+  return name_;
+}
+
+void Layers::setName(QString s) const {
+  name_ = s;
+}
+
 QByteArray const &Layer::data() const {
   return dat;
 }
@@ -57,7 +81,6 @@ QByteArray const &Layer::data() const {
 void Layer::setData(QByteArray const &d) {
   dat = d;
 }
-
 
 QPolygon Layer::points() const {
   char const *raw = dat.data();
@@ -104,7 +127,7 @@ QImage Layer::mask(QSize os, class Adjustments const &adj0) const {
   case Type::Circular:
   case Type::Curve:
   case Type::Area:
-    COMPLAIN("NYI");
+    COMPLAIN("layer mask NYI");
     break;
   }
   QRect crop = Adjuster::mapCropRect(os, adj0, os);
@@ -133,7 +156,8 @@ quint64 Layers::layerID(int n) const {
 Layer Layers::layer(int n) const {
   ASSERT(n>=1 && n<=count());
 
-  QSqlQuery q = db->constQuery("select id, active, typ, dat"
+  QSqlQuery q = db->constQuery("select"
+			       " id, active, typ, alpha, feather, title, dat"
 			       " from layers where version==:a"
 			       " and stacking==:b", vsn, n);
   if (!q.next()) 
@@ -142,7 +166,10 @@ Layer Layers::layer(int n) const {
   Layer l;
   l.setActive(q.value(1).toBool());
   l.setType(Layer::Type(q.value(2).toInt()));
-  l.setData(q.value(3).toByteArray());
+  l.setAlpha(q.value(3).toDouble());
+  l.setFeather(q.value(4).toDouble());
+  l.setName(q.value(5).toString());
+  l.setData(q.value(6).toByteArray());
   return l;
 }
 
@@ -150,11 +177,11 @@ Layer Layers::layer(int n) const {
 void Layers::addLayer(Layer const &l) {
   int N = count();
   Transaction t(db);
-  db->query("insert into layers(version, stacking, active, typ, dat)"
-	    " values(:a,:b,:c,:d,:e)",
-	    vsn, N+1, l.isActive(), int(l.type()), l.data());
+  db->query("insert into layers(version, stacking, active, typ,"
+	    " alpha, feather, dat) values(:a,:b,:c,:d,:e,:f,:g,:h)",
+	    vsn, N+1, l.isActive(), int(l.type()),
+	    l.alpha(), l.feather(), l.name(), l.data());
   t.commit();
-  COMPLAIN("write to db!");
 }
 
 void Layers::raiseLayer(int n) {
@@ -209,4 +236,3 @@ void Layers::setLayer(int n, Layer const &l) {
 	    vsn, n);
   t.commit();
 }
-  

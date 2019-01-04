@@ -21,6 +21,8 @@ public:
 public:
   void setCurrent(quint64);
   quint64 current() const;
+private:
+  void upgradeDBVersion();
 };
 
 #endif
