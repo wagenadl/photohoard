@@ -100,6 +100,7 @@ int main(int argc, char **argv) {
   }
 
   SessionDB db;
+  db.enableDebug();
   db.open(dbfn, readonly);
 
   QString cachefn = db.cacheFilename();

@@ -17,10 +17,12 @@ HEADERS += \
      adj/AdjusterUMask.h  \
      adj/AdjusterTile.h  \
      adj/AdjusterEqualize.h  \
+     adj/Geometry.h  \
      adj/Adjuster.h  \
 
 SOURCES += \
      adj/InterruptableAdjuster.cpp  \
+     adj/Geometry.cpp  \
      adj/AdjusterGeometry.cpp  \
      adj/AdjusterStage.cpp  \
      adj/Adjuster.cpp  \
