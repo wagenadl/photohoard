@@ -30,9 +30,23 @@ public:
   QPolygon points() const;
   void setPoints(QPolygon const &);
   QImage mask(QSize origSize, class Adjustments const &) const;
+  /* MASK - Return alpha mask for layer
+     Current implementation is grossly inadequate. It returns an origSize-sized
+     mask rather than one suitable for applying to a geometrically transformed
+     image. Also, only the "LinearGradient" mask is implemented.
+   */
+  double alpha() const;
+  void setAlpha(double a);
+  double feather() const;
+  void setFeather(double px);
+  QString name() const;
+  void setName(QString) const;
 private:
   bool active;
   Type typ;
+  double alph;
+  double feath;
+  QString name_;
   QByteArray dat;
 };
 
@@ -44,7 +58,7 @@ public:
   Layer layer(int) const;
   quint64 layerID(int) const;
 public: // Following create a transaction to modify the db
-  void addLayer(Layer const &);
+  void addLayer(Layer const &); // to top of stack
   void raiseLayer(int);
   void lowerLayer(int);
   void deleteLayer(int);

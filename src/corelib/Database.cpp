@@ -284,6 +284,61 @@ QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
   return q;
 }
 
+QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
+                          QVariant d, QVariant e, QVariant f, QVariant g) {
+  return constQuery(s, a, b, c, d, e, f, g);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                               QVariant d, QVariant e, QVariant f, 
+			       QVariant g) const {
+  if (debugging())
+    pDebug() << "query" << (void*)this << s << a << b << c << d << e << f << g;
+  QSqlQuery q(db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  q.bindValue(":c", c);
+  q.bindValue(":d", d);
+  q.bindValue(":e", e);
+  q.bindValue(":f", f);
+  q.bindValue(":g", g);
+  if (!execWithRetry(q))
+    CRASHQ(q);
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
+}
+
+QSqlQuery Database::query(QString s, QVariant a, QVariant b, QVariant c,
+                          QVariant d, QVariant e, QVariant f, QVariant g,
+			  QVariant h) {
+  return constQuery(s, a, b, c, d, e, f, g, h);
+}
+
+QSqlQuery Database::constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                               QVariant d, QVariant e, QVariant f, QVariant g,
+			       QVariant h) const {
+  if (debugging())
+    pDebug() << "query" << (void*)this << s
+	     << a << b << c << d << e << f << g << h;
+  QSqlQuery q(db);
+  q.prepare(s);
+  q.bindValue(":a", a);
+  q.bindValue(":b", b);
+  q.bindValue(":c", c);
+  q.bindValue(":d", d);
+  q.bindValue(":e", e);
+  q.bindValue(":f", f);
+  q.bindValue(":g", g);
+  q.bindValue(":h", h);
+  if (!execWithRetry(q))
+    CRASHQ(q);
+  if (debugging())
+    pDebug() << "query" << (void*)this << "executed";
+  return q;
+}
+
 QSqlQuery Database::query() {
   if (debugging()) 
     pDebug() << "query " << (void*)this;
