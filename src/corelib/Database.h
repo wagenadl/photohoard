@@ -52,6 +52,10 @@ public:
 		  QVariant e);
   QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d,
 		  QVariant e, QVariant f);
+  QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d,
+		  QVariant e, QVariant f, QVariant g);
+  QSqlQuery query(QString s, QVariant a, QVariant b, QVariant c, QVariant d,
+		  QVariant e, QVariant f, QVariant g, QVariant h);
   // Following are the same, except that caller promises not to alter the db
   QSqlQuery constQuery(QString s) const;
   QSqlQuery constQuery(QString s, QVariant a) const;
@@ -63,6 +67,12 @@ public:
                        QVariant d, QVariant e) const;
   QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
                        QVariant d, QVariant e, QVariant f) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                       QVariant d, QVariant e, QVariant f,
+		       QVariant g) const;
+  QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
+                       QVariant d, QVariant e, QVariant f,
+		       QVariant g, QVariant h) const;
 protected:
   QString id;
   QSqlDatabase db;

@@ -165,6 +165,9 @@ create table layers (
        stacking integer,
        active boolean default true,
        typ integer,
+       alpha real default 1,
+       feather real default 0,
+       title text,
        dat,
        foreign key(version) references versions(id)
        	       on delete cascade
@@ -195,7 +198,7 @@ insert into extensions(filetype, extension)
 insert into extensions(filetype, extension)
        select id, "tif" from filetypes where stdext=="tiff";
 
-insert into info values("PhotoDB", "1.1");
+insert into info values("PhotoDB", "1.2");
 
 create index if not exists photodateidx on photos(capturedate);
 create index if not exists parentfolderidx on folders(parentfolder);

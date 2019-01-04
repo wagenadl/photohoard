@@ -85,6 +85,8 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   query("attach database :a as P", photodbfn);
   if (forcereadonly || isDBReadOnly(photodbfn))
     setReadOnly();
+  else
+    upgradeDBVersion();
   
   query("attach database ':memory:' as M");
   query("create table if not exists M.filter"
@@ -105,6 +107,7 @@ void SessionDB::clone(SessionDB const &src) {
 
   QString pdbfn = simpleQuery("select fn from photodb").toString();
   query("attach database :a as P", pdbfn);
+  upgradeDBVersion();
 }
 
 
@@ -128,4 +131,17 @@ quint64 SessionDB::current() const {
     return vsn;
   else
     return 0;
+}
+
+void SessionDB::upgradeDBVersion() {
+  // update to version 1.2 if needed
+  QString dbvsn
+    = simpleQuery("select version from info where id=='PhotoDB'").toString();
+  pDebug() << "db version is" << dbvsn;
+  if (dbvsn<"1.2") {
+    query("alter table layers add column alpha real");
+    query("alter table layers add column feather real");
+    query("alter table layers add column name text");
+    query("update info set version = '1.2' where id=='PhotoDB'");
+  }
 }
