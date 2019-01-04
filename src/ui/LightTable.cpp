@@ -20,6 +20,7 @@
 #include <QMimeData>
 #include <QDrag>
 #include "Settings.h"
+#include "Geometry.h"
 
 LightTable::LightTable(SessionDB *db, AutoCache *cache,
                        LiveAdjuster *adj, Exporter *expo,
@@ -357,7 +358,7 @@ void LightTable::updateMainSlide() {
   int cur = db->current();
   if (cur>0 && slide->isVisibleTo(this)) {
     QSize osize = db->originalSize(cur);
-    QSize ns = Adjuster::mapCropSize(osize, Adjustments::fromDB(cur, *db));
+    QSize ns = Geometry::croppedSize(osize, Adjustments::fromDB(cur, *db));
     adjuster->markVersionAndSize(cur, ns);
     slide->newImage(cur, ns);
     emit newZoom(slide->currentZoom());

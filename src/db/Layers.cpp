@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QLinearGradient>
 #include "Adjuster.h"
+#include "Geometry.h"
 
 QString Layer::typeName(Layer::Type t) {
   switch (t) {
@@ -32,6 +33,7 @@ QString Layer::typeName() const {
 Layer::Layer() {
   active = true;
   typ = Type::Invalid;
+  alph = 1;
 }
 
 bool Layer::isActive() const {
@@ -58,19 +60,11 @@ void Layer::setAlpha(double a) {
   alph = a;
 }
 
-double Layer::feather() const {
-  return feath;
-}
-
-void Layer::setFeather(double f) {
-  feath = f;
-}
-
 QString Layer::name() const {
   return name_;
 }
 
-void Layers::setName(QString s) const {
+void Layer::setName(QString s) {
   name_ = s;
 }
 
@@ -130,7 +124,7 @@ QImage Layer::mask(QSize os, class Adjustments const &adj0) const {
     COMPLAIN("layer mask NYI");
     break;
   }
-  QRect crop = Adjuster::mapCropRect(os, adj0, os);
+  QRect crop = Geometry::cropRect(os, adj0);
   if (crop.size()==msk.size())
     return msk;
   else
@@ -157,7 +151,7 @@ Layer Layers::layer(int n) const {
   ASSERT(n>=1 && n<=count());
 
   QSqlQuery q = db->constQuery("select"
-			       " id, active, typ, alpha, feather, title, dat"
+			       " id, active, typ, alpha, name, dat"
 			       " from layers where version==:a"
 			       " and stacking==:b", vsn, n);
   if (!q.next()) 
@@ -167,9 +161,8 @@ Layer Layers::layer(int n) const {
   l.setActive(q.value(1).toBool());
   l.setType(Layer::Type(q.value(2).toInt()));
   l.setAlpha(q.value(3).toDouble());
-  l.setFeather(q.value(4).toDouble());
-  l.setName(q.value(5).toString());
-  l.setData(q.value(6).toByteArray());
+  l.setName(q.value(4).toString());
+  l.setData(q.value(5).toByteArray());
   return l;
 }
 
@@ -178,9 +171,9 @@ void Layers::addLayer(Layer const &l) {
   int N = count();
   Transaction t(db);
   db->query("insert into layers(version, stacking, active, typ,"
-	    " alpha, feather, dat) values(:a,:b,:c,:d,:e,:f,:g,:h)",
+	    " alpha, name, dat) values(:a,:b,:c,:d,:e,:f,:g,:h)",
 	    vsn, N+1, l.isActive(), int(l.type()),
-	    l.alpha(), l.feather(), l.name(), l.data());
+	    l.alpha(), l.name(), l.data());
   t.commit();
 }
 

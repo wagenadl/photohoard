@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "Adjuster.h"
 #include "PSize.h"
+#include "Geometry.h"
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
@@ -21,8 +22,8 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
   if (fullSizeReturn)
     *fullSizeReturn = PSize();
 
-  PSize needed = Adjuster::neededScaledOriginalSize(naturalSize, s,
-                                                    PSize(maxdim,maxdim));
+  PSize needed = Geometry::neededScaledOriginalSize(naturalSize, s,
+                                                    PSize(maxdim, maxdim));
   bool halfsize = false;
   Image16 img;
   if (ext=="jpeg" || ext=="png" || ext=="tiff") {
