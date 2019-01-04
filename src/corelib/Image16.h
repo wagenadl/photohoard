@@ -102,9 +102,10 @@ private:
   Image16 perspectiveSigned(QPolygonF corners, CropMode c=CropMode::Same,
                             Interpolation i=Interpolation::Linear) const;
   void flipSignedness();
+  Image16(Image16 *src, QRect sub);
+public:
   static int cvFormat(Format f);
   static int cvInterpolation(Interpolation i);
-  Image16(Image16 *src, QRect sub);
 private:
   QSharedDataPointer<Image16Data> d;
 };

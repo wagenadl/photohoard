@@ -8,6 +8,7 @@
 #include "AdjusterEqualize.h"
 #include "AdjusterUMask.h"
 #include "PDebug.h"
+#include "Geometry.h"
 
 Adjuster::Adjuster(QObject *parent): QObject(parent) {
   caching = true;
@@ -275,53 +276,14 @@ PSize Adjuster::maxAvailableSize(Adjustments const &settings) const {
     return PSize();
   else if (stages[0].osize.isEmpty())
     return PSize();
-  return mapCropSize(stages[0].osize, settings, stages[0].image.size());
+  return Geometry::scaledCroppedSize(stages[0].osize, settings,
+                                     stages[0].image.size());
 }
 
-PSize Adjuster::mapCropSize(PSize osize, Adjustments const &settings) {
-  /* static */
-  return mapCropRect(osize, settings, osize).size();
-}
-
-PSize Adjuster::mapCropSize(PSize osize, Adjustments const &settings,
-                            PSize scaledOSize) { /* static */
-  return mapCropRect(osize, settings, scaledOSize).size();
-}
-
-QRect Adjuster::mapCropRect(PSize osize, Adjustments const &settings,
-                            PSize scaledOSize) { /* static */
-  if (osize.isEmpty())
-    return QRect();
-  // Is this good enough? Should rotate be allowed to expand the image?
-  double xs = scaledOSize.width() / double(osize.width());
-  double ys = scaledOSize.height() / double(osize.height());
-  QRect orect = QRect(QPoint(settings.cropl, settings.cropt),
-                      QSize(osize.width()-settings.cropl-settings.cropr,
-                            osize.height()-settings.cropt-settings.cropb));
-  return QRect(QPoint(orect.left()*xs+.5, orect.top()*ys+.5),
-               QSize(orect.width()*xs+.5, orect.height()*ys+.5));
-}
 
 PSize Adjuster::neededScaledOriginalSize(Adjustments const &settings,
                                          PSize desired) const {
   if (stages.isEmpty())
     return PSize();
-  return neededScaledOriginalSize(stages[0].osize, settings, desired);
-}
-
-PSize Adjuster::neededScaledOriginalSize(PSize osize, Adjustments const &settings,
-					 PSize desired) { /* static */
-  /* We are looking for a size S such that mapCropSize(osize, settings, s)
-     fits snugly in DESIRED. Further, S must be a proportional scaling of
-     OSIZE.
-  */
-  PSize final = mapCropSize(osize, settings, osize);
-  double fac = final.scaleFactorToSnuglyFitIn(desired);
-  if (fac>1)
-    fac = 1; // we won't scale up
-
-  return osize*fac;
-  /* I may be stupid, but I cannot conclusively prove that my rounding is
-     correct. Therefore, I wrote a little octave script (studyosize.m) that
-     confirms that using round-to-nearest always works. */
+  return Geometry::neededScaledOriginalSize(stages[0].osize, settings, desired);
 }

@@ -7,6 +7,7 @@
 #include "OriginalFinder.h"
 #include "AutoCache.h"
 #include "Layers.h"
+#include "Geometry.h"
 #include "PDebug.h"
 
 LiveAdjuster::LiveAdjuster(PhotoDB *db, 
@@ -72,15 +73,14 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
   PSize maxav = adjuster->maxAvailableSize(adjs[0], v);
   bool needBigger = PSize(s).exceeds(maxav);
   bool canBigger = originalSize.isEmpty()
-    || Adjuster::mapCropSize(originalSize, adjs[0], originalSize)
-    .exceeds(maxav);
+    || Geometry::croppedSize(originalSize, adjs[0]).exceeds(maxav);
   
   if (newvsn || (needBigger && canBigger)) {
     if (newvsn)
       adjuster->clear();
     else
       adjuster->cancelRequest();
-    PSize needed = Adjuster::neededScaledOriginalSize(originalSize, adjs[0],
+    PSize needed = Geometry::neededScaledOriginalSize(originalSize, adjs[0],
 						      targetsize);
     ofinder->requestScaledOriginal(version, needed);
   } else {

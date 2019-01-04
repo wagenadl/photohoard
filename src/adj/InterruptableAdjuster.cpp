@@ -4,6 +4,7 @@
 #include "Adjuster.h"
 #include <QMutexLocker>
 #include "PDebug.h"
+#include "Geometry.h"
 
 InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
   QThread(parent) {
@@ -84,11 +85,11 @@ void InterruptableAdjuster::stop() {
 }
 
 PSize InterruptableAdjuster::maxAvailableSize(Adjustments const &s,
-                                               quint64 id) {
+                                              quint64 id) {
    if (clear_ || id!=oId)
      return PSize();
    else
-     return Adjuster::mapCropSize(oSize, s, scaledOSize);
+     return Geometry::scaledCroppedSize(oSize, s, scaledOSize);
 }
 
 bool InterruptableAdjuster::isEmpty() {
@@ -174,7 +175,7 @@ void InterruptableAdjuster::handleNewRequest() {
     }
   } else {
     quint64 id = oId;
-    QSize fs = Adjuster::mapCropSize(oSize, sli[0]);
+    QSize fs = Geometry::croppedSize(oSize, sli[0]);
     mutex.unlock();
     emit ready(img, id, fs);
     mutex.lock();

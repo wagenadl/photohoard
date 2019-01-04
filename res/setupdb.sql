@@ -167,7 +167,7 @@ create table layers (
        typ integer,
        alpha real default 1,
        feather real default 0,
-       title text,
+       name text,
        dat,
        foreign key(version) references versions(id)
        	       on delete cascade

@@ -9,6 +9,7 @@ HEADERS += \
      corelib/PDebug.h  \
      corelib/Exif.h  \
      corelib/BasicThread.h  \
+     corelib/PerspectiveTransform.h  \
      corelib/NiceProcess.h  \
      corelib/Database.h  \
      corelib/Image16.h  \
@@ -23,6 +24,7 @@ HEADERS += \
 
 SOURCES += \
      corelib/Exif.cpp  \
+     corelib/PerspectiveTransform.cpp  \
      corelib/CS_IPT.cpp  \
      corelib/OverGroupBox.cpp  \
      corelib/SqlFile.cpp  \

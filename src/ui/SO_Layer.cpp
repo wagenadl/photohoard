@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include "PhotoDB.h"
+#include "Geometry.h"
 
 SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
   clickidx = -1;
@@ -29,7 +30,7 @@ void SO_Layer::paintEvent(QPaintEvent *) {
   QPolygonF poly = layer.points();
   qDebug() << "SO_Layer::render" << poly;
   for (auto &p: poly)
-    p = xf.map(AdjusterGeometry::map(p, osize, adj));
+    p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
   qDebug() << "  ->" << poly;
 
   bool first = true;
@@ -72,7 +73,7 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
   QPolygonF poly = poly0;
   qDebug() << "SO_Layer::render" << poly;
   for (auto &p: poly)
-    p = xf.map(AdjusterGeometry::map(p, osize, adj));
+    p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
 
   for (int idx=0; idx<poly.size(); idx++) {
     if (euclideanLength2(e->pos() - poly[idx]) < 100) {
