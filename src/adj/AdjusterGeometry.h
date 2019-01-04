@@ -14,7 +14,6 @@ public:
   virtual QStringList fields() const override;
   virtual AdjusterTile apply(AdjusterTile const &,
 			     Adjustments const &) override;
-  static QPointF map(QPointF, QSize osize, Adjustments const &);
 };
 
 #endif

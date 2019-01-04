@@ -78,38 +78,13 @@ public:
      depends both on the size of the original (as per SETREDUCED) and on
      the SETTINGS. (Especially, of course, crop and rotation settings.)
   */     
-  static PSize mapCropSize(PSize osize, Adjustments const &settings);
-  static PSize mapCropSize(PSize osize, Adjustments const &settings,
-                           PSize scaledOSize);
-  /* MAPCROPSIZE - Determine size of cropped and scaled image
-     MAPCROPSIZE(osize, settings, scaledOSize) calculates the size of a
-     cropped version of an original image of size OSIZE if SETTINGS would
-     be applied to it. The second form further assumes that a scaling would
-     be applied that would reduce the size of the original (uncropped) image
-     to SCALEDOSIZE.
-  */
-  static QRect mapCropRect(PSize osize, Adjustments const &settings,
-                           PSize scaledOSize);
-  /* MAPCROPRECT - Determine area of crop in scaled image
-     MAPCROPRECT(osize, settings, scaledOSize) calculates the size and
-     location of the cropping rectangle specified in SETTINGS if the image
-     had been scaled from its original size OSIZE down to SCALEDOSIZE.
-  */
-  PSize neededScaledOriginalSize(Adjustments const &settings, PSize desired) const;
+  PSize neededScaledOriginalSize(Adjustments const &settings,
+                                 PSize desired) const;
   /* NEEDEDSCALEDORIGINALSIZE - Minimum size required to produce desired version
      NEEDEDSCALEDORIGINALSIZE(settings, desired) calculates how large
      a scaled version of an original image is needed to produce an
      adjusted version (as specified in SETTINGS) at the DESIRED final
      size. This applies to the currently loaded image.
-   */
-  static PSize neededScaledOriginalSize(PSize osize, Adjustments const &settings,
-                                        PSize desired);
-  /* NEEDEDSCALEDORIGINALSIZE - Minimum size required to produce desired version
-     NEEDEDSCALEDORIGINALSIZE(osize, settings, desired) calculates how
-     large a scaled version of an original is needed to produce an
-     adjusted version (as specified in SETTINGS) at the DESIRED final
-     size. This static version does its calculations for an orinal image of
-     full size OSIZE.
    */
   Image16 retrieveROI(Adjustments const &settings, QRect roi);
   /* RETRIEVEROI - Retrieves a tile from the image with settings applied.
