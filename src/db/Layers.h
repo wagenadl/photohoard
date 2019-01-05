@@ -37,15 +37,12 @@ public:
    */
   double alpha() const;
   void setAlpha(double a);
-  double feather() const;
-  void setFeather(double px);
   QString name() const;
   void setName(QString);
 private:
   bool active;
   Type typ;
   double alph;
-  double feath;
   QString name_;
   QByteArray dat;
 };
