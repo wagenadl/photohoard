@@ -16,7 +16,11 @@
 #include "Action.h"
 #include <math.h>
 
+ControlSliders::ControlSliders(QWidget *parent): ControlSliders(false, parent) {
+}
+
 ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
+  pDebug() << "ControlSliders" << this << ro << parent;
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
@@ -229,8 +233,9 @@ void ControlSliders::setAll(Adjustments const &a) {
 
   adj = a;
 
-  for (auto k: jogs.keys()) 
+  for (auto k: jogs.keys()) {
     jogs[k]->setValueQuietly(sliderValue(adj, k));
+  }
 }
 
 void ControlSliders::sliderChange(QString slider) {
@@ -311,5 +316,5 @@ Actions const &ControlSliders::actions() {
 
 void ControlSliders::setLayer(int l) {
   ControlGroup *recomp = groups["recompose"];
-  recomp->setEnabled(l==0);
+  recomp->setVisible(l==0);
 }
