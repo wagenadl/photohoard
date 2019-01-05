@@ -9,6 +9,8 @@
 #include "Adjustments.h"
 
 class AllControls: public QTabWidget {
+  /* AllControls - This class contains all the pages of the controls area,
+     including the "sliders", "crop", and "layers" pages. */
   Q_OBJECT;
 public:
   AllControls(PhotoDB *db, QWidget *parent=0);
@@ -23,7 +25,7 @@ signals:
   void valuesChanged(quint64 vsn, int lay, Adjustments adj);
   /* VALUECHANGED - Emitted when the user changes a value.
   */
-  void layersChanged(quint64 vsn, int lowestaffected);
+  void maskChanged(quint64 vsn, int lowestaffected);
   void layerSelected(quint64 vsn, int layer); // zero for base
 public slots:
   void setVersion(quint64 vsn);
@@ -33,9 +35,10 @@ public slots:
 private slots:
   void changeFromSliders();
   void changeFromCropper(QRect rect, QSize osize);
-  void setLayer(int);
-  void changeOfIndex();
-  void layersEdited(int lowest);
+  void layerIndexChange(int);
+  void changeOfTabIndex();
+  void maskChangeFromLayers(int layer);
+  void valueChangeFromLayers(int layer);
 private:
   void storeInDatabase(Adjustments const &adj);
 private:
@@ -45,8 +48,7 @@ private:
 private:
   class PhotoDB *db;
   quint64 vsn;
-  int lay;
-  QMap<int, Adjustments> adjs; 
+  Adjustments adjs; // for base layer
 };
 
 #endif

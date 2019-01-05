@@ -142,7 +142,7 @@ MainWindow::MainWindow(SessionDB *db,
 	  allControls, SLOT(setVersion(quint64)));
   connect(allControls, SIGNAL(valuesChanged(quint64, int, Adjustments)),
 	  adjuster, SLOT(reloadSliders(quint64, int, Adjustments)));
-  connect(allControls, SIGNAL(layersChanged(quint64, int)),
+  connect(allControls, SIGNAL(maskChanged(quint64, int)),
 	  adjuster, SLOT(reloadLayers(quint64, int)));
   connect(allControls, SIGNAL(layerSelected(quint64, int)),
 	  lightTable, SLOT(visualizeLayer(quint64, int)));
