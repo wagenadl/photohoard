@@ -8,30 +8,39 @@
 #include <QTableWidget>
 #include <QTableWidgetSelectionRange>
 #include "Dialog.h"
+#include "ControlSliders.h"
 
 LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   QWidget(parent), db(db) {
   ui = new Ui_LayerDialog;
   ui->setupUi(this);
-  setVersion(0);
+  //  setVersion(0);
+  sliders = new ControlSliders(db->isReadOnly(), 0);
+  sliders->setLayer(1); // make sure not to show recompose group
+  ui->verticalLayout->addWidget(sliders);
   Dialog::ensureSize(this);
+  connect(sliders, SIGNAL(valuesChanged()),
+	  SLOT(changeFromSliders()));
 }
 
 void LayerDialog::setVersion(quint64 v) {
   vsn = v;
+  if (vsn==0) {
+    ui->table->setRowCount(0);
+    sliders->setAll(Adjustments());
+    sliders->setEnabled(false);
+    return;
+  }
+  
   Layers layers(vsn, db);
   int N = layers.count();
 
-  ui->table->setRowCount(N+1);
-
-  ui->table->setVerticalHeaderItem(N, new QTableWidgetItem("B"));
-  ui->table->setItem(N, 0, new QTableWidgetItem(QString::fromUtf8("☼")));
-  ui->table->setItem(N, 1, new QTableWidgetItem(QString::fromUtf8("-")));
-  ui->table->setItem(N, 2,
-		     new QTableWidgetItem(Layer::typeName(Layer::Type::Base)));
+  ui->table->setRowCount(N);
 
   for (int n=1; n<=N; n++) {
     Layer layer = layers.layer(n);
+    qDebug() << "layerdialog::setversion" << v << n
+             << int(layer.type()) << layer.points();
     ui->table->setVerticalHeaderItem(N-n,
 				   new QTableWidgetItem(QString("%1").arg(n)));
     ui->table->setItem(N-n, 0, new QTableWidgetItem(layer.isActive()
@@ -41,11 +50,18 @@ void LayerDialog::setVersion(quint64 v) {
     ui->table->setItem(N-n, 2, new QTableWidgetItem(layer.typeName()));
   }
   lastlay = 0;
-  ui->table->selectRow(N);
+  selectLayer(N);
 }
 
 LayerDialog::~LayerDialog() {
 }
+
+void LayerDialog::selectLayer(int lay) {
+  ui->table->selectionModel()->clearSelection();
+  if (lay>0)
+    ui->table->selectRow(ui->table->rowCount() - lay);
+}
+
 
 void LayerDialog::addGradientLayer() {
   pDebug() << "addGradientLayer";
@@ -58,10 +74,9 @@ void LayerDialog::addGradientLayer() {
   QPolygon pp; pp << p0 << p1;
   l.setPoints(pp);
   ll.addLayer(l);
-  emit edited(ll.count());
+  emit maskEdited(ll.count());
 
   setVersion(vsn); // rebuild
-  ui->table->selectRow(0); // select the new layer
 }
 
 void LayerDialog::addLayer() {
@@ -79,11 +94,11 @@ void LayerDialog::deleteLayer() {
   Layers ll(vsn, db);
   ll.deleteLayer(lay);
 
-  emit edited(lay);
+  emit maskEdited(lay);
   
   setVersion(vsn);
   pDebug() << "deleted layer" << lay << lastlay;
-  emit layerSelected(0);
+  selectLayer(Layers(vsn, db).count());
 }
 
 void LayerDialog::raiseLayer() {
@@ -99,11 +114,11 @@ void LayerDialog::raiseLayer() {
     return;
   }
   ll.raiseLayer(lay);
-  emit edited(lay);
+  emit maskEdited(lay);
 
   setVersion(vsn); // rebuild
   lay ++;
-  ui->table->selectRow(N - lay); // select the new layer
+  selectLayer(lay);
 }
 
 void LayerDialog::lowerLayer() {
@@ -113,17 +128,16 @@ void LayerDialog::lowerLayer() {
     return;
   }
   Layers ll(vsn, db);
-  int N = ll.count();
   if (lay==1) {
     COMPLAIN("CANNOT LOWER BOTTOM LAYER");
     return;
   }
   ll.lowerLayer(lay);
-  emit edited(lay-1);
+  emit maskEdited(lay-1);
 
   setVersion(vsn); // rebuild
   lay --;
-  ui->table->selectRow(N - lay); // select the new layer
+  selectLayer(lay);
 }
 
 void LayerDialog::showHideLayer() {
@@ -136,9 +150,9 @@ void LayerDialog::showHideLayer() {
   Layer l = ll.layer(lay);
   l.setActive(!l.isActive());
   ll.setLayer(lay, l);
-  emit edited(lay);
+  emit maskEdited(lay);
 
-  ui->table->item(ui->table->rowCount()-1-lay, 0)
+  ui->table->item(ui->table->rowCount()-lay, 0)
     ->setText(l.isActive()
 	      ? QString::fromUtf8("☼")
 	      : QString::fromUtf8("☀"));
@@ -155,6 +169,14 @@ void LayerDialog::newSelection() {
     lastlay = lay;
     emit layerSelected(lay);
   }
+  if (lay>0) {
+    if (!adjs.contains(lay))
+      adjs[lay] = Adjustments::fromDB(vsn, lay, *db);
+    sliders->setAll(adjs[lay]);
+  } else {
+    // sliders->setAll(Adjustments());
+  }
+  sliders->setEnabled(lay>0);
   ui->del->setEnabled(lay>0);
   ui->raise->setEnabled(lay>0 && lay<Layers(vsn,db).count());
   ui->lower->setEnabled(lay>1);
@@ -165,11 +187,62 @@ void LayerDialog::newSelection() {
 int LayerDialog::selectedLayer() const {
   int rows = ui->table->rowCount();
   auto range = ui->table->selectedRanges();
-  int row = range.isEmpty() ? rows-1
-    : range.first().topRow();
-  return rows - 1 - row;
+  if (range.isEmpty())
+    return 0;
+  return rows - range.first().topRow();
 }
 
 void LayerDialog::respondToClick(int r, int c) {
   pDebug() << "click" << r << c;
+  switch (c) {
+  case 0: // visibility
+    showHideLayer();
+    break;
+  case 1: // mask
+    showHideMask();
+    break;
+  default:
+    break;
+  }
+}
+
+void LayerDialog::changeFromSliders() {
+  int lay = selectedLayer();
+  if (!lay)
+    return;
+  Adjustments adj = sliders->getAll();
+  storeInDatabase(adj, lay);
+  emit valuesChanged(lay);
+}
+
+void LayerDialog::storeInDatabase(Adjustments const &adj, int lay) {
+  if (!lay)
+    return;
+  Untransaction t(db);
+  quint64 layid = Layers(vsn, db).layerID(lay);
+  Adjustments const &a0(adjs[lay]);
+  for (QString k: Adjustments::keys()) {
+    double v = adj.get(k);
+    double v0 = a0.get(k);
+    if (v != v0) {
+      db->addUndoStep(vsn, lay, k, v0, v);
+      if (v==Adjustments::defaultFor(k))
+        db->query("delete from layeradjustments where layer==:a and k==:b",
+                  layid, k);
+      else
+        db->query("insert or replace into layeradjustments (layer, k, v)"
+                  " values (:a, :b, :c)", layid, k, v);
+    }
+  }
+  adjs[lay] = adj;
+  emit valuesChanged(lay);
+}  
+
+Adjustments const *LayerDialog::getAll(quint64 v, int lay) const {
+  if (v!=vsn)
+    return 0;
+  auto it(adjs.find(lay));
+  if (it==adjs.end())
+    return 0;
+  return &*it;
 }

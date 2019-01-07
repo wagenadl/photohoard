@@ -171,7 +171,7 @@ void Layers::addLayer(Layer const &l) {
   int N = count();
   Transaction t(db);
   db->query("insert into layers(version, stacking, active, typ,"
-	    " alpha, name, dat) values(:a,:b,:c,:d,:e,:f,:g,:h)",
+	    " alpha, name, dat) values(:a,:b,:c,:d,:e,:f,:g)",
 	    vsn, N+1, l.isActive(), int(l.type()),
 	    l.alpha(), l.name(), l.data());
   t.commit();
