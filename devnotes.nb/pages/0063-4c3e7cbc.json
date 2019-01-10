@@ -1,6 +1,6 @@
 { "typ": "page",
   "cre": "2019-01-09T19:56:01",
-  "mod": "2019-01-09T20:23:53",
+  "mod": "2019-01-09T21:26:59",
   "cui": "66b3df529204b6bd",
   "stampTime": 0,
   "startPage": 63,
@@ -548,6 +548,55 @@
               "uuid": "3787f654"
             }
           ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:41:34",
+      "mod": "2019-01-09T20:44:03",
+      "h": 166.162,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "79f8413a",
+      "y0": 469.765,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:41:34",
+          "mod": "2019-01-09T20:44:03",
+          "lines": [
+            0,
+            67,
+            132,
+            194,
+            258,
+            321,
+            381
+          ],
+          "text": "This is far too difficult for this evening. I think it is a really bad thing that AdjusterTile has all these public fields. Perhaps we should make it smarter, somehow. That is, put scaling, ROI extraction, and cropping in the AdjusterTile.cpp source. And is it really necessary to consider cropping and ROI extraction as separate kinds of operation? (I think the answer to that is “yes”.)",
+          "uuid": "5c969517"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T21:26:31",
+      "mod": "2019-01-09T21:26:59",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "6d5997f4",
+      "y0": 635.927,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T21:26:31",
+          "mod": "2019-01-09T21:26:59",
+          "lines": [
+            0,
+            65
+          ],
+          "text": "Actually, I just did this. It wasn’t too bad. There are not that many users of AdjusterTile that do anything with geometry.",
+          "uuid": "0aa23159"
         }
       ]
     }

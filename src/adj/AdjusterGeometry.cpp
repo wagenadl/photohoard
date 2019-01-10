@@ -24,16 +24,14 @@ AdjusterTile AdjusterGeometry::apply(AdjusterTile const &parent,
     tile.image = tile.image.rotated(-M_PI*fin.rotate/180);
 
   // PERSPECTIVE
-  if (Geometry::hasPerspectiveTransform(fin)) {
+  if (Geometry::hasPerspectiveTransform(fin)) 
     tile.image
       = Geometry::perspectiveTransform(tile.image.size(), fin)
       .warp(tile.image);
-  }
   
   // CROP
   if (fin.cropl || fin.cropr || fin.cropt || fin.cropb) {
-    tile.image.crop(Geometry::scaledCropRect(parent.osize, fin,
-                                             parent.image.size()));
+    tile = tile.cropped(fin);
     if (tile.image.isNull()) {
       tile.image = Image16(QSize(1,1));
       uchar *d = tile.image.bytes();

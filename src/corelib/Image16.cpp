@@ -333,23 +333,23 @@ Image16 Image16::scaleSigned(PSize s, Image16::Interpolation i) const {
   return img;
 }
 
-Image16 Image16::rotateSigned(double angle, Image16::CropMode c,
+Image16 Image16::rotateSigned(double angle, 
                               Image16::Interpolation i) const {
   Image16 img = *this;
   img.flipSignedness();
   img.d->format = Format::XYZp16; // just pretending
-  img = img.rotated(angle, c, i);
+  img = img.rotated(angle, i);
   img.flipSignedness();
   img.d->format = format();
   return img;
 }
 
-Image16 Image16::perspectiveSigned(QPolygonF corners, Image16::CropMode c,
+Image16 Image16::perspectiveSigned(QPolygonF corners, 
                                    Image16::Interpolation i) const {
   Image16 img = *this;
   img.flipSignedness();
   img.d->format = Format::XYZp16; // just pretending
-  img = img.perspectived(corners, c, i);
+  img = img.perspectived(corners, i);
   img.flipSignedness();
   img.d->format = format();
   return img;
@@ -383,7 +383,7 @@ int Image16::cvInterpolation(Image16::Interpolation i) {
     : cv::INTER_LINEAR; // default
 }
 
-Image16 Image16::rotated(double angle, Image16::CropMode c,
+Image16 Image16::rotated(double angle, 
                          Image16::Interpolation i) const {
   if (isNull() || angle==0)
     return *this;
@@ -391,7 +391,7 @@ Image16 Image16::rotated(double angle, Image16::CropMode c,
   if (i!=Interpolation::NearestNeighbor) {
     Format f = format();
     if (f==Format::Lab16 || f==Format::IPT16)
-      return rotateSigned(angle, c, i);
+      return rotateSigned(angle, i);
   }
 
   // So now we _know_ that we have unsigned data, or that it doesn't matter
@@ -411,10 +411,10 @@ Image16 Image16::rotated(double angle, Image16::CropMode c,
 }
 
 
-Image16 Image16::perspectived(QPolygonF poly, Image16::CropMode c,
+Image16 Image16::perspectived(QPolygonF poly, 
                               Image16::Interpolation i) const {
   PerspectiveTransform pt(poly, size());
-  return pt.warp(*this, c, i);
+  return pt.warp(*this, i);
 }
 
 Image16 Image16::loadFromFile(QString const &fn) {

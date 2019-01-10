@@ -43,10 +43,10 @@ public:
   Image16 scaledToWidth(int w, Interpolation i=Interpolation::Linear) const;
   Image16 scaledToHeight(int h, Interpolation i=Interpolation::Linear) const;
   Image16 cropped(QRect) const;
-  Image16 rotated(double angle, CropMode c=CropMode::Same,
+  Image16 rotated(double angle, 
                   Interpolation i=Interpolation::Linear) const;
   /* Rotates by the given angle, specified in counterclockwise radians. */
-  Image16 perspectived(QPolygonF corners, CropMode c=CropMode::Same,
+  Image16 perspectived(QPolygonF corners, 
                        Interpolation i=Interpolation::Linear) const;
   /* Produces a version where the polygon (which must have *precisely*
      four vertices) is transformed to a rectangle. */
@@ -96,10 +96,10 @@ private:
   void convertFrom(Image16 const &other, Format otherformat, int maxthreads=1);
   void setROI(QRect);
   Image16 scaleSigned(PSize s, Interpolation i) const;
-  Image16 rotateSigned(double angle, CropMode c=CropMode::Same,
+  Image16 rotateSigned(double angle,
                        Interpolation i=Interpolation::Linear) const;
   /* Rotates by the given angle, specified in counterclockwise radians. */
-  Image16 perspectiveSigned(QPolygonF corners, CropMode c=CropMode::Same,
+  Image16 perspectiveSigned(QPolygonF corners, 
                             Interpolation i=Interpolation::Linear) const;
   void flipSignedness();
   Image16(Image16 *src, QRect sub);

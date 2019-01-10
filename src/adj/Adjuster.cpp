@@ -74,7 +74,8 @@ Image16 Adjuster::retrieveReduced(Adjustments const &settings,
   qDebug() << "RetrieveReduced" << maxSize << settings.getAll();
   resetCanceled();
 
-  if (stages.isEmpty() || !stages[0].roi.isEmpty() || stages[0].image.isNull())
+  if (stages.isEmpty() || stages[0].isROI
+      || stages[0].image.isNull())
     return Image16();
 
   applyNeedBasedScaling(settings, maxSize);
@@ -103,7 +104,7 @@ void Adjuster::applyNeedBasedScaling(Adjustments const &settings,
     if (stages[k+1].stage>Stage_Reduced)
       break;
     if (!stages[k+1].image.size().isLargeEnoughFor(needed)
-        || !stages[k+1].roi.isEmpty()) {
+        || stages[k+1].isROI) {
       dropFrom(k+1);
       break;
     }
@@ -115,9 +116,7 @@ void Adjuster::applyNeedBasedScaling(Adjustments const &settings,
     // It's worth scaling
     // Should we reduce excessive scale stacks? Probably. Later.
     dropFrom(k+1);
-    stages << AdjusterTile(stages[k].image.scaledToFitSnuglyIn(needed),
-			   stages[k].osize);
-    stages.last().stage = Stage_Reduced;
+    stages << stages[k].scaledToFitSnuglyIn(needed);
   }
 }
 

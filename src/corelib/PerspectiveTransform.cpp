@@ -43,7 +43,6 @@ PerspectiveTransform &PerspectiveTransform::operator=(PerspectiveTransform const
 
 
 Image16 PerspectiveTransform::warp(Image16 const &img,
-                                   Image16::CropMode,
                                    Image16::Interpolation i) const {
   if (i!=Image16::Interpolation::NearestNeighbor) {
     if (i!=Image16::Interpolation::Linear)
