@@ -65,6 +65,8 @@ public:
   PSize rotated90() const;
   void rotate90();
   int maxDim() const { return width()>height() ? width() : height(); }
+  double operator/(QSize const &b) const;
+  /* Returns geometric mean of x and y ratios. */
   static PSize square(int w) { return PSize(w, w); }
 };
 

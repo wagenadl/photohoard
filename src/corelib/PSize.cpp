@@ -2,6 +2,7 @@
 
 #include "PSize.h"
 #include <limits>
+#include <cmath>
 
 PSize PSize::scaledDownToFitIn(QSize const &s) const {
   if (isEmpty() || s.isEmpty())
@@ -105,4 +106,12 @@ PSize &PSize::operator|=(QSize const &s) {
   if (s.height()>height())
     setHeight(s.height());
   return *this;
+}
+
+double PSize::operator/(QSize const &b) const {
+  if (b.isEmpty()) 
+    return isEmpty() ? 1 : 1e100;
+  double x = width() * 1.0 / b.width();
+  double y = height() * 1.0 / b.height();
+  return sqrt(x*y);
 }

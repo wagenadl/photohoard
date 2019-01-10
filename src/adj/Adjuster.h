@@ -41,7 +41,7 @@ public:
      SETORIGINAL(image) loads the given IMAGE into the adjuster, dropping
      any stages that previously existed. */
   void setReduced(Image16 const &image, PSize originalSize);
-  /* SETREDUCED - Loads a new original image into the adjuster at less than full size
+  /* SETREDUCED - Loads a new original image at less than full size
      SETREDUCED(image, originalSize) loads a new original image into the
      adjuster, just like SETORIGINAL, but not at its full
      resolution.
@@ -109,10 +109,9 @@ public:
   /* ENABLECACHING - Enable storing intermediate stages.
      ENABLECACHING() enables storing intermediate stages.
      ENABLECACHING(ec) enables (if EC is true) or disables caching.
-     When caching is enabled,
-     it is much faster to reprocess images after some parameter changes,
-     but it obviously takes more memory, so should be avoided during export.
-     Default is enabled.
+     When caching is enabled, it is much faster to reprocess images
+     after some parameter changes, but it obviously takes more memory,
+     so should be avoided during export.  Default is enabled.
   */
   void disableCaching();
   // DISABLECACHING - Disable storing intermediate stages.
@@ -120,10 +119,10 @@ public:
   // ISCACHING - Report whether caching is currently enabled
   void preserveOriginal(bool po=true);
   /* PRESERVEORIGINAL - Enable unconditional preservation of original image
-     PRESERVEORIGINAL() enables preserving of the original image when caching is
-     otherwise disabled.
+     PRESERVEORIGINAL() enables preserving of the original image when caching
+     is otherwise disabled.
      PRESERVEORIGINAL(po) enables (if PO is true) or disables this feature.
-     Default is eanbled.
+     Default is enabled.
      When disabled and caching is also
      disabled, calls to the retrieveXXX functions likely remove the original
      image from the adjuster, meaning that subsection retrieveXXX calls will
@@ -132,14 +131,15 @@ public:
      functions const and the stages mutable. Oh well.
   */
   bool preservesOriginal() const { return keeporiginal; }
-  // PRESERVESORIGINAL - Report whether original preservaion is enabled
+  // PRESERVESORIGINAL - Report whether original preservation is enabled
   void cancel();
   /* CANCEL - Attempt to abort retrieve operations
      Adjuster is not truly threadsafe, but one exception exists: It is
      always safe to call CANCEL(), which will attempt to abort any
-     "retrieve" operation and cause it to return an empty image. There is,
-     however, no guarantee that cancellation will be effective. CANCEL() will
-     return immediately and not wait to see if it was successful.
+     "retrieve" operation and cause it to return an empty image. There
+     is, however, no guarantee that cancellation will be
+     effective. CANCEL() will return immediately and not wait to see
+     if it was successful.
    */
 private:
   bool isCanceled();

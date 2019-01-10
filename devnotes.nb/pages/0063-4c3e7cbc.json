@@ -1,0 +1,555 @@
+{ "typ": "page",
+  "cre": "2019-01-09T19:56:01",
+  "mod": "2019-01-09T20:23:53",
+  "cui": "66b3df529204b6bd",
+  "stampTime": 0,
+  "startPage": 63,
+  "unlocked": false,
+  "uuid": "4c3e7cbc",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2019-01-09T19:56:01",
+      "mod": "2019-01-09T19:56:01",
+      "uuid": "fce4c5ed"
+    },
+    { "typ": "title",
+      "cre": "2019-01-09T19:56:01",
+      "mod": "2019-01-09T19:56:05",
+      "uuid": "180da0c7",
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T19:56:01",
+          "mod": "2019-01-09T19:56:05",
+          "lines": [
+            0
+          ],
+          "text": "AdjusterTile",
+          "uuid": "f9cb9e8a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T19:56:06",
+      "mod": "2019-01-09T19:58:49",
+      "h": 119.83,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "6b035a34",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T19:56:06",
+          "mod": "2019-01-09T19:58:49",
+          "lines": [
+            0,
+            63,
+            122,
+            183,
+            247
+          ],
+          "text": "AdjusterTiles are really messy things. They are filled with an image from a preceding stage, and then they may be cropped or scaled. Or, in theory, an ROI may be cut. It becomes very unclear how pixels in the tile relate to pixels in the image. I need to make this clear.",
+          "uuid": "79193426"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T19:58:50",
+      "mod": "2019-01-09T19:58:59",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "decbcea5",
+      "y0": 191.83,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T19:58:50",
+          "mod": "2019-01-09T19:58:59",
+          "lines": [
+            0
+          ],
+          "text": "Here are some relevant sizes and positions:",
+          "uuid": "b5a833a9"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T19:58:59",
+      "mod": "2019-01-09T20:01:58",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d3ac1518",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T19:58:59",
+          "mod": "2019-01-09T19:59:57",
+          "lines": [
+            0,
+            73
+          ],
+          "text": "– The size of the original image, prior to any scaling, cropping, or ROI cutting.",
+          "uuid": "a3ee597d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:00:02",
+      "mod": "2019-01-09T20:02:00",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "5a01ca98",
+      "y0": 255.963,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:00:02",
+          "mod": "2019-01-09T20:00:32",
+          "lines": [
+            0,
+            65
+          ],
+          "text": "– The size the image would be at this stage if no scaling or ROI cutting had happened.",
+          "uuid": "0df99d3a"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:00:22",
+      "mod": "2019-01-09T20:02:02",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c9927692",
+      "y0": 292.93,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:00:22",
+          "mod": "2019-01-09T20:00:55",
+          "lines": [
+            0,
+            68
+          ],
+          "text": "– The size the image would be at this stage with scaling but no ROI cutting.",
+          "uuid": "5b9428f6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:01:08",
+      "mod": "2019-01-09T20:02:04",
+      "h": 19.147,
+      "ind": 2,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "2dc865c8",
+      "y0": 329.897,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:01:08",
+          "mod": "2019-01-09T20:01:17",
+          "lines": [
+            0
+          ],
+          "text": "– The scale factor.",
+          "uuid": "cfcc6287"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:01:17",
+      "mod": "2019-01-09T20:02:06",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "2a6dabca",
+      "y0": 349.044,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:01:17",
+          "mod": "2019-01-09T20:01:38",
+          "lines": [
+            0,
+            67
+          ],
+          "text": "– The location of the ROI in the nonscaled version of the image at this stage.",
+          "uuid": "504b4588"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:01:38",
+      "mod": "2019-01-09T20:02:09",
+      "h": 19.147,
+      "ind": 2,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "748a9049",
+      "y0": 386.011,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:01:38",
+          "mod": "2019-01-09T20:01:46",
+          "lines": [
+            0
+          ],
+          "text": "– The location of the ROI in the scaled version.",
+          "uuid": "51dc836c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:01:50",
+      "mod": "2019-01-09T20:05:24",
+      "h": 96.664,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0dddf6cb",
+      "y0": 405.158,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:01:50",
+          "mod": "2019-01-09T20:05:24",
+          "lines": [
+            0,
+            60,
+            122,
+            187
+          ],
+          "text": "See? It is horrible. I think an AdjusterTile should have an “isScaled” flag and an “isROI” flag. It should have the scale factor explicitly and the offset of the ROI relative to the full image at this stage. (Given scaling and cropping.)",
+          "uuid": "2acbffc7"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:09:11",
+      "mod": "2019-01-09T20:10:15",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "4d5821b4",
+      "y0": 501.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:09:11",
+          "mod": "2019-01-09T20:10:15",
+          "lines": [
+            0,
+            50,
+            113,
+            171,
+            229
+          ],
+          "text": "Another part of the mess is that it appears to be understood, but never made explicit, that scaling is the first adjuster stage. In fact, of course, scaling is not a real adjustment operation. The image can be at full or reduced scale at any point in the stack.",
+          "uuid": "e6b8afc0",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-01-09T20:09:45",
+              "mod": "2019-01-09T20:09:45",
+              "end": 163,
+              "start": 160,
+              "style": 1,
+              "uuid": "5e208137"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:11:22",
+      "mod": "2019-01-09T20:11:35",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "a5425869",
+      "y0": 621.652,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:11:22",
+          "mod": "2019-01-09T20:11:35",
+          "lines": [
+            0
+          ],
+          "text": "What if I use the following variables in the AdjusterTile:",
+          "uuid": "5c60969b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:11:35",
+      "mod": "2019-01-09T20:17:09",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "7fd05a7d",
+      "y0": 648.818,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:11:35",
+          "mod": "2019-01-09T20:17:09",
+          "lines": [
+            0
+          ],
+          "text": "– xscale, yscale [float]: ratio of reduction, ≤ 1.",
+          "uuid": "953b3315"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:17:13",
+      "mod": "2019-01-09T20:18:06",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [
+        23.166
+      ],
+      "uuid": "6eb4d009",
+      "y0": 667.965,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:17:13",
+          "mod": "2019-01-09T20:18:06",
+          "lines": [
+            0,
+            66,
+            129
+          ],
+          "text": "x and y scales will normally be very nearly identical, but images have integer dimensions, so scaling cannot always be perfectly isotropic.",
+          "uuid": "02dc635d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:12:05",
+      "mod": "2019-01-09T20:12:59",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "bd7d2700",
+      "y0": 122.332,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:12:05",
+          "mod": "2019-01-09T20:12:55",
+          "lines": [
+            0
+          ],
+          "text": "– offset: if we are an ROI, where in the full picture are we? ",
+          "uuid": "169a1356"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:13:00",
+      "mod": "2019-01-09T20:14:18",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "9b7aa3a8",
+      "y0": 141.479,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:13:00",
+          "mod": "2019-01-09T20:14:18",
+          "lines": [
+            0,
+            63,
+            127
+          ],
+          "text": "offset is stored in scaled pixels: ROIs are cut after scaling. (What if we want to scale more after having cut an ROI? I guess we simply won’t.)",
+          "uuid": "4e01bad5",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-01-09T20:13:03",
+              "mod": "2019-01-09T20:13:03",
+              "end": 6,
+              "start": 0,
+              "style": 1,
+              "uuid": "e26e06de"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:13:54",
+              "mod": "2019-01-09T20:13:54",
+              "end": 53,
+              "start": 48,
+              "style": 1,
+              "uuid": "b6fac374"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:15:01",
+      "mod": "2019-01-09T20:15:19",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "b53c80a8",
+      "y0": 214.977,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:15:01",
+          "mod": "2019-01-09T20:15:19",
+          "lines": [
+            0
+          ],
+          "text": "– osize: original image size in pixels before cropping, etc.",
+          "uuid": "5fbe55ef"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:15:23",
+      "mod": "2019-01-09T20:16:22",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "63fa57b6",
+      "y0": 234.124,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:15:23",
+          "mod": "2019-01-09T20:16:22",
+          "lines": [
+            0,
+            61
+          ],
+          "text": "The osize still needs to be kept, because the local contrast adjustment is defined in terms of the full image size.",
+          "uuid": "5a4f587b",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-01-09T20:15:26",
+              "mod": "2019-01-09T20:15:26",
+              "end": 9,
+              "start": 4,
+              "style": 1,
+              "uuid": "0a50c222"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:16:01",
+              "mod": "2019-01-09T20:16:01",
+              "end": 51,
+              "start": 46,
+              "style": 1,
+              "uuid": "53e90e48"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:16:03",
+              "mod": "2019-01-09T20:16:03",
+              "end": 60,
+              "start": 52,
+              "style": 1,
+              "uuid": "84123b98"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:19:36",
+      "mod": "2019-01-09T20:19:59",
+      "h": 19.147,
+      "ind": 3,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "748606c2",
+      "y0": 284.456,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:19:36",
+          "mod": "2019-01-09T20:19:59",
+          "lines": [
+            0
+          ],
+          "text": "– isROI, isScaled: flags for convenience",
+          "uuid": "d847d990"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-09T20:20:09",
+      "mod": "2019-01-09T20:23:53",
+      "h": 166.162,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "8ae8cd70",
+      "y0": 303.603,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-09T20:20:09",
+          "mod": "2019-01-09T20:23:53",
+          "lines": [
+            0,
+            63,
+            130,
+            188,
+            251,
+            309,
+            367
+          ],
+          "text": "Scaling is actually really messy, because it can happen before or after cropping, and the result is not identical, because of the need to keep image dimensions integers. Perhaps that is a reason to force scaling to happen only at the very base of the adjustment stack. Or perhaps we should accept that scaled images aren’t pixel perfect. Perhaps, then, we don’t need separate xscale and yscale variables after all.",
+          "uuid": "840e5321",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-01-09T20:21:54",
+              "mod": "2019-01-09T20:21:54",
+              "end": 203,
+              "start": 198,
+              "style": 1,
+              "uuid": "61897f9e"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:21:58",
+              "mod": "2019-01-09T20:21:58",
+              "end": 226,
+              "start": 222,
+              "style": 1,
+              "uuid": "3623c42c"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:22:36",
+              "mod": "2019-01-09T20:22:36",
+              "end": 322,
+              "start": 316,
+              "style": 1,
+              "uuid": "71221137"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:23:48",
+              "mod": "2019-01-09T20:23:48",
+              "end": 382,
+              "start": 376,
+              "style": 1,
+              "uuid": "8203e68f"
+            },
+            { "typ": "markup",
+              "cre": "2019-01-09T20:23:50",
+              "mod": "2019-01-09T20:23:50",
+              "end": 393,
+              "start": 387,
+              "style": 1,
+              "uuid": "3787f654"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -90,6 +90,13 @@ Image16 Adjuster::retrieveReduced(Adjustments const &settings,
 
 void Adjuster::applyNeedBasedScaling(Adjustments const &settings,
                                      PSize maxSize) {
+  /* This code needs to be improved
+     (1) If settings matches stages.last.settings, we only need to add
+         an extra reduction stage at the end if the size there is enough.
+     (2) We should drop stacked reductions if there are more then, let's
+         say, two.
+     (3) We should be smarter about ROIs.
+  */
   PSize needed = neededScaledOriginalSize(settings, maxSize);
   int k = 0;
   while (k+1<stages.size()) {
