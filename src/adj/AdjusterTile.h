@@ -14,25 +14,18 @@ public:
   AdjusterTile();
   explicit AdjusterTile(Image16 const &);
   explicit AdjusterTile(Image16 const &, PSize osize);
+  AdjusterTile scaledToFitSnuglyIn(PSize) const;
+  AdjusterTile cropped(Adjustments const &) const;
+  // spec'd in terms of original pixels, even if we are scaled
+  AdjusterTile cutROI(QRect) const;
 public:
-  Image16 image;
-  Adjustments settings;
-  QRect roi; // specified in units of the original image or empty for no-roi
-  PSize osize;
-  Stage stage;
-  /* I think we should be smarter about ROIs. We should store also where
-     in the scaled image the ROI lives, and have a PSize for the full size
-     of the scaled image. (The size of the ROI in the scaled image is
-     evident from the image, of course.) I think an isROI flag is better
-     than using the QRect. In fact, there may not be much point in storing
-     the position of the ROI in the original image at all.
-     This "ssize", "offset", "isROI" are better variables than "roi". (Note
-     that isROI is trivially computed from image.size and ssize, but we might
-     as well store it explicitly.)
-     I am not sure how I feel about all these fields being public. Who sets
-     them? Surely only the creator. No. In fact, the AdjusterXX mark up the
-     settings field directly.
-  */
+  Stage stage; // OK to modify
+  Adjustments settings; // OK to modify
+  Image16 image; // OK to modify, but do not resize
+  double nominalScale; // read-only
+  PSize osize; // read-only
+  QPoint roiOffset; // in scaled image; read-only
+  bool isROI; // read-only
 };
 
 #endif

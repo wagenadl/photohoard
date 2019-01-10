@@ -11,19 +11,21 @@ QStringList AdjusterUMask::fields() const {
   return flds;
 }
 
-static void applyUMask(Image16 &image, PSize osize, QRect oroi,
-                       double strength, double radius) {
-  if (!oroi.isEmpty())
-    osize = oroi.size();
-  double xs = image.width() / double(osize.width());
-  double ys = image.height() / double(osize.height());
-  // in principle, these should be very nearly equal, but anyway:
-  double scale = sqrt(xs*ys);
-  radius /= scale;
+class UMask {
+public:
+  UMask(double strength, double radius): strength(strength), radius(radius) { }
+  void apply(Image16 &image, double nominalScale=1);
+private:
+  double strength;
+  double radius;    
+};
+
+void UMask::apply(Image16 &image, double nominalScale) {
+  double effrad = radius / nominalScale;
 
   // determine kernel size
   constexpr int maxhalfN = 3;
-  int halfN = int(radius*2.5+.49);
+  int halfN = int(effrad*2.5+.49);
   if (halfN>maxhalfN)
     halfN=maxhalfN;
   else if (halfN<1)
@@ -33,7 +35,7 @@ static void applyUMask(Image16 &image, PSize osize, QRect oroi,
   float kernel[2*halfN+1];
   float *kptr = kernel+halfN;
   for (int n=-halfN; n<=halfN; n++) 
-    kptr[n] = exp(-.5*n*n/(radius*radius));
+    kptr[n] = exp(-.5*n*n/(effrad*effrad));
   double sum = 0;
   for (int n=-halfN; n<=halfN; n++)
     sum += kptr[n];
@@ -85,19 +87,20 @@ static void applyUMask(Image16 &image, PSize osize, QRect oroi,
   
 
 AdjusterTile AdjusterUMask::apply(AdjusterTile const &parent,
-				Adjustments const &final) {
+				Adjustments const &fin) {
   AdjusterTile tile = parent;
   tile.stage = Stage_UMask;
 
-  if (final.umask) {
+  if (fin.umask) {
     tile.image.convertTo(Image16::Format::IPT16, maxthreads);
-    applyUMask(tile.image, tile.osize, tile.roi, final.umask, final.umaskr);
+    UMask umask(fin.umask, fin.umaskr);
+    umask.apply(tile.image, tile.nominalScale);
     // Do unsharp mask only on I channel?
     // Alternatively, I could work in LMS space and treat all channels
   }
   
-  tile.settings.umask = final.umask;
-  tile.settings.umaskr = final.umaskr;
+  tile.settings.umask = fin.umask;
+  tile.settings.umaskr = fin.umaskr;
 
   return tile;
 }
