@@ -50,8 +50,12 @@ void LayerDialog::setVersion(quint64 v) {
     ui->table->setItem(N-n, 1, new QTableWidgetItem(QString::fromUtf8("-")));
     ui->table->setItem(N-n, 2, new QTableWidgetItem(layer.typeName()));
   }
+  bool explicitnew = lastlay==N;
+  qDebug() << "layerdialog setversion explicitnew" << explicitnew;
   lastlay = 0;
   selectLayer(N);
+  if (explicitnew)
+    newSelection();
 }
 
 LayerDialog::~LayerDialog() {
@@ -165,7 +169,7 @@ void LayerDialog::showHideMask() {
 
 void LayerDialog::newSelection() {
   int lay = selectedLayer();
-  pDebug() << "new selection" << lay << lastlay;
+  pDebug() << "layer dialog new selection" << lay << lastlay;
   if (lay!=lastlay) {
     lastlay = lay;
     emit layerSelected(lay);

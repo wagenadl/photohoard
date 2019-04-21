@@ -79,10 +79,10 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
 
 void LiveAdjuster::reloadLayers(quint64 v, int lowest) {
   if (v!=version) {
-    pDebug() << "LiveAdjuster::reloadLayers: vsn mismatch";
+    COMPLAIN("LiveAdjuster::reloadLayers: vsn mismatch");
     return;
   }
-  qDebug() << "reloadLayers" << v << lowest;
+  pDebug() << "reloadLayers" << v << lowest;
   loadLayers(lowest);
   forceUpdate();
 }
@@ -102,10 +102,10 @@ void LiveAdjuster::forceUpdate() {
 
 void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
   if (v!=version) {
-    pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
+    COMPLAIN("LiveAdjuster::reloadSliders: vsn mismatch");
     return;
   }
-  qDebug() << "reloadSliders" << v << lay << sli;
+  pDebug() << "reloadSliders" << v << lay << sli;
   if (lay==0) {
     if (sli==adjs.baseAdjustments())
       return;
@@ -122,7 +122,7 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
 
 void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
   if (v!=version) {
-    pDebug() << "LiveAdjuster: version mismatch";
+    COMPLAIN("LiveAdjuster: version mismatch");
     return;
   }
   if (mustoffermod) {
