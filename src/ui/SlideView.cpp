@@ -64,7 +64,7 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   zoom = 1;
   // pDebug() << "SV::nI: needLargerImage";
 
-  visualizeLayer(vsn, 0); // this calls update
+  visualizeLayer(vsn, vsn==futvsn ? futlay : 0); // this calls update
   // pDebug() << "SV::nI: done";
 }
 
@@ -405,8 +405,11 @@ void SlideView::needLargerImage() {
 }
 
 void SlideView::visualizeLayer(quint64 vsn, int lay) {
+  futvsn = vsn;
+  futlay = lay;
   if (vsn!=vsnid) {
-    COMPLAIN("SlideView::visualizeLayer: vsn mismatch");
+    pDebug() << "SlideView::visualizeLayer: vsn mismatch" << vsn
+	     << "exp" << vsnid;
     return;
   }
   
