@@ -16,6 +16,7 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   ui->setupUi(this);
   //  setVersion(0);
   sliders = new ControlSliders(db->isReadOnly(), 0);
+  qDebug() << "added sliders";
   sliders->setLayer(1); // make sure not to show recompose group
   ui->verticalLayout->addWidget(sliders);
   Dialog::ensureSize(this);
@@ -159,7 +160,7 @@ void LayerDialog::showHideLayer() {
 }
 
 void LayerDialog::showHideMask() {
-  pDebug() << "show/hide mask NYI";
+  COMPLAIN("show/hide mask NYI");
 }
 
 void LayerDialog::newSelection() {

@@ -1,13 +1,14 @@
 // InterruptableAdjuster.cpp
 
 #include "InterruptableAdjuster.h"
-#include "Adjuster.h"
+#include "AllAdjuster.h"
 #include <QMutexLocker>
 #include "PDebug.h"
 #include "Geometry.h"
 
 InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
   QThread(parent) {
+  adjuster = new AllAdjuster(this);
   start();
 }
 
@@ -21,30 +22,26 @@ InterruptableAdjuster::~InterruptableAdjuster() {
   }
 }
 
-void InterruptableAdjuster::requestFull(QMap<int, Adjustments> settings,
+void InterruptableAdjuster::requestFull(AllAdjustments const &settings,
                                         quint64 id) {
   requestReducedROI(settings, QRect(), PSize(), id);
 }
 
-void InterruptableAdjuster::requestReduced(QMap<int, Adjustments> settings,
+void InterruptableAdjuster::requestReduced(AllAdjustments const &settings,
                                            PSize maxSize, quint64 id) {
   requestReducedROI(settings, QRect(), maxSize, id);
 }
   
-void InterruptableAdjuster::requestROI(QMap<int, Adjustments> settings,
+void InterruptableAdjuster::requestROI(AllAdjustments const &settings,
 				       QRect roi, quint64 id) {
   requestReducedROI(settings, roi, PSize(), id);
 }
 
-void InterruptableAdjuster::requestReducedROI(QMap<int, Adjustments> settings,
+void InterruptableAdjuster::requestReducedROI(AllAdjustments const &settings,
                                               QRect roi, PSize maxSize,
                                               quint64 id) {
-  pDebug() << "IA:requestReducedROI" << id;
-  for (int k: settings.keys())
-    pDebug() << " settings" << k << "::" << settings[k].getAll();
   QMutexLocker l(&mutex);
-  for (auto adj: adjuster)
-    adj->cancel();
+  adjuster->cancel();
   newreq = true;
   cancel = false;
   rqAdjustments = settings;
@@ -56,16 +53,14 @@ void InterruptableAdjuster::requestReducedROI(QMap<int, Adjustments> settings,
 
 void InterruptableAdjuster::cancelRequest() {
   QMutexLocker l(&mutex);
-  for (auto adj: adjuster)
-    adj->cancel();
+  adjuster->cancel();
   newreq = false;
   cancel = true;
 }
 
 void InterruptableAdjuster::clear() {
   QMutexLocker l(&mutex);
-  for (auto adj: adjuster)
-    adj->cancel();
+  adjuster->cancel();
   newreq = false;
   cancel = true;
   clear_ = true;
@@ -109,43 +104,16 @@ void InterruptableAdjuster::setReduced(Image16 img, PSize siz, quint64 id) {
   oId = id;
 }    
 
-
-void InterruptableAdjuster::adjustLayerCount(QList<int> newlayers) {
-  // Make sure we have the right number of layers
-  QSet<int> droppable;
-  for (auto lay: adjuster.keys())
-    droppable.insert(lay);
-  for (auto lay: newlayers) {
-    if (droppable.contains(lay)) {
-      droppable.remove(lay);
-    } else {
-      adjuster[lay] = new Adjuster;
-      adjuster[lay]->setMaxThreads(4);
-    }
-  }
-  for (auto lay: droppable)
-    if (lay>0) 
-      adjuster[lay]->clear();
-  // we won't actually delete them; they'll come in handy again
-}
-
 void InterruptableAdjuster::handleNewRequest() {
   QRect r = rqRect;
   PSize s = rqSize;
   bool cando = rqId==oId;
 
-  QMap<int, Adjustments> sli = rqAdjustments;
-  ASSERT(sli.contains(0));
-  adjustLayerCount(sli.keys());
+  AllAdjustments sli = rqAdjustments;
   
   newreq = false;
 
   mutex.unlock();
-
-  pDebug() << "handlenewrequest" << rqId << oId << r << s;
-  for (int k: sli.keys())
-    pDebug() << " settings" << k << "::" << sli[k].getAll();
-  
   Image16 img;
   if (cando) {
     if (r.isEmpty()) {
@@ -166,72 +134,47 @@ void InterruptableAdjuster::handleNewRequest() {
     pDebug() << "InterruptableAdjuster: no can do";
   }
   mutex.lock();
+
   if (!cando || cancel || newreq || clear_) {
     cancel = false;
     if (clear_) {
-      for (auto adj: adjuster)
-	adj->clear();
+      adjuster->clear();
       clear_ = false;
     }
   } else {
     quint64 id = oId;
-    QSize fs = Geometry::croppedSize(oSize, sli[0]);
+    QSize fs = Geometry::croppedSize(oSize, sli.baseAdjustments());
+
     mutex.unlock();
     emit ready(img, id, fs);
     mutex.lock();
   }
 }
 
-Image16 InterruptableAdjuster::hnrFull(QMap<int, Adjustments> const &sli) {
-  ASSERT(adjuster.contains(0));
-  if (sli.size()>1)
-    pDebug() << "hnrReduced: Layers NYI";
-  Image16 img = adjuster[0]->retrieveFull(sli[0]);
-#if 0
-  // WORK IN PROGRESS
-  if (sli.size()>1) {
-    /* If there are more layers, we must set and retrieve all those
-       layers and alphablend with their masks. */
-    QList<int> lays = sli.keys();
-    lays.deleteFirst(); // drop base layer
-    for (int lay: lays) {
-      ASSERT(adjuster.contains(lay));
-      adjuster[lay]->setImage(img); // in many cases, this is overkill
-      // we should have some way to preserve unchanged images
-      Image16 ovr = adjuster[lay]->retrieveFull(sli[lay]);
-  }
-#endif
-  return img;
+Image16 InterruptableAdjuster::hnrFull(AllAdjustments const &sli) {
+  return adjuster->retrieveFull(sli);
 }
 
-Image16 InterruptableAdjuster::hnrReduced(QMap<int, Adjustments> const &sli,
+Image16 InterruptableAdjuster::hnrReduced(AllAdjustments const &sli,
 					  PSize s) {
-  ASSERT(adjuster.contains(0));
-  if (sli.size()>1)
-    pDebug() << "hnrReduced: Layers NYI";
-  Image16 img = adjuster[0]->retrieveReduced(sli[0], s);
-  return img;
+  return adjuster->retrieveReduced(sli, s);
 }
 
 
 void InterruptableAdjuster::handleNewImage() {
-  if (!adjuster.contains(0))
-    adjustLayerCount(QList<int>() << 0); // ensure we have at least...
-  // ...  an adjuster for the base layer
   if (oSize.isEmpty())
-    adjuster[0]->setOriginal(newOriginal);
+    adjuster->setOriginal(newOriginal);
   else
-    adjuster[0]->setReduced(newOriginal, oSize);
+    adjuster->setReduced(newOriginal, oSize);
   newOriginal = Image16();
 }
 
 void InterruptableAdjuster::run() {
   mutex.lock();
   while (!stopsoon) {
-    empty = adjuster.isEmpty() || adjuster[0]->isEmpty();
+    empty = adjuster->isEmpty();
     if (clear_) {
-      for (auto adj: adjuster)
-	adj->clear();
+      adjuster->clear();
       clear_ = false;
       cancel = false;
     } else if (cancel) {
@@ -244,9 +187,6 @@ void InterruptableAdjuster::run() {
       waitcond.wait(&mutex);
     }
   }
-  for (auto adj: adjuster)
-    delete adj;
-  adjuster.clear();
   mutex.unlock();
 }
 

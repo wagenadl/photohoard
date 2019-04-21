@@ -7,13 +7,13 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
-#include "Adjustments.h"
+#include "AllAdjustments.h"
 #include "Image16.h"
 
 class InterruptableAdjuster: public QThread {
-  /* INTERRUPTABLEADJUSTER - Thread wrapper around ADJUSTER
+  /* INTERRUPTABLEADJUSTER - Thread wrapper around ALLADJUSTER
      INTERRUPTABLEADJUSTER contains several /requestXXX/
-     methods that function just as ADJUSTER's /retrieveXXX/
+     methods that function just as ALLADJUSTER's /retrieveXXX/
      methods, except that the methods return immediately
      and that results are later reported through the READY signal.
      Requests are not queued: if a new request is made before
@@ -22,23 +22,20 @@ class InterruptableAdjuster: public QThread {
      One important difference is that most of our functions take an
      additional ID argument that is an arbitrary number intended to make
      sure that the READY signal corresponds to the intended request.
-     INTERRUPTABLEADJUSTER currently makes a feeble attempt to handle
-     layers. This implementation is doomed, because it doesn't know about
-     masks. Also, this is the wrong place to implement layers. See ADJUSTER.
    */
   Q_OBJECT;
 public:
   InterruptableAdjuster(QObject *parent=0);
   // CONSTRUCTOR
   virtual ~InterruptableAdjuster();
-  void requestFull(QMap<int, Adjustments> settings, quint64 id);
+  void requestFull(AllAdjustments const &settings, quint64 id);
   // REQUESTFULL - See Adjuster's RETRIEVEFULL
-  void requestReduced(QMap<int, Adjustments> settings,
+  void requestReduced(AllAdjustments const &settings,
 		      PSize maxSize, quint64 id);
   // REQUESTREDUCED - See Adjuster's RETRIEVEREDUCED
-  void requestROI(QMap<int, Adjustments> settings, QRect roi, quint64 id);
+  void requestROI(AllAdjustments const &settings, QRect roi, quint64 id);
   // REQUESTROI - See ADJUSTER's RETRIEVEROI
-  void requestReducedROI(QMap<int, Adjustments> settings,
+  void requestReducedROI(AllAdjustments const &settings,
 			 QRect roi, PSize maxSize, quint64 id);
   // REQUESTREDUCEDROI - See ADJUSTER's RETRIEVEREDUCEDROI
   void cancelRequest();
@@ -82,9 +79,9 @@ signals:
      emitted before /requestXXX/ returns. Using a queued connection
      prevents this. (Or at least ensures that the signal is not
      /received/ before /requestXXX/ returns.) It is even possible,
-     though unlikely, that READY() is emitted after CANCELREQUEST() has been
-     called, though not after it returns. This cannot be
-     prevented. Connection queueing can even cause this signal to be
+     though unlikely, that READY() is emitted after CANCELREQUEST()
+     has been called, though not after it returns. This cannot be
+     prevented. Connection queuing can even cause this signal to be
      /received/ after CANCELREQUEST() returns.
 
      The important thing to note is that if you use queued
@@ -99,16 +96,15 @@ protected:
 private:
   void handleNewRequest();
   void handleNewImage();
-  void adjustLayerCount(QList<int> layers);
 private:
-  Image16 hnrFull(QMap<int, Adjustments> const &sli);
-  Image16 hnrReduced(QMap<int, Adjustments> const &sli, PSize s);
+  Image16 hnrFull(AllAdjustments const &sli);
+  Image16 hnrReduced(AllAdjustments const &sli, PSize s);
 private:
-  QMap<int, class Adjuster *> adjuster;
+  class AllAdjuster *adjuster;
   QMutex mutex;
   QWaitCondition waitcond;
   bool cancel, newreq, clear_;
-  QMap<int, Adjustments> rqAdjustments;
+  AllAdjustments rqAdjustments;
   QRect rqRect;
   PSize rqSize;
   quint64 rqId;

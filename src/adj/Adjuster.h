@@ -13,9 +13,13 @@
 
 /* Class: Adjuster
 
-   Adjuster is a simple factory that can apply adjustments to an image.
-   It is meant to be used in a synchronous fashion and does not use signals
-   to return results.
+   Adjuster is a simple factory that can apply adjustments to an
+   image.  It is meant to be used in a synchronous fashion and does
+   not use signals to return results.
+   
+   Adjuster also does not handle layering. For that, see
+   AllAdjuster. Instead, Adjuster is the core that does the
+   computations for a given layer, including the base layer.
 */
 class Adjuster: public QObject {
   /* ADJUSTER - Workhorse for applying adjustments to an image
@@ -30,17 +34,18 @@ public:
   // Constructor: Adjuster
   Adjuster(QObject *parent=0);
   virtual ~Adjuster();
-  void setMaxThreads(int);
+  virtual void setMaxThreads(int);
   // SETMAXTHREADS - Specfiy how many threads this adjuster may use
-  void clear();
+  virtual int maxThreads() const { return maxthreads; }
+  virtual void clear();
   // CLEAR - Drop entire stack
-  bool isEmpty() const;
+  virtual bool isEmpty() const;
   // ISEMPTY - Return true if no image is set
-  void setOriginal(Image16 const &image);
+  virtual void setOriginal(Image16 const &image);
   /* SETORIGINAL - Loads a new original image into the adjuster
      SETORIGINAL(image) loads the given IMAGE into the adjuster, dropping
      any stages that previously existed. */
-  void setReduced(Image16 const &image, PSize originalSize);
+  virtual void setReduced(Image16 const &image, PSize originalSize);
   /* SETREDUCED - Loads a new original image at less than full size
      SETREDUCED(image, originalSize) loads a new original image into the
      adjuster, just like SETORIGINAL, but not at its full
@@ -70,7 +75,7 @@ public:
      quicker. RETRIEVEREDUCED will never upscale an image.
   */
 
-  PSize maxAvailableSize(Adjustments const &settings) const;
+  virtual PSize maxAvailableSize(Adjustments const &settings) const;
   /* MAXAVAILABLESIZE - Maximum size of an image that we can offer
      MAXAVAILABLESIZE(settings) returns the maximum size of an image
      that we have on offer for the given SETTINGS. The image itself must
@@ -78,8 +83,8 @@ public:
      depends both on the size of the original (as per SETREDUCED) and on
      the SETTINGS. (Especially, of course, crop and rotation settings.)
   */     
-  PSize neededScaledOriginalSize(Adjustments const &settings,
-                                 PSize desired) const;
+  virtual PSize neededScaledOriginalSize(Adjustments const &settings,
+					 PSize desired) const;
   /* NEEDEDSCALEDORIGINALSIZE - Minimum size required to produce desired version
      NEEDEDSCALEDORIGINALSIZE(settings, desired) calculates how large
      a scaled version of an original image is needed to produce an
@@ -95,7 +100,7 @@ public:
      resolution image.
   */
   Image16 retrieveReducedROI(Adjustments const &settings,
-                             QRect roi, PSize maxSize);
+			     QRect roi, PSize maxSize);
   /* RETRIEVEREDUCEDROI - Retrieves a tile from the image with settings applied.
      RETRIEVEREDUCEDROI(settings, roi, maxSize) retrieves a tile from the
      image with SETTINGS applied and reduced
@@ -105,7 +110,7 @@ public:
      to fill MAXSIZE. (Notes for RETRIEVEREDUCED apply.)
   */
 
-  void enableCaching(bool ec=true);
+  virtual void enableCaching(bool ec=true);
   /* ENABLECACHING - Enable storing intermediate stages.
      ENABLECACHING() enables storing intermediate stages.
      ENABLECACHING(ec) enables (if EC is true) or disables caching.
@@ -113,11 +118,11 @@ public:
      after some parameter changes, but it obviously takes more memory,
      so should be avoided during export.  Default is enabled.
   */
-  void disableCaching();
+  virtual void disableCaching();
   // DISABLECACHING - Disable storing intermediate stages.
-  bool isCaching() const { return caching; }
+  virtual bool isCaching() const { return caching; }
   // ISCACHING - Report whether caching is currently enabled
-  void preserveOriginal(bool po=true);
+  virtual void preserveOriginal(bool po=true);
   /* PRESERVEORIGINAL - Enable unconditional preservation of original image
      PRESERVEORIGINAL() enables preserving of the original image when caching
      is otherwise disabled.
@@ -130,9 +135,9 @@ public:
      Technical note: This feature prevents me from declaring the retrieveXXX
      functions const and the stages mutable. Oh well.
   */
-  bool preservesOriginal() const { return keeporiginal; }
+  virtual bool preservesOriginal() const { return keeporiginal; }
   // PRESERVESORIGINAL - Report whether original preservation is enabled
-  void cancel();
+  virtual void cancel();
   /* CANCEL - Attempt to abort retrieve operations
      Adjuster is not truly threadsafe, but one exception exists: It is
      always safe to call CANCEL(), which will attempt to abort any
@@ -168,6 +173,7 @@ private:
   /* The first stage is always the original image; subsequent stages may
      be used to cache various processing stages to speed up reprocessing.
   */
+protected:
   bool caching, keeporiginal, canceled;
   int maxthreads;
 };

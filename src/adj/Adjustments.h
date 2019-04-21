@@ -7,6 +7,7 @@
 #include <QMap>
 #include <QStringList>
 #include "Exif.h"
+#include <QDebug>
 
 class Adjustments {
   /* ADJUSTMENTS - Storage class for collection of slider settings
@@ -17,9 +18,7 @@ class Adjustments {
    */
 public:
   Adjustments();
-  explicit Adjustments(QString kv): Adjustments() { setAll(kv); }
   void reset();
-  void setAll(QString kv);
   void setAll(QMap<QString, double> const &);
   static Adjustments fromDB(quint64 vsn, class PhotoDB &db);
   static Adjustments fromDB(quint64 vsn, int layer, class PhotoDB &db);
@@ -38,7 +37,6 @@ public:
   */
   void readFromDBForLayer(quint64 layer,  class PhotoDB &db);
   void writeToDBForLayer(quint64 layer, class PhotoDB &db) const;
-  QString getAll() const;
   bool set(QString k, double v);
   double get(QString k) const;
   bool operator==(Adjustments const &) const;
@@ -56,5 +54,7 @@ public:
   static QMap<QString, double> const &defaults();
   static double defaultFor(QString k) { return defaults()[k]; }
 };
+
+QDebug &operator<<(QDebug &, Adjustments const &);
 
 #endif
