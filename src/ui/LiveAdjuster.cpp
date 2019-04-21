@@ -82,7 +82,7 @@ void LiveAdjuster::reloadLayers(quint64 v, int lowest) {
     COMPLAIN("LiveAdjuster::reloadLayers: vsn mismatch");
     return;
   }
-  pDebug() << "reloadLayers" << v << lowest;
+  //  pDebug() << "reloadLayers" << v << lowest;
   loadLayers(lowest);
   forceUpdate();
 }
@@ -105,7 +105,7 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
     COMPLAIN("LiveAdjuster::reloadSliders: vsn mismatch");
     return;
   }
-  pDebug() << "reloadSliders" << v << lay << sli;
+  //  pDebug() << "reloadSliders" << v << lay << sli;
   if (lay==0) {
     if (sli==adjs.baseAdjustments())
       return;
@@ -126,19 +126,19 @@ void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
     return;
   }
   if (mustoffermod) {
-    pDebug() << "LiveAdj: must offer mod";
+    //    pDebug() << "LiveAdj: must offer mod";
     mustoffermod = false;
     cache->cacheModified(version, img);
   } else {
-    pDebug() << "LiveAdj: not offering mod";
+    //    pDebug() << "LiveAdj: not offering mod";
   }
   if (mustshowupdate) {
-    pDebug() << "LiveAdj: mustshowupdate";
+    //    pDebug() << "LiveAdj: mustshowupdate";
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
     emit imageAvailable(img, version, fs);
   } else {
-    pDebug() << "LiveAdj: not showing update";
+    //    pDebug() << "LiveAdj: not showing update";
   }
 }
   

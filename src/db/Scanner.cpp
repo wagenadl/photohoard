@@ -197,7 +197,7 @@ void Scanner::run() {
       waiter.wait(&mutex);
     }
   }
-  pDebug() << "Scanner end of run";
+  //  pDebug() << "Scanner end of run";
 }
 
 QSet<quint64> Scanner::findPhotosToScan() {
@@ -213,7 +213,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
   int n0 = n;
   for (auto id: ids) {
     while (db.transactionsWaiting()) {
-      pDebug() << "scanner waiting in photos";
+      //      pDebug() << "scanner waiting in photos";
       usleep(100000);
     }
 
@@ -311,7 +311,7 @@ void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
   // let's update the database
 
   while (db.transactionsWaiting()) {
-    pDebug() << "Scanner waiting in folders";
+    //    pDebug() << "Scanner waiting in folders";
     usleep(100000); 
   }
   
@@ -464,19 +464,19 @@ void Scanner::scanPhoto(quint64 id) {
 
 
 void Scanner::reportPhotoProgress() {
-  pDebug() << "Photo scan progress: " << n << " / " << N;
+  //  pDebug() << "Photo scan progress: " << n << " / " << N;
   QString msg = QString("Scanning photos: %1/%2").arg(n).arg(N);
   emit message(msg);
 }
 
 void Scanner::reportFolderProgress() {
-  pDebug() << "Folder scan progress: " << m << " / " << M;
+  //  pDebug() << "Folder scan progress: " << m << " / " << M;
   QString msg = QString("Scanning folders: %1/%2").arg(m).arg(M);
   emit message(msg);
 }
 
 void Scanner::reportScanDone() {
-  pDebug() << "Scan complete";
+  //  pDebug() << "Scan complete";
   emit message("Scan complete");
 }
 

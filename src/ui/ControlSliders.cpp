@@ -20,7 +20,7 @@ ControlSliders::ControlSliders(QWidget *parent): ControlSliders(false, parent) {
 }
 
 ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
-  pDebug() << "ControlSliders" << this << ro << parent;
+  //  pDebug() << "ControlSliders" << this << ro << parent;
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
