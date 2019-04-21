@@ -182,7 +182,7 @@ void SlideView::makeActions() {
       "Display grid of thirds",
 	[this]() {
 	SO_Grid *so = findOverlay<SO_Grid>(this);
-        qDebug() << "SV:so=" << so;
+        //qDebug() << "SV:so=" << so;
 	if (so) 
 	  delete so;
 	else
@@ -408,15 +408,13 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
   futvsn = vsn;
   futlay = lay;
   if (vsn!=vsnid) {
-    pDebug() << "SlideView::visualizeLayer: vsn mismatch" << vsn
-	     << "exp" << vsnid;
+    //pDebug() << "SlideView::visualizeLayer: vsn mismatch" << vsn
+    //	     << "exp" << vsnid;
     return;
   }
-  
-  qDebug() << "Visualize layer" << vsn << lay;
 
   SO_Layer *so = findOverlay<SO_Layer>(this);
-  qDebug() << "old layer" << so;
+  //  qDebug() << "old layer" << so;
   if (so) 
     delete so;
 

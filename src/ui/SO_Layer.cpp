@@ -28,10 +28,10 @@ void SO_Layer::paintEvent(QPaintEvent *) {
   QPainter ptr(this);
   QTransform const &xf = base()->transformationFromImage();
   QPolygonF poly = layer.points();
-  qDebug() << "SO_Layer::render" << poly;
+  // pDebug() << "SO_Layer::render" << poly;
   for (auto &p: poly)
     p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
-  qDebug() << "  ->" << poly;
+  //pDebug() << "  ->" << poly;
 
   bool first = true;
   QPen b(QColor(255,0,0));
@@ -71,7 +71,7 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
   QTransform const &xf = base()->transformationFromImage();
   QPolygonF poly0 = layer.points();
   QPolygonF poly = poly0;
-  qDebug() << "SO_Layer::render" << poly;
+  //pDebug() << "SO_Layer::render" << poly;
   for (auto &p: poly)
     p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
 

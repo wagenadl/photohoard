@@ -368,7 +368,7 @@ void CropControls::reflectAndEmit() {
 }  
 
 void CropControls::toggleOrient() {
-  qDebug() << "toggleOrient";
+  //  qDebug() << "toggleOrient";
   if (ui->orientControls[Orient::Landscape]->isChecked()) {
     if (calc->aspectRatio()<1) {
       calc->setOrient(Orient::Landscape);

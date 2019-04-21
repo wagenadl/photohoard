@@ -40,8 +40,8 @@ void LayerDialog::setVersion(quint64 v) {
 
   for (int n=1; n<=N; n++) {
     Layer layer = layers.layer(n);
-    pDebug() << "layerdialog::setversion" << v << n
-             << int(layer.type()) << layer.points();
+    //pDebug() << "layerdialog::setversion" << v << n
+    //         << int(layer.type()) << layer.points();
     ui->table->setVerticalHeaderItem(N-n,
 				   new QTableWidgetItem(QString("%1").arg(n)));
     ui->table->setItem(N-n, 0, new QTableWidgetItem(layer.isActive()
@@ -51,7 +51,7 @@ void LayerDialog::setVersion(quint64 v) {
     ui->table->setItem(N-n, 2, new QTableWidgetItem(layer.typeName()));
   }
   bool explicitnew = lastlay==N;
-  pDebug() << "layerdialog setversion explicitnew" << explicitnew;
+  //pDebug() << "layerdialog setversion explicitnew" << explicitnew;
   lastlay = 0;
   selectLayer(N);
   if (explicitnew)
@@ -69,7 +69,7 @@ void LayerDialog::selectLayer(int lay) {
 
 
 void LayerDialog::addGradientLayer() {
-  pDebug() << "addGradientLayer";
+  //pDebug() << "addGradientLayer";
   Layers ll(vsn, db);
   Layer l;
   l.setType(Layer::Type::LinearGradient);
@@ -101,7 +101,7 @@ void LayerDialog::deleteLayer() {
   emit maskEdited(lay);
   
   setVersion(vsn);
-  pDebug() << "deleted layer" << lay << lastlay;
+  //  pDebug() << "deleted layer" << lay << lastlay;
   selectLayer(Layers(vsn, db).count());
 }
 
@@ -168,7 +168,7 @@ void LayerDialog::showHideMask() {
 
 void LayerDialog::newSelection() {
   int lay = selectedLayer();
-  pDebug() << "layer dialog new selection" << lay << lastlay;
+  //  pDebug() << "layer dialog new selection" << lay << lastlay;
   if (lay!=lastlay) {
     lastlay = lay;
     emit layerSelected(lay);
@@ -191,16 +191,16 @@ void LayerDialog::newSelection() {
 int LayerDialog::selectedLayer() const {
   int rows = ui->table->rowCount();
   auto range = ui->table->selectedRanges();
-  pDebug() << "selectedlayer"
-	   << (range.isEmpty() ? 0 : rows - range.first().topRow())
-	   << "out of" << rows << range.isEmpty();
+  //pDebug() << "selectedlayer"
+  //	   << (range.isEmpty() ? 0 : rows - range.first().topRow())
+  //	   << "out of" << rows << range.isEmpty();
   if (range.isEmpty())
     return 0;
   return rows - range.first().topRow();
 }
 
 void LayerDialog::respondToClick(int r, int c) {
-  pDebug() << "click" << r << c;
+  //pDebug() << "click" << r << c;
   switch (c) {
   case 0: // visibility
     showHideLayer();

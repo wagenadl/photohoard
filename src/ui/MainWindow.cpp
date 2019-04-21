@@ -75,7 +75,7 @@ MainWindow::MainWindow(SessionDB *db,
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
-  qDebug() << "help sizehint" << shortcutHelp->sizeHint();
+  //  qDebug() << "help sizehint" << shortcutHelp->sizeHint();
 
   setCentralWidget(lightTable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
@@ -172,7 +172,7 @@ MainWindow::MainWindow(SessionDB *db,
     restoreGeometry(s.get("mwgeom").toByteArray());
   if (s.contains("mwstate"))
     restoreState(s.get("mwstate").toByteArray());
-  qDebug() << "Mainwindow" << geometry();
+  //  qDebug() << "Mainwindow" << geometry();
   lightTable->resize(size());
   lightTable->restoreSizes();
 }
