@@ -3,6 +3,7 @@
 #include "AllAdjuster.h"
 
 AllAdjuster::AllAdjuster(QObject *parent): Adjuster(parent) {
+  validUntil = -1;
 }
 
 AllAdjuster::~AllAdjuster() {
@@ -20,8 +21,7 @@ void AllAdjuster::clear() {
   Adjuster::clear();
   for (Adjuster *a: layerAdjusters)
     a->clear();
-  for (bool &b: validInput)
-    b = false;
+  validUntil = -1;
   lastrq = AllAdjustments();
 }
 
@@ -32,19 +32,42 @@ bool AllAdjuster::isEmpty() const {
 
 void AllAdjuster::setOriginal(Image16 const &image) {
   Adjuster::setOriginal(image);
-  for (bool &b: validInput)
-    b = false;
+  validUntil = 0;
 }
 
 void AllAdjuster::setReduced(Image16 const &image, PSize originalSize) {
   Adjuster::setReduced(image, originalSize);
-  for (bool &b: validInput)
-    b = false;
+  validUntil = 0;
 }
 
 Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
-  return Adjuster::retrieveFull(settings.baseAdjustments());
-  // Grossly inadequate, of course
+  if (validUntil<0)
+    return Image16(); // no image set at all
+  int N = settings.layerCount();
+  ensureAdjusters(N);
+  int n = 0;
+  /* We need to find the greatest n such that settings are unchanged for
+     all k<n */
+  if (validUntil>0 && settings.baseAdjustments()==lastrq.baseAdjustments()) {
+    n = 1;
+    while (n<validUntil
+	   && settings.layerAdjustments(n)==lastrq.layerAdjustments(n))
+      ++n;
+  }
+  // n is the first layer where anything has changed.
+  // We know that layer n has valid input.
+  Image16 img;
+  while (n<=N) {
+    if (n==0) 
+      img = Adjuster::retrieveFull(settings.baseAdjustments());
+    else
+      img = layerAdjusters[n-1]->retrieveFull(settings.baseAdjustments());
+    n++;
+    if (n<=N)
+      layerAdjusters[n-1]->setOriginal(img);
+    validUntil = n;
+  }
+  return img;
 }
 
 Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
@@ -93,7 +116,6 @@ void AllAdjuster::ensureAdjusters(int nLayers) {
     adj->preserveOriginal(preservesOriginal());
     adj->setMaxThreads(maxThreads());
     layerAdjusters << adj;
-    validInput << false;
   }
 }
 

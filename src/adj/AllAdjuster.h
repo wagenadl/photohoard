@@ -44,8 +44,9 @@ protected:
   // layers not counting the base.
 protected:
   QList<Adjuster *> layerAdjusters; // index k corresponds to the layer
-  // that would be called n = k+1 in Layers and AllAdjustments.
-  QList<bool> validInput; // does adjuster k have valid input?
+         // that would be called n = k+1 in Layers and AllAdjustments.
+  int validUntil; // highest layer adjuster that has valid input (1..N);
+         // <= 0 if none
   AllAdjustments lastrq;
 };
 
