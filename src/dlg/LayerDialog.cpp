@@ -16,7 +16,6 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   ui->setupUi(this);
   //  setVersion(0);
   sliders = new ControlSliders(db->isReadOnly(), 0);
-  qDebug() << "added sliders";
   sliders->setLayer(1); // make sure not to show recompose group
   ui->verticalLayout->addWidget(sliders);
   Dialog::ensureSize(this);
@@ -26,6 +25,7 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
 
 void LayerDialog::setVersion(quint64 v) {
   vsn = v;
+  adjs.clear();
   if (vsn==0) {
     ui->table->setRowCount(0);
     sliders->setAll(Adjustments());
@@ -40,7 +40,7 @@ void LayerDialog::setVersion(quint64 v) {
 
   for (int n=1; n<=N; n++) {
     Layer layer = layers.layer(n);
-    qDebug() << "layerdialog::setversion" << v << n
+    pDebug() << "layerdialog::setversion" << v << n
              << int(layer.type()) << layer.points();
     ui->table->setVerticalHeaderItem(N-n,
 				   new QTableWidgetItem(QString("%1").arg(n)));
@@ -51,7 +51,7 @@ void LayerDialog::setVersion(quint64 v) {
     ui->table->setItem(N-n, 2, new QTableWidgetItem(layer.typeName()));
   }
   bool explicitnew = lastlay==N;
-  qDebug() << "layerdialog setversion explicitnew" << explicitnew;
+  pDebug() << "layerdialog setversion explicitnew" << explicitnew;
   lastlay = 0;
   selectLayer(N);
   if (explicitnew)
@@ -85,7 +85,6 @@ void LayerDialog::addGradientLayer() {
 }
 
 void LayerDialog::addLayer() {
-  qDebug() << "addlayer";
   addGradientLayer();
 }
 
@@ -179,7 +178,7 @@ void LayerDialog::newSelection() {
       adjs[lay] = Adjustments::fromDB(vsn, lay, *db);
     sliders->setAll(adjs[lay]);
   } else {
-    // sliders->setAll(Adjustments());
+    sliders->setAll(Adjustments());
   }
   sliders->setEnabled(lay>0);
   ui->del->setEnabled(lay>0);
@@ -192,6 +191,9 @@ void LayerDialog::newSelection() {
 int LayerDialog::selectedLayer() const {
   int rows = ui->table->rowCount();
   auto range = ui->table->selectedRanges();
+  pDebug() << "selectedlayer"
+	   << (range.isEmpty() ? 0 : rows - range.first().topRow())
+	   << "out of" << rows << range.isEmpty();
   if (range.isEmpty())
     return 0;
   return rows - range.first().topRow();
