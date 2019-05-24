@@ -101,6 +101,7 @@ public:
      image with SETTINGS applied and reduced
      in resolution to fit within the given MAXSIZE.
      ROI is specified in units of pixels of the *unreduced* final image.
+     [THIS MAY HAVE TO BE RETHOUGHT.]
      This always succeeds, even if we don't have sufficient resolution
      to fill MAXSIZE. (Notes for RETRIEVEREDUCED apply.)
   */
