@@ -23,7 +23,7 @@ OriginalFinder::~OriginalFinder() {
 }
 
 void OriginalFinder::requestOriginal(quint64 version) {
-  pDebug() << "OF::requestOriginal" << version;
+  // pDebug() << "OF::requestOriginal" << version;
   requestScaledOriginal(version, PSize(0, 0));
 }
 
@@ -32,7 +32,7 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
-  pDebug() << "OF::requestScaledOriginal" << vsn << ds;
+  // pDebug() << "OF::requestScaledOriginal" << vsn << ds;
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "
                 " from versions"
@@ -58,7 +58,7 @@ void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
     reader = filereader;
     rawreader->cancel();
   } else {
-    pDebug() << "OriginalFinder: Do not know how to handle " << ext;
+    COMPLAIN("OriginalFinder: Do not know how to handle " + ext);
     ASSERT(reader);
   }
   desired = ds;
@@ -86,11 +86,11 @@ void OriginalFinder::fixOrientation(Image16 &img) {
 }  
 
 void OriginalFinder::provide(QString fn, InterruptableReader::Result res) {
-  pDebug() << "OF::provide" << fn << res.ok << res.error;
+  // pDebug() << "OF::provide" << fn << res.ok << res.error;
   if (fn!=filepath)
     return;
   if (!res.ok) {
-    pDebug() << "OF::provide: " << res.error << " on " << fn;
+    // pDebug() << "OF::provide: " << res.error << " on " << fn;
     COMPLAIN("OriginalFinder: got no result for " + fn);
     return;
   }

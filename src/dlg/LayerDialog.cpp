@@ -25,6 +25,7 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
 
 void LayerDialog::setVersion(quint64 v) {
   vsn = v;
+  adjs.clear();
   if (vsn==0) {
     ui->table->setRowCount(0);
     sliders->setAll(Adjustments());
@@ -39,8 +40,8 @@ void LayerDialog::setVersion(quint64 v) {
 
   for (int n=1; n<=N; n++) {
     Layer layer = layers.layer(n);
-    qDebug() << "layerdialog::setversion" << v << n
-             << int(layer.type()) << layer.points();
+    //pDebug() << "layerdialog::setversion" << v << n
+    //         << int(layer.type()) << layer.points();
     ui->table->setVerticalHeaderItem(N-n,
 				   new QTableWidgetItem(QString("%1").arg(n)));
     ui->table->setItem(N-n, 0, new QTableWidgetItem(layer.isActive()
@@ -49,8 +50,12 @@ void LayerDialog::setVersion(quint64 v) {
     ui->table->setItem(N-n, 1, new QTableWidgetItem(QString::fromUtf8("-")));
     ui->table->setItem(N-n, 2, new QTableWidgetItem(layer.typeName()));
   }
+  bool explicitnew = lastlay==N;
+  //pDebug() << "layerdialog setversion explicitnew" << explicitnew;
   lastlay = 0;
   selectLayer(N);
+  if (explicitnew)
+    newSelection();
 }
 
 LayerDialog::~LayerDialog() {
@@ -64,7 +69,7 @@ void LayerDialog::selectLayer(int lay) {
 
 
 void LayerDialog::addGradientLayer() {
-  pDebug() << "addGradientLayer";
+  //pDebug() << "addGradientLayer";
   Layers ll(vsn, db);
   Layer l;
   l.setType(Layer::Type::LinearGradient);
@@ -80,7 +85,6 @@ void LayerDialog::addGradientLayer() {
 }
 
 void LayerDialog::addLayer() {
-  qDebug() << "addlayer";
   addGradientLayer();
 }
 
@@ -97,7 +101,7 @@ void LayerDialog::deleteLayer() {
   emit maskEdited(lay);
   
   setVersion(vsn);
-  pDebug() << "deleted layer" << lay << lastlay;
+  //  pDebug() << "deleted layer" << lay << lastlay;
   selectLayer(Layers(vsn, db).count());
 }
 
@@ -159,12 +163,12 @@ void LayerDialog::showHideLayer() {
 }
 
 void LayerDialog::showHideMask() {
-  pDebug() << "show/hide mask NYI";
+  COMPLAIN("show/hide mask NYI");
 }
 
 void LayerDialog::newSelection() {
   int lay = selectedLayer();
-  pDebug() << "new selection" << lay << lastlay;
+  //  pDebug() << "layer dialog new selection" << lay << lastlay;
   if (lay!=lastlay) {
     lastlay = lay;
     emit layerSelected(lay);
@@ -174,7 +178,7 @@ void LayerDialog::newSelection() {
       adjs[lay] = Adjustments::fromDB(vsn, lay, *db);
     sliders->setAll(adjs[lay]);
   } else {
-    // sliders->setAll(Adjustments());
+    sliders->setAll(Adjustments());
   }
   sliders->setEnabled(lay>0);
   ui->del->setEnabled(lay>0);
@@ -187,13 +191,16 @@ void LayerDialog::newSelection() {
 int LayerDialog::selectedLayer() const {
   int rows = ui->table->rowCount();
   auto range = ui->table->selectedRanges();
+  //pDebug() << "selectedlayer"
+  //	   << (range.isEmpty() ? 0 : rows - range.first().topRow())
+  //	   << "out of" << rows << range.isEmpty();
   if (range.isEmpty())
     return 0;
   return rows - range.first().topRow();
 }
 
 void LayerDialog::respondToClick(int r, int c) {
-  pDebug() << "click" << r << c;
+  //pDebug() << "click" << r << c;
   switch (c) {
   case 0: // visibility
     showHideLayer();

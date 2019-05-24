@@ -109,7 +109,7 @@ void LightTable::restoreSizes() {
     .get("gridsize", strips->idealSize(Strip::Arrangement::Grid))
     .toInt();
   setSizes(QList<int>() << lastgridsize << width()-lastgridsize);
-  qDebug() <<"restoresizes" << lastgridsize << width()-lastgridsize;
+  //  qDebug() <<"restoresizes" << lastgridsize << width()-lastgridsize;
 }  
 
 LightTable::~LightTable() {
@@ -661,11 +661,11 @@ void LightTable::reloadVersion(quint64 vsn) {
 }
 
 void LightTable::startDrag(quint64 id) {
-  qDebug() << "Start drag for " << id;
+  //  qDebug() << "Start drag for " << id;
 
   PhotoDB::PhotoRecord pr = db->photoRecord(db->photoFromVersion(id));
   QString fn = pr.filename;
-  qDebug() << "  fn = " << fn;
+  //  qDebug() << "  fn = " << fn;
   if (fn.isEmpty()) {
     COMPLAIN("fn is empty-can't drag");
     return;
@@ -724,11 +724,11 @@ void LightTable::visualizeLayer(quint64 vsn, int lay) {
 void LightTable::saveSplitterPos() {
   switch (lay) {
   case LayoutBar::Layout::HGrid:
-    qDebug() << "saveSplitterPos H" << strips->width() << strips->height();
+    //    qDebug() << "saveSplitterPos H" << strips->width() << strips->height();
     Settings().set("gridsize", strips->height());
     break;
   case LayoutBar::Layout::VGrid:
-    qDebug() << "saveSplitterPos V" << strips->width() << strips->height();
+    //    qDebug() << "saveSplitterPos V" << strips->width() << strips->height();
     Settings().set("gridsize", strips->width());
     break;
   default:

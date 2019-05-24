@@ -46,20 +46,7 @@ void LiveAdjuster::markVersionAndSize(quint64 v, QSize s) {
 }
 
 void LiveAdjuster::loadLayers(int lowest) {
-  Layers ll(version, db);
-  int N = ll.count();
-  if (lowest==0) {
-    adjs.clear();
-  } else {
-    for (auto k: adjs.keys())
-      if (k>N)
-	adjs.remove(k);
-  }
-  adjs[0] = Adjustments::fromDB(version, *db);
-  if (lowest==0)
-    lowest=1;
-  for (int n=lowest; n<=N; n++)
-    adjs[n] = Adjustments::fromDB(version, n, *db);
+  adjs.rereadFromDB(version, lowest, *db);
 }  
 
 void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
@@ -70,17 +57,19 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
     targetsize = s;
   mustshowupdate = true;
 
-  PSize maxav = adjuster->maxAvailableSize(adjs[0], v);
+  PSize maxav = adjuster->maxAvailableSize(adjs.baseAdjustments(), v);
   bool needBigger = PSize(s).exceeds(maxav);
   bool canBigger = originalSize.isEmpty()
-    || Geometry::croppedSize(originalSize, adjs[0]).exceeds(maxav);
+    || Geometry::croppedSize(originalSize, adjs.baseAdjustments())
+    .exceeds(maxav);
   
   if (newvsn || (needBigger && canBigger)) {
     if (newvsn)
       adjuster->clear();
     else
       adjuster->cancelRequest();
-    PSize needed = Geometry::neededScaledOriginalSize(originalSize, adjs[0],
+    PSize needed = Geometry::neededScaledOriginalSize(originalSize,
+						      adjs.baseAdjustments(),
 						      targetsize);
     ofinder->requestScaledOriginal(version, needed);
   } else {
@@ -90,10 +79,10 @@ void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
 
 void LiveAdjuster::reloadLayers(quint64 v, int lowest) {
   if (v!=version) {
-    pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
+    COMPLAIN("LiveAdjuster::reloadLayers: vsn mismatch");
     return;
   }
-
+  //  pDebug() << "reloadLayers" << v << lowest;
   loadLayers(lowest);
   forceUpdate();
 }
@@ -113,37 +102,43 @@ void LiveAdjuster::forceUpdate() {
 
 void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
   if (v!=version) {
-    pDebug() << "LiveAdjuster::reloadSliders: vsn mismatch";
+    COMPLAIN("LiveAdjuster::reloadSliders: vsn mismatch");
     return;
   }
-  ASSERT(adjs.contains(lay));
-  if (sli==adjs[lay])
-    return;
-
-  adjs[lay] = sli;
+  //  pDebug() << "reloadSliders" << v << lay << sli;
+  if (lay==0) {
+    if (sli==adjs.baseAdjustments())
+      return;
+    adjs.baseAdjustments() = sli;
+  } else {
+    ASSERT(lay>=1 && lay<=adjs.layerCount());
+    if (sli==adjs.layerAdjustments(lay))
+      return;
+    adjs.layerAdjustments(lay) = sli;
+  }
 
   forceUpdate();
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
   if (v!=version) {
-    pDebug() << "LiveAdjuster: version mismatch";
+    COMPLAIN("LiveAdjuster: version mismatch");
     return;
   }
   if (mustoffermod) {
-    pDebug() << "LiveAdj: must offer mod";
+    //    pDebug() << "LiveAdj: must offer mod";
     mustoffermod = false;
     cache->cacheModified(version, img);
   } else {
-    pDebug() << "LiveAdj: not offering mod";
+    //    pDebug() << "LiveAdj: not offering mod";
   }
   if (mustshowupdate) {
-    pDebug() << "LiveAdj: mustshowupdate";
+    //    pDebug() << "LiveAdj: mustshowupdate";
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
     emit imageAvailable(img, version, fs);
   } else {
-    pDebug() << "LiveAdj: not showing update";
+    //    pDebug() << "LiveAdj: not showing update";
   }
 }
   

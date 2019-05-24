@@ -134,6 +134,8 @@ private:
   class ThreadedTransform *threadedTransform;
   quint64 rqid;
   PSize rqsize;
+  quint64 futvsn;
+  int futlay;
 private slots:
   void setCMSImage(quint64, Image16);
 };

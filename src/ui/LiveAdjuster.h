@@ -7,7 +7,7 @@
 #include <QObject>
 #include "PhotoDB.h"
 #include "Image16.h"
-#include "Adjustments.h"
+#include "AllAdjustments.h"
 #include <QMap>
 
 class LiveAdjuster: public QObject {
@@ -43,7 +43,7 @@ private:
   AutoCache *cache;  // we do not own
   quint64 version;
   PSize targetsize;
-  QMap<int, Adjustments> adjs;
+  AllAdjustments adjs;
   class InterruptableAdjuster *adjuster; // we own
   class OriginalFinder *ofinder; // we own
   bool mustshowupdate;
