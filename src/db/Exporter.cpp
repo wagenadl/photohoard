@@ -46,7 +46,7 @@ void Exporter::copyFilenameToClipboard(quint64 vsn) {
   /* To be called from parent thread only. */
   if (settings().isValid()) {
     QString fn = settings().exportFilename(db0, vsn);
-    qDebug() << "filename: " << fn;
+    //pDebug() << "filename: " << fn;
     QApplication::clipboard()->setText(fn);
   } else {
     qDebug() << "Exporter settings not valid—nothing to copy";
@@ -102,12 +102,12 @@ void Exporter::stop() {
   stopsoon = true;
   if (!isRunning())
     return;
-  pDebug() << "Exporter: stop";
+  //pDebug() << "Exporter: stop";
   mutex.lock();
-  pDebug() << "Exporter: stop: lock";
+  //pDebug() << "Exporter: stop: lock";
   cond.wakeOne();
   mutex.unlock();
-  pDebug() << "Sent wakeup";
+  //  pDebug() << "Sent wakeup";
   if (!wait(10000))
     COMPLAIN("Warning: Exporter: failed to stop");
 }
@@ -116,9 +116,9 @@ void Exporter::run() {
   QTime t0;
   t0.start();
   mutex.lock();
-  pDebug() << "Exporter running";
+  //  pDebug() << "Exporter running";
   while (!stopsoon) {
-    pDebug() << "Not yet stopping";
+    //    pDebug() << "Not yet stopping";
     while (!jobs.isEmpty()) {
       Job &job(jobs.first());
       if (job.todo.isEmpty()) {
@@ -152,14 +152,14 @@ void Exporter::run() {
       }
     }
     if (!stopsoon) {
-      pDebug() << "Exporter waiting";
+      //      pDebug() << "Exporter waiting";
       cond.wait(&mutex);
-      pDebug() << "Exporter wakeup";
+      //pDebug() << "Exporter wakeup";
     }
   }
-  pDebug() << "Exporter out of loop";
+  //  pDebug() << "Exporter out of loop";
   mutex.unlock();
-  pDebug() << "Exporter end run";
+  //  pDebug() << "Exporter end run";
 }
 
 

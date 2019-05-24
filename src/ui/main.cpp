@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
   }
 
   Application app(argc, argv);
-  pDebug() << "Application constructed";
+  //pDebug() << "Application constructed";
   ScreenResolution sr;
   std::thread sr_thread([&sr]() { sr.dpi(); });
   /* Experimentally, calculating the screen reso in a separate thread

@@ -137,7 +137,7 @@ void SessionDB::upgradeDBVersion() {
   // update to version 1.2 if needed
   QString dbvsn
     = simpleQuery("select version from info where id=='PhotoDB'").toString();
-  pDebug() << "db version is" << dbvsn;
+  // pDebug() << "db version is" << dbvsn;
   if (dbvsn<"1.2") {
     query("alter table layers add column alpha real");
     query("alter table layers add column feather real");

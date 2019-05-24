@@ -88,7 +88,7 @@ void AllControls::changeFromCropper(QRect croprect, QSize osize) {
 }
 
 void AllControls::layerIndexChange(int lay) {
-  qDebug() << "layerIndexChange" << lay;
+  //qDebug() << "layerIndexChange" << lay;
   if (currentWidget()==layers) {
     emit layerSelected(vsn, lay);
   }
@@ -130,7 +130,7 @@ void AllControls::changeOfTabIndex() {
 }
 
 void AllControls::maskChangeFromLayers(int lay) {
-  pDebug() << "mask change" << vsn << lay;
+  //  pDebug() << "mask change" << vsn << lay;
   emit maskChanged(vsn, lay);
 }
 

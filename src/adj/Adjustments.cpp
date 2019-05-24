@@ -61,31 +61,32 @@ void Adjustments::reset() {
 #undef ADJUSTMENT
 }
 
-void Adjustments::setAll(QString kvv) {
-  reset();
-  QStringList pairs = kvv.split(";");
-  for (QString pair: pairs) {
-    QStringList kv = pair.split("=");
-    if (kv.size()==2) {
-      QString k = kv[0].simplified();
-      QString v = kv[1].simplified();
-      set(k, v.toDouble()); // could be more sophisticated
-    } else if (!pair.isEmpty()) {
-      COMPLAIN("Adjustments: Bad kv pair ");
-    }
-  }
-}
+//void Adjustments::setAll(QString kvv) {
+//  reset();
+//  QStringList pairs = kvv.split(";");
+//  for (QString pair: pairs) {
+//    QStringList kv = pair.split("=");
+//    if (kv.size()==2) {
+//      QString k = kv[0].simplified();
+//      QString v = kv[1].simplified();
+//      set(k, v.toDouble()); // could be more sophisticated
+//    } else if (!pair.isEmpty()) {
+//      COMPLAIN("Adjustments: Bad kv pair ");
+//    }
+//  }
+//}
+//
 
-QString Adjustments::getAll() const {
+QDebug &operator<<(QDebug &dbg, Adjustments const &adj) {
   QStringList pairs;
-  for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
+  for (auto it=adj.defaults().begin(); it!=adj.defaults().end(); ++it) {
     QString k = it.key();
     double v0 = it.value();
-    double v = get(k);
+    double v = adj.get(k);
     if (v!=v0) 
       pairs << (k + "=" + QString::number(v, 'f', 2));
   }
-  return pairs.join(";");
+  dbg << pairs.join(";");
 }
 
 bool Adjustments::operator==(Adjustments const &s) const {

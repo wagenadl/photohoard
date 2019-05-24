@@ -20,6 +20,11 @@ public:
   static QString typeName(Type);
 public:
   Layer();
+  static Layer fromDB(quint64 vsn, int stacking, class PhotoDB const &db);
+  void readFromDB(quint64 vsn, int stacking, class PhotoDB const &db);
+  static Layer fromDB(quint64 layerid, class PhotoDB const &db);
+  void readFromDB(quint64 layerid, class PhotoDB const &db);
+  void writeToDB(quint64 vsn, int stacking, class PhotoDB &db) const;
   bool isActive() const;
   void setActive(bool);
   Type type() const;
@@ -29,7 +34,7 @@ public:
   void setData(QByteArray const &);
   QPolygon points() const;
   void setPoints(QPolygon const &);
-  QImage mask(QSize origSize, class Adjustments const &) const;
+  QImage mask(QSize origSize, class Adjustments const &baseadj) const;
   /* MASK - Return alpha mask for layer
      Current implementation is grossly inadequate. It returns an origSize-sized
      mask rather than one suitable for applying to a geometrically transformed
@@ -40,6 +45,8 @@ public:
   QString name() const;
   void setName(QString);
 private:
+  void readFromDB(class QSqlQuery &);
+private:
   bool active;
   Type typ;
   double alph;
@@ -48,18 +55,24 @@ private:
 };
 
 class Layers {
+  /* This class is a thin handle onto db info. It does not automatically
+     load information from all layers; this is done on request.
+     Caution: As a consequence, functions like count() and layer(n) have
+     to touch the db every time they are called.
+   */
 public:
   Layers(quint64 vsn, class PhotoDB *db);
   int count() const;
-  // Note that layers are counted 1..N, N being topmost
-  Layer layer(int) const;
-  quint64 layerID(int) const;
+  // Note that layers are counted 1..N, N being topmost. The layer number n
+  // here corresponds to the "stacking" column in the database.
+  Layer layer(int n) const;
+  quint64 layerID(int n) const;
 public: // Following create a transaction to modify the db
   void addLayer(Layer const &); // to top of stack
-  void raiseLayer(int);
-  void lowerLayer(int);
-  void deleteLayer(int);
-  void setLayer(int, Layer const &);
+  void raiseLayer(int n);
+  void lowerLayer(int n);
+  void deleteLayer(int n);
+  void setLayer(int n, Layer const &);
 private:
   PhotoDB *db;
   quint64 vsn;
