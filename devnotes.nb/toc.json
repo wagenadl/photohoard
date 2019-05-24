@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2019-01-09T20:13:00",
+  "mod": "2019-01-24T21:03:41",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -365,12 +365,21 @@
     },
     { "typ": "entry",
       "cre": "2019-01-09T19:56:01",
-      "mod": "2019-01-09T20:13:00",
-      "seen": "2019-01-09T19:56:59",
+      "mod": "2019-01-10T07:35:08",
+      "seen": "2019-01-10T07:35:08",
       "sheetCount": 2,
       "startPage": 63,
       "title": "AdjusterTile",
       "uuid": "4c3e7cbc"
+    },
+    { "typ": "entry",
+      "cre": "2019-01-10T07:35:15",
+      "mod": "2019-01-24T21:03:41",
+      "seen": "2019-01-24T21:03:41",
+      "sheetCount": 1,
+      "startPage": 65,
+      "title": "AdjusterTile (cont’d): Cropping and reducing",
+      "uuid": "fc591cac"
     }
   ]
 }

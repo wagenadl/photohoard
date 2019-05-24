@@ -1,0 +1,235 @@
+{ "typ": "page",
+  "cre": "2019-01-10T07:35:15",
+  "mod": "2019-01-10T07:43:11",
+  "cui": "9bb13e86c7bc19b2",
+  "stampTime": 0,
+  "startPage": 65,
+  "unlocked": false,
+  "uuid": "fc591cac",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2019-01-10T07:35:15",
+      "mod": "2019-01-10T07:35:15",
+      "uuid": "ffd5da02",
+      "cc": [
+        { "typ": "res",
+          "cre": "2019-01-10T07:35:15",
+          "mod": "2019-01-10T07:35:15",
+          "archive": "64_-5707bf8e",
+          "desc": "",
+          "preview": "64_-5707bf8ep.png",
+          "source": "page://0.0.0.64/4c3e7cbc/1",
+          "tag": "64",
+          "title": "",
+          "uuid": "5707bf8e"
+        }
+      ]
+    },
+    { "typ": "title",
+      "cre": "2019-01-10T07:35:15",
+      "mod": "2019-01-10T07:37:52",
+      "uuid": "e1d2f810",
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:35:15",
+          "mod": "2019-01-10T07:37:52",
+          "lines": [
+            0
+          ],
+          "text": "AdjusterTile (cont’d): Cropping and reducing",
+          "uuid": "c7374b55",
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2019-01-10T07:35:15",
+              "mod": "2019-01-10T07:35:15",
+              "dx": 0.0,
+              "dy": 0.0,
+              "sheet": 0,
+              "textWidth": 0.0,
+              "uuid": "9987de16",
+              "x": -46.8281,
+              "y": 45.06,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2019-01-10T07:35:15",
+                  "mod": "2019-01-10T07:35:15",
+                  "lines": [
+                    0
+                  ],
+                  "text": "p. 64 >",
+                  "uuid": "f9f24745",
+                  "cc": [
+                    { "typ": "markup",
+                      "cre": "2019-01-10T07:35:15",
+                      "mod": "2019-01-10T07:35:15",
+                      "end": 5,
+                      "res": [
+                        "64"
+                      ],
+                      "start": 3,
+                      "style": 4,
+                      "uuid": "39f4b851"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:35:16",
+      "mod": "2019-01-10T07:35:33",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "90ead66d",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:35:16",
+          "mod": "2019-01-10T07:35:33",
+          "lines": [
+            0
+          ],
+          "text": "There are two very distinct use cases for cropping:",
+          "uuid": "f7a678f7"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:35:33",
+      "mod": "2019-01-10T07:36:34",
+      "h": 19.147,
+      "ind": 2,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "1d59003f",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:35:33",
+          "mod": "2019-01-10T07:36:01",
+          "lines": [
+            0
+          ],
+          "text": "(1) A SlideView wants a part of an image because it is zoomed in.",
+          "uuid": "95dc4e60"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:36:02",
+      "mod": "2019-01-10T07:36:36",
+      "h": 36.967,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d95f1cce",
+      "y0": 118.313,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:36:02",
+          "mod": "2019-01-10T07:36:29",
+          "lines": [
+            0,
+            70
+          ],
+          "text": "(2) A LayerAdjuster is working on a small part of an image because it knows its mask isn’t so big.",
+          "uuid": "171e5ae0"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:36:29",
+      "mod": "2019-01-10T07:37:17",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d3b3f47e",
+      "y0": 155.28,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:36:29",
+          "mod": "2019-01-10T07:37:17",
+          "lines": [
+            0,
+            63,
+            122
+          ],
+          "text": "In case (1), the ROI will be “requested” or “retrieved” from a potentially larger image. A new stage should be created to host that ROI.",
+          "uuid": "afe36cb6"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:37:20",
+      "mod": "2019-01-10T07:37:40",
+      "h": 50.332,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "83bc8376",
+      "y0": 228.778,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:37:20",
+          "mod": "2019-01-10T07:37:40",
+          "lines": [
+            0,
+            62
+          ],
+          "text": "In case (2), the adjuster will take the ROI from another tile by itself.",
+          "uuid": "d1d94d6b"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:37:47",
+      "mod": "2019-01-10T07:37:47",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "14715f5c",
+      "y0": 279.11,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:37:47",
+          "mod": "2019-01-10T07:37:47",
+          "lines": [
+            0
+          ],
+          "text": "",
+          "uuid": "4d866d71"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-01-10T07:37:54",
+      "mod": "2019-01-10T07:43:11",
+      "h": 73.498,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "06ebf822",
+      "y0": 306.276,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-01-10T07:37:54",
+          "mod": "2019-01-10T07:43:11",
+          "lines": [
+            0,
+            62,
+            121
+          ],
+          "text": "Right now, reduction (i.e., scaling) is a separate “Stage” in Adjuster parlance. It shouldn’t be. There is no reason why scaling cannot happen in the middle of an adjustment stack.",
+          "uuid": "52374fd2"
+        }
+      ]
+    }
+  ]
+}
