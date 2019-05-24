@@ -367,7 +367,7 @@ QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
   QSqlQuery q = constQuery("select capturedate from filter"
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and capturedate<:b"
-                           " order by capturedate"
+                           " order by capturedate, photos.filename"
                            " limit 1", t0, t1);
   if (q.next())
     return q.value(0).toDateTime();
@@ -379,7 +379,7 @@ QDateTime PhotoDB::lastDateInRange(QDateTime t0, QDateTime t1) const {
   QSqlQuery q = constQuery("select capturedate from filter"
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and photos.capturedate<:b"
-                           " order by capturedate desc"
+                           " order by capturedate, photos.filename desc"
                            " limit 1", t0, t1);
   if (q.next())
     return q.value(0).toDateTime();
@@ -393,7 +393,8 @@ QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
                            " on filter.photo=photos.id"
                            " where photos.capturedate>=:a"
                            " and photos.capturedate<:b"
-                           " order by photos.capturedate", t0, t1);
+                           " order by photos.capturedate, photos.filename",
+                           t0, t1);
   QList<quint64> vv;
   while (q.next())
     vv << q.value(0).toULongLong();
