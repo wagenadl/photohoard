@@ -1,6 +1,7 @@
 // AdjusterTile.cpp
 
 #include "AdjusterTile.h"
+#include "PDebug.h"
 
 AdjusterTile::AdjusterTile() {
   stage = Stage_Original;
@@ -25,7 +26,8 @@ AdjusterTile::AdjusterTile(Image16 const &img, PSize osize):
 AdjusterTile AdjusterTile::scaledToFitSnuglyIn(PSize s) const {
   AdjusterTile tile = *this;
   tile.image = image.scaledToFitSnuglyIn(s);
-  tile.nominalScale *= tile.image.size() / image.size();
+  double factor = tile.image.size() / image.size();
+  tile.nominalScale *= factor;
   if (tile.stage < Stage_Reduced)
     tile.stage = Stage_Reduced;
   return tile;
@@ -33,6 +35,8 @@ AdjusterTile AdjusterTile::scaledToFitSnuglyIn(PSize s) const {
 
 AdjusterTile AdjusterTile::cutROI(QRect roi) const {
   AdjusterTile tile = *this;
+  if (isROI)
+    COMPLAIN("cutROI on already cut images is not yet supported");
   tile.image.crop(roi);
   tile.roiOffset = roi.topLeft();
   tile.isROI = true;
@@ -40,6 +44,8 @@ AdjusterTile AdjusterTile::cutROI(QRect roi) const {
 }
 
 AdjusterTile AdjusterTile::cropped(Adjustments const &crop) const {
+  if (isROI) 
+    COMPLAIN("It is an error to crop after pulling an ROI");
   AdjusterTile tile = *this;
   if (nominalScale==1) {
     QRect rect(QPoint(crop.cropl, crop.cropt),
@@ -52,6 +58,7 @@ AdjusterTile AdjusterTile::cropped(Adjustments const &crop) const {
                QSize((osize.width()-crop.cropl-crop.cropr)*nominalScale + .5,
                      (osize.height()-crop.cropt-crop.cropb)*nominalScale + .5));
     tile.image.crop(rect);
-  }    
+  }
+  tile.roiScale = nominalScale;
   return tile;
 }
