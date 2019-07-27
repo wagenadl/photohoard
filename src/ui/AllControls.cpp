@@ -110,6 +110,7 @@ void AllControls::storeInDatabase(Adjustments const &adj) {
     }
   }
   adjs = adj;
+  pDebug() << "AllControls::storeInDatabase: emitting valuesChanged";
   emit valuesChanged(vsn, 0, adj);
 }  
 
@@ -136,6 +137,8 @@ void AllControls::maskChangeFromLayers(int lay) {
 
 void AllControls::valueChangeFromLayers(int lay) {
   Adjustments const *adj = layers->getAll(vsn, lay);
-  if (adj)
+  if (adj) {
+    pDebug() << "AllControls::valueChangeFromLayers: emitting valuesChanged";
     emit valuesChanged(vsn, lay, *adj);
+  }
 }

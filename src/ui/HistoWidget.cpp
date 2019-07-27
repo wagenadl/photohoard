@@ -3,6 +3,8 @@
 #include "HistoWidget.h"
 #include <QList>
 #include <QPainter>
+#include "PDebug.h"
+#include "ImgAvg.h"
 
 HistoWidget::HistoWidget(QWidget *parent): QFrame(parent) {
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
@@ -12,6 +14,7 @@ HistoWidget::~HistoWidget() {
 }
 
 void HistoWidget::setImage(Image16 const &img) {
+  pDebug() << "HistoWidget::setImage" << img.size() << averagePixel(img);
   histo.setImage(img);
   update();
 }
