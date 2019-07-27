@@ -214,12 +214,12 @@ void LayerDialog::respondToClick(int r, int c) {
 }
 
 void LayerDialog::changeFromSliders() {
+  pDebug() << "LayerDialog::changeFromSliders";
   int lay = selectedLayer();
   if (!lay)
     return;
   Adjustments adj = sliders->getAll();
   storeInDatabase(adj, lay);
-  emit valuesChanged(lay);
 }
 
 void LayerDialog::storeInDatabase(Adjustments const &adj, int lay) {

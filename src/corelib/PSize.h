@@ -51,10 +51,12 @@ public:
   // OPERATOR|= - a |= b expands the area of A to contain B.
   PSize operator*(double s) const { return PSize(width()*s+.5, height()*s+.5); }
   PSize scaledToFitSnuglyIn(QSize const &b) const;
-  // SCALEDTOFITSNUGLYIN - a.SCALEDTOFITSNUGLYIN(b) scales A up or down such that the result SNUGLYFITSIN(b).
+  /* SCALEDTOFITSNUGLYIN - a.SCALEDTOFITSNUGLYIN(b) scales A up or down
+     such that the result SNUGLYFITSIN(b). */
   PSize scaledDownToFitIn(QSize const &b) const;
   /* SCALEDDOWNTOFITIN - Scale size down to fit in a space.
-     If A already fits in B, a.SCALEDDOWNTOFITIN(b) simply returns B. Otherwise, it returns a scaled down version that does fit snugly.
+     If A already fits in B, a.SCALEDDOWNTOFITIN(b) simply returns B.
+     Otherwise, it returns a scaled down version that does fit snugly.
    */
   PSize scaledToSnuglyContain(QSize const &b) const;
   PSize scaledUpToContain(QSize const &b) const;

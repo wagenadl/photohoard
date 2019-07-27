@@ -1,0 +1,544 @@
+{ "typ": "page",
+  "cre": "2019-07-27T22:50:15",
+  "mod": "2019-07-28T00:35:12",
+  "cui": "c4e3dfc5e0d23fc5",
+  "stampTime": 0,
+  "startPage": 65,
+  "unlocked": false,
+  "uuid": "581bd40c",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2019-07-27T22:50:15",
+      "mod": "2019-07-27T22:50:15",
+      "uuid": "04bf9ebe"
+    },
+    { "typ": "title",
+      "cre": "2019-07-27T22:50:15",
+      "mod": "2019-07-27T22:50:24",
+      "uuid": "989c1ca6",
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T22:50:15",
+          "mod": "2019-07-27T22:50:24",
+          "lines": [
+            0
+          ],
+          "text": "Working on layers, trying to figure out redraw",
+          "uuid": "b5c941cf"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T22:50:24",
+      "mod": "2019-07-27T22:53:02",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c5607906",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T22:50:24",
+          "mod": "2019-07-27T22:53:02",
+          "lines": [
+            0
+          ],
+          "text": "When changing a slider, photohoard redraws several times:",
+          "uuid": "4ed70709"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T22:50:24",
+      "mod": "2019-07-27T23:06:24",
+      "h": 464.647,
+      "ind": 6,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "c5607906",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T22:50:24",
+          "mod": "2019-07-27T23:06:24",
+          "lines": [
+            0,
+            51,
+            108,
+            169,
+            185,
+            221,
+            288,
+            295,
+            311,
+            374,
+            393,
+            450,
+            463,
+            527,
+            590,
+            647,
+            712,
+            727,
+            788,
+            804,
+            842,
+            906,
+            969,
+            1024,
+            1086,
+            1100
+          ],
+          "text": " 39.773 [1] ControlSliders: emitting valuesChanged\n 39.818 [3] AllAdjuster::retrieveReduced QSize(252, 708)\n 39.825 [3] AA::retrieveReduced returning layered img sized  QSize(252, 259)\n 39.825 [1] LiveAdj: must offer mod\n 39.825 [1] autocache::cachemodified emit available 901 QSize(252, 259) 1\n[New LWP 13557]\n 39.828 [1] HistoWidget::setImage QSize(252, 259) \"(60,65,24)\"\n[LWP 13557 exited]\n 39.834 [2] AC_Worker::cacheModified 901 QSize(252, 259) \"(60,65,24)\"\n 39.842 [1] LiveAdj::available 901 QSize(252, 259) \"(60,65,24)\"\n 39.846 [1] HistoWidget::setImage QSize(252, 259) \"(60,65,24)\"\n 39.892 [3] AllAdjuster::retrieveReduced QSize(252, 708)\n 39.873 [2] AC_Worker::storeLoadedInDB 901 QSize(463, 476) false \"(113,122,50)\"\n 39.900 [3] AA::retrieveReduced returning layered img sized  QSize(252, 259)\n 39.903 [1] LiveAdj: not offering mod\n 39.908 [1] LiveAdj::available 901 QSize(252, 259) \"(60,65,24)\"\n 39.912 [1] HistoWidget::setImage QSize(252, 259) \"(60,65,24)\"\n 40.110 [2] AC_Worker: Cache progress:  1 / 1 ( true )\n 40.117 [2] AC_Worker forward available 901 QSize(252, 259) 0 QSize(-1, -1)\n 40.119 [1] HistoWidget::setImage QSize(252, 259) \"(113,122,51)\"",
+          "uuid": "4ed70709",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-07-27T23:06:56",
+              "mod": "2019-07-27T23:06:56",
+              "end": 1133,
+              "start": 1125,
+              "style": 9,
+              "uuid": "5b642b8f"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:07:03",
+              "mod": "2019-07-27T23:07:03",
+              "end": 939,
+              "start": 931,
+              "style": 9,
+              "uuid": "b5611f07"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:07:10",
+              "mod": "2019-07-27T23:07:10",
+              "end": 560,
+              "start": 552,
+              "style": 9,
+              "uuid": "26130784"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:07:18",
+              "mod": "2019-07-27T23:07:18",
+              "end": 344,
+              "start": 336,
+              "style": 9,
+              "uuid": "2c8d616e"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:08:26",
+              "mod": "2019-07-27T23:08:26",
+              "end": 50,
+              "start": 36,
+              "style": 9,
+              "uuid": "ab138127"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:06:24",
+      "mod": "2019-07-27T23:11:09",
+      "h": 189.328,
+      "ind": 0,
+      "sheet": 0,
+      "split": [
+        138.996
+      ],
+      "uuid": "b1986dec",
+      "y0": 563.813,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:06:24",
+          "mod": "2019-07-27T23:11:09",
+          "lines": [
+            0,
+            58,
+            120,
+            182,
+            237,
+            301,
+            358,
+            420
+          ],
+          "text": "Note, in particular how the histowidget gets redrawn many times in response to a single valuesChanged. I need to figure out exactly what happens as a consequence of ControlSliders’s valuesChanged. The above example is a valuesChanged in Layer 1, which results in the main image showing the layer, but the thumbnail and the histowidget showing the base. If I change a value in the base without ever changing a value in a layer, the layer is ignored and the flow is:",
+          "uuid": "f5c4313f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:11:09",
+      "mod": "2019-07-27T23:11:19",
+      "h": 464.647,
+      "ind": 6,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "e3fd1abe",
+      "y0": 122.332,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:11:09",
+          "mod": "2019-07-27T23:11:19",
+          "lines": [
+            0,
+            52,
+            110,
+            172,
+            188,
+            225,
+            282,
+            300,
+            316,
+            382,
+            401,
+            459,
+            474,
+            541,
+            607,
+            667,
+            688,
+            746,
+            808,
+            824,
+            863,
+            930,
+            996,
+            1052,
+            1115,
+            1129
+          ],
+          "text": "1104.849 [1] ControlSliders: emitting valuesChanged\n1104.978 [3] AllAdjuster::retrieveReduced QSize(252, 708)\n1104.990 [3] AA::retrieveReduced returning layered img sized  QSize(252, 259)\n1104.990 [1] LiveAdj: must offer mod\n1104.990 [1] autocache::cachemodified emit available 901 QSize(252, 259) 1\n[New LWP 13897]\n1104.993 [1] HistoWidget::setImage QSize(252, 259) \"(113,121,50)\"\n[LWP 13897 exited]\n1105.002 [2] AC_Worker::cacheModified 901 QSize(252, 259) \"(113,121,50)\"\n1105.008 [1] LiveAdj::available 901 QSize(252, 259) \"(113,121,50)\"\n1105.011 [1] HistoWidget::setImage QSize(252, 259) \"(113,121,50)\"\n1105.036 [2] AC_Worker::storeLoadedInDB 901 QSize(463, 476) false \"(113,122,50)\"\n1105.059 [3] AllAdjuster::retrieveReduced QSize(252, 708)\n1105.059 [3] AA::retrieveReduced returning layered img sized  QSize(252, 259)\n1105.072 [1] LiveAdj: not offering mod\n1105.078 [1] LiveAdj::available 901 QSize(252, 259) \"(113,121,50)\"\n1105.082 [1] HistoWidget::setImage QSize(252, 259) \"(113,121,50)\"\n1105.270 [2] AC_Worker: Cache progress:  1 / 1 ( true )\n1105.280 [2] AC_Worker forward available 901 QSize(252, 259) 0 QSize(-1, -1)\n1105.282 [1] HistoWidget::setImage QSize(252, 259) \"(113,122,51)\"",
+          "uuid": "7fe1e30f",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-07-27T23:11:26",
+              "mod": "2019-07-27T23:11:26",
+              "end": 51,
+              "start": 38,
+              "style": 9,
+              "uuid": "a21b2f26"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:11:34",
+              "mod": "2019-07-27T23:11:34",
+              "end": 350,
+              "start": 342,
+              "style": 9,
+              "uuid": "38a5f2ad"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:11:37",
+              "mod": "2019-07-27T23:11:37",
+              "end": 575,
+              "start": 567,
+              "style": 9,
+              "uuid": "74b3e85f"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:11:42",
+              "mod": "2019-07-27T23:11:42",
+              "end": 964,
+              "start": 956,
+              "style": 9,
+              "uuid": "f965981e"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:11:45",
+              "mod": "2019-07-27T23:11:45",
+              "end": 1163,
+              "start": 1155,
+              "style": 9,
+              "uuid": "2daed0fd"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:11:47",
+      "mod": "2019-07-27T23:13:22",
+      "h": 119.83,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "f98a24d3",
+      "y0": 586.979,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:11:47",
+          "mod": "2019-07-27T23:13:22",
+          "lines": [
+            0,
+            60,
+            122,
+            186,
+            251
+          ],
+          "text": "Remarkably, that looks quite the same, except that even the first “setImage” uses the wrong image (notice avg. RGB values in the debug). Curiously, if I change a value in the layers and then change a value in the base, the layer is shown, at least in the main view.",
+          "uuid": "a12a9b28",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-07-27T23:13:07",
+              "mod": "2019-07-27T23:13:07",
+              "end": 190,
+              "start": 186,
+              "style": 1,
+              "uuid": "5adfd685"
+            },
+            { "typ": "markup",
+              "cre": "2019-07-27T23:13:17",
+              "mod": "2019-07-27T23:13:17",
+              "end": 231,
+              "start": 229,
+              "style": 1,
+              "uuid": "5c0a37c7"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:13:40",
+      "mod": "2019-07-27T23:15:33",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "514a4a9a",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:13:40",
+          "mod": "2019-07-27T23:15:33",
+          "lines": [
+            0,
+            60,
+            121,
+            183,
+            247
+          ],
+          "text": "A big problem is that Photohoard uses signals and slots too much. Qt docs warn to use signals/slots only when a response is optional from the perspective of the issuer. I am not sure that I don’t violate that principle. In any case. Let me try to understand the consequences of a settings change.",
+          "uuid": "bb8995d2"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:16:35",
+      "mod": "2019-07-27T23:24:33",
+      "h": 212.494,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "1d0c0317",
+      "y0": 191.83,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:16:35",
+          "mod": "2019-07-27T23:24:33",
+          "lines": [
+            0,
+            61,
+            122,
+            183,
+            244,
+            306,
+            361,
+            415,
+            469
+          ],
+          "text": "For a change in a layer, ControlSliders emits valuesChanged, which calls LayerDialog’s changeFromSliders. That stores the change in the db and emits valuesChanged, which is picked up by AllControls in valueChangeFromLayers. For a change in the base, the valuesChanged signal goes straight to AllControls’s changeFromSliders, which stores in db. In either case, AllControls emits valuesChanged which is connected to LiveAdjuster’s reloadSliders by MainWindow. Even that function already gets called twice. ",
+          "uuid": "cbf14cb5"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:24:36",
+      "mod": "2019-07-27T23:32:35",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "0d56b8c2",
+      "y0": 404.324,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:24:36",
+          "mod": "2019-07-27T23:32:35",
+          "lines": [
+            0,
+            65,
+            115,
+            177
+          ],
+          "text": "I don’t know if that’s a real problem, but I sure don’t like it. Why does that happen? Easy. LayerDialog emits its valuesChanged signal twice. Ouch. However, it doesn’t matter: HistoWidget’s setImage still gets called 4x.",
+          "uuid": "bce0b2e3"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-27T23:32:49",
+      "mod": "2019-07-27T23:44:41",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "289075f9",
+      "y0": 500.988,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-27T23:32:49",
+          "mod": "2019-07-27T23:44:41",
+          "lines": [
+            0,
+            55,
+            118,
+            180,
+            238,
+            302,
+            364,
+            424
+          ],
+          "text": "OK. So I am in LiveAdjuster::reloadSliders. That calls LiveAdjuster::forceUpdate, which calls InterruptableAdjuster’s requestReduced. InterruptableAdjuster maintains a thread. Its requestReduced function calls cancel on AllAdjuster, then wakes up its thread after storing the newly requested settings. This immediately causes IA’s handleNewRequest to be called in the thread. However, requestReducedROI gets called again 80 ms later.",
+          "uuid": "e0809c5e",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2019-07-27T23:44:10",
+              "mod": "2019-07-27T23:44:10",
+              "end": 420,
+              "start": 415,
+              "style": 1,
+              "uuid": "745793ab"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-28T00:06:17",
+      "mod": "2019-07-28T00:14:21",
+      "h": 235.66,
+      "ind": 1,
+      "sheet": 3,
+      "split": [ ],
+      "uuid": "5f547cf0",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-28T00:06:17",
+          "mod": "2019-07-28T00:14:21",
+          "lines": [
+            0,
+            64,
+            128,
+            182,
+            233,
+            282,
+            341,
+            399,
+            459,
+            517
+          ],
+          "text": "First though, let’s follow the first request. It pretty quickly completes, emitting ready, which is picked up by LiveAdjuster’s provideAdjusted. Two things then happen: The image is offered to the AutoCache through cacheModified and LiveAdjuster emits imageAvailable. The latter is straightforward: MainWindow connects that to HistoWidget’s setImage, and also to metaViewer’s setImage. In addition, LightTable connects it to its own updateAdjusted slot. I am only pursuing Histogram right now, though, so I have just explained one call to setImage.",
+          "uuid": "41b15e7f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-28T00:14:33",
+      "mod": "2019-07-28T00:15:20",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 3,
+      "split": [ ],
+      "uuid": "a6a08303",
+      "y0": 307.66,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-28T00:14:33",
+          "mod": "2019-07-28T00:15:20",
+          "lines": [
+            0,
+            55,
+            113,
+            174
+          ],
+          "text": "To understand the second, it is important to note that AutoCache’s available signal is connected to MainWindow’s updateImage slot, which directly calls Histogram’s setImage, even though the source says that that “is bad.”",
+          "uuid": "a5f73fb2"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-28T00:16:27",
+      "mod": "2019-07-28T00:34:14",
+      "h": 189.328,
+      "ind": 1,
+      "sheet": 3,
+      "split": [ ],
+      "uuid": "4486c327",
+      "y0": 404.324,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-28T00:16:27",
+          "mod": "2019-07-28T00:34:14",
+          "lines": [
+            0,
+            58,
+            119,
+            177,
+            240,
+            300,
+            345,
+            401
+          ],
+          "text": "AutoCache’s cacheModified immediately emits available. Is that good? What if I simply don’t do that? In that case, the Histogram is only updated once, but the LightTable is not updated at all. LiveAdjuster is the only called of AutoCache’s cacheModified. So I changed AutoCache to not emit available from cacheModified, and changed LightTable’s updateAdjusted to force update of the main slide, which largely solves the problem. ",
+          "uuid": "9f1c4e50"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-28T00:16:27",
+      "mod": "2019-07-28T00:34:55",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 3,
+      "split": [ ],
+      "uuid": "4486c327",
+      "y0": 593.652,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-28T00:16:27",
+          "mod": "2019-07-28T00:34:55",
+          "lines": [
+            0,
+            58,
+            122
+          ],
+          "text": "Remaining issues (major): (1) AC_Worker ignores the layer and stores only the base in the DB. This is because ImageFinder doesn’t know about AllAdjuster and AllAdjustments yet.",
+          "uuid": "9f1c4e50"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-28T00:28:22",
+      "mod": "2019-07-28T00:35:12",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 3,
+      "split": [ ],
+      "uuid": "0e58d452",
+      "y0": 667.15,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-28T00:28:22",
+          "mod": "2019-07-28T00:35:12",
+          "lines": [
+            0
+          ],
+          "text": "(2) Layer mask is not yet implemented…",
+          "uuid": "4007dfcd"
+        }
+      ]
+    }
+  ]
+}
