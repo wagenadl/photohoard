@@ -7,7 +7,7 @@
 #include <QVariant>
 #include "PDebug.h"
 #include "AC_ImageHolder.h"
-#include "Adjustments.h"
+#include "AllAdjustments.h"
 #include "Here.h"
 #include "SessionDB.h"
 #include "ImgAvg.h"
@@ -249,8 +249,9 @@ void AC_Worker::processLoaded() {
 }   
 
 void AC_Worker::sendToBank(quint64 vsn) {
-  Adjustments adjs;
+  AllAdjustments adjs;
   adjs.readFromDB(vsn, *db);
+  pDebug() << "sendtobank, adjs="<<adjs << vsn;
 
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "

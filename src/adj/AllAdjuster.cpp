@@ -94,6 +94,7 @@ Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
 Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				     PSize maxSize) {
   pDebug() << "AllAdjuster::retrieveReduced" << maxSize;
+  pDebug() <<  "  settings" << settings;
   if (validUntil<0)
     return Image16(); // no image set at all
   int N = settings.layerCount();

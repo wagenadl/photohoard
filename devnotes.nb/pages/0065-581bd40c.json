@@ -1,6 +1,6 @@
 { "typ": "page",
   "cre": "2019-07-27T22:50:15",
-  "mod": "2019-07-28T00:35:12",
+  "mod": "2019-07-28T01:16:49",
   "cui": "c4e3dfc5e0d23fc5",
   "stampTime": 0,
   "startPage": 65,
@@ -537,6 +537,27 @@
           ],
           "text": "(2) Layer mask is not yet implemented…",
           "uuid": "4007dfcd"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2019-07-28T01:16:36",
+      "mod": "2019-07-28T01:16:49",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 4,
+      "split": [ ],
+      "uuid": "0e85ad42",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2019-07-28T01:16:36",
+          "mod": "2019-07-28T01:16:49",
+          "lines": [
+            0
+          ],
+          "text": "I believe I have fixed issue (1), but (2) is still a major job.",
+          "uuid": "00574f87"
         }
       ]
     }

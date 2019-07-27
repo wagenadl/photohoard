@@ -39,7 +39,7 @@ public:
   // See <ImageFinder::findImage> for details.
   void findImage(quint64 id, QString path, QString ext,
 		 Exif::Orientation orient, QSize ns,
-		 class Adjustments const &mods,
+		 class AllAdjustments const &mods,
 		 int maxdim, bool urgent);
 
 signals:
