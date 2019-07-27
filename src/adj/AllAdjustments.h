@@ -20,6 +20,7 @@ public:
   void writeToDB(quint64 vsn, class PhotoDB &db) const;
   Adjustments const &baseAdjustments() const;
   Adjustments &baseAdjustments();
+  bool isDefault() const;
   int layerCount() const; // number of adjustment layers, not including base
   Layer const &layer(int n) const; // layers are counted 1..N !
   void setLayer(int n, Layer const &);
@@ -36,5 +37,7 @@ private:
   QVector<Layer> layers; // Take care! Entry k corresponds to layer n = k+1.
   QVector<Adjustments> layadj;
 };
+
+QDebug &operator<<(QDebug &, AllAdjustments const &);
 
 #endif

@@ -167,8 +167,8 @@ QString Exporter::doExport(quint64 vsn, ExportSettings const &settings,
                            QString fnoverride) {
   PhotoDB::VersionRecord vrec = db.versionRecord(vsn);
   PhotoDB::PhotoRecord prec = db.photoRecord(vrec.photo);
-  Adjustments adjs = Adjustments::fromDB(vsn, db);
-  PSize cropsize = adjs.cropSize(prec.filesize, vrec.orient);
+  AllAdjustments adjs = AllAdjustments::fromDB(vsn, db);
+  PSize cropsize = adjs.baseAdjustments().cropSize(prec.filesize, vrec.orient);
   
   QString path = db.folder(prec.folderid) + "/" + prec.filename;
   Image16 img = worker

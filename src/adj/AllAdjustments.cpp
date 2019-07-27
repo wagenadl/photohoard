@@ -1,6 +1,17 @@
 // AllAdjustments.cpp
 
 #include "AllAdjustments.h"
+#include "PDebug.h"
+
+class AllAdjustmentsFoo {
+public:
+  AllAdjustmentsFoo() {
+    qRegisterMetaType<AllAdjustments>("AllAdjustments");
+  }
+};
+
+static AllAdjustmentsFoo foo;
+
 
 AllAdjustments::AllAdjustments() {
 }
@@ -26,10 +37,11 @@ void AllAdjustments::rereadFromDB(quint64 vsn, int n0, class PhotoDB &db) {
   layers.resize(N);
   layadj.resize(N);
 
-  for (int n=n0; n<N; n++)
-    layers[n].readFromDB(vsn, n+1, db);
-  for (int n=n0; n<N; n++)
-    layadj[n].readFromDB(vsn, n+1, db);
+  for (int n=n0; n<=N; n++)
+    layers[n-1].readFromDB(vsn, n, db);
+  for (int n=n0; n<=N; n++)
+    layadj[n-1].readFromDB(vsn, n, db);
+  pDebug() << "reread from db" << *this;
 }
 
 void AllAdjustments::writeToDB(quint64 vsn, class PhotoDB &db) const {
@@ -74,4 +86,20 @@ Adjustments const &AllAdjustments::layerAdjustments(int n) const {
 Adjustments &AllAdjustments::layerAdjustments(int n) {
   Q_ASSERT(n>=1 && n<=layerCount());
   return layadj[n-1];
+}
+
+bool AllAdjustments::isDefault() const {
+  if (!base.isDefault())
+    return false;
+  for (Adjustments const &adj: layadj)
+    if (!adj.isDefault())
+      return false;
+  return true;
+}
+
+QDebug &operator<<(QDebug &dbg, AllAdjustments const &adj) {
+  dbg << adj.baseAdjustments();
+  for (int k=0; k<adj.layerCount(); k++)
+    dbg << k+1 << adj.layerAdjustments(k+1);
+  return dbg;
 }

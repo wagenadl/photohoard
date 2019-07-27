@@ -5,24 +5,27 @@
 #include <QSqlError>
 #include "NiceProcess.h"
 #include "PDebug.h"
-#include "Adjuster.h"
+#include "AllAdjuster.h"
 #include "PSize.h"
 #include "Geometry.h"
+#include "ImgAvg.h"
 
 IF_Worker::IF_Worker(QObject *parent): QObject(parent) {
   setObjectName("IF_Worker");
-  adjuster = new Adjuster(this);
+  adjuster = new AllAdjuster(this);
 }
 
 Image16 IF_Worker::findImageNow(QString path, QString ext,
 				Exif::Orientation orient, PSize naturalSize,
-				Adjustments const &s,				
+				AllAdjustments const &s,
 				int maxdim, bool urgent,
 				PSize *fullSizeReturn) {
   if (fullSizeReturn)
     *fullSizeReturn = PSize();
+  pDebug() << "IF_Worker::findImageNow" << s;
 
-  PSize needed = Geometry::neededScaledOriginalSize(naturalSize, s,
+  PSize needed = Geometry::neededScaledOriginalSize(naturalSize,
+						    s.baseAdjustments(),
                                                     PSize(maxdim, maxdim));
   bool halfsize = false;
   Image16 img;
@@ -91,13 +94,13 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     
     img = adjuster->retrieveReduced(s, PSize(maxdim, maxdim));
   }
-  
+  pDebug() << "IF_Worker: findnow" << img.size() << averagePixel(img);
   return img;
 }  
 
 void IF_Worker::findImage(quint64 id, QString path, QString ext,
                           Exif::Orientation orient, QSize ns,
-			  Adjustments mods,
+			  AllAdjustments mods,
 			  int maxdim, bool urgent) {
   Q_ASSERT(maxdim>0);
   PSize fullSize;
