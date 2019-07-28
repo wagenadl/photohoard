@@ -44,6 +44,7 @@ public:
   void setAlpha(double a);
   QString name() const;
   void setName(QString);
+  bool operator==(Layer const &) const;
 private:
   void readFromDB(class QSqlQuery &);
 private:
