@@ -187,6 +187,13 @@ void Layer::writeToDB(quint64 vsn, int stacking, PhotoDB &db) const {
   }
 }
 
+bool Layer::operator==(Layer const &l) const {
+  return typ==l.typ
+    && active==l.active
+    && alph==l.alph
+    && dat==l.dat;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 Layers::Layers(quint64 vsn, PhotoDB *db): db(db), vsn(vsn) {

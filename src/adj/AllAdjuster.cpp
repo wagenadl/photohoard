@@ -4,7 +4,7 @@
 #include "PDebug.h"
 
 AllAdjuster::AllAdjuster(QObject *parent): Adjuster(parent) {
-  validUntil = -1;
+  validInputUntil = -1;
 }
 
 AllAdjuster::~AllAdjuster() {
@@ -38,7 +38,7 @@ void AllAdjuster::clear() {
   Adjuster::clear();
   for (Adjuster *a: layerAdjusters_)
     a->clear();
-  validUntil = -1;
+  validInputUntil = -1;
   lastrq = AllAdjustments();
 }
 
@@ -50,27 +50,27 @@ bool AllAdjuster::isEmpty() const {
 void AllAdjuster::setOriginal(Image16 const &image) {
   pDebug() << "AllAdjuster::setOriginal" << image.size();
   Adjuster::setOriginal(image);
-  validUntil = 0;
+  validInputUntil = 0;
 }
 
 void AllAdjuster::setReduced(Image16 const &image, PSize originalSize) {
   pDebug() << "AllAdjuster::setReduced" << image.size() << originalSize;
   Adjuster::setReduced(image, originalSize);
-  validUntil = 0;
+  validInputUntil = 0;
 }
 
 Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
-  pDebug() << "AllAdjuster::retrieveFull";
-  if (validUntil<0)
+  pDebug() << "AllAdjuster::retrieveFull - UNTESTED";
+  if (validInputUntil<0)
     return Image16(); // no image set at all
   int N = settings.layerCount();
   ensureAdjusters(N);
   int n = 0;
   /* We need to find the greatest n such that settings are unchanged for
      all k<n */
-  if (validUntil>0 && settings.baseAdjustments()==lastrq.baseAdjustments()) {
+  if (validInputUntil>0 && settings.baseAdjustments()==lastrq.baseAdjustments()) {
     n = 1;
-    while (n<validUntil
+    while (n<validInputUntil
 	   && settings.layerAdjustments(n)==lastrq.layerAdjustments(n))
       ++n;
   }
@@ -85,7 +85,7 @@ Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
     n++;
     if (n<=N)
       layerAdjuster(n)->setOriginal(img);
-    validUntil = n;
+    validInputUntil = n;
   }
   pDebug() << "AA::retrieveFull returning layered img sized " << img.size();
   return img;
@@ -95,63 +95,93 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				     PSize maxSize) {
   pDebug() << "AllAdjuster::retrieveReduced" << maxSize;
   pDebug() <<  "  settings" << settings;
-  if (validUntil<0)
+  if (validInputUntil<0)
     return Image16(); // no image set at all
   int N = settings.layerCount();
   ensureAdjusters(N);
-  int n = 0;
-  /* We need to find the greatest n such that (1) settings are unchanged for
-     all k<n and (2) the input image for layer n is large enough.
-     (1) is just as for retrieveFull. (2) is tripping me up. Of course I
-     could look at maxAvailableSize for layer n, but that is not quite the
-     relevant thing, because maxAvailableSize for a previous layer might
-     be too restrictive. I think the logic should be that if mAS_n is
-     insufficient for the request _and_ mAS_n is less than mAS_(n-1), then,
-     we need to re-supply the input to n.
-     Specifically, if mAS_1 is insufficient and less than mAS_0, we need
-     to reprovide input to layer 1. In that case, final n should be 0.
+  // See notes p. 71 dd 7/28
+  int F = 1;
+  /* To find Q: Of course I could look at maxAvailableSize for layer
+     n, but that is not quite the relevant thing, because
+     maxAvailableSize for a previous layer might be too restrictive. I
+     think the logic should be that if mAS_n is insufficient for the
+     request _and_ mAS_n is less than mAS_(n-1), then, we need to
+     re-supply the input to n.  Specifically, if mAS_1 is insufficient
+     and less than mAS_0, we need to reprovide input to layer 1. 
   */
-  QMap<int, PSize> mAS;
+  QMap<int, PSize> mAS; // max retrievable size for layer n (n=0..N, inclusive)
   mAS[0] = layerAdjuster(0)->maxAvailableSize(settings.baseAdjustments());
-  for (int n=1; n<=settings.layerCount(); n++)
-    mAS[n] = layerAdjuster(n)->maxAvailableSize(settings.layerAdjustments(n));
-  if (validUntil>0 && settings.baseAdjustments()==lastrq.baseAdjustments()
-      && (mAS[1].contains(maxSize) || mAS[1]==mAS[0])) {
-    n = 1;
-    while (n<validUntil
-	   && settings.layerAdjustments(n)==lastrq.layerAdjustments(n)
-	   && (mAS[n+1].contains(maxSize) || mAS[n+1]==mAS[n]))
-      ++n;
+  for (int n=1; n<=N; n++)
+    mAS[n] = layerAdjuster(n)->inputSize();
+
+  auto noSizeLimit = [=](int f) {
+    ASSERT(f>=1 && f<=N);
+    return mAS[f].contains(maxSize) || mAS[f]==mAS[f-1];
+  };
+  auto noSettingsChange = [=](int f) {
+    if (f==0)
+      return settings.baseAdjustments()==lastrq.baseAdjustments();
+    ASSERT(f>=1 && f<=N);
+    return settings.layerAdjustments(f)==lastrq.layerAdjustments(f);
+  };
+  auto noMaskChange = [=](int f) {
+    if (f==0)
+      return true;
+    ASSERT(f>=1 && f<=N);
+    return settings.layer(f)==lastrq.layer(f);
+  };
+  
+  while (F < N+1
+	 && F <= validInputUntil
+	 && noSizeLimit(F)
+	 && noMaskChange(F-1)
+	 && noSettingsChange(F-1))
+    ++F;
+
+  auto getImageAt = [=](int f) {
+    Adjuster *adj = f==0 ? this : layerAdjuster(f);
+    return adj->retrieveReduced(f==0
+				? settings.baseAdjustments()
+				: settings.layerAdjustments(f),
+				maxSize);
+  };
+
+  auto applyMask = [=](Image16 const &img_top, Image16 const &img_below,
+		       Layer const &) {
+    //    QImage msk ....
+    pDebug() << "AllAdjuster applyMask NYI";
+    return img_top;
+  };
+  
+  Image16 imgF1, imgF2;
+  while (true) {
+    if (F-2>=0 && imgF2.isNull())
+      imgF2 = getImageAt(F-2);
+    imgF1 = getImageAt(F-1);
+    Image16 img = F==1 ? imgF1 : applyMask(imgF1, imgF2, settings.layer(F-1));
+    if (F>N) {
+      pDebug() << "AA::retrieveReduced returning layered img sized "
+	       << img.size();
+      return img;
+    } else {
+      layerAdjuster(F)->setOriginal(img);
+      validInputUntil = F;
+      imgF2 = imgF1;
+      ++F;
+    }
   }
-  // n is the first layer where anything has changed.
-  // We know that layer n has valid input.
-  // Or, n is the first layer that needs to be recomputed because its
-  // previous output was not large enough
-  Image16 img;
-  while (n<=N) {
-    if (n==0) 
-      img = Adjuster::retrieveReduced(settings.baseAdjustments(), maxSize);
-    else
-      img = layerAdjuster(n)->retrieveReduced(settings.layerAdjustments(n),
-					      maxSize);
-    n++;
-    if (n<=N)
-      layerAdjuster(n)->setOriginal(img);
-    validUntil = n;
-  }
-  pDebug() << "AA::retrieveReduced returning layered img sized " << img.size();
-  return img;
+  return Image16(); // not executed
 }
 
 Image16 AllAdjuster::retrieveROI(AllAdjustments const &settings, QRect roi) {
-  pDebug() << "AA::retrieveROI";
+  pDebug() << "AA::retrieveROI - INADEQUATE IMPLEMENTATION";
   return Adjuster::retrieveROI(settings.baseAdjustments(), roi);
   // Grossly inadequate, of course
 }
   
 Image16 AllAdjuster::retrieveReducedROI(AllAdjustments const &settings,
 					QRect roi, PSize maxSize) {
-  pDebug() << "AA::retrieveReducedROI";
+  pDebug() << "AA::retrieveReducedROI - INADEQUATE IMPLEMENTATION";
   return Adjuster::retrieveReducedROI(settings.baseAdjustments(), roi, maxSize);
   // Grossly inadequate, of course
 }

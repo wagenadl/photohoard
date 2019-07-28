@@ -82,7 +82,14 @@ public:
      be obtained through RETRIEVEREDUCED. Note that the max available size
      depends both on the size of the original (as per SETREDUCED) and on
      the SETTINGS. (Especially, of course, crop and rotation settings.)
-  */     
+  */
+  virtual PSize inputSize() const;
+  /* INPUTSIZE - Size of input image given to the adjuster
+     This is the same as MAXAVAILABLESIZE if there is no crop or rotation. */
+  virtual PSize originalSize() const;
+  /* ORIGINALSIZE - Original size of image
+     This is the size of the image given to SETORIGINAL, or the original size
+     given to SETREDUCEDORIGINAL. */
   virtual PSize neededScaledOriginalSize(Adjustments const &settings,
 					 PSize desired) const;
   /* NEEDEDSCALEDORIGINALSIZE - Minimum size required to produce desired version

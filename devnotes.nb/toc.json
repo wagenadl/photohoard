@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2016-02-28T09:14:13",
-  "mod": "2019-07-28T01:16:36",
+  "mod": "2019-07-28T20:27:16",
   "uuid": "35afc614",
   "cc": [
     { "typ": "entry",
@@ -374,12 +374,21 @@
     },
     { "typ": "entry",
       "cre": "2019-07-27T22:50:15",
-      "mod": "2019-07-28T01:16:36",
-      "seen": "2019-07-27T23:16:00",
+      "mod": "2019-07-28T20:13:36",
+      "seen": "2019-07-28T20:13:36",
       "sheetCount": 5,
       "startPage": 65,
       "title": "Working on layers, trying to figure out redraw",
       "uuid": "581bd40c"
+    },
+    { "typ": "entry",
+      "cre": "2019-07-28T20:13:41",
+      "mod": "2019-07-28T20:27:16",
+      "seen": "2019-07-28T20:13:41",
+      "sheetCount": 2,
+      "startPage": 70,
+      "title": "Struggling with AllAdjuster",
+      "uuid": "21a26b5d"
     }
   ]
 }
