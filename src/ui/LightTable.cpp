@@ -54,6 +54,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   addWidget(strips);
 
   slide = new SlideView(db);
+  connect(slide, &SlideView::layerMaskChanged,
+	  adjuster, &LiveAdjuster::reloadLayers);
   addWidget(slide);
 
   setStretchFactor(0, 0);

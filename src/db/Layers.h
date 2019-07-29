@@ -34,11 +34,11 @@ public:
   void setData(QByteArray const &);
   QPolygon points() const;
   void setPoints(QPolygon const &);
-  QImage mask(QSize origSize, class Adjustments const &baseadj) const;
+  QImage mask(QSize origSize, class Adjustments const &baseadj,
+	      QSize scaledCroppedSize) const;
   /* MASK - Return alpha mask for layer
-     Current implementation is grossly inadequate. It returns an origSize-sized
-     mask rather than one suitable for applying to a geometrically transformed
-     image. Also, only the "LinearGradient" mask is implemented.
+     Result is of size scaledCroppedSize.
+     Only the "LinearGradient" mask is implemented.
    */
   double alpha() const;
   void setAlpha(double a);

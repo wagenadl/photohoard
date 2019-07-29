@@ -2,6 +2,7 @@
 
 #include "AllAdjuster.h"
 #include "PDebug.h"
+#include <cmath>
 
 AllAdjuster::AllAdjuster(QObject *parent): Adjuster(parent) {
   validInputUntil = -1;
@@ -147,10 +148,23 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
   };
 
   auto applyMask = [=](Image16 const &img_top, Image16 const &img_below,
-		       Layer const &) {
+		       Layer const &layer) {
     //    QImage msk ....
     pDebug() << "AllAdjuster applyMask NYI";
-    return img_top;
+    PSize osize = originalSize();
+    PSize sclcrpsize = img_top.size();
+    if (img_below.size() != sclcrpsize) {
+      COMPLAIN("AllAdjuster applyMask: mismatching image sizes");
+      return img_top;
+    }
+    QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
+    pDebug() << "Top image format was" << int(img_top.format());
+    pDebug() << "Bottom image format was" << int(img_below.format());
+    Image16 top = img_top.convertedTo(Image16::Format::IPT16);
+    Image16 bot = img_below.convertedTo(Image16::Format::IPT16);
+    ASSERT(top.size()==bot.size());
+    ASSERT(mask.size()==top.size());
+    return bot.alphablend(top, mask);
   };
   
   Image16 imgF1, imgF2;

@@ -7,6 +7,7 @@
 #include <QLinearGradient>
 #include "Adjuster.h"
 #include "Geometry.h"
+#include <cmath>
 
 QString Layer::typeName(Layer::Type t) {
   switch (t) {
@@ -100,8 +101,19 @@ void Layer::setPoints(QPolygon const &p) {
   }
 }
 
-QImage Layer::mask(QSize os, class Adjustments const &adj0) const {
-  QImage msk(os, QImage::Format_Grayscale8);
+QImage Layer::mask(QSize osize, class Adjustments const &adj0,
+		   QSize sclcrpsize) const {
+  /* I know the original size and the scaled cropped size. Can I figure
+     out the scale factor? Of course: I just need to find the unscaled
+     cropped size first
+  */
+  PSize crpsize = Geometry::croppedSize(osize, adj0);
+  double xscale = sclcrpsize.width()*1.0/crpsize.width();
+  double yscale = sclcrpsize.height()*1.0/crpsize.height();
+  double scale = std::sqrt(xscale*yscale);
+  /* So now I have the scale factor needed for coordinate mapping.
+   */
+  QImage msk(sclcrpsize, QImage::Format_Grayscale8);
   switch (typ) {
   case Type::Invalid:
     msk.fill(0);
@@ -110,7 +122,8 @@ QImage Layer::mask(QSize os, class Adjustments const &adj0) const {
     msk.fill(255);
     break;
   case Type::LinearGradient: {
-    QPolygon pts(points());
+    QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
+						osize, adj0, scale));
     ASSERT(pts.size()==2);
     QPainter ptr(&msk);
     QLinearGradient gr(pts[0], pts[1]);
@@ -124,11 +137,7 @@ QImage Layer::mask(QSize os, class Adjustments const &adj0) const {
     COMPLAIN("layer mask NYI");
     break;
   }
-  QRect crop = Geometry::cropRect(os, adj0);
-  if (crop.size()==msk.size())
-    return msk;
-  else
-    return msk.copy(crop);
+  return msk;
 }
 
 Layer Layer::fromDB(quint64 layerid, PhotoDB const &db) {

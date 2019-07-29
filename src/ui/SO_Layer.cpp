@@ -3,7 +3,7 @@
 #include "SO_Layer.h"
 #include <QPainter>
 #include "AdjusterGeometry.h"
-#include <QDebug>
+#include "PDebug.h"
 #include <QMouseEvent>
 #include "PhotoDB.h"
 #include "Geometry.h"
@@ -109,6 +109,7 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
   Layers(vsn, db).setLayer(lay, layer);
 
   update();
+  pDebug() << "SO_Layer: layermaskchanged";
   emit layerMaskChanged(vsn, lay);
 
   e->accept();
