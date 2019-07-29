@@ -79,6 +79,7 @@ void LayerDialog::addGradientLayer() {
   QPolygon pp; pp << p0 << p1;
   l.setPoints(pp);
   ll.addLayer(l);
+  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(ll.count());
 
   setVersion(vsn); // rebuild
@@ -98,6 +99,7 @@ void LayerDialog::deleteLayer() {
   Layers ll(vsn, db);
   ll.deleteLayer(lay);
 
+  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
   
   setVersion(vsn);
@@ -118,6 +120,7 @@ void LayerDialog::raiseLayer() {
     return;
   }
   ll.raiseLayer(lay);
+  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
 
   setVersion(vsn); // rebuild
@@ -137,6 +140,7 @@ void LayerDialog::lowerLayer() {
     return;
   }
   ll.lowerLayer(lay);
+  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay-1);
 
   setVersion(vsn); // rebuild
@@ -154,6 +158,7 @@ void LayerDialog::showHideLayer() {
   Layer l = ll.layer(lay);
   l.setActive(!l.isActive());
   ll.setLayer(lay, l);
+  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
 
   ui->table->item(ui->table->rowCount()-lay, 0)

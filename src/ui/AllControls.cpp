@@ -131,7 +131,7 @@ void AllControls::changeOfTabIndex() {
 }
 
 void AllControls::maskChangeFromLayers(int lay) {
-  //  pDebug() << "mask change" << vsn << lay;
+  pDebug() << "mask change" << vsn << lay;
   emit maskChanged(vsn, lay);
 }
 

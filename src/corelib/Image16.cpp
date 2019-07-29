@@ -492,9 +492,8 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
   }
   ontop.convertTo(fmt);
   int X = out.width();
-  int X3 = 3*X;
   int Y = out.height();
-  int DL = out.wordsPerLine() - X3;
+  int DL = out.wordsPerLine() - 3*X;
   uint16_t *dst = out.words();
   uint16_t const *src = ontop.words();
   switch (fmt) {
@@ -507,13 +506,15 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
     /* All uint16 */
     for (int y=0; y<Y; y++) {
       uint8_t const *msk = mask.constScanLine(y);
-      for (int x=0; x<X3; x++) {
-	unsigned int pix = *dst;
+      for (int x=0; x<X; x++) {
 	unsigned int m = *msk++;
-	pix *= 255-m;
-	unsigned int opix = *src++;
-	opix *= m;
-	*dst++ = (pix + opix) / 255;
+	for (int k=0; k<3; k++) {
+	  unsigned int pix = *dst;
+	  pix *= 255-m;
+	  unsigned int opix = *src++;
+	  opix *= m;
+	  *dst++ = (pix + opix) / 255;
+	}
       }
       src += DL;
       dst += DL;
