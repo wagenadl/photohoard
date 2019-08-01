@@ -493,7 +493,8 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
   ontop.convertTo(fmt);
   int X = out.width();
   int Y = out.height();
-  int DL = out.wordsPerLine() - 3*X;
+  int DLO = out.wordsPerLine() - 3*X;
+  int DLT = ontop.wordsPerLine() - 3*X;
   uint16_t *dst = out.words();
   uint16_t const *src = ontop.words();
   switch (fmt) {
@@ -516,8 +517,8 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
 	  *dst++ = (pix + opix) / 255;
 	}
       }
-      src += DL;
-      dst += DL;
+      src += DLT;
+      dst += DLO;
     }
   } break;
   case Format::Lab16:
@@ -538,14 +539,13 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
 	dst+=3;
 
 	int pix1 = *dst1;
-	int m1 = *msk++;
+	int m1 = m;
 	pix1 *= 255-m1;
 	int opix1 = *src1++;
 	opix1 *= m1;
 	*dst1++ = (pix1 + opix1) / 255;
 
 	pix1 = *dst1;
-	m1 = *msk++;
 	pix1 *= 255-m1;
 	opix1 = *src1;
 	opix1 *= m;
@@ -554,8 +554,10 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
 	src1+=2;
 	dst1+=2;
       }
-      src += DL;
-      dst += DL;
+      src += DLT;
+      dst += DLO;
+      src1 += DLT;
+      dst1 += DLO;
     }
   } break;
   }
