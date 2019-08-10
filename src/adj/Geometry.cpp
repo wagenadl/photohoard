@@ -117,6 +117,11 @@ namespace Geometry {
     p = mapToAdjusted(p, osize, adj);
     return QPointF(xs*p.x(), ys*p.y());
   }
+  QPointF mapToScaledAdjusted(QPointF p, QSize osize, Adjustments const &adj,
+                              double scale) {
+    p = mapToAdjusted(p, osize, adj);
+    return QPointF(scale*p.x(), scale*p.y());
+  }
 
   QPolygonF mapToScaledAdjusted(QPolygonF pp, QSize osize,
                                 Adjustments const &adj,
@@ -126,6 +131,14 @@ namespace Geometry {
     pp = mapToAdjusted(pp, osize, adj);
     for (QPointF &p: pp)
       p = QPointF(xs*p.x(), ys*p.y());
+    return pp;
+  }
+  QPolygonF mapToScaledAdjusted(QPolygonF pp, QSize osize,
+                                Adjustments const &adj,
+                                double scale) {
+    pp = mapToAdjusted(pp, osize, adj);
+    for (QPointF &p: pp)
+      p = QPointF(scale*p.x(), scale*p.y());
     return pp;
   }
 

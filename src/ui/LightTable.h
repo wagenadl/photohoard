@@ -53,6 +53,7 @@ signals:
   void newSelection();
   void newCollection(QString);
   void recacheReoriented(QSet<quint64>);
+  void layerMaskChanged(quint64 vsn, int lay);
 private slots:
   void updateAdjusted(Image16, quint64, QSize fullsize);
   void resizeStrip();

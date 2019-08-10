@@ -284,10 +284,22 @@ PSize Adjuster::maxAvailableSize(Adjustments const &settings) const {
                                      stages[0].image.size());
 }
 
+PSize Adjuster::inputSize() const {
+  if (stages.isEmpty())
+    return PSize();
+  else
+    return stages[0].image.size();
+}
 
 PSize Adjuster::neededScaledOriginalSize(Adjustments const &settings,
                                          PSize desired) const {
   if (stages.isEmpty())
     return PSize();
   return Geometry::neededScaledOriginalSize(stages[0].osize, settings, desired);
+}
+
+PSize Adjuster::originalSize() const {
+  if (stages.isEmpty())
+    return PSize();
+  return stages[0].osize;
 }

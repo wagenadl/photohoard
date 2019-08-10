@@ -42,11 +42,15 @@ public:
 protected:
   void ensureAdjusters(int nLayers); // nLayers is number of adjustment
   // layers not counting the base.
+  Adjuster const *layerAdjuster(int n) const;
+  /* n=1..N for adjustment layers. n=0 is allowed and returns base layer. */
+  Adjuster *layerAdjuster(int n);
+  /* n=1..N for adjustment layers. n=0 is allowed and returns base layer. */
 protected:
-  QList<Adjuster *> layerAdjusters; // index k corresponds to the layer
+  QList<Adjuster *> layerAdjusters_; // index k corresponds to the layer
          // that would be called n = k+1 in Layers and AllAdjustments.
-  int validUntil; // highest layer adjuster that has valid input (1..N);
-         // <= 0 if none
+  int validInputUntil; // highest layer adjuster that has valid input (1..N);
+         // < 0 if none, = 0 if only base layer has valid input.
   AllAdjustments lastrq;
 };
 

@@ -99,6 +99,7 @@ signals:
    */
   void newZoom(double);
   /* NEWZOOM - Emitted when actual zoom level changes */
+  void layerMaskChanged(quint64 vsn, int lay);
 protected:
   virtual void keyPressEvent(QKeyEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

@@ -38,7 +38,7 @@ int IF_Bank::queueLength() const {
 
 void IF_Bank::findImage(quint64 id, QString path, QString ext,
 			Exif::Orientation orient, QSize ns,
-			Adjustments const &mods,
+			AllAdjustments const &mods,
 			int maxdim, bool urgent) {
   ImageFinder *f0 = 0;
   int ql0 = 0;

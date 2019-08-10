@@ -420,6 +420,8 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
 
   if (lay>0) {
     so = new SO_Layer(db, this);
+    connect(so, &SO_Layer::layerMaskChanged,
+	    this, &SlideView::layerMaskChanged);
     so->setLayer(vsn, lay);
   }
   update();

@@ -261,6 +261,7 @@ void ControlSliders::sliderChange(QString slider) {
   } else {
     adj.set(slider, value);
   }
+  pDebug() << "ControlSliders: emitting valuesChanged";
   emit valuesChanged();
 }
 

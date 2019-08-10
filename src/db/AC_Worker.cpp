@@ -7,9 +7,10 @@
 #include <QVariant>
 #include "PDebug.h"
 #include "AC_ImageHolder.h"
-#include "Adjustments.h"
+#include "AllAdjustments.h"
 #include "Here.h"
 #include "SessionDB.h"
+#include "ImgAvg.h"
 
 inline uint qHash(PSize const &s) {
   return qHash(QPair<int,int>(s.width(), s.height()));
@@ -154,7 +155,8 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 
 void AC_Worker::cacheModified(quint64 vsn) {
   Image16 img = holder->getImage(vsn);
-  pDebug() << "cacheModified" << vsn << img.size();
+  pDebug() << "AC_Worker::cacheModified"
+	   << vsn << img.size() << averagePixel(img);
   if (img.isNull())
     return;
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
@@ -247,8 +249,9 @@ void AC_Worker::processLoaded() {
 }   
 
 void AC_Worker::sendToBank(quint64 vsn) {
-  Adjustments adjs;
+  AllAdjustments adjs;
   adjs.readFromDB(vsn, *db);
+  pDebug() << "sendtobank, adjs="<<adjs << vsn;
 
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "
@@ -279,7 +282,7 @@ void AC_Worker::storeLoadedInDB() {
     quint64 version = it.key();
     Image16 img = it.value();
     bool outdated = onlyPreviewLoaded.contains(version);
-    pDebug() << "AC_Worker::storeLoadedInDB" << version << img.size() << outdated;
+    pDebug() << "AC_Worker::storeLoadedInDB" << version << img.size() << outdated << averagePixel(img);
     cache->markOutdated(version);
     cache->add(version, img, outdated);
     if (outdated)
