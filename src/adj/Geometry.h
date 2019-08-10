@@ -56,10 +56,16 @@ namespace Geometry {
                               QSize scaledOSize);
   QPolygonF mapToScaledAdjusted(QPolygonF, QSize osize, Adjustments const &,
                                 QSize scaledOSize);
+  QPointF mapToScaledAdjusted(QPointF, QSize osize, Adjustments const &,
+                              double scale);
+  QPolygonF mapToScaledAdjusted(QPolygonF, QSize osize, Adjustments const &,
+                                double scale);
   /* MAPTOSCALEDADJUSTED - Maps a point in an original image to adjusted image
-     MAPTOSCALEDADJUSTED(p, osize, settings) maps a point P to its final
-     position if given SETTINGS are applied to an image of original size OSIZE
-     that is scaled to SCALEDOSIZE (before cropping).
+     MAPTOSCALEDADJUSTED(p, osize, settings, scaledosize) or
+     MAPTOSCALEDADJUSTED(p, osize, settings, scalefactor) maps a point P to
+     its final position if given SETTINGS are applied to an image of original
+     size OSIZE that is scaled to SCALEDOSIZE (before cropping) or by
+     SCALEFACTOR.
   */
   bool hasPerspectiveTransform(Adjustments const &);
   PerspectiveTransform perspectiveTransform(QSize osize, Adjustments const &);

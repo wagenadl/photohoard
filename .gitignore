@@ -11,3 +11,5 @@ debian/photohoard
 debian/files
 debian/*.substvars
 
+index.json
+toc.json

@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QThread>
 #include "Exif.h"
-#include "Adjustments.h"
+#include "AllAdjustments.h"
 
 /* Class: ImageFinder
 
@@ -50,7 +50,7 @@ public:
    */
   void findImage(quint64 id, QString path, QString ext,
 		 Exif::Orientation orient, QSize ns,
-		 class Adjustments const &mods,
+		 class AllAdjustments const &mods,
 		 int maxdim, bool urgent);
   
 signals:
@@ -81,7 +81,7 @@ signals:  // private
   */
   void forwardFindImage(quint64 id, QString path, QString ext,
 			Exif::Orientation orient, QSize ns,
-			Adjustments mods,
+			AllAdjustments mods,
 			int maxdim, bool urgent);
 private:
   QThread thread;

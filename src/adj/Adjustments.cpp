@@ -87,6 +87,7 @@ QDebug &operator<<(QDebug &dbg, Adjustments const &adj) {
       pairs << (k + "=" + QString::number(v, 'f', 2));
   }
   dbg << pairs.join(";");
+  return dbg;
 }
 
 bool Adjustments::operator==(Adjustments const &s) const {

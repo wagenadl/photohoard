@@ -8,6 +8,7 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QThread>
 
 namespace PDebug {
   QTime &time() {
@@ -25,9 +26,19 @@ namespace PDebug {
   }
 };
 
+QMap<Qt::HANDLE, int> threads;
+
 QDebug pDebug() {
-  return qDebug() << QString("%1").arg(PDebug::time().elapsed()/1000.0,
-                                       7, 'f', 3).toUtf8().data();
+  Qt::HANDLE thrid = QThread::currentThreadId();
+  int k = threads.size() + 1;
+  if (threads.contains(thrid))
+    k = threads[thrid];
+  else
+    threads[thrid] = k;
+  return qDebug() << QString("%1 [%2]")
+    .arg(PDebug::time().elapsed()/1000.0, 7, 'f', 3)
+    .arg(k)
+    .toUtf8().data();
 }
 
 QStringList calltrace_list() {
