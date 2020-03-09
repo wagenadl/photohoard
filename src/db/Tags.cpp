@@ -79,6 +79,20 @@ void Tags::apply(quint64 versionid, int tagid) {
 	   versionid, tagid);
 }
 
+void Tags::apply(QSet<quint64> const &vsns, int tagid) {
+  Transaction t(db);
+  for (int vsn: vsns) {
+    QSqlQuery q = db->query("select 1 from appliedtags"
+                            " where version==:a and tag==:b", vsn, tagid);
+    if (!q.next()) {
+      db->addUndoStep(vsn, ".tag", 0, tagid);
+      db->query("insert into appliedtags(version, tag) values(:a,:b)",
+                vsn, tagid);
+    }
+  }
+  t.commit();
+}
+
 void Tags::remove(quint64 versionid, int tagid) {
   Untransaction t(db);
   QSqlQuery q = db->query("select 1 from appliedtags"
@@ -89,6 +103,22 @@ void Tags::remove(quint64 versionid, int tagid) {
   db->query("delete from appliedtags where version==:a and tag==:b",
 	   versionid, tagid);
 }
+
+void Tags::remove(QSet<quint64> const &vsns, int tagid) {
+  Transaction t(db);
+  for (int vsn: vsns) {
+    qDebug() << "tags::remove" << vsn << tagid;
+    QSqlQuery q = db->query("select 1 from appliedtags"
+                            " where version==:a and tag==:b", vsn, tagid);
+    if (q.next()) {
+      qDebug() << "tags::remove got " << vsn;
+      db->addUndoStep(vsn, ".tag", tagid, 0);
+      db->query("delete from appliedtags where version==:a and tag==:b",
+                vsn, tagid);
+    }
+  }
+  t.commit();
+}  
 
 int Tags::find(QString tag, int parent) {
   QSqlQuery q = parent ?

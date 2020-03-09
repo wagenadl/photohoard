@@ -33,7 +33,9 @@ public:
   bool undefine(int); // returns true if OK, fails if applied or parent.
   bool canUndefine(int);
   void apply(quint64 versionid, int tagid);
+  void apply(QSet<quint64> const &versionid, int tagid);
   void remove(quint64 versionid, int tagid);
+  void remove(QSet<quint64> const &versionid, int tagid);
   QSet<int> applied(quint64 versionid);
   bool couldBeNew(QString tag);
   QString interpretation(QStringList ss);
