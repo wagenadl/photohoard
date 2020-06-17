@@ -22,10 +22,12 @@ inline QString averagePixel(Image16 const &img1) {
       n++;
     }
   }
-  b /= n;
-  g /= n;
-  r /= n;
-  a /= n;
+  if (n>0) {
+    b /= n;
+    g /= n;
+    r /= n;
+    a /= n;
+  }
   return QString("(%1,%2,%3)").arg(r).arg(g).arg(b);
 }
 
