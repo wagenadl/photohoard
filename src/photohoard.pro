@@ -26,4 +26,5 @@ LIBS += -lxcb-randr -lxcb
 include(photohoard.pri)
 DEPENDPATH +=  . $$sourcedirs
 INCLUDEPATH += . $$sourcedirs
+INCLUDEPATH += /usr/include/opencv4
 for(sd, sourcedirs): include(../src/$${sd}/$${sd}.pri)
