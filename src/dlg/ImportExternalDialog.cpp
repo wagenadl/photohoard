@@ -30,9 +30,12 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   movieWhat = ui->copyMovies->text();
   ui->source->setText(ui->source->text() + ": "
                       + job->sourceInfo().simplifiedRoot());
+
   QString home = QString(qgetenv("HOME"));
-  ui->movieDestination->setText(ImportJob::autoDest(home + "/Pictures/movies"));
+  ui->movieDestination->setText(ImportJob::autoDest(home
+                                                    + "/Pictures/movies"));
   ui->movieContainer->hide();
+
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 
@@ -118,7 +121,8 @@ void ImportExternalDialog::updateCounts(int ntotal, int nmov) {
 }
 
 void ImportExternalDialog::browseDestination() {
-  QString dir = QFileDialog::getExistingDirectory(this, tr("Select destination"),
+  QString dir = QFileDialog::getExistingDirectory(this,
+                                                  tr("Select destination"),
                                                   ui->destination->text(),
                                                   QFileDialog::ShowDirsOnly);
   if (!dir.isEmpty())
@@ -126,7 +130,8 @@ void ImportExternalDialog::browseDestination() {
 }
 
 void ImportExternalDialog::browseMovieDestination() {
-  QString dir = QFileDialog::getExistingDirectory(this, tr("Select destination"),
+  QString dir = QFileDialog::getExistingDirectory(this,
+                                                  tr("Select destination"),
                                                   ui->movieDestination->text(),
                                                   QFileDialog::ShowDirsOnly);
   if (!dir.isEmpty())
