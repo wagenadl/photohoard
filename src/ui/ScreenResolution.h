@@ -20,7 +20,6 @@ private:
   static bool &ready();
 private:
   static void ensure();
-  static void fallback();
 };
 
 #endif
