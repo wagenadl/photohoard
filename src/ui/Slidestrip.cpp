@@ -29,7 +29,8 @@ int Slidestrip::count() const {
 }
 
 bool Slidestrip::isSingleton() const {
-  return count() <= 1;
+  // This returns false when we haven't constructed ourselves properly
+  return count() == 1;
 }
 
 QRectF Slidestrip::subBoundingRect() const {
