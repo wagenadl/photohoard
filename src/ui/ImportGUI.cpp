@@ -13,6 +13,8 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QFileDialog>
 #include "ImportSelectorDialog.h"
 
 ImportGUI::ImportGUI(class SessionDB *db,
@@ -39,22 +41,22 @@ ImportGUI::~ImportGUI() {
   delete job;
 }
 
-void ImportGUI::showAndGo() {
+void ImportGUI::showAndGo(bool considerIncorporate) {
   if (job->sourceInfo().isEmpty())
     cleanUpCanceledJob();
   else if (job->sourceInfo().isOtherUser()) 
     showAndGoOtherUser();
   else if (job->sourceInfo().isExternalMedia()
-      || job->sourceInfo().isTemporaryLike()) 
+           || job->sourceInfo().isTemporaryLike()) 
     showAndGoExternal();
-  else if (job->sourceInfo().isOnlyFolders()) 
+  else if (job->sourceInfo().isOnlyFolders() && considerIncorporate) 
     showAndGoLocal();
   else 
     showAndGoAltLocal();
 }
 
 void ImportGUI::showAndGoAltLocal() {
-  showAndGoOtherUser();
+  showAndGoExternal();
   // This is not perfect, obviously, because Delete should be an option
   // for source disposition
 }
@@ -210,24 +212,41 @@ void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
       usedisks << d;
   }
 
-  if (usedisks.isEmpty()) {
-    QMessageBox::information(parent, "Photohoard: No media found",
-                             "No removable media found: nothing to import."
-                             " (You may have to convince your operating system"
-                             " to mount your media.)",
-                             QMessageBox::Close, QMessageBox::Close);
-    return;
-  }
-  QString choice = usedisks[0];
-  if (usedisks.size() > 1) 
-    choice = ImportSelectorDialog::choose(usedisks);
-  pDebug() << "choice is " << choice;
-  QString path = media.absoluteFilePath(choice + "/DCIM");
   QList<QUrl> urls;
-  urls << QUrl::fromLocalFile(path);
-  qDebug() << urls;
-  auto *gui = new ImportGUI(db, scanner, urls);
-  gui->showAndGo();
+  
+  if (usedisks.isEmpty()) {
+    QMessageBox box(QMessageBox::Question, "Photohoard: No media found",
+                    "No removable media found."
+                    " You may have to convince your operating system"
+                    " to mount your media before trying again."
+                    " Alternatively, click “Choose location” to manually"
+                    " specify a source for import.",
+                    0,
+                    parent);
+    auto choose = box.addButton("Choose location", QMessageBox::ActionRole);
+    box.addButton(QMessageBox::Close);
+    box.exec();
+    if (box.clickedButton()==choose) {
+      QString dir
+        = QFileDialog::getExistingDirectory(parent,
+                                            "Select source for import");
+      if (dir.size()) 
+        urls << QUrl::fromLocalFile(dir);
+    }
+  } else {
+    QString choice = usedisks[0];
+    if (usedisks.size() > 1) 
+      choice = ImportSelectorDialog::choose(usedisks);
+    pDebug() << "choice is " << choice;
+    QString path = media.absoluteFilePath(choice + "/DCIM");
+    urls << QUrl::fromLocalFile(path);
+  }
+
+  if (urls.size()) {
+    qDebug() << urls;
+    auto *gui = new ImportGUI(db, scanner, urls);
+    gui->showAndGo();
+  }
 }
 
 
