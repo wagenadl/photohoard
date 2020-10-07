@@ -301,13 +301,17 @@ void Datestrip::expand() {
   for (auto s: stripOrder)
     s->show();
   if (org==Organization::ByDate) {
-    if (isSingleton())
-      for (auto s: stripOrder)
+    if (isSingleton()) { 
+      for (auto s: stripOrder) {
         s->expand();
-    else
-      for (auto s: stripOrder)
-        if (s->isSingleton())
+      }
+    } else {
+      for (auto s: stripOrder) {
+        if (s->isSingleton()) {
           s->expand();
+        }
+      }
+    }
   } else {
     if (thisFolderStrip)
       thisFolderStrip->expand();
@@ -779,5 +783,6 @@ void Datestrip::unblock() {
 }
 
 bool Datestrip::isSingleton() const {
+  // This returns false when we haven't constructed ourselves properly
   return stripOrder.size() == 1;
 }

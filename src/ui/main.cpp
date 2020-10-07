@@ -60,11 +60,12 @@ int main(int argc, char **argv) {
 
   Application app(argc, argv);
   //pDebug() << "Application constructed";
-  ScreenResolution sr;
-  std::thread sr_thread([&sr]() { sr.dpi(); });
-  /* Experimentally, calculating the screen reso in a separate thread
-     saves 50 ms startup time on hirudo. */
+  //  ScreenResolution sr(app);
+  //std::thread sr_thread([&sr]() { sr.dpi(); });
+  ///* Experimentally, calculating the screen reso in a separate thread
+  //   saves 50 ms startup time on hirudo. */
 
+  
   CMSProfile rgb(CMSProfile::srgbProfile());
   if (icc=="")
     CMS::monitorProfile = CMSProfile::displayProfile();
@@ -150,6 +151,6 @@ int main(int argc, char **argv) {
     
   db.close();
 
-  sr_thread.join();
+  //  sr_thread.join();
   return res;
 }
