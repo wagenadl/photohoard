@@ -282,7 +282,7 @@ void MainWindow::dropEvent(QDropEvent *e) {
   
   e->accept();
   auto *gui = new ImportGUI(db, scanner, urls, this);
-  gui->showAndGo();
+  gui->showAndGo(true);
 
   dragin = false;
 }

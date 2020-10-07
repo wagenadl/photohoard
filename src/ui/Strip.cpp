@@ -42,14 +42,16 @@ void Strip::setHeaderID(quint64 id) {
     else
       CRASH("Strip not in a scene - disaster");
   }
+  headerimg = Image16();
+  headerpm = QPixmap();
   if (id) {
     StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
     else
       CRASH("Strip not in a scene - won't show image");
-    headerid = id;
   }
+  headerid = id;
 }
 
 int Strip::subHeight() const {
@@ -663,6 +665,7 @@ void Strip::clearContents() {
 
 
 void Strip::rebuildContents() {
+  setHeaderID(0);
 }
 
 void Strip::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) {

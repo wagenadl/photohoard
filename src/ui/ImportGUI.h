@@ -16,7 +16,7 @@ public:
 	    QList<QUrl> const &sources,
 	    QObject *parent=0);
   virtual ~ImportGUI();
-  void showAndGo();
+  void showAndGo(bool considerIncorporate=false);
 public:
   static bool acceptable(QList<QUrl> const &);
   static void clickImportButton(class SessionDB *db, class Scanner *scanner,

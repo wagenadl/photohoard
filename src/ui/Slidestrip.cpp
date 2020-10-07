@@ -91,6 +91,7 @@ Slide *Slidestrip::slideByVersion(quint64 vsn) {
 }
 
 void Slidestrip::clearContents() {
+  Strip::clearContents();
   for (auto s: slideOrder) 
     delete s;
   slideOrder.clear();
@@ -98,6 +99,7 @@ void Slidestrip::clearContents() {
 }
 
 void Slidestrip::rebuildContents() {
+  Strip::rebuildContents();
   if (!expanded) {
     mustRebuild = true;
     return;

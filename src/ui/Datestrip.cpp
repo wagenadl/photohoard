@@ -48,6 +48,7 @@ Strip::TimeScale Datestrip::subScale() const {
 }
 
 void Datestrip::clearContents() {
+  Strip::clearContents();
   for (auto s: stripOrder)
     delete s;
   stripOrder.clear();
@@ -144,6 +145,7 @@ Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
 }
 
 void Datestrip::rebuildContents() {
+  Strip::rebuildContents();
   if (!expanded) {
     mustRebuild = true;
     return;
