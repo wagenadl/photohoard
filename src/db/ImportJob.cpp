@@ -15,7 +15,7 @@ ImportJob::ImportJob(class SessionDB *db,
                                        db(db), scanner_(scanner),
                                        copyin(0), collector(0),
                                        srcinfo(sources) {
-  op = Operation::Import; // GUI may change
+  op = Operation::Import; // GUI may change this
   autodest = true;
   srcdisp = CopyIn::SourceDisposition::Leave;
   authorized_ = false;
