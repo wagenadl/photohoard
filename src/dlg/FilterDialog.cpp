@@ -11,7 +11,6 @@
 
 FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   QDialog(parent), db(db) {
-
   starting = true;
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
@@ -232,7 +231,7 @@ Filter FilterDialog::extract() const {
   f.setTags(splitTags());
   if (!ui->tags->isChecked())
     f.unsetTags();
-  qDebug() << f.tagsClause();
+  //  qDebug() << f.tagsClause();
   return f;
 }
 
@@ -306,11 +305,13 @@ void FilterDialog::populate() {
   ui->tags->setChecked(f.hasTags());
   ui->tagEditor->setText(f.tags().join("\n"));
 
-  recount();
   starting = false;
+  recount();
 }
 
 void FilterDialog::recount() {
+  if (starting)
+    return;
   Filter f = extract();
   ui->count->setText(QString::number(f.count()));
 }
