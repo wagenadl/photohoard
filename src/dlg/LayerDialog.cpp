@@ -82,7 +82,7 @@ void LayerDialog::addLinearLayer() {
   QPoint p0(osize.width()/2, osize.height()/3);
   QPoint p1(osize.width()/2, osize.height()*2/3);
   QPolygon pp; pp << p0 << p1;
-  l.setPoints(pp);
+  l.setPointsAndRadii(pp, QList<int>());
   ll.addLayer(l);
   pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(ll.count());

@@ -79,10 +79,32 @@ void Layer::setData(QByteArray const &d) {
   dat = d;
 }
 
+QList<int> Layer::radii() const {
+  char const *raw = dat.data();
+  quint16 const *pts = reinterpret_cast<quint16 const *>(raw);
+  int Nint = dat.size() / 2;
+  int N0 = points().size() * 2;
+
+  QList<int> rr;
+  for (int n=N0; n<Nint; n++)
+    rr << pts[n];
+  return rr;
+}
+
 QPolygon Layer::points() const {
   char const *raw = dat.data();
   quint16 const *pts = reinterpret_cast<quint16 const *>(raw);
-  int N = dat.size() / 4;
+  int Nint = dat.size() / 2;
+  int N = 0;
+  switch (typ) {
+  case Type::Invalid: N = 0; break;
+  case Type::Base: N = 0; break;
+  case Type::LinearGradient: N = 2; break;
+  case Type::Circular: N = 1; break;
+  case Type::Curve: N = (Nint-1) / 2; break;
+  case Type::Area: N = (Nint-1) / 2; break;
+  case Type::Heal: N = Nint / 4; break;
+  }
   QPolygon p(N);
   for (int n=0; n<N; n++) {
     p.setPoint(n, pts[0], pts[1]);
@@ -91,9 +113,10 @@ QPolygon Layer::points() const {
   return p;
 }
 
-void Layer::setPoints(QPolygon const &p) {
+void Layer::setPointsAndRadii(QPolygon const &p, QList<int> const &rr) {
   int N = p.size();
-  dat.resize(4*N);
+  int M = rr.size();
+  dat.resize(4*N + 2*M);
   char *raw = dat.data();
   quint16 *pts = reinterpret_cast<quint16 *>(raw);
   for (int n=0; n<N; n++) {
@@ -101,6 +124,8 @@ void Layer::setPoints(QPolygon const &p) {
     *pts++ = p0.x();
     *pts++ = p0.y();
   }
+  for (int m=0; m<M; m++)
+    *pts++ = rr[m];
 }
 
 QImage Layer::mask(QSize osize, class Adjustments const &adj0,

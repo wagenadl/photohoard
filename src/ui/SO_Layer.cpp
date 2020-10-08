@@ -105,7 +105,7 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
   QPolygon poly = layer.points();
   /// QPointF oldpt = poly[clickidx];
   poly[clickidx] = newpt.toPoint();
-  layer.setPoints(poly);
+  layer.setPointsAndRadii(poly, QList<int>());
   Layers(vsn, db).setLayer(lay, layer);
 
   update();
