@@ -10,10 +10,18 @@
 #include "Dialog.h"
 #include "ControlSliders.h"
 
+static QIcon eyeIcon(bool onoff) {
+  return onoff
+    ? QIcon(":icons/eye-regular.svg")
+    : QIcon(":icons/eye-slash-regular.svg");
+}
+
 LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   QWidget(parent), db(db) {
   ui = new Ui_LayerDialog;
   ui->setupUi(this);
+  ui->table->setHorizontalHeaderItem(0,
+                                     new QTableWidgetItem(eyeIcon(true), ""));
   //  setVersion(0);
   sliders = new ControlSliders(db->isReadOnly(), 0);
   sliders->setLayer(1); // make sure not to show recompose group
@@ -37,18 +45,15 @@ void LayerDialog::setVersion(quint64 v) {
   int N = layers.count();
 
   ui->table->setRowCount(N);
-
   for (int n=1; n<=N; n++) {
     Layer layer = layers.layer(n);
     //pDebug() << "layerdialog::setversion" << v << n
     //         << int(layer.type()) << layer.points();
     ui->table->setVerticalHeaderItem(N-n,
 				   new QTableWidgetItem(QString("%1").arg(n)));
-    ui->table->setItem(N-n, 0, new QTableWidgetItem(layer.isActive()
-						    ? QString::fromUtf8("☼")
-						    : QString::fromUtf8("☀")));
-    ui->table->setItem(N-n, 1, new QTableWidgetItem(QString::fromUtf8("-")));
-    ui->table->setItem(N-n, 2, new QTableWidgetItem(layer.typeName()));
+    ui->table->setItem(N-n, 0,
+                       new QTableWidgetItem(eyeIcon(layer.isActive()), ""));
+    ui->table->setItem(N-n, 1, new QTableWidgetItem(layer.typeName()));
   }
   bool explicitnew = lastlay==N;
   //pDebug() << "layerdialog setversion explicitnew" << explicitnew;
@@ -68,7 +73,7 @@ void LayerDialog::selectLayer(int lay) {
 }
 
 
-void LayerDialog::addGradientLayer() {
+void LayerDialog::addLinearLayer() {
   //pDebug() << "addGradientLayer";
   Layers ll(vsn, db);
   Layer l;
@@ -85,9 +90,14 @@ void LayerDialog::addGradientLayer() {
   setVersion(vsn); // rebuild
 }
 
-void LayerDialog::addLayer() {
-  addGradientLayer();
+void LayerDialog::addShapeLayer() {
+  pDebug() << "LayerDialog: ShapeLayer NYI";
 }
+
+void LayerDialog::addHealLayer() {
+  pDebug() << "LayerDialog: HealLayer NYI";
+}
+  
 
 void LayerDialog::deleteLayer() {
   int lay = selectedLayer();
@@ -162,14 +172,15 @@ void LayerDialog::showHideLayer() {
   emit maskEdited(lay);
 
   ui->table->item(ui->table->rowCount()-lay, 0)
-    ->setText(l.isActive()
-	      ? QString::fromUtf8("☼")
-	      : QString::fromUtf8("☀"));
+    ->setIcon(eyeIcon(l.isActive()));
+  ui->showHide->setIcon(eyeIcon(!l.isActive()));
+
 }
 
-void LayerDialog::showHideMask() {
-  COMPLAIN("show/hide mask NYI");
-}
+
+//void LayerDialog::showHideMask() {
+//  COMPLAIN("show/hide mask NYI");
+//}
 
 void LayerDialog::newSelection() {
   int lay = selectedLayer();
@@ -190,7 +201,10 @@ void LayerDialog::newSelection() {
   ui->raise->setEnabled(lay>0 && lay<Layers(vsn,db).count());
   ui->lower->setEnabled(lay>1);
   ui->showHide->setEnabled(lay>0);
-  ui->mask->setEnabled(lay>0);
+  ui->showHide->setIcon(eyeIcon(lay>0 
+                                ? !Layers(vsn,db).layer(lay).isActive()
+                                : true));
+  //  ui->mask->setEnabled(lay>0);
 }
  
 int LayerDialog::selectedLayer() const {
@@ -210,9 +224,9 @@ void LayerDialog::respondToClick(int r, int c) {
   case 0: // visibility
     showHideLayer();
     break;
-  case 1: // mask
-    showHideMask();
-    break;
+  //case 1: // mask
+  //  showHideMask();
+  //  break;
   default:
     break;
   }

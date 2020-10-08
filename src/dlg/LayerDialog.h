@@ -31,19 +31,21 @@ signals:
   /* VALUESCHANGED - Emitted when the user changes a slider on a layer
   */
 private slots:
-  void addGradientLayer();
-  void addLayer();
+  void addLinearLayer();
+  void addShapeLayer();
+  void addHealLayer();
   void deleteLayer();
   void raiseLayer();
   void lowerLayer();
   void showHideLayer();
-  void showHideMask();
+  //  void showHideMask();
   void newSelection();
   void respondToClick(int, int);
   void changeFromSliders();
 private:
   void storeInDatabase(Adjustments const &adj, int lay);
   void selectLayer(int lay);
+  void setEyeIcon(int row, bool onoff);
 private:
   class Ui_LayerDialog *ui;
   PhotoDB *db;

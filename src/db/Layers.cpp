@@ -23,6 +23,8 @@ QString Layer::typeName(Layer::Type t) {
     return "Curved edge";
   case Type::Area:
     return "Curved area";
+  case Type::Heal:
+    return "Heal/clone";
   }
   return "Invalid"; // not reached
 }
@@ -134,6 +136,7 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
   case Type::Circular:
   case Type::Curve:
   case Type::Area:
+  case Type::Heal:
     COMPLAIN("layer mask NYI");
     break;
   }
