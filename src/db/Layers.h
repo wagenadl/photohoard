@@ -10,14 +10,14 @@
 class Layer {
 public:
   enum class Type {
-    Invalid=-1,
-      Base=0,
-      LinearGradient,
-      Circular,
-      Curve,
-    Area,
-    Heal
-      };
+    Invalid=-1, // no data
+    Base=0, // no data
+    LinearGradient, // data is two points
+    Circular, // data is a point and two radii (second is blur)
+    Curve, // data is N points and one radius (blur)
+    Area, // data is N points and one radius (blur)
+    Heal // data is N points and 2N radii (N circle radii followed by N blurs)
+  };
   static QString typeName(Type);
 public:
   Layer();
@@ -34,12 +34,14 @@ public:
   QByteArray const &data() const;
   void setData(QByteArray const &);
   QPolygon points() const;
-  void setPoints(QPolygon const &);
+  QList<int> radii() const;
+  void setPointsAndRadii(QPolygon const &, QList<int> const &);
   QImage mask(QSize origSize, class Adjustments const &baseadj,
 	      QSize scaledCroppedSize) const;
   /* MASK - Return alpha mask for layer
      Result is of size scaledCroppedSize.
      Only the "LinearGradient" mask is implemented.
+     The mask is all black if the layer is not active.
    */
   double alpha() const;
   void setAlpha(double a);
