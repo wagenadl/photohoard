@@ -155,8 +155,6 @@ void AC_Worker::cachePreview(quint64 id, Image16 img) {
 
 void AC_Worker::cacheModified(quint64 vsn) {
   Image16 img = holder->getImage(vsn);
-  pDebug() << "AC_Worker::cacheModified"
-	   << vsn << img.size() << averagePixel(img);
   if (img.isNull())
     return;
   if (img.size().isLargeEnoughFor(cache->maxSize())) {
@@ -191,7 +189,6 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   q.finish();
 
   if (wid!=fs.width() || hei!=fs.height()) {
-    pDebug() << "ensureDBSizeCorrect" << vsn << siz << fs << photo << " - " << wid << "." << hei;
     Untransaction ut(db);
     db->query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
@@ -251,7 +248,6 @@ void AC_Worker::processLoaded() {
 void AC_Worker::sendToBank(quint64 vsn) {
   AllAdjustments adjs;
   adjs.readFromDB(vsn, *db);
-  pDebug() << "sendtobank, adjs="<<adjs << vsn;
 
   QSqlQuery q
     = db->query("select folder, filename, filetype, width, height, orient "
@@ -282,7 +278,6 @@ void AC_Worker::storeLoadedInDB() {
     quint64 version = it.key();
     Image16 img = it.value();
     bool outdated = onlyPreviewLoaded.contains(version);
-    pDebug() << "AC_Worker::storeLoadedInDB" << version << img.size() << outdated << averagePixel(img);
     cache->markOutdated(version);
     cache->add(version, img, outdated);
     if (outdated)

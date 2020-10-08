@@ -142,7 +142,7 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     ++F;
 
   auto getImageAt = [=](int f) {
-    Adjuster *adj = f==0 ? this : layerAdjuster(f);
+    Adjuster *adj = f==0 ? baseAdjuster() : layerAdjuster(f);
     return adj->retrieveReduced(f==0
 				? settings.baseAdjustments()
 				: settings.layerAdjustments(f),
@@ -151,13 +151,13 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 
   auto applyMask = [=](Image16 const &img_top, Image16 const &img_below,
 		       Layer const &layer) {
-    //    QImage msk ....
-    pDebug() << "AllAdjuster applyMask NYI";
     PSize osize = originalSize();
     PSize sclcrpsize = img_top.size();
     if (img_below.size() != sclcrpsize) {
-      COMPLAIN("AllAdjuster applyMask: mismatching image sizes");
-      return img_top;
+      pDebug() << "osize" << osize << "sclcrpsize" << sclcrpsize << "below" << img_below.size();
+      if (!sclcrpsize.isEmpty()) 
+        COMPLAIN("AllAdjuster applyMask: mismatching image sizes");
+      return img_top;  
     }
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
     pDebug() << "Top image format was" << int(img_top.format());
@@ -174,6 +174,7 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     if (F-2>=0 && imgF2.isNull())
       imgF2 = getImageAt(F-2);
     imgF1 = getImageAt(F-1);
+    pDebug() << "applying masks" << F;
     Image16 img = F==1 ? imgF1 : applyMask(imgF1, imgF2, settings.layer(F-1));
     //imgF1.toQImage().save(QString("/tmp/image-%1-1.jpg").arg(F));
     //imgF2.toQImage().save(QString("/tmp/image-%1-2.jpg").arg(F));

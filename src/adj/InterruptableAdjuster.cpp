@@ -43,7 +43,6 @@ void InterruptableAdjuster::requestROI(AllAdjustments const &settings,
 void InterruptableAdjuster::requestReducedROI(AllAdjustments const &settings,
                                               QRect roi, PSize maxSize,
                                               quint64 id) {
-  pDebug() << "InterruptableAdjuster::requestReducedROI" << roi << maxSize <<id;
   QMutexLocker l(&mutex);
   adjuster->cancel();
   newreq = true;
@@ -109,7 +108,6 @@ void InterruptableAdjuster::setReduced(Image16 img, PSize siz, quint64 id) {
 }    
 
 void InterruptableAdjuster::handleNewRequest() {
-  pDebug() << "InterruptableAdjuster::handleNewRequest";
   QRect r = rqRect;
   PSize s = rqSize;
   bool cando = rqId==oId;
@@ -150,7 +148,6 @@ void InterruptableAdjuster::handleNewRequest() {
     quint64 id = oId;
     QSize fs = Geometry::croppedSize(oSize, sli.baseAdjustments());
 
-    pDebug() << "InterruptableAdjkuster: ready";
     mutex.unlock();
     emit ready(img, id, fs);
     mutex.lock();
@@ -168,7 +165,6 @@ Image16 InterruptableAdjuster::hnrReduced(AllAdjustments const &sli,
 
 
 void InterruptableAdjuster::handleNewImage() {
-  pDebug() << "InterruptableAdjuster::handleNewImage";
   if (oSize.isEmpty())
     adjuster->setOriginal(newOriginal);
   else

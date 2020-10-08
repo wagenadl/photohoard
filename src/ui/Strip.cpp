@@ -616,7 +616,6 @@ void Strip::setRowWidth(int pix) {
 }
 
 void Strip::expand() {
-  pDebug() << "Strip::expand" << d0 << int(scl);
   if (expanded)
     return;
   expanded = true;

@@ -10,19 +10,16 @@
 
 QSize ScreenResolution::pixelCount() {
   ensure();
-  qDebug() << "pixelcount" << pc();
   return pc();
 }
 
 QSizeF ScreenResolution::millimeterSize() {
   ensure();
-  qDebug() << "millimetersize" << ms();
   return ms();
 }
 
 double ScreenResolution::dpi() {
   ensure();
-  qDebug() << "dpi" << dpi_();
   return dpi_();
 }
 
