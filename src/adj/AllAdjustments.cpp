@@ -79,11 +79,15 @@ void AllAdjustments::setLayer(int n, Layer const &l) {
 }
 
 Adjustments const &AllAdjustments::layerAdjustments(int n) const {
+  if (n==0)
+    return baseAdjustments();
   Q_ASSERT(n>=1 && n<=layerCount());
   return layadj[n-1];
 }
   
 Adjustments &AllAdjustments::layerAdjustments(int n) {
+  if (n==0)
+    return baseAdjustments();
   Q_ASSERT(n>=1 && n<=layerCount());
   return layadj[n-1];
 }
@@ -98,8 +102,8 @@ bool AllAdjustments::isDefault() const {
 }
 
 QDebug &operator<<(QDebug &dbg, AllAdjustments const &adj) {
-  dbg << adj.baseAdjustments();
+  dbg << "base" << adj.baseAdjustments();
   for (int k=0; k<adj.layerCount(); k++)
-    dbg << k+1 << adj.layerAdjustments(k+1);
+    dbg << "layer" << k+1 << adj.layerAdjustments(k+1);
   return dbg;
 }

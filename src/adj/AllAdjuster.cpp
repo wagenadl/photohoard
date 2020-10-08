@@ -96,6 +96,7 @@ Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
 Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				     PSize maxSize) {
   pDebug() << "AllAdjuster::retrieveReduced" << maxSize;
+  pDebug() << "  Layercount" << settings.layerCount();
   pDebug() <<  "  settings" << settings;
   if (validInputUntil<0)
     return Image16(); // no image set at all
@@ -174,6 +175,9 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
       imgF2 = getImageAt(F-2);
     imgF1 = getImageAt(F-1);
     Image16 img = F==1 ? imgF1 : applyMask(imgF1, imgF2, settings.layer(F-1));
+    //imgF1.toQImage().save(QString("/tmp/image-%1-1.jpg").arg(F));
+    //imgF2.toQImage().save(QString("/tmp/image-%1-2.jpg").arg(F));
+    //img.toQImage().save(QString("/tmp/image-%1.jpg").arg(F));
     if (F>N) {
       pDebug() << "AA::retrieveReduced returning layered img sized "
 	       << img.size();
@@ -181,7 +185,7 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     } else {
       layerAdjuster(F)->setOriginal(img);
       validInputUntil = F;
-      imgF2 = imgF1;
+      imgF2 = img; // is that right?
       ++F;
     }
   }
