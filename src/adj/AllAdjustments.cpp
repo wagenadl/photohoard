@@ -41,7 +41,6 @@ void AllAdjustments::rereadFromDB(quint64 vsn, int n0, class PhotoDB &db) {
     layers[n-1].readFromDB(vsn, n, db);
   for (int n=n0; n<=N; n++)
     layadj[n-1].readFromDB(vsn, n, db);
-  pDebug() << "reread from db" << *this;
 }
 
 void AllAdjustments::writeToDB(quint64 vsn, class PhotoDB &db) const {

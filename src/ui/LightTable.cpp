@@ -395,7 +395,6 @@ PSize LightTable::displaySize() const {
 }
 
 void LightTable::updateAdjusted(Image16 img, quint64 i, QSize fs) {
-  pDebug() << "lighttable::updateadjusted" << img.size() << fs;
   if (img.isNull())
     return;
   strips->updateImage(i, img, true); // was false
@@ -403,7 +402,6 @@ void LightTable::updateAdjusted(Image16 img, quint64 i, QSize fs) {
 }
 
 void LightTable::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
-  pDebug() << "lighttable::updateimage" << img.size() << fs << chgid;
   strips->updateImage(i, img, chgid>0);
   slide->updateImage(i, img, chgid>0, fs);
 }

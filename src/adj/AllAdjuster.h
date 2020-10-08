@@ -42,6 +42,8 @@ public:
 protected:
   void ensureAdjusters(int nLayers); // nLayers is number of adjustment
   // layers not counting the base.
+  Adjuster const *baseAdjuster() const { return this; }
+  Adjuster *baseAdjuster() { return this; }
   Adjuster const *layerAdjuster(int n) const;
   /* n=1..N for adjustment layers. n=0 is allowed and returns base layer. */
   Adjuster *layerAdjuster(int n);

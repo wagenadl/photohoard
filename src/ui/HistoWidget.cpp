@@ -14,7 +14,6 @@ HistoWidget::~HistoWidget() {
 }
 
 void HistoWidget::setImage(Image16 const &img) {
-  pDebug() << "HistoWidget::setImage" << img.size() << averagePixel(img);
   histo.setImage(img);
   update();
 }
