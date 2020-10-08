@@ -15,7 +15,8 @@ public:
       LinearGradient,
       Circular,
       Curve,
-      Area
+    Area,
+    Heal
       };
   static QString typeName(Type);
 public:
