@@ -116,6 +116,10 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
   /* So now I have the scale factor needed for coordinate mapping.
    */
   QImage msk(sclcrpsize, QImage::Format_Grayscale8);
+  if (!active) {
+    msk.fill(0);
+    return msk;
+  }
   switch (typ) {
   case Type::Invalid:
     msk.fill(0);

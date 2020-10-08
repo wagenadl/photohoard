@@ -89,6 +89,7 @@ Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
     validInputUntil = n;
   }
   pDebug() << "AA::retrieveFull returning layered img sized " << img.size();
+  lastrq = settings;
   return img;
 }
 
