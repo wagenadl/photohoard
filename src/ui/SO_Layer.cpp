@@ -176,21 +176,22 @@ void SO_Layer::paintArea(LayerGeomBase const &geom) {
 void SO_Layer::paintClone(LayerGeomBase const &geom) {
   QPainter ptr(this);
   int N = geom.transformedRadii.size();
-  QPen b(QColor(0,200,0));
+  QPen b(QColor(255,0,0));
   b.setWidth(3);
+  ptr.setPen(b);
+  for (int n=0; n<N; n++)
+    ptr.drawEllipse(geom.transformedNodes[n], POINTRADIUS, POINTRADIUS);
+
   QVector<qreal> pat; pat << 1 << 10;  
+
+  b.setColor(QColor(0, 200, 0));
   b.setDashPattern(pat);
   ptr.setPen(b);
   for (int n=0; n<N; n++) 
-    ptr.drawEllipse(geom.transformedNodes[n],
+    ptr.drawEllipse(geom.transformedNodes[n+N],
                     geom.transformedRadii[n],
                     geom.transformedRadii[n]);
 
-  b.setColor(QColor(255, 0, 0));
-  b.setStyle(Qt::SolidLine);
-  ptr.setPen(b);
-  for (int n=0; n<N; n++)
-    ptr.drawEllipse(geom.transformedNodes[N+n], POINTRADIUS, POINTRADIUS);
 }
 
 void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
@@ -227,7 +228,6 @@ void SO_Layer::mouseDoubleClickEvent(QMouseEvent *e) {
   }
 }
 
-
 void SO_Layer::mousePressEvent(QMouseEvent *e) {
   if (e->button()!=Qt::LeftButton) {
     e->ignore();
@@ -236,6 +236,8 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
 
   LayerGeomBase geom(this);
   int N = geom.transformedNodes.size();
+  if (layer.type()==Layer::Type::Clone)
+    N /= 2; // convert # of points to # of circles
   pDebug() << "mousepress N="<<N;
 
   double nearestNorm = 1e9;
@@ -248,7 +250,7 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = -2; // magic
       clickpos = e->pos();
-      origpt = shgeom.radiusAnchor; // magic
+      origpt2 = shgeom.radiusAnchor; // magic
       origpos = shgeom.radiusNode;
       clickscale = geom.radiusFactor;
       layer = Layers(vsn, db).layer(lay); // in case something changed
@@ -257,6 +259,7 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     }
   }
 
+  // This is for all layer types
   for (int k=0; k<N; k++) {
     QPointF p = geom.transformedNodes[k];
     double norm = L2norm(e->pos() - p);
@@ -266,11 +269,48 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = k;
       clickpos = e->pos();
-      origpt = layer.points()[k];
       origpos = p;
       layer = Layers(vsn, db).layer(lay); // in case something changed
       e->accept();
       return;
+    }
+  }
+
+  if (layer.type()==Layer::Type::Clone) {
+    for (int k=0; k<N; k++) {
+      QPointF center = geom.transformedNodes[k+N];
+      double r = geom.transformedRadii[k];
+      /* How to calculate distance between a point P and the nearest
+         point Q on the rim of a circle centered at C with radius R?
+         For simplicity, first set C=(0,0) and R=1.
+         Circle edge is (cos(phi), sin(phi)) for phi in 0..2pi
+         Can do all kinds of fancyness, but easiest is to just calculate
+         phi from atan2(P.y, P.x) and R separately.
+         In fact, I don't even care about phi for the purpose of knowing
+         whether I want to move this circle, only for resizing it.
+       */
+      QPointF dist = e->pos() - center;
+      double d = euclideanLength(dist);
+      if (fabs(d-r) < POINTRADIUS) {
+        // got it
+        if (e->modifiers() & Qt::ShiftModifier) {
+          // resize
+          clickidx = -3 - k;
+          // find point on radius closest to click
+          double phi = atan2(dist.y(), dist.x());
+          origpt2 = center + QPointF(r*cos(phi), r*sin(phi));
+          clickscale = geom.radiusFactor;
+        } else {
+          // move
+          clickidx = k + N;
+          origpt2 = geom.transformedNodes[k]; // source
+        }
+        clickpos = e->pos(); // target center
+        origpos = center;
+        layer = Layers(vsn, db).layer(lay); // in case something changed
+        e->accept();
+        return;
+      }
     }
   }
 
@@ -311,28 +351,44 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
 }
 
 void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
-  switch (clickidx) {
-  case -1:
+  if (clickidx==-1) {
     e->ignore();
     return;
-  case -2: {
+  }
+  
+  if (clickidx==-2) {
     QPointF rnode = origpos + e->pos() - clickpos;
-    double radius = clickscale * euclideanLength(rnode - origpt);
+    double radius = clickscale * euclideanLength(rnode - origpt2);
     QList<int> rr; rr << radius;
     layer.setPointsAndRadii(layer.points(), rr);
-  } break;
-  default: {
+  } else if (clickidx<-2) {
+    // this is resizing a clone (or heal?) circle
+    QPointF rnode = origpt2 + e->pos() - clickpos;
+    double radius = clickscale * euclideanLength(rnode - origpos);
+    QList<int> rr = layer.radii();
+    pDebug() << "move" << origpos << origpt2 << e->pos() << clickpos << rnode << radius << rr[-3-clickidx] << " at " << -3-clickidx;
+    rr[-3-clickidx] = radius + .5;
+    layer.setPointsAndRadii(layer.points(), rr);
+  } else {
     QTransform const &ixf = base()->transformationToImage();
-    QPointF p0 = ixf.map(clickpos);
-    QPointF p1 = ixf.map(e->pos());
-    QPointF newpt = origpt + p1 - p0; // but of course we should properly xform:
-    // AdjusterGeometry::revmap(ixf.map(e->pos() + origpos - clickpos))
-    
+    QPointF newpt = Geometry::mapFromAdjusted(ixf.map(origpos
+                                                      + e->pos() - clickpos),
+                                              osize, adj);
+
     QPolygon poly = layer.points();
     /// QPointF oldpt = poly[clickidx];
     poly[clickidx] = newpt.toPoint();
+
+    if (layer.type()==Layer::Type::Clone
+        && clickidx>=layer.points().size()/2) {
+      // pull source along
+      QPointF newpt =  Geometry::mapFromAdjusted(ixf.map(origpt2
+                                                    + e->pos() - clickpos),
+                                              osize, adj);
+    poly[clickidx - layer.points().size()/2] = newpt.toPoint();
+    }
+
     layer.setPointsAndRadii(poly, layer.radii());
-  } break;
   }
 
   Layers(vsn, db).setLayer(lay, layer);
