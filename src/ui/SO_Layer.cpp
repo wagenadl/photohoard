@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include "PhotoDB.h"
 #include "Geometry.h"
+#include "Spline.h"
 
 SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
   clickidx = -1;
@@ -25,14 +26,42 @@ void SO_Layer::updateTransform() {
 }
 
 void SO_Layer::paintEvent(QPaintEvent *) {
-  QPainter ptr(this);
-  QTransform const &xf = base()->transformationFromImage();
   QPolygonF poly = layer.points();
-  // pDebug() << "SO_Layer::render" << poly;
+  if (poly.isEmpty())
+    return;
+
+  QTransform const &xf = base()->transformationFromImage();
+  
+  QPointF p0;
+  for (auto &p: poly)
+    p0 += p;
+  p0 /= poly.size();
+
   for (auto &p: poly)
     p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
-  //pDebug() << "  ->" << poly;
 
+  QList<double> radii;
+  for (auto a: layer.radii()) {
+    QPointF p1 = p0 + QPointF(a, 0);
+    p1 = xf.map(Geometry::mapToAdjusted(p1, osize, adj));
+    radii << p1.x() - p0.x();
+  }
+  switch (layer.type()) {
+  case Layer::Type::LinearGradient:
+    paintLinear(poly, radii);
+    break;
+  case Layer::Type::Area:
+    paintArea(poly, radii);
+    break;
+  default:
+    pDebug() << "Paint Layer type" << int(layer.type()) << "NYI";
+    break;
+  }
+}
+
+void SO_Layer::paintLinear(QPolygonF const &poly,
+                           QList<double> const &) {
+  QPainter ptr(this);
   bool first = true;
   QPen b(QColor(255,0,0));
   b.setWidth(3);
@@ -45,6 +74,34 @@ void SO_Layer::paintEvent(QPaintEvent *) {
       first = false;
     }
   }
+}
+
+void SO_Layer::paintCircular(QPolygonF const &poly,
+                             QList<double> const &radii) {
+}
+
+void SO_Layer::paintCurve(QPolygonF const &poly,
+                          QList<double> const &radii) {
+}
+
+void SO_Layer::paintArea(QPolygonF const &poly,
+                         QList<double> const &radii) {
+  QPainter ptr(this);
+  QPen b(QColor(0,200,0));
+
+  b.setWidth(3);
+  ptr.setPen(b);
+  for (auto const &p: poly) 
+    ptr.drawEllipse(p, 10.0, 10.0);
+
+  b.setWidth(2);
+  ptr.setPen(b);
+  QPolygonF ppp = Spline::catmullRom(poly, 2);
+  ptr.drawPolygon(ppp);
+}
+
+void SO_Layer::paintHeal(QPolygonF const &poly,
+                         QList<double> const &radii) {
 }
 
 void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
@@ -105,7 +162,7 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
   QPolygon poly = layer.points();
   /// QPointF oldpt = poly[clickidx];
   poly[clickidx] = newpt.toPoint();
-  layer.setPointsAndRadii(poly, QList<int>());
+  layer.setPointsAndRadii(poly, layer.radii());
   Layers(vsn, db).setLayer(lay, layer);
 
   update();

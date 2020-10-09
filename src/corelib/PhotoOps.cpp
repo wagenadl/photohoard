@@ -1,0 +1,66 @@
+// PhotoOps.cpp
+
+#include "PhotoOps.h"
+#include <opencv2/photo.hpp>
+
+namespace PhotoOps {
+  Image16 seamlessClone(Image16 const &target,
+                        Image16 const &source, QImage const &mask,
+                        QPoint p, int method) {
+    cv::Mat const dst(target.height(), target.width(),
+                      Image16::cvFormat(target.format()),
+                      (void*)target.bytes(), target.bytesPerLine());
+    cv::Mat const src(source.height(), source.width(),
+                      Image16::cvFormat(source.format()),
+                      (void*)source.bytes(), source.bytesPerLine());
+    QImage msk1(mask.convertToFormat(QImage::Format_Grayscale8));
+    cv::Mat const msk(msk1.height(), msk1.width(),
+                      CV_8UC1,
+                      (void*)(msk1.bits()), msk1.bytesPerLine());
+    cv::Point pt(p.x(), p.y());
+    Image16 res(target.size(), target.format());
+    cv::Mat out(res.height(), res.width(),
+                Image16::cvFormat(res.format()),
+                res.bytes(), res.bytesPerLine());
+    cv::seamlessClone(src, dst, msk, pt, out, method);
+    return res;
+  }
+
+  Image16 inpaint(Image16 const &target,
+                  QImage const &mask,
+                  double radius, int method) {
+    cv::Mat const tgt(target.height(), target.width(),
+                      Image16::cvFormat(target.format()),
+                      (void*)target.bytes(), target.bytesPerLine());
+    QImage msk1(mask.convertToFormat(QImage::Format_Grayscale8));
+    cv::Mat const msk(msk1.height(), msk1.width(),
+                      CV_8UC1,
+                      (void*)(msk1.bits()), msk1.bytesPerLine());
+    Image16 res(target.size(), target.format());
+    cv::Mat out(res.height(), res.width(),
+                Image16::cvFormat(res.format()),
+                res.bytes(), res.bytesPerLine());
+    cv::inpaint(tgt, msk, out, radius, method);
+    return res;
+  }
+
+  Image16 decolorizeOrBoost(Image16 const &target, bool boost) {
+    QImage tgt1(target.toQImage());
+    cv::Mat const tgt(tgt1.height(), tgt1.width(),
+                      CV_8UC4,
+                      (void*)target.bytes(), tgt1.bytesPerLine());
+    QImage res(tgt1.size(), QImage::Format_Grayscale8);
+    cv::Mat out(res.height(), res.width(),
+                CV_8UC1,
+                res.bits(), res.bytesPerLine());
+    QImage resrgb(tgt1.size(), QImage::Format_ARGB32);
+    cv::Mat outrgb(res.height(), res.width(),
+                   CV_8UC4,
+                   resrgb.bits(), resrgb.bytesPerLine());
+    cv::decolor(tgt, out, outrgb);
+    if (boost)
+      return Image16(resrgb);
+    else
+      return Image16(res);
+  }
+};

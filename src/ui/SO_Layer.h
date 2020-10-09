@@ -21,6 +21,12 @@ public:
 signals:
   void layerMaskChanged(quint64 vsn, int lay);
 private:
+  void paintLinear(QPolygonF const &poly, QList<double> const &radii);
+  void paintCircular(QPolygonF const &poly, QList<double> const &radii);
+  void paintCurve(QPolygonF const &poly, QList<double> const &radii);
+  void paintArea(QPolygonF const &poly, QList<double> const &radii);
+  void paintHeal(QPolygonF const &poly, QList<double> const &radii);
+private:
   PhotoDB *db;
   quint64 vsn;
   int lay;

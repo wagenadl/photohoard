@@ -92,6 +92,20 @@ void LayerDialog::addLinearLayer() {
 
 void LayerDialog::addShapeLayer() {
   pDebug() << "LayerDialog: ShapeLayer NYI";
+  Layers ll(vsn, db);
+  Layer l;
+  l.setType(Layer::Type::Area);
+  PSize osize = db->originalSize(vsn);
+  QPoint p0(osize.width()/2, osize.height()/3);
+  QPoint p1(osize.width()/3, osize.height()*2/3);
+  QPoint p2(osize.width()*2/3, osize.height()*2/3);
+  QPolygon pp; pp << p0 << p1 << p2;
+  l.setPointsAndRadii(pp, QList<int>{10});
+  ll.addLayer(l);
+  pDebug() << "LayerDialog: emitting maskEdited";
+  emit maskEdited(ll.count());
+
+  setVersion(vsn); // rebuild
 }
 
 void LayerDialog::addHealLayer() {
@@ -218,7 +232,7 @@ int LayerDialog::selectedLayer() const {
   return rows - range.first().topRow();
 }
 
-void LayerDialog::respondToClick(int r, int c) {
+void LayerDialog::respondToClick(int /*r*/, int c) {
   //pDebug() << "click" << r << c;
   switch (c) {
   case 0: // visibility

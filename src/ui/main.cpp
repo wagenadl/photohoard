@@ -23,6 +23,15 @@
 #include "SessionDB.h"
 #include "ErrorDialog.h"
 #include <thread>
+#include <iostream>
+
+void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
+                  const QString &msg) {
+  std::cerr<< msg.toUtf8().data() << "\n";
+  if (typ==3) {
+    std::cerr << "this is serious\n";
+  }
+}
 
 void usage() {
   fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
@@ -30,6 +39,8 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
+  //  qInstallMessageHandler(&myMsgHandler);
+  
   SessionDB::ensureBaseDirExists();
   QString dbfn = SessionDB::photohoardBaseDir() + "/photodb.db";
   QString icc;
