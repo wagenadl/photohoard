@@ -221,7 +221,8 @@ void LayerDialog::newSelection() {
   } else {
     sliders->setAll(Adjustments());
   }
-  sliders->setEnabled(lay>0);
+  sliders->setEnabled(lay>0
+                      && Layers(vsn,db).layer(lay).type()!=Layer::Type::Clone);
   ui->del->setEnabled(lay>0);
   ui->raise->setEnabled(lay>0 && lay<Layers(vsn,db).count());
   ui->lower->setEnabled(lay>1);
