@@ -54,6 +54,9 @@ prep:
 	mkdir -p build
 	( cd build; $(SELECTQT) $(QMAKE) ../src/photohoard.pro )
 
+debug: prep
+	+make -C build debug
+
 native:
 	mkdir -p build
 	( cd build; PHOTOHOARD_CXXFLAGS='-march=native' $(SELECTQT) $(QMAKE) ../src/photohoard.pro )

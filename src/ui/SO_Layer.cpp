@@ -8,6 +8,17 @@
 #include "PhotoDB.h"
 #include "Geometry.h"
 #include "Spline.h"
+#include <cmath>
+
+static inline double L2norm(QPointF p) {
+  double x = p.x();
+  double y = p.y();
+  return x*x + y*y;
+}
+
+static inline double euclideanLength(QPointF p) {
+  return std::sqrt(L2norm(p));
+}
 
 SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
   clickidx = -1;
@@ -43,8 +54,10 @@ void SO_Layer::paintEvent(QPaintEvent *) {
   QList<double> radii;
   for (auto a: layer.radii()) {
     QPointF p1 = p0 + QPointF(a, 0);
-    p1 = xf.map(Geometry::mapToAdjusted(p1, osize, adj));
-    radii << p1.x() - p0.x();
+    QPointF p0a = xf.map(Geometry::mapToAdjusted(p0, osize, adj));
+    QPointF p1a = xf.map(Geometry::mapToAdjusted(p1, osize, adj));
+    pDebug() << "radii" << a << p1 << p0a << p1a;
+    radii << euclideanLength(p1a-p0a);
   }
   switch (layer.type()) {
   case Layer::Type::LinearGradient:
@@ -94,10 +107,29 @@ void SO_Layer::paintArea(QPolygonF const &poly,
   for (auto const &p: poly) 
     ptr.drawEllipse(p, 10.0, 10.0);
 
-  b.setWidth(2);
+  //  b.setWidth(2);
+  QVector<qreal> pat; pat << 1 << 10;  
+  b.setDashPattern(pat);
   ptr.setPen(b);
-  QPolygonF ppp = Spline::catmullRom(poly, 2);
+  int idx;
+  QPolygonF ppp = Spline::catmullRom(poly, 2, &idx);
   ptr.drawPolygon(ppp);
+
+  b.setColor(QColor(255, 0, 0));
+  b.setStyle(Qt::SolidLine);
+  ptr.setPen(b);
+  int N = ppp.size();
+  int n1 = idx + 1;
+  if (n1>=N)
+    n1 -= N;
+  int n2 = idx - 1;
+  if (n2<0)
+    n2 += N;
+  QPointF dir(ppp[n1] - ppp[n2]);
+  dir /= euclideanLength(dir);
+  QPointF out(ppp[idx] + QPointF(-dir.y(), dir.x())*radii[0]);
+  //  ptr.drawLine(ppp[idx], out);
+  ptr.drawEllipse(out, 10, 10);
 }
 
 void SO_Layer::paintHeal(QPolygonF const &poly,
@@ -111,12 +143,6 @@ void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
   } else {
     e->ignore();
   }
-}
-
-static inline double euclideanLength2(QPointF p) {
-  double x = p.x();
-  double y = p.y();
-  return x*x + y*y;
 }
 
 void SO_Layer::mousePressEvent(QMouseEvent *e) {
@@ -133,7 +159,7 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
 
   for (int idx=0; idx<poly.size(); idx++) {
-    if (euclideanLength2(e->pos() - poly[idx]) < 100) {
+    if (L2norm(e->pos() - poly[idx]) < 100) {
       clickidx = idx;
       clickpos = e->pos();
       origpt = poly0[idx];

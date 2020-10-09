@@ -9,6 +9,7 @@
 #include "Geometry.h"
 #include <cmath>
 #include "Spline.h"
+#include "PhotoOps.h"
 
 QString Layer::typeName(Layer::Type t) {
   switch (t) {
@@ -168,10 +169,14 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
 						osize, adj0, scale));
     QPolygonF ppp = Spline::catmullRom(pts, 2);
-    QPainter ptr(&msk);
-    ptr.setPen(QPen(Qt::NoPen));
-    ptr.setBrush(QBrush(QColor(255,255,255)));
-    ptr.drawPolygon(ppp);
+    { QPainter ptr(&msk);
+      ptr.setPen(QPen(Qt::NoPen));
+      ptr.setBrush(QBrush(QColor(255,255,255)));
+      ptr.drawPolygon(ppp);
+    }
+    ASSERT(radii().size()==1);
+    msk = PhotoOps::blur(msk, scale*radii()[0]);
+    msk.save("/tmp/mask.jpg");
   } break;
   case Type::Circular:
   case Type::Curve:

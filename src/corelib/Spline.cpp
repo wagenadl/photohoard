@@ -37,7 +37,8 @@ int Spline::divisions(QPointF const &start, QPointF const &end) {
   return (start-end).manhattanLength();
 }
 
-QPolygonF Spline::catmullRom(QPolygonF const &p0, int downsample) {
+QPolygonF Spline::catmullRom(QPolygonF const &p0, int downsample,
+                             int *idxout) {
   QPolygonF p1;
   int N = p0.size();
   for (int n=0; n<p0.size(); n++) {
@@ -50,6 +51,8 @@ QPolygonF Spline::catmullRom(QPolygonF const &p0, int downsample) {
     int q = divisions(p0[k0], p0[k1]) / downsample;
     if (q<1)
       q = 1;
+    if (n==0 && idxout)
+      *idxout = q/2;
     p1 += buildOne(px, py, q);
   }
   return p1;

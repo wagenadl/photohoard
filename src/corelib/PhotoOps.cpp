@@ -1,6 +1,7 @@
 // PhotoOps.cpp
 
 #include "PhotoOps.h"
+#include "PDebug.h"
 #include <opencv2/photo.hpp>
 
 namespace PhotoOps {
@@ -62,5 +63,18 @@ namespace PhotoOps {
       return Image16(resrgb);
     else
       return Image16(res);
+  }
+  QImage blur(QImage source, double sigma) {
+    pDebug() << "blur";
+    bool isGray = source.format()==QImage::Format_Grayscale8;
+    if (!isGray)
+      source = source.convertToFormat(QImage::Format_ARGB32);
+    uchar *bits = source.bits(); // make independent
+    cv::Mat tgt(source.height(), source.width(),
+                isGray?CV_8UC1:CV_8UC4,
+                (void*)bits, source.bytesPerLine());
+    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
+    pDebug() << "blurred";
+    return source;
   }
 };
