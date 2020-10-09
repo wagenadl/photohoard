@@ -52,6 +52,8 @@ namespace Geometry {
      with size OSIZE to its final location if given SETTINGS are applied to
      the image.
   */
+  QPointF mapFromAdjusted(QPointF, QSize osize, Adjustments const &);
+  // MAPFROMADJUSTED - Inverse operation of MAPTOADJUSTED
   QPointF mapToScaledAdjusted(QPointF, QSize osize, Adjustments const &,
                               QSize scaledOSize);
   QPolygonF mapToScaledAdjusted(QPolygonF, QSize osize, Adjustments const &,
