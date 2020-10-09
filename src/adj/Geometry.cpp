@@ -58,10 +58,10 @@ namespace Geometry {
   }
 
   QPointF mapToAdjusted(QPointF p, QSize osize, Adjustments const &adj) {
-    double w = osize.width();
-    double h = osize.height();
 
     if (adj.rotate) {
+      double w = osize.width();
+      double h = osize.height();
       double phi = M_PI*adj.rotate/180;
       QPointF pc = p - QPointF(w/2, h/2);
       pc = QPointF(pc.x()*cos(phi) - pc.y()*sin(phi),
@@ -79,6 +79,27 @@ namespace Geometry {
 
     return p;
   }
+
+  QPointF mapFromAdjusted(QPointF p, QSize osize, Adjustments const &adj) {
+    if (adj.cropl || adj.cropt) 
+      p += QPointF(adj.cropl, adj.cropt);
+    
+    if (adj.perspv || adj.persph || adj.shearv || adj.shearh) {
+      PerspectiveTransform pt(perspectiveTransform(osize, adj));
+      p = pt.inverse().apply(p);
+    }
+
+    if (adj.rotate) {
+      double w = osize.width();
+      double h = osize.height();
+      double phi = -M_PI*adj.rotate/180;
+      QPointF pc = p - QPointF(w/2, h/2);
+      pc = QPointF(pc.x()*cos(phi) - pc.y()*sin(phi),
+                   pc.x()*sin(phi) + pc.y()*cos(phi));
+      p = pc + QPointF(w/2, h/2);
+    }
+    return p;
+  }    
 
   QPolygonF mapToAdjusted(QPolygonF pp, QSize osize, Adjustments const &adj) {
     double w = osize.width();

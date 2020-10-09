@@ -9,6 +9,10 @@ public:
   cv::Mat m;
 };
 
+PerspectiveTransform::PerspectiveTransform(): d(new PT_Data) {
+  d->m = cv::Mat::eye(3,3, CV_32FC1);
+}
+
 PerspectiveTransform::PerspectiveTransform(QPolygonF poly, QSize osize):
   d(new PT_Data) {
   if (poly.size()!=4) {
@@ -28,6 +32,12 @@ PerspectiveTransform::PerspectiveTransform(QPolygonF poly, QSize osize):
 }
 
 PerspectiveTransform::~PerspectiveTransform() {
+}
+
+PerspectiveTransform PerspectiveTransform::inverse() const {
+  PerspectiveTransform inv;
+  inv.d->m = d->m.inv();
+  return inv;
 }
 
 PerspectiveTransform::PerspectiveTransform(PerspectiveTransform const &o) {

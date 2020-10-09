@@ -69,13 +69,15 @@ public:
     radiusAnchor = transformedCurve.points[idx];
 
     int N = transformedCurve.points.size();
-    int n1 = idx + 1;
+    int n1 = idx + 5;
     if (n1>=N)
       n1 -= N;
-    int n2 = idx - 1;
+    int n2 = idx - 5;
     if (n2<0)
       n2 += N;
-    QPointF dir(transformedCurve.points[n1] - transformedCurve.points[n2]);
+    radiusAnchor1 = transformedCurve.points[n1];
+    radiusAnchor2 = transformedCurve.points[n2];
+    QPointF dir(radiusAnchor1  - radiusAnchor2);
     dir /= euclideanLength(dir);
     radiusNode = QPointF(radiusAnchor
                          + QPointF(-dir.y(), dir.x())
@@ -85,6 +87,7 @@ public:
   Spline transformedCurve;
   QPointF radiusAnchor; // on transformedCurve
   QPointF radiusNode; // at a distance
+  QPointF radiusAnchor1, radiusAnchor2;
 };
 
 SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
@@ -148,18 +151,21 @@ void SO_Layer::paintArea(LayerGeomBase const &geom) {
   
   QPainter ptr(this);
   QPen b(QColor(0,200,0));
-
   b.setWidth(3);
   ptr.setPen(b);
-  for (auto const &p: geom.transformedNodes) 
-    ptr.drawEllipse(p, POINTRADIUS, POINTRADIUS);
 
-  //  b.setWidth(2);
-  QVector<qreal> pat; pat << 1 << 10;  
-  b.setDashPattern(pat);
-  ptr.setPen(b);
-  ptr.drawPolygon(shgeom.transformedCurve.points);
+  if (clickidx==-2) {
+    ptr.drawLine(shgeom.radiusAnchor1, shgeom.radiusAnchor2);
+  } else {
+    for (auto const &p: geom.transformedNodes) 
+      ptr.drawEllipse(p, POINTRADIUS, POINTRADIUS);
 
+    QVector<qreal> pat; pat << 1 << 10;  
+    b.setDashPattern(pat);
+    ptr.setPen(b);
+    ptr.drawPolygon(shgeom.transformedCurve.points);
+  }
+  
   b.setColor(QColor(255, 0, 0));
   b.setStyle(Qt::SolidLine);
   ptr.setPen(b);
@@ -273,6 +279,7 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
       QPolygon pts = layer.points();
       QTransform const &ixf = base()->transformationToImage();
       QPointF p(ixf.map(shgeom.transformedCurve.points[bestidx]));
+      p = Geometry::mapFromAdjusted(p, osize, adj);
       pts.insert(after+1, p.toPoint());
       layer.setPointsAndRadii(pts, layer.radii());
       Layers(vsn, db).setLayer(lay, layer);
