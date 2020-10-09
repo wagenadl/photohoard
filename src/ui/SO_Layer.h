@@ -21,19 +21,21 @@ public:
 signals:
   void layerMaskChanged(quint64 vsn, int lay);
 private:
-  void paintLinear(QPolygonF const &poly, QList<double> const &radii);
-  void paintCircular(QPolygonF const &poly, QList<double> const &radii);
-  void paintCurve(QPolygonF const &poly, QList<double> const &radii);
-  void paintArea(QPolygonF const &poly, QList<double> const &radii);
-  void paintHeal(QPolygonF const &poly, QList<double> const &radii);
+  void paintLinear(class LayerGeomBase const &);
+  void paintCircular(class LayerGeomBase const &);
+  void paintCurve(class LayerGeomBase const &);
+  void paintArea(class LayerGeomBase const &);
+  void paintHeal(class LayerGeomBase const &);
 private:
   PhotoDB *db;
   quint64 vsn;
   int lay;
-  int clickidx;
+  int clickidx; // magic: -2 means anchorNode
   QPoint clickpos; // widget coord of click
-  QPointF origpt; // image coords of point before move
+  QPointF origpt; // image coords of point before move, or radiusAnchor
   QPointF origpos; // widget coords of point before move
+  double clickscale; // multiplier for 
+  friend class LayerGeomBase;
   Layer layer;
   QSize osize;
   Adjustments adj;

@@ -14,6 +14,7 @@ class SlideOverlay: public QWidget {
 public:
   SlideOverlay(class SlideView *parent=0);
 protected:
+  SlideView const *base() const;
   SlideView *base();
   /* BASE - SlideView that we are drawing on top of.
      BASE() returns the SlideView that this overlay lies over. Use this to

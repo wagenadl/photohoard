@@ -65,15 +65,46 @@ namespace PhotoOps {
       return Image16(res);
   }
   QImage blur(QImage source, double sigma) {
-    pDebug() << "blur";
-    bool isGray = source.format()==QImage::Format_Grayscale8;
-    if (!isGray)
-      source = source.convertToFormat(QImage::Format_ARGB32);
-    uchar *bits = source.bits(); // make independent
-    cv::Mat tgt(source.height(), source.width(),
-                isGray?CV_8UC1:CV_8UC4,
-                (void*)bits, source.bytesPerLine());
-    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
+    pDebug() << "blur - could be faster with multithreading";
+    source = source.convertToFormat(QImage::Format_Grayscale8);
+    uchar *bits = source.bits();
+    int X = source.width();
+    int Y = source.height();
+    int B = source.bytesPerLine();
+    double alpha = 1/sigma;
+    for (int y=0; y<Y; y++) {
+      uchar *row = bits + B*y;
+      double b = *row;
+      for (int x=0; x<X; x++) {
+        b += alpha*(*row - b);
+        *row++ = b;
+      }
+      for (int x=X-1; x>=0; x--) {
+        b += alpha*(*--row-b);
+        *row = b;
+      }
+    }
+    for (int x=0; x<X; x++) {
+      uchar *col = bits + x;
+      double b = col[0];
+      for (int y=0; y<Y; y++) {
+        double a = *col;
+        b += alpha*(a-b);
+        *col = b;
+        col += B;
+      }
+      for (int y=Y-1; y>=0; y--) {
+        col -= B;
+        double a = *col;
+        b += alpha*(a-b);
+        *col = b;
+      }
+    }
+      
+//    cv::Mat tgt(source.height(), source.width(),
+//                isGray?CV_8UC1:CV_8UC4,
+//                (void*)bits, source.bytesPerLine());
+//    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
     pDebug() << "blurred";
     return source;
   }
