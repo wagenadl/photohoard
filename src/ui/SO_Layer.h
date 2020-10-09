@@ -32,7 +32,7 @@ private:
   int lay;
   int clickidx; // magic: -2 means anchorNode
   QPoint clickpos; // widget coord of click
-  QPointF origpt; // image coords of point before move, or radiusAnchor
+  QPointF origpt2; // widget coords of some other relevant point before move
   QPointF origpos; // widget coords of point before move
   double clickscale; // multiplier for 
   friend class LayerGeomBase;
