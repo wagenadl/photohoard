@@ -116,6 +116,9 @@ void SO_Layer::paintEvent(QPaintEvent *) {
   case Layer::Type::Area:
     paintArea(geom);
     break;
+  case Layer::Type::Clone:
+    paintClone(geom);
+    break;
   default:
     pDebug() << "Paint Layer type" << int(layer.type()) << "NYI";
     break;
@@ -127,20 +130,17 @@ constexpr static int POINTRADIUS = 10;
 void SO_Layer::paintLinear(LayerGeomBase const &geom) {
   QPainter ptr(this);
   bool first = true;
-  QPen b(QColor(255,0,0));
+  QPen b(QColor(0,200,0));
   b.setWidth(3);
   ptr.setPen(b);
   for (auto const &p: geom.transformedNodes) {
     ptr.drawEllipse(p, POINTRADIUS, POINTRADIUS);
     if (first) {
-      b.setColor(QColor(0,200,0));
+      b.setColor(QColor(255,0,0));
       ptr.setPen(b);
       first = false;
     }
   }
-}
-
-void SO_Layer::paintCircular(LayerGeomBase const &geom) {
 }
 
 void SO_Layer::paintCurve(LayerGeomBase const &geom) {
@@ -173,7 +173,24 @@ void SO_Layer::paintArea(LayerGeomBase const &geom) {
   ptr.drawEllipse(shgeom.radiusNode, POINTRADIUS, POINTRADIUS);
 }
 
-void SO_Layer::paintHeal(LayerGeomBase const &) {
+void SO_Layer::paintClone(LayerGeomBase const &geom) {
+  QPainter ptr(this);
+  int N = geom.transformedRadii.size();
+  QPen b(QColor(0,200,0));
+  b.setWidth(3);
+  QVector<qreal> pat; pat << 1 << 10;  
+  b.setDashPattern(pat);
+  ptr.setPen(b);
+  for (int n=0; n<N; n++) 
+    ptr.drawEllipse(geom.transformedNodes[n],
+                    geom.transformedRadii[n],
+                    geom.transformedRadii[n]);
+
+  b.setColor(QColor(255, 0, 0));
+  b.setStyle(Qt::SolidLine);
+  ptr.setPen(b);
+  for (int n=0; n<N; n++)
+    ptr.drawEllipse(geom.transformedNodes[N+n], POINTRADIUS, POINTRADIUS);
 }
 
 void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {

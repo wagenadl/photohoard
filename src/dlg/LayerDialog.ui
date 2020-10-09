@@ -120,7 +120,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="addHeal">
+       <widget class="QToolButton" name="addClone">
         <property name="toolTip">
          <string>Add new cloning layer</string>
         </property>
@@ -129,7 +129,7 @@
         </property>
         <property name="icon">
          <iconset resource="../Icons.qrc">
-          <normaloff>:/icons/layer-heal.svg</normaloff>:/icons/layer-heal.svg</iconset>
+          <normaloff>:/icons/layer-clone.svg</normaloff>:/icons/layer-clone.svg</iconset>
         </property>
        </widget>
       </item>
@@ -331,10 +331,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>addHeal</sender>
+   <sender>addClone</sender>
    <signal>clicked()</signal>
    <receiver>LayerDialog</receiver>
-   <slot>addHealLayer()</slot>
+   <slot>addCloneLayer()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>147</x>
@@ -357,6 +357,6 @@
   <slot>newSelection()</slot>
   <slot>respondToClick(int,int)</slot>
   <slot>addShapeLayer()</slot>
-  <slot>addHealLayer()</slot>
+  <slot>addCloneLayer()</slot>
  </slots>
 </ui>

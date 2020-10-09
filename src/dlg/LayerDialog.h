@@ -33,7 +33,7 @@ signals:
 private slots:
   void addLinearLayer();
   void addShapeLayer();
-  void addHealLayer();
+  void addCloneLayer();
   void deleteLayer();
   void raiseLayer();
   void lowerLayer();
