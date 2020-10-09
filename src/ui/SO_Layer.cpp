@@ -175,7 +175,7 @@ void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
   e->accept();
 }
 
-void SO_Layer::mousePressEvent(QMouseEvent *e) {
+void SO_Layer::mouseDoubleClickEvent(QMouseEvent *e) {
   if (e->button()!=Qt::LeftButton) {
     e->ignore();
     return;
@@ -184,9 +184,45 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
   LayerGeomBase geom(this);
   int N = geom.transformedNodes.size();
 
+  if (layer.type()==Layer::Type::Area && N>=4) {
+    // consider deleting a point
+    for (int k=0; k<N; k++) {
+      QPointF p = geom.transformedNodes[k];
+      double norm = L2norm(e->pos() - p);
+      pDebug() << "compare" << k << norm;
+      if (norm < POINTRADIUS*POINTRADIUS) {
+        QPolygon pts = layer.points();
+        pts.remove(k);
+        layer.setPointsAndRadii(pts, layer.radii());
+        Layers(vsn, db).setLayer(lay, layer);
+        update();
+        emit layerMaskChanged(vsn, lay);
+        e->accept();
+        return;
+      }
+    }
+  }
+}
+
+
+void SO_Layer::mousePressEvent(QMouseEvent *e) {
+  if (e->button()!=Qt::LeftButton) {
+    e->ignore();
+    return;
+  }
+
+  LayerGeomBase geom(this);
+  int N = geom.transformedNodes.size();
+  pDebug() << "mousepress N="<<N;
+
+  double nearestNorm = 1e9;
+
   if (layer.type()==Layer::Type::Area) {
     ShapeLayerGeom shgeom(geom);
-    if (L2norm(e->pos() - shgeom.radiusNode) < POINTRADIUS*POINTRADIUS) {
+    double norm = L2norm(e->pos() - shgeom.radiusNode);
+    if (norm < nearestNorm) // yes, this is always true, but code may change
+      nearestNorm = norm; 
+    if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = -2; // magic
       clickpos = e->pos();
       origpt = shgeom.radiusAnchor; // magic
@@ -198,12 +234,12 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     }
   }
 
-  double nearestNorm = 1e9;
   for (int k=0; k<N; k++) {
     QPointF p = geom.transformedNodes[k];
     double norm = L2norm(e->pos() - p);
     if (norm < nearestNorm)
       nearestNorm = norm;
+    pDebug() << "compare" << k << norm;
     if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = k;
       clickpos = e->pos();
@@ -230,7 +266,20 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
       }
     }
     if (nearestNorm < POINTRADIUS*POINTRADIUS) {
-      pDebug() << "insert new point at" << bestidx << "NYI"; 
+      int after = 0;
+      for (int n=1; n<N; n++)
+        if (bestidx>shgeom.transformedCurve.origidx[n])
+          after = n;
+      QPolygon pts = layer.points();
+      QTransform const &ixf = base()->transformationToImage();
+      QPointF p(ixf.map(shgeom.transformedCurve.points[bestidx]));
+      pts.insert(after+1, p.toPoint());
+      layer.setPointsAndRadii(pts, layer.radii());
+      Layers(vsn, db).setLayer(lay, layer);
+      update();
+      pDebug() << "inserted new point at" << bestidx << after << pts;
+      mousePressEvent(e); // that should do it, right?
+      return;
     }
   }
   
