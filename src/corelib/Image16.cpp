@@ -237,7 +237,6 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
   cv::resize(in, out, out.size(), 0, 0, cvInterpolation(i));
   return res;
 }
-
   
 Image16 Image16::scaledToFitSnuglyIn(PSize s, Image16::Interpolation i) const {
   return scaled(size().scaledToFitSnuglyIn(s), i);
@@ -563,3 +562,4 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
   }
   return out;
 }
+

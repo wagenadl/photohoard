@@ -19,7 +19,7 @@ RESOURCES += Icons.qrc
 
 LIBS += -lexiv2
 LIBS += -llcms2
-LIBS += -lopencv_imgproc -lopencv_core
+LIBS += -lopencv_imgproc -lopencv_photo -lopencv_core
 LIBS += -lX11
 LIBS += -lxcb-randr -lxcb
 

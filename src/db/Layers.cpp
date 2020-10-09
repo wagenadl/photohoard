@@ -8,6 +8,7 @@
 #include "Adjuster.h"
 #include "Geometry.h"
 #include <cmath>
+#include "Spline.h"
 
 QString Layer::typeName(Layer::Type t) {
   switch (t) {
@@ -162,10 +163,20 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     gr.setColorAt(1, QColor(255,255,255));
     ptr.fillRect(QRect(QPoint(0,0), msk.size()), gr);
   } break;
+  case Type::Area: {
+    msk.fill(0);
+    QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
+						osize, adj0, scale));
+    QPolygonF ppp = Spline::catmullRom(pts, 2);
+    QPainter ptr(&msk);
+    ptr.setPen(QPen(Qt::NoPen));
+    ptr.setBrush(QBrush(QColor(255,255,255)));
+    ptr.drawPolygon(ppp);
+  } break;
   case Type::Circular:
   case Type::Curve:
-  case Type::Area:
   case Type::Heal:
+    msk.fill(0);
     COMPLAIN("layer mask NYI");
     break;
   }
