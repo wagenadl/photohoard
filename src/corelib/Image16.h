@@ -77,6 +77,7 @@ public:
      rotate90(C)CW, applyROI, convertTo (with a different bit depth),
      operator=.
    */
+  void blur(double sigma); // in-place Gaussian blur
 public:
   inline int width() const { return d->width; }
   inline int height() const { return d->height; }

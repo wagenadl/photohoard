@@ -8,7 +8,8 @@
 
 class Spline: public QPolygon {
 public:
-  static QPolygonF catmullRom(QPolygonF const &, int downsample=1);
+  static QPolygonF catmullRom(QPolygonF const &, int downsample=1,
+                              int *idxout=0);
 private:
   struct Params {
     double p[4];
