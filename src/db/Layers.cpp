@@ -19,14 +19,16 @@ QString Layer::typeName(Layer::Type t) {
     return "(Base)";
   case Type::LinearGradient:
     return "Linear gradient";
-  case Type::Circular:
-    return "Circular area";
+    //case Type::Circular:
+    //return "Circular area";
   case Type::Curve:
     return "Curved edge";
   case Type::Area:
     return "Curved area";
-  case Type::Heal:
-    return "Heal/clone";
+  case Type::Clone:
+    return "Clone";
+  case Type::Inpaint:
+    return "In-paint";
   }
   return "Invalid"; // not reached
 }
@@ -97,15 +99,16 @@ QPolygon Layer::points() const {
   char const *raw = dat.data();
   quint16 const *pts = reinterpret_cast<quint16 const *>(raw);
   int Nint = dat.size() / 2;
-  int N = 0;
+  int N = 0; // number of points
   switch (typ) {
   case Type::Invalid: N = 0; break;
   case Type::Base: N = 0; break;
   case Type::LinearGradient: N = 2; break;
-  case Type::Circular: N = 1; break;
+  // case Type::Circular: N = 1; break;
   case Type::Curve: N = (Nint-1) / 2; break;
   case Type::Area: N = (Nint-1) / 2; break;
-  case Type::Heal: N = Nint / 4; break;
+  case Type::Clone: N = 2 * Nint / 5; break;
+  case Type::Inpaint: N = Nint / 3; break;
   }
   QPolygon p(N);
   for (int n=0; n<N; n++) {
@@ -177,9 +180,10 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     ASSERT(radii().size()==1);
     PhotoOps::blur(msk, scale*radii()[0]);
   } break;
-  case Type::Circular:
+  //case Type::Circular:
   case Type::Curve:
-  case Type::Heal:
+  case Type::Clone:
+  case Type::Inpaint:
     msk.fill(0);
     COMPLAIN("layer mask NYI");
     break;

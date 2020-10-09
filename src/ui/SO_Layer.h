@@ -23,10 +23,9 @@ signals:
   void layerMaskChanged(quint64 vsn, int lay);
 private:
   void paintLinear(class LayerGeomBase const &);
-  void paintCircular(class LayerGeomBase const &);
   void paintCurve(class LayerGeomBase const &);
   void paintArea(class LayerGeomBase const &);
-  void paintHeal(class LayerGeomBase const &);
+  void paintClone(class LayerGeomBase const &);
 private:
   PhotoDB *db;
   quint64 vsn;

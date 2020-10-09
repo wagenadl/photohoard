@@ -91,7 +91,6 @@ void LayerDialog::addLinearLayer() {
 }
 
 void LayerDialog::addShapeLayer() {
-  pDebug() << "LayerDialog: ShapeLayer NYI";
   Layers ll(vsn, db);
   Layer l;
   l.setType(Layer::Type::Area);
@@ -108,8 +107,20 @@ void LayerDialog::addShapeLayer() {
   setVersion(vsn); // rebuild
 }
 
-void LayerDialog::addHealLayer() {
-  pDebug() << "LayerDialog: HealLayer NYI";
+void LayerDialog::addCloneLayer() {
+  Layers ll(vsn, db);
+  Layer l;
+  l.setType(Layer::Type::Clone);
+  PSize osize = db->originalSize(vsn);
+  QPoint p0(osize.width()/2, osize.height()/2);
+  QPoint p1(osize.width()*3/5, osize.height()/2);
+  QPolygon pp; pp << p0 << p1;
+  l.setPointsAndRadii(pp, QList<int>{osize.width()/20});
+  ll.addLayer(l);
+  pDebug() << "LayerDialog: emitting maskEdited";
+  emit maskEdited(ll.count());
+
+  setVersion(vsn); // rebuild
 }
   
 

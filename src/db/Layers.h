@@ -12,11 +12,12 @@ public:
   enum class Type {
     Invalid=-1, // no data
     Base=0, // no data
-    LinearGradient, // data is two points
-    Circular, // data is a point and two radii (second is blur)
-    Curve, // data is N points and one radius (blur)
-    Area, // data is N points and one radius (blur)
-    Heal // data is N points and 2N radii (N circle radii followed by N blurs)
+    LinearGradient=1, // data is two points
+
+    Curve=3, // data is N points and one radius (blur)
+    Area=4, // data is N points and one radius (blur)
+    Clone=5, // data is 2N points (N targets followed by N sources) and N radii
+    Inpaint=6 // data is N points and N radii
   };
   static QString typeName(Type);
 public:
