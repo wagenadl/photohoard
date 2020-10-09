@@ -9,6 +9,12 @@ SlideOverlay::SlideOverlay(SlideView *base): QWidget(base), sv(base) {
   show();
 }
 
+SlideView const *SlideOverlay::base() const {
+  SlideView const *b = sv;
+  ASSERT(b);
+  return b;
+}
+
 SlideView *SlideOverlay::base() {
   SlideView *b = sv;
   ASSERT(b);

@@ -563,11 +563,3 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
   return out;
 }
 
-void Image16::blur(double sigma) {
-  cv::Mat tgt(height(), width(),
-              Image16::cvFormat(format()),
-              (void*)bytes(), bytesPerLine());
-  cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
-}
-
-  

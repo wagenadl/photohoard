@@ -20,6 +20,73 @@ static inline double euclideanLength(QPointF p) {
   return std::sqrt(L2norm(p));
 }
 
+class LayerGeomBase {
+public:
+  LayerGeomBase(SO_Layer const *so) {
+    QPolygonF poly = so->layer.points();
+    if (poly.isEmpty())
+      return;
+
+    QPointF p0;
+    for (auto &p: poly)
+      p0 += p;
+    originalCenter = p0 / poly.size();
+
+    QTransform const &xf = so->base()->transformationFromImage();
+    transformedCenter = xf.map(Geometry::mapToAdjusted(originalCenter,
+                                                       so->osize, so->adj));
+
+    for (auto &p: poly)
+      p = xf.map(Geometry::mapToAdjusted(p, so->osize, so->adj));
+    transformedNodes = poly;
+
+    for (double a: so->layer.radii()) {
+      QPointF p = originalCenter + QPointF(a, 0);
+      QPointF q = xf.map(Geometry::mapToAdjusted(p, so->osize, so->adj));
+      transformedRadii << euclideanLength(q - transformedCenter);
+    }
+    if (transformedRadii.size())
+      radiusFactor = so->layer.radii()[0] / (transformedRadii[0] + 1e-15);
+    else
+      radiusFactor = 1;
+  }
+public:
+  QPolygonF transformedNodes;
+  QList<double> transformedRadii;
+  QPointF originalCenter;
+  QPointF transformedCenter;
+  double radiusFactor; // factor to multiply transformedRadii back to image
+};
+  
+
+class ShapeLayerGeom {
+public:
+  ShapeLayerGeom(LayerGeomBase const &base) {
+    if (base.transformedNodes.isEmpty())
+      return;
+    int idx;
+    transformedCurve = Spline::catmullRom(base.transformedNodes, 2, &idx);
+    radiusAnchor = transformedCurve[idx];
+
+    int N = transformedCurve.size();
+    int n1 = idx + 1;
+    if (n1>=N)
+      n1 -= N;
+    int n2 = idx - 1;
+    if (n2<0)
+      n2 += N;
+    QPointF dir(transformedCurve[n1] - transformedCurve[n2]);
+    dir /= euclideanLength(dir);
+    radiusNode = QPointF(transformedCurve[idx]
+                         + QPointF(-dir.y(), dir.x())
+                           * base.transformedRadii[0]);
+  }
+public:
+  QPolygonF transformedCurve;
+  QPointF radiusAnchor; // on transformedCurve
+  QPointF radiusNode; // at a distance
+};
+
 SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
   clickidx = -1;
 }
@@ -37,34 +104,14 @@ void SO_Layer::updateTransform() {
 }
 
 void SO_Layer::paintEvent(QPaintEvent *) {
-  QPolygonF poly = layer.points();
-  if (poly.isEmpty())
-    return;
+  LayerGeomBase geom(this);
 
-  QTransform const &xf = base()->transformationFromImage();
-  
-  QPointF p0;
-  for (auto &p: poly)
-    p0 += p;
-  p0 /= poly.size();
-
-  for (auto &p: poly)
-    p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
-
-  QList<double> radii;
-  for (auto a: layer.radii()) {
-    QPointF p1 = p0 + QPointF(a, 0);
-    QPointF p0a = xf.map(Geometry::mapToAdjusted(p0, osize, adj));
-    QPointF p1a = xf.map(Geometry::mapToAdjusted(p1, osize, adj));
-    pDebug() << "radii" << a << p1 << p0a << p1a;
-    radii << euclideanLength(p1a-p0a);
-  }
   switch (layer.type()) {
   case Layer::Type::LinearGradient:
-    paintLinear(poly, radii);
+    paintLinear(geom);
     break;
   case Layer::Type::Area:
-    paintArea(poly, radii);
+    paintArea(geom);
     break;
   default:
     pDebug() << "Paint Layer type" << int(layer.type()) << "NYI";
@@ -72,15 +119,16 @@ void SO_Layer::paintEvent(QPaintEvent *) {
   }
 }
 
-void SO_Layer::paintLinear(QPolygonF const &poly,
-                           QList<double> const &) {
+constexpr static int POINTRADIUS = 10;
+
+void SO_Layer::paintLinear(LayerGeomBase const &geom) {
   QPainter ptr(this);
   bool first = true;
   QPen b(QColor(255,0,0));
   b.setWidth(3);
   ptr.setPen(b);
-  for (auto const &p: poly) {
-    ptr.drawEllipse(p, 10.0, 10.0);
+  for (auto const &p: geom.transformedNodes) {
+    ptr.drawEllipse(p, POINTRADIUS, POINTRADIUS);
     if (first) {
       b.setColor(QColor(0,200,0));
       ptr.setPen(b);
@@ -89,60 +137,42 @@ void SO_Layer::paintLinear(QPolygonF const &poly,
   }
 }
 
-void SO_Layer::paintCircular(QPolygonF const &poly,
-                             QList<double> const &radii) {
+void SO_Layer::paintCircular(LayerGeomBase const &geom) {
 }
 
-void SO_Layer::paintCurve(QPolygonF const &poly,
-                          QList<double> const &radii) {
+void SO_Layer::paintCurve(LayerGeomBase const &geom) {
 }
 
-void SO_Layer::paintArea(QPolygonF const &poly,
-                         QList<double> const &radii) {
+void SO_Layer::paintArea(LayerGeomBase const &geom) {
+  ShapeLayerGeom shgeom(geom);
+  
   QPainter ptr(this);
   QPen b(QColor(0,200,0));
 
   b.setWidth(3);
   ptr.setPen(b);
-  for (auto const &p: poly) 
-    ptr.drawEllipse(p, 10.0, 10.0);
+  for (auto const &p: geom.transformedNodes) 
+    ptr.drawEllipse(p, POINTRADIUS, POINTRADIUS);
 
   //  b.setWidth(2);
   QVector<qreal> pat; pat << 1 << 10;  
   b.setDashPattern(pat);
   ptr.setPen(b);
-  int idx;
-  QPolygonF ppp = Spline::catmullRom(poly, 2, &idx);
-  ptr.drawPolygon(ppp);
+  ptr.drawPolygon(shgeom.transformedCurve);
 
   b.setColor(QColor(255, 0, 0));
   b.setStyle(Qt::SolidLine);
   ptr.setPen(b);
-  int N = ppp.size();
-  int n1 = idx + 1;
-  if (n1>=N)
-    n1 -= N;
-  int n2 = idx - 1;
-  if (n2<0)
-    n2 += N;
-  QPointF dir(ppp[n1] - ppp[n2]);
-  dir /= euclideanLength(dir);
-  QPointF out(ppp[idx] + QPointF(-dir.y(), dir.x())*radii[0]);
   //  ptr.drawLine(ppp[idx], out);
-  ptr.drawEllipse(out, 10, 10);
+  ptr.drawEllipse(shgeom.radiusNode, POINTRADIUS, POINTRADIUS);
 }
 
-void SO_Layer::paintHeal(QPolygonF const &poly,
-                         QList<double> const &radii) {
+void SO_Layer::paintHeal(LayerGeomBase const &) {
 }
 
 void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
-  if (clickidx>=0) {
-    clickidx = -1;
-    e->accept();
-  } else {
-    e->ignore();
-  }
+  clickidx = -1;
+  e->accept();
 }
 
 void SO_Layer::mousePressEvent(QMouseEvent *e) {
@@ -151,19 +181,30 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     return;
   }
 
-  QTransform const &xf = base()->transformationFromImage();
-  QPolygonF poly0 = layer.points();
-  QPolygonF poly = poly0;
-  //pDebug() << "SO_Layer::render" << poly;
-  for (auto &p: poly)
-    p = xf.map(Geometry::mapToAdjusted(p, osize, adj));
+  LayerGeomBase geom(this);
+  int N = geom.transformedNodes.size();
 
-  for (int idx=0; idx<poly.size(); idx++) {
-    if (L2norm(e->pos() - poly[idx]) < 100) {
-      clickidx = idx;
+  if (layer.type()==Layer::Type::Area) {
+    ShapeLayerGeom shgeom(geom);
+    if (L2norm(e->pos() - shgeom.radiusNode) < POINTRADIUS*POINTRADIUS) {
+      clickidx = -2; // magic
       clickpos = e->pos();
-      origpt = poly0[idx];
-      origpos = poly[idx];
+      origpt = shgeom.radiusAnchor; // magic
+      origpos = shgeom.radiusNode;
+      clickscale = geom.radiusFactor;
+      layer = Layers(vsn, db).layer(lay); // in case something changed
+      e->accept();
+      return;
+    }
+  }
+  
+  for (int k=0; k<N; k++) {
+    QPointF p = geom.transformedNodes[k];
+    if (L2norm(e->pos() - p) < POINTRADIUS*POINTRADIUS) {
+      clickidx = k;
+      clickpos = e->pos();
+      origpt = layer.points()[k];
+      origpos = p;
       layer = Layers(vsn, db).layer(lay); // in case something changed
       e->accept();
       return;
@@ -174,26 +215,33 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
 }
 
 void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
-  if (clickidx<0) {
+  switch (clickidx) {
+  case -1:
     e->ignore();
     return;
+  case -2: {
+    QPointF rnode = origpos + e->pos() - clickpos;
+    double radius = clickscale * euclideanLength(rnode - origpt);
+    QList<int> rr; rr << radius;
+    layer.setPointsAndRadii(layer.points(), rr);
+  } break;
+  default: {
+    QTransform const &ixf = base()->transformationToImage();
+    QPointF p0 = ixf.map(clickpos);
+    QPointF p1 = ixf.map(e->pos());
+    QPointF newpt = origpt + p1 - p0; // but of course we should properly xform:
+    // AdjusterGeometry::revmap(ixf.map(e->pos() + origpos - clickpos))
+    
+    QPolygon poly = layer.points();
+    /// QPointF oldpt = poly[clickidx];
+    poly[clickidx] = newpt.toPoint();
+    layer.setPointsAndRadii(poly, layer.radii());
+  } break;
   }
 
-  QTransform const &ixf = base()->transformationToImage();
-  QPointF p0 = ixf.map(clickpos);
-  QPointF p1 = ixf.map(e->pos());
-  QPointF newpt = origpt + p1 - p0; // but of course we should properly xform:
-  // AdjusterGeometry::revmap(ixf.map(e->pos() + origpos - clickpos))
-
-  QPolygon poly = layer.points();
-  /// QPointF oldpt = poly[clickidx];
-  poly[clickidx] = newpt.toPoint();
-  layer.setPointsAndRadii(poly, layer.radii());
   Layers(vsn, db).setLayer(lay, layer);
-
   update();
   pDebug() << "SO_Layer: layermaskchanged";
   emit layerMaskChanged(vsn, lay);
-
   e->accept();
 }
