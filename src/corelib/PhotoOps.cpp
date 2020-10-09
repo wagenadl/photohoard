@@ -64,23 +64,34 @@ namespace PhotoOps {
     else
       return Image16(res);
   }
-  QImage blur(QImage source, double sigma) {
+
+  void blur(QImage &target, double sigma) {
     pDebug() << "blur - could be faster with multithreading";
-    source = source.convertToFormat(QImage::Format_Grayscale8);
-    uchar *bits = source.bits();
-    int X = source.width();
-    int Y = source.height();
-    int B = source.bytesPerLine();
+    ASSERT(target.format() == QImage::Format_Grayscale8);
+    uchar *bits = target.bits();
+    int X = target.width();
+    int Y = target.height();
+    int B = target.bytesPerLine();
     double alpha = 1/sigma;
+    pDebug() << "  blur" << X << Y << B << alpha;
+    int n1 = 0;
+    int n2 = 0;
+    int n3 = 0;
+    int n4 = 0;
+    int n5 = 0;
     for (int y=0; y<Y; y++) {
       uchar *row = bits + B*y;
       double b = *row;
       for (int x=0; x<X; x++) {
-        b += alpha*(*row - b);
+        double a = *row;
+        n1 += a;
+        b += alpha*(a - b);
         *row++ = b;
       }
       for (int x=X-1; x>=0; x--) {
-        b += alpha*(*--row-b);
+        double a = *--row;
+        n2 += a;
+        b += alpha*(a - b);
         *row = b;
       }
     }
@@ -89,6 +100,7 @@ namespace PhotoOps {
       double b = col[0];
       for (int y=0; y<Y; y++) {
         double a = *col;
+        n3 += a;
         b += alpha*(a-b);
         *col = b;
         col += B;
@@ -96,16 +108,17 @@ namespace PhotoOps {
       for (int y=Y-1; y>=0; y--) {
         col -= B;
         double a = *col;
+        n4 += a;
         b += alpha*(a-b);
         *col = b;
+        n5 += b;
       }
     }
       
-//    cv::Mat tgt(source.height(), source.width(),
+//    cv::Mat tgt(target.height(), target.width(),
 //                isGray?CV_8UC1:CV_8UC4,
-//                (void*)bits, source.bytesPerLine());
+//                (void*)bits, target.bytesPerLine());
 //    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
-    pDebug() << "blurred";
-    return source;
+    pDebug() << "blurred" << n1 << n2 << n3 << n4 << n5;
   }
 };

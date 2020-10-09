@@ -6,10 +6,12 @@
 
 #include <QPolygon>
 
-class Spline: public QPolygon {
+class Spline {
 public:
-  static QPolygonF catmullRom(QPolygonF const &, int downsample=1,
-                              int *idxout=0);
+  static Spline catmullRom(QPolygonF const &, int downsample=1);
+public:
+  QPolygonF points;
+  QList<int> origidx; // idx in points of original polygon
 private:
   struct Params {
     double p[4];
