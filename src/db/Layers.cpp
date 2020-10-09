@@ -168,15 +168,14 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     msk.fill(0);
     QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
 						osize, adj0, scale));
-    QPolygonF ppp = Spline::catmullRom(pts, 2);
+    QPolygonF ppp = Spline::catmullRom(pts, 2).points;
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
       ptr.setBrush(QBrush(QColor(255,255,255)));
       ptr.drawPolygon(ppp);
     }
     ASSERT(radii().size()==1);
-    msk = PhotoOps::blur(msk, scale*radii()[0]);
-    msk.save("/tmp/mask.jpg");
+    PhotoOps::blur(msk, scale*radii()[0]);
   } break;
   case Type::Circular:
   case Type::Curve:

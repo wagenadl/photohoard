@@ -64,25 +64,25 @@ public:
   ShapeLayerGeom(LayerGeomBase const &base) {
     if (base.transformedNodes.isEmpty())
       return;
-    int idx;
-    transformedCurve = Spline::catmullRom(base.transformedNodes, 2, &idx);
-    radiusAnchor = transformedCurve[idx];
+    transformedCurve = Spline::catmullRom(base.transformedNodes, 2);
+    int idx = (transformedCurve.origidx[0] + transformedCurve.origidx[1])/2;
+    radiusAnchor = transformedCurve.points[idx];
 
-    int N = transformedCurve.size();
+    int N = transformedCurve.points.size();
     int n1 = idx + 1;
     if (n1>=N)
       n1 -= N;
     int n2 = idx - 1;
     if (n2<0)
       n2 += N;
-    QPointF dir(transformedCurve[n1] - transformedCurve[n2]);
+    QPointF dir(transformedCurve.points[n1] - transformedCurve.points[n2]);
     dir /= euclideanLength(dir);
-    radiusNode = QPointF(transformedCurve[idx]
+    radiusNode = QPointF(radiusAnchor
                          + QPointF(-dir.y(), dir.x())
                            * base.transformedRadii[0]);
   }
 public:
-  QPolygonF transformedCurve;
+  Spline transformedCurve;
   QPointF radiusAnchor; // on transformedCurve
   QPointF radiusNode; // at a distance
 };
@@ -158,7 +158,7 @@ void SO_Layer::paintArea(LayerGeomBase const &geom) {
   QVector<qreal> pat; pat << 1 << 10;  
   b.setDashPattern(pat);
   ptr.setPen(b);
-  ptr.drawPolygon(shgeom.transformedCurve);
+  ptr.drawPolygon(shgeom.transformedCurve.points);
 
   b.setColor(QColor(255, 0, 0));
   b.setStyle(Qt::SolidLine);
@@ -197,10 +197,14 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
       return;
     }
   }
-  
+
+  double nearestNorm = 1e9;
   for (int k=0; k<N; k++) {
     QPointF p = geom.transformedNodes[k];
-    if (L2norm(e->pos() - p) < POINTRADIUS*POINTRADIUS) {
+    double norm = L2norm(e->pos() - p);
+    if (norm < nearestNorm)
+      nearestNorm = norm;
+    if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = k;
       clickpos = e->pos();
       origpt = layer.points()[k];
@@ -208,6 +212,25 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
       layer = Layers(vsn, db).layer(lay); // in case something changed
       e->accept();
       return;
+    }
+  }
+
+  if (layer.type()==Layer::Type::Area
+      && nearestNorm >= 4*POINTRADIUS*POINTRADIUS) {
+    // consider adding a new control point
+    int bestidx = -1;
+    ShapeLayerGeom shgeom(geom);
+    int M = shgeom.transformedCurve.points.size();
+    for (int m=0; m<M; m++) {
+      QPointF p = shgeom.transformedCurve.points[m];
+      double norm = L2norm(e->pos() - p);
+      if (norm < nearestNorm) {
+        nearestNorm = norm;
+        bestidx = m;
+      }
+    }
+    if (nearestNorm < POINTRADIUS*POINTRADIUS) {
+      pDebug() << "insert new point at" << bestidx << "NYI"; 
     }
   }
   

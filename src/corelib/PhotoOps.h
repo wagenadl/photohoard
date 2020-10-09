@@ -27,7 +27,7 @@ namespace PhotoOps {
      See https://docs.opencv.org/3.4/d7/d8b/group__photo__inpaint.html. */
 
   Image16 decolorizeOrBoost(Image16 const &target, bool boost=false);
-  QImage blur(QImage source, double sigma);
+  void blur(QImage &target, double sigma);
 };
 
 #endif
