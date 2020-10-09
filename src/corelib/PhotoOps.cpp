@@ -74,25 +74,18 @@ namespace PhotoOps {
     int B = target.bytesPerLine();
     double alpha = 1/sigma;
     pDebug() << "  blur" << X << Y << B << alpha;
-    int n1 = 0;
-    int n2 = 0;
-    int n3 = 0;
-    int n4 = 0;
-    int n5 = 0;
     for (int y=0; y<Y; y++) {
       uchar *row = bits + B*y;
       double b = *row;
       for (int x=0; x<X; x++) {
         double a = *row;
-        n1 += a;
         b += alpha*(a - b);
-        *row++ = b;
+        *row++ = b + .5;
       }
       for (int x=X-1; x>=0; x--) {
         double a = *--row;
-        n2 += a;
         b += alpha*(a - b);
-        *row = b;
+        *row = b + .5;
       }
     }
     for (int x=0; x<X; x++) {
@@ -100,18 +93,15 @@ namespace PhotoOps {
       double b = col[0];
       for (int y=0; y<Y; y++) {
         double a = *col;
-        n3 += a;
         b += alpha*(a-b);
-        *col = b;
+        *col = b + .5;
         col += B;
       }
       for (int y=Y-1; y>=0; y--) {
         col -= B;
         double a = *col;
-        n4 += a;
         b += alpha*(a-b);
-        *col = b;
-        n5 += b;
+        *col = b + .5;
       }
     }
       
@@ -119,6 +109,6 @@ namespace PhotoOps {
 //                isGray?CV_8UC1:CV_8UC4,
 //                (void*)bits, target.bytesPerLine());
 //    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
-    pDebug() << "blurred" << n1 << n2 << n3 << n4 << n5;
+    pDebug() << "blurred";
   }
 };
