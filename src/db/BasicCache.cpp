@@ -74,7 +74,7 @@ void BasicCache::readConfig() {
   QList<int> sizes;
   while (q.next())
     sizes << q.value(0).toInt();
-  std::sort(sizes.begin(), sizes.end(), [](int a, int b) { return b - a; });
+  std::sort(sizes.begin(), sizes.end(), [](int a, int b) { return a > b; });
   qDebug() << "sizes" << sizes;
 
   stdsizes.clear();
