@@ -2,14 +2,14 @@
 
 HEADERS += \
      cms/CMSProfile.h  \
-     cms/CMS.h  \
-     cms/ThreadedTransform.h  \
      cms/CMSTransform.h  \
+     cms/ThreadedTransform.h  \
+     cms/CMS.h  \
 
 SOURCES += \
+     cms/CMSProfile.cpp  \
      cms/CMSTransform.cpp  \
      cms/ThreadedTransform.cpp  \
-     cms/CMSProfile.cpp  \
 
 RESOURCES += \
 

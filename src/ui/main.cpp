@@ -24,6 +24,7 @@
 #include "ErrorDialog.h"
 #include <thread>
 #include <iostream>
+#include "FileLocations.h"
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
@@ -39,8 +40,7 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
-  SessionDB::ensureBaseDirExists();
-  QString dbfn = SessionDB::defaultPDBFilename();
+  QString dbfn = FileLocations::defaultDBFile();
   QString icc;
   bool newdb = false;
   bool readonly = false;
@@ -111,29 +111,29 @@ int main(int argc, char **argv) {
     }
   }
 
-  SessionDB db;
+  SessionDB sdb;
   //  db.enableDebug();
-  db.open(dbfn, readonly);
+  sdb.open(dbfn, readonly);
 
-  QString cachefn = db.cacheFilename();
+  QString cachefn = FileLocations::cacheDirForDB(sdb.photoDBFilename());
     
   if (!QDir(cachefn).exists()) {
     pDebug() << "Creating cache at " << cachefn;
     BasicCache::create(cachefn);
   }
 
-  AutoCache *ac = new AutoCache(&db, cachefn);
+  AutoCache *ac = new AutoCache(&sdb, cachefn);
 
   Scanner *scan = 0;
-  if (!db.isReadOnly()) {
-    scan = new Scanner(&db);
+  if (!sdb.isReadOnly()) {
+    scan = new Scanner(&sdb);
     QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
 		     ac, SLOT(recache(QSet<quint64>)));
     QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
 		     ac, SLOT(cachePreview(quint64, Image16)));
   }
 
-  Exporter *expo = new Exporter(&db, 0);
+  Exporter *expo = new Exporter(&sdb, 0);
   expo->start();
 
   if (scan)
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
   app.setFont(ScreenResolution::defaultFont());
   
   // START APPLICATION
-  MainWindow *mw = new MainWindow(&db, scan, ac, expo);
+  MainWindow *mw = new MainWindow(&sdb, scan, ac, expo);
   mw->show();
   mw->scrollToCurrent();
 
@@ -158,9 +158,9 @@ int main(int argc, char **argv) {
   expo->stop();
   delete expo;
 
-  PurgeCache::purge(db, cachefn);
+  PurgeCache::purge(sdb, cachefn);
     
-  db.close();
+  sdb.close();
 
   //  sr_thread.join();
   return res;

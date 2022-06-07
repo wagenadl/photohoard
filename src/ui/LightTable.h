@@ -27,7 +27,8 @@ public:
   Actions const &actions() const;
 public slots:
   void setLayout(LayoutBar::Layout ar);
-  void slidePress(quint64 vsn, Qt::MouseButton, Qt::KeyboardModifiers);
+  void slidePress(quint64 vsn, Qt::MouseButton,
+                  Qt::KeyboardModifiers=Qt::NoModifier);
   void select(quint64 vsn, Qt::KeyboardModifiers=Qt::NoModifier);
   void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
   void rescan(bool rebuildFilter=true);

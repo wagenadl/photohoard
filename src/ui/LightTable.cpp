@@ -588,44 +588,44 @@ void LightTable::makeActions() {
       [&]() {
       quint64 v = strips->strip()->versionAbove(db->current());
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}
   << Action{ Qt::Key_Down, "",
       [&]() {
       quint64 v = strips->strip()->versionBelow(db->current());
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}
   << Action{ Qt::Key_Left, "",
       [&]() {
       quint64 v = strips->strip()->versionLeftOf(db->current());
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}
   << Action{ Qt::Key_Right, "",
       [&]() {
       quint64 v = strips->strip()->versionRightOf(db->current());
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}
   << Action { Qt::Key_Period, "Center on current image",
       [&]() {
       quint64 v = db->current();
       db->setCurrent(0); // trick
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}         
   << Action { Qt::Key_BracketLeft, "Select previous image",
       [&]() {
       quint64 v = strips->strip()->versionBefore(db->current());
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}
   << Action { Qt::Key_BracketRight, "Select next image",
       [&]() {
       quint64 v = strips->strip()->versionAfter(db->current());
       if (v)
-        slidePress(v, Qt::LeftButton, 0);
+        slidePress(v, Qt::LeftButton);
     }}
   << Action { Qt::CTRL + Qt::Key_N, "New version from current",
          [&]() {

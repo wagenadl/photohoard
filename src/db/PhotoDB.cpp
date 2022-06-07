@@ -49,10 +49,6 @@ void PhotoDB::create(QString fn) {
 
     for (auto c: sql) 
       db.query(c);
-
-    QString cachefn = BasicCache::cacheDir(fn);
-    db.query("insert into cachefn values (:a)", cachefn);
-
     t.commit();
   }
     
@@ -539,9 +535,6 @@ QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
   return res;
 }
 
-QString PhotoDB::cacheFilename() const {
-  return simpleQuery("select fn from cachefn").toString();
-}
 
 bool PhotoDB::isReadOnly() const {
   return ro;
