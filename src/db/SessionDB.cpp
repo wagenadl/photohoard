@@ -9,81 +9,94 @@
 
 QString SessionDB::photohoardBaseDir() {
   static QString home = QString(qgetenv("HOME"));
-  return home + "/.local/photohoard";
+  return home + "/.local/share/photohoard";
 }
 
 void SessionDB::ensureBaseDirExists() {
- QDir dir(photohoardBaseDir());
+  QDir dir(photohoardBaseDir());
   if (!dir.exists())
     dir.mkpath(".");
 }
 
-QString SessionDB::sessionFilename(QString dbfn) {
-  QFileInfo fi(dbfn);
-  if (!fi.exists())
-    CRASH("Cannot determine sesion filename for nonexistent db " + dbfn);
-  QString absfn = fi.canonicalFilePath();
-  QString hash = QString::number(qHash(absfn), 16);
-  return photohoardBaseDir() + "/" + hash + ".sdb";
+QString SessionDB::sessionFilename(QString photodbfn) {
+  QString leaf = QFileInfo(photodbfn).baseName();
+  return photohoardBaseDir() + "/" + leaf + "-session-"
+    + QString::number(qHash(photodbfn), 16) + ".db";
+}
+
+QString SessionDB::defaultPDBFilename() {
+  return photohoardBaseDir() + "/default.db";
 }
 
 bool SessionDB::sessionExists(QString photodbfn) {
-  QFileInfo f(sessionFilename(photodbfn));
-  return f.exists();
+  return QFileInfo(sessionFilename(photodbfn)).exists();
 }
 
 bool SessionDB::isDBReadOnly(QString photodbfn) {
-  QFileInfo f(photodbfn);
-  return !f.isWritable();
+  return !QFileInfo(photodbfn).isWritable();
 }
 
-void SessionDB::createSession(QString pdbfn) {
+
+void SessionDB::createSession(QString photodbfn) {
   ensureBaseDirExists();
 
-  QString sessionfn = sessionFilename(pdbfn);
-  if (sessionExists(pdbfn))
+  QString sessionfn = sessionFilename(photodbfn);
+  if (sessionExists(photodbfn))
     CRASH("Could not create new session: File exists: " + sessionfn);
 
-  Database db;
-  db.open(sessionfn);
+  Database sdb;
+  sdb.open(sessionfn);
   SqlFile sql(":/setupsession.sql");
   {
-    Transaction t(&db);
-
+    Transaction t(&sdb);
     for (auto c: sql) 
-      db.query(c);
-
-    db.query("insert into photodb values (:a)", pdbfn);
-
+      sdb.query(c);
+    sdb.query("insert into photodb values (:a)", photodbfn);
     t.commit();
   }
-    
-  db.close();
+  sdb.close();
 }
-  
+
+QString SessionDB::photoDBFilename() const {
+  QString fn = simpleQuery("select fn from photodb").toString();
+  return QFileInfo(fn).canonicalFilePath();
+}
+
+SessionDB::SessionDB() {
+}
+
+SessionDB::~SessionDB() {
+}
+
 void SessionDB::open(QString photodbfn, bool forcereadonly) {
+  photodbfn = QFileInfo(photodbfn).canonicalFilePath();
+  
   if (!sessionExists(photodbfn))
-    CRASH("Cannot open nonexistent session for " + photodbfn);
-  QString sessionfn = sessionFilename(photodbfn);
+    CRASH("Cannot open nonexistent session");
+  Database::open(sessionFilename(photodbfn));
 
-  Database::open(sessionfn);
-
-  { QSqlQuery q = query("select id, version from sinfo limit 1");
+  {
+    QSqlQuery q = query("select id, version from sinfo limit 1");
     ASSERT(q.next());
     if (q.value(0).toString() != "PhotohoardSessionDB")
-      CRASH("Cannot open session for " + photodbfn + ": not a session: "
-	    + sessionfn);
+      CRASH("Cannot open session “" + sessionFilename(photodbfn) + "”.");
   }
-  QString pdbfn = simpleQuery("select fn from photodb").toString();
-  pdbfn = QFileInfo(pdbfn).canonicalFilePath();
-  if (pdbfn != QFileInfo(photodbfn).canonicalFilePath())
-    CRASH("Session refers to different photo db: " + pdbfn + " vs " + QFileInfo(photodbfn).canonicalFilePath());
-
+  
   query("pragma synchronous = 0");
   query("pragma foreign_keys = on");
 
+
+  QString codedfn = photoDBFilename();
+  if (codedfn != photodbfn) {
+    CRASH("Session appears to be meant for different database");
+  }
+  
+  if (!QFileInfo(photodbfn).exists()) {
+    CRASH("Cannot open database “" + photodbfn + "”.");
+  }
+  
   query("attach database :a as P", photodbfn);
-  if (forcereadonly || isDBReadOnly(photodbfn))
+  if (forcereadonly || isDBReadOnly(photodbfn)) 
     setReadOnly();
   else
     upgradeDBVersion();

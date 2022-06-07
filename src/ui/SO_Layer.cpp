@@ -64,7 +64,7 @@ public:
   ShapeLayerGeom(LayerGeomBase const &base) {
     if (base.transformedNodes.isEmpty())
       return;
-    transformedCurve = Spline::catmullRom(base.transformedNodes, 2);
+    transformedCurve = Spline(base.transformedNodes, 2);
     int idx = (transformedCurve.origidx[0] + transformedCurve.origidx[1])/2;
     radiusAnchor = transformedCurve.points[idx];
 

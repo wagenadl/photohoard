@@ -39,10 +39,8 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
-  //  qInstallMessageHandler(&myMsgHandler);
-  
   SessionDB::ensureBaseDirExists();
-  QString dbfn = SessionDB::photohoardBaseDir() + "/photodb.db";
+  QString dbfn = SessionDB::defaultPDBFilename();
   QString icc;
   bool newdb = false;
   bool readonly = false;
@@ -85,30 +83,32 @@ int main(int argc, char **argv) {
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
 
-  bool olddb = QFile(dbfn).exists();
-  if (olddb && newdb) {
+  if (newdb) {
+    bool olddb = QFile(dbfn).exists();
+    if (olddb) {
       ErrorDialog::fatal("A database already exists at " + dbfn
-	      + ". Cannot create a new one.");
+                         + ". Cannot create a new one.");
       return 2;
+    }
+    pDebug() << "Creating database at " << dbfn;
+    PhotoDB::create(dbfn);
   }
-  if (!olddb && !newdb) {
+
+  
+  if (!SessionDB::sessionExists(dbfn)) {
+    pDebug() << "Creating session";
+    SessionDB::createSession(dbfn);
+  }
+
+  if (!QFile(dbfn).exists()) {
     if (customdb) {
       ErrorDialog::fatal("No database found at " + dbfn
                      + ". You may create a new one using “photohoard -new”.");
       return 2;
     } else {
-      newdb = true;
+      pDebug() << "Creating database at " << dbfn;
+      PhotoDB::create(dbfn);
     }
-  }
-  
-  if (newdb) {
-    pDebug() << "Creating database at " << dbfn;
-    PhotoDB::create(dbfn);
-  }
-
-  if (!SessionDB::sessionExists(dbfn)) {
-    pDebug() << "Creating session for " << dbfn;
-    SessionDB::createSession(dbfn);
   }
 
   SessionDB db;

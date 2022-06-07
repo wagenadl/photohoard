@@ -11,7 +11,10 @@
 
 class BasicCache {
 public:
-  BasicCache() { }
+  static QString cacheBasedir();
+  static void ensureBasedirExists();
+  static QString cacheDir(QString photodbfn);
+  BasicCache();
   void open(QString rootdir);
   void clone(BasicCache const &src);
   void close();

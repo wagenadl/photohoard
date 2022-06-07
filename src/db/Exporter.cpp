@@ -10,6 +10,7 @@
 #include "Adjustments.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QElapsedTimer>
 
 Exporter::Exporter(SessionDB *db0, QObject *parent):
   QThread(parent), db0(db0) {
@@ -113,7 +114,7 @@ void Exporter::stop() {
 }
 
 void Exporter::run() {
-  QTime t0;
+  QElapsedTimer t0;
   t0.start();
   mutex.lock();
   //  pDebug() << "Exporter running";

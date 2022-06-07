@@ -8,12 +8,37 @@
 #include <QImageReader>
 #include <system_error>
 #include "SqlFile.h"
+#include <algorithm>
+#include "SessionDB.h"
+
+QString BasicCache::cacheBasedir() {
+  static QString home = QString(qgetenv("HOME"));
+  return home + "/.cache/photohoard";
+}
+
+void BasicCache::ensureBasedirExists() {
+  QDir dir(cacheBasedir());
+  if (!dir.exists())
+    dir.mkpath(".");
+}
+  
+QString BasicCache::cacheDir(QString photodbfn) {
+  QString fn = photodbfn;
+  if (fn.endsWith(".db"))
+    fn = fn.left(fn.size() - 3);
+  if (fn.startsWith(SessionDB::photohoardBaseDir() + "/"))
+    fn = fn.mid((SessionDB::photohoardBaseDir() + "/").size());
+  return cacheBasedir() + "/" + fn.replace("/", "_") + "-cache";
+}
+
+BasicCache::BasicCache() {
+}
 
 void BasicCache::open(QString rootdir) {
   if (isOpen())
     close();
   
-  root = rootdir;
+  root.setPath(rootdir);
   db.open(rootdir + "/cache.db");
   readConfig();
   db.query("pragma synchronous = 0");
@@ -68,7 +93,8 @@ void BasicCache::readConfig() {
   QList<int> sizes;
   while (q.next())
     sizes << q.value(0).toInt();
-  qSort(sizes.begin(), sizes.end(), qGreater<int>());
+  std::sort(sizes.begin(), sizes.end(), [](int a, int b) { return b - a; });
+  qDebug() << "sizes" << sizes;
 
   stdsizes.clear();
   for (int s: sizes)
@@ -82,7 +108,8 @@ void BasicCache::create(QString rootdir) {
 
 
   if (!QDir("/").mkpath(root.absolutePath()))
-    CRASH("BasicCache::create: Could not create directory: " + root.absolutePath());
+    CRASH("BasicCache::create: Could not create directory: "
+          + root.absolutePath());
 
   Database db;
   db.open(rootdir + "/cache.db");
