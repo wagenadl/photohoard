@@ -7,8 +7,9 @@
 #include <QFile>
 #include <QDir>
 #include "Adjustments.h"
+#include "BasicCache.h"
 
-PhotoDB::PhotoDB(QString id): Database(id) {
+PhotoDB::PhotoDB(): Database() {
   ro = false;
 }
 
@@ -49,9 +50,7 @@ void PhotoDB::create(QString fn) {
     for (auto c: sql) 
       db.query(c);
 
-    QString cachefn = fn;
-    cachefn = (fn.endsWith(".db")) ? fn.left(fn.length()-3) : fn;
-    cachefn += ".cache";
+    QString cachefn = BasicCache::cacheDir(fn);
     db.query("insert into cachefn values (:a)", cachefn);
 
     t.commit();

@@ -171,7 +171,7 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     msk.fill(0);
     QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
 						osize, adj0, scale));
-    QPolygonF ppp = Spline::catmullRom(pts, 2).points;
+    QPolygonF ppp = Spline(pts, 2).points;
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
       ptr.setBrush(QBrush(QColor(255,255,255)));

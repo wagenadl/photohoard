@@ -14,8 +14,8 @@
 
 class Database {
 public:
-  Database(QString id="");
-  virtual void open(QString filename);
+  Database();
+  void open(QString filename);
   virtual void close();
   virtual void clone(Database const &src);
   virtual ~Database();

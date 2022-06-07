@@ -40,7 +40,7 @@ public:
     QDateTime capturedate;
   };
 public:
-  PhotoDB(QString id="");
+  PhotoDB();
   virtual void clone(PhotoDB const &);
   static void create(QString fn);
   bool isReadOnly() const;

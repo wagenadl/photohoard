@@ -27,9 +27,7 @@ static bool execWithRetry(QSqlQuery &q) {
 }
 
 
-Database::Database(QString id0): id(id0), transWait(new QAtomicInt()) {
-  if (id.isEmpty())
-    id = autoid();
+Database::Database(): id(autoid()), transWait(new QAtomicInt()) {
 }
 
 void Database::open(QString filename) {
