@@ -6,30 +6,10 @@
 #include <QDir>
 #include "PDebug.h"
 #include "SqlFile.h"
-
-QString SessionDB::photohoardBaseDir() {
-  static QString home = QString(qgetenv("HOME"));
-  return home + "/.local/share/photohoard";
-}
-
-void SessionDB::ensureBaseDirExists() {
-  QDir dir(photohoardBaseDir());
-  if (!dir.exists())
-    dir.mkpath(".");
-}
-
-QString SessionDB::sessionFilename(QString photodbfn) {
-  QString leaf = QFileInfo(photodbfn).baseName();
-  return photohoardBaseDir() + "/" + leaf + "-session-"
-    + QString::number(qHash(photodbfn), 16) + ".db";
-}
-
-QString SessionDB::defaultPDBFilename() {
-  return photohoardBaseDir() + "/default.db";
-}
+#include "FileLocations.h"
 
 bool SessionDB::sessionExists(QString photodbfn) {
-  return QFileInfo(sessionFilename(photodbfn)).exists();
+  return QFileInfo(FileLocations::sessionFileForDB(photodbfn)).exists();
 }
 
 bool SessionDB::isDBReadOnly(QString photodbfn) {
@@ -38,9 +18,9 @@ bool SessionDB::isDBReadOnly(QString photodbfn) {
 
 
 void SessionDB::createSession(QString photodbfn) {
-  ensureBaseDirExists();
+  FileLocations::ensureCacheRoot();
 
-  QString sessionfn = sessionFilename(photodbfn);
+  QString sessionfn = FileLocations::sessionFileForDB(photodbfn);
   if (sessionExists(photodbfn))
     CRASH("Could not create new session: File exists: " + sessionfn);
 
@@ -73,13 +53,13 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   
   if (!sessionExists(photodbfn))
     CRASH("Cannot open nonexistent session");
-  Database::open(sessionFilename(photodbfn));
+  Database::open(FileLocations::sessionFileForDB(photodbfn));
 
   {
     QSqlQuery q = query("select id, version from sinfo limit 1");
     ASSERT(q.next());
     if (q.value(0).toString() != "PhotohoardSessionDB")
-      CRASH("Cannot open session “" + sessionFilename(photodbfn) + "”.");
+      CRASH("Cannot open session for “" + photodbfn + "”.");
   }
   
   query("pragma synchronous = 0");

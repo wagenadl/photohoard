@@ -64,7 +64,7 @@ void AutoCache::recache(quint64 id) {
   recache(ids);
 }
 
-void AutoCache::cacheModified(quint64 id, Image16 img, quint64 chgid) {
+void AutoCache::cacheModified(quint64 id, Image16 img, quint64 /*chgid*/) {
   holder->setImage(id, img);
   //pDebug() << "autocache::cachemodified no emit available" 
   //   << id << img.size() << chgid;

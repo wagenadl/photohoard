@@ -76,7 +76,6 @@ public: // information about cameras and lenses
   void setLensAlias(int lensid, QString alias);
   void setCameraAlias(int cameraid, QString alias);
 public: // exploration functions
-  QString cacheFilename() const; // returns full pathname
   QString folder(quint64 folderid) const; // returns full pathname
   quint64 root(quint64 folderid) const; // returns id of root folder
   quint64 findFolder(QString) const; // 0 if not found

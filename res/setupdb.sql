@@ -155,9 +155,6 @@ create table photostoscan (
        photo integer unique on conflict ignore,
        foreign key(photo) references photos(id) );
 
-create table cachefn (
-       fn string );
-
 create table layers (
 -- Table of layers
        id integer primary key,

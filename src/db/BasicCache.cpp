@@ -11,25 +11,6 @@
 #include <algorithm>
 #include "SessionDB.h"
 
-QString BasicCache::cacheBasedir() {
-  static QString home = QString(qgetenv("HOME"));
-  return home + "/.cache/photohoard";
-}
-
-void BasicCache::ensureBasedirExists() {
-  QDir dir(cacheBasedir());
-  if (!dir.exists())
-    dir.mkpath(".");
-}
-  
-QString BasicCache::cacheDir(QString photodbfn) {
-  QString fn = photodbfn;
-  if (fn.endsWith(".db"))
-    fn = fn.left(fn.size() - 3);
-  if (fn.startsWith(SessionDB::photohoardBaseDir() + "/"))
-    fn = fn.mid((SessionDB::photohoardBaseDir() + "/").size());
-  return cacheBasedir() + "/" + fn.replace("/", "_") + "-cache";
-}
 
 BasicCache::BasicCache() {
 }
