@@ -17,7 +17,7 @@ bool SessionDB::isDBReadOnly(QString photodbfn) {
 }
 
 
-void SessionDB::createSession(QString photodbfn) {
+void SessionDB::createSession(QString photodbfn, QString cachedir) {
   FileLocations::ensureCacheRoot();
 
   QString sessionfn = FileLocations::sessionFileForDB(photodbfn);
@@ -31,14 +31,21 @@ void SessionDB::createSession(QString photodbfn) {
     Transaction t(&sdb);
     for (auto c: sql) 
       sdb.query(c);
-    sdb.query("insert into photodb values (:a)", photodbfn);
+    sdb.query("insert into paths (photodb, cachedir) values (:a, :b)",
+              photodbfn, cachedir);
     t.commit();
   }
   sdb.close();
 }
 
 QString SessionDB::photoDBFilename() const {
-  QString fn = simpleQuery("select fn from photodb").toString();
+  QString fn = simpleQuery("select photodb from paths").toString();
+  return QFileInfo(fn).canonicalFilePath();
+}
+
+
+QString SessionDB::cacheDirname() const {
+  QString fn = simpleQuery("select cachedir from paths").toString();
   return QFileInfo(fn).canonicalFilePath();
 }
 
@@ -98,7 +105,7 @@ void SessionDB::clone(SessionDB const &src) {
   query("pragma synchronous = 0");
   query("pragma foreign_keys = on");
 
-  QString pdbfn = simpleQuery("select fn from photodb").toString();
+  QString pdbfn = simpleQuery("select photodb from paths").toString();
   query("attach database :a as P", pdbfn);
   upgradeDBVersion();
 }

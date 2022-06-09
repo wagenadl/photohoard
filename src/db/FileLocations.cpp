@@ -4,14 +4,21 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include "Settings.h"
 
 namespace FileLocations {
+  Settings settings;
+  
   QString cacheRoot() {
-    return QDir::homePath() + "/.cache/photohoard";
+    return settings.get("cacheroot",
+                        QDir::homePath() + "/.cache/photohoard")
+      .toString();
   }
 
   QString dataRoot() {
-    return QDir::homePath() + "/.local/share/photohoard";
+    return settings.get("dataroot",
+                        QDir::homePath() + "/.local/share/photohoard")
+      .toString();
   }
 
   QString defaultDBFile() {

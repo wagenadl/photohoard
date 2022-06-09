@@ -8,7 +8,7 @@
 #include "Tags.h"
 #include "TagDialog.h"
 #include "Dialog.h"
-
+#include <algorithm>
 FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   QDialog(parent), db(db) {
   starting = true;
@@ -45,7 +45,7 @@ void FilterDialog::prepMakes() {
     makes << q.value(0).toString();
   q.finish();
   
-  qSort(makes);
+  std::sort(makes.begin(), makes.end());
   makes.removeOne("");
 
   if (!makes.isEmpty())
@@ -68,7 +68,7 @@ void FilterDialog::prepModels(QString make) {
     models << q.value(0).toString();
   q.finish();
   
-  qSort(models);
+  std::sort(models.begin(), models.end());
   models.removeOne("");
 
   if (!make.isEmpty() || models.size()<20) {
@@ -128,7 +128,7 @@ void FilterDialog::prepLenses(QString make, QString model) {
   }
   q.finish();
   
-  qSort(lenses);
+  std::sort(lenses.begin(), lenses.end());
   lenses.removeOne("");
 
   if (!model.isEmpty() || lenses.size()<20) {
