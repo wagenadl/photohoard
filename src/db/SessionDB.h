@@ -9,12 +9,13 @@
 class SessionDB: public PhotoDB {
 public:
   static bool sessionExists(QString photodbfn);
-  static void createSession(QString photodbfn);
+  static void createSession(QString photodbfn, QString cachedir);
   static bool isDBReadOnly(QString photodbfn);
 public:
   SessionDB();
   virtual ~SessionDB();
   QString photoDBFilename() const;
+  QString cacheDirname() const;
   virtual void open(QString photodbfn, bool forcereadonly);
   virtual void clone(SessionDB const &);
 public:

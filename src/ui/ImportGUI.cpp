@@ -221,7 +221,7 @@ void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
                     " to mount your media before trying again."
                     " Alternatively, click “Choose location” to manually"
                     " specify a source for import.",
-                    0,
+                    QMessageBox::StandardButton(),
                     parent);
     auto choose = box.addButton("Choose location", QMessageBox::ActionRole);
     box.addButton(QMessageBox::Close);

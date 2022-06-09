@@ -1,5 +1,6 @@
 // main.cpp
 
+#include "Settings.h"
 #include "BasicCache.h"
 #include "ScreenResolution.h"
 #include <QTime>
@@ -40,7 +41,9 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
-  QString dbfn = FileLocations::defaultDBFile();
+  Settings settings;
+  QString dbfn = settings.get("currentdb", FileLocations::defaultDBFile())
+    .toString();
   QString icc;
   bool newdb = false;
   bool readonly = false;
@@ -97,7 +100,7 @@ int main(int argc, char **argv) {
   
   if (!SessionDB::sessionExists(dbfn)) {
     pDebug() << "Creating session";
-    SessionDB::createSession(dbfn);
+    SessionDB::createSession(dbfn, FileLocations::cacheDirForDB(dbfn));
   }
 
   if (!QFile(dbfn).exists()) {
@@ -115,7 +118,7 @@ int main(int argc, char **argv) {
   //  db.enableDebug();
   sdb.open(dbfn, readonly);
 
-  QString cachefn = FileLocations::cacheDirForDB(sdb.photoDBFilename());
+  QString cachefn = sdb.cacheDirname();
     
   if (!QDir(cachefn).exists()) {
     pDebug() << "Creating cache at " << cachefn;
