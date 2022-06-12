@@ -37,11 +37,13 @@ public:
   QPolygon points() const;
   QList<int> radii() const;
   void setPointsAndRadii(QPolygon const &, QList<int> const &);
+  double scale(QSize origSize, class Adjustments const &baseadj,
+               QSize scaledCroppedSize) const;
   QImage mask(QSize origSize, class Adjustments const &baseadj,
 	      QSize scaledCroppedSize) const;
   /* MASK - Return alpha mask for layer
      Result is of size scaledCroppedSize.
-     Only the "LinearGradient" mask is implemented.
+     Only the "LinearGradient" and "Area" masks are implemented.
      The mask is all black if the layer is not active.
    */
   double alpha() const;

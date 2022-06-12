@@ -4,8 +4,9 @@ create table sinfo (
        id text,
        version text );
 
-create table photodb (
-       fn text );
+create table paths (
+       photodb text,
+       cachedir text);
        
 create table filtersettings (
        k string,

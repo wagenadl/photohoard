@@ -26,6 +26,7 @@ private:
   void paintCurve(class LayerGeomBase const &);
   void paintArea(class LayerGeomBase const &);
   void paintClone(class LayerGeomBase const &);
+  void paintInpaint(class LayerGeomBase const &);
 private:
   PhotoDB *db;
   quint64 vsn;

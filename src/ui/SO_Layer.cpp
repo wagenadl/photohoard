@@ -95,6 +95,7 @@ SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
 }
 
 void SO_Layer::setLayer(quint64 vsnid1, int lay1) {
+  qDebug() << "solayer::setlayer" << vsnid1 << lay1;
   vsn = vsnid1;
   lay = lay1;
   layer = Layers(vsn, db).layer(lay);
@@ -118,6 +119,9 @@ void SO_Layer::paintEvent(QPaintEvent *) {
     break;
   case Layer::Type::Clone:
     paintClone(geom);
+    break;
+  case Layer::Type::Inpaint:
+    paintInpaint(geom);
     break;
   default:
     pDebug() << "Paint Layer type" << int(layer.type()) << "NYI";
@@ -143,7 +147,7 @@ void SO_Layer::paintLinear(LayerGeomBase const &geom) {
   }
 }
 
-void SO_Layer::paintCurve(LayerGeomBase const &geom) {
+void SO_Layer::paintCurve(LayerGeomBase const &/*geom*/) {
 }
 
 void SO_Layer::paintArea(LayerGeomBase const &geom) {
@@ -189,6 +193,23 @@ void SO_Layer::paintClone(LayerGeomBase const &geom) {
   ptr.setPen(b);
   for (int n=0; n<N; n++) 
     ptr.drawEllipse(geom.transformedNodes[n+N],
+                    geom.transformedRadii[n],
+                    geom.transformedRadii[n]);
+
+}
+
+void SO_Layer::paintInpaint(LayerGeomBase const &geom) {
+  QPainter ptr(this);
+  int N = geom.transformedRadii.size();
+
+  QVector<qreal> pat; pat << 1 << 10;  
+
+  QPen b(QColor(0, 200, 0));
+  b.setWidth(3);
+  b.setDashPattern(pat);
+  ptr.setPen(b);
+  for (int n=0; n<N; n++) 
+    ptr.drawEllipse(geom.transformedNodes[n],
                     geom.transformedRadii[n],
                     geom.transformedRadii[n]);
 
@@ -276,9 +297,10 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     }
   }
 
-  if (layer.type()==Layer::Type::Clone) {
+  if (layer.type()==Layer::Type::Clone || layer.type()==Layer::Type::Inpaint) {
+    int k0 = layer.type()==Layer::Type::Clone ? N : 0;
     for (int k=0; k<N; k++) {
-      QPointF center = geom.transformedNodes[k+N];
+      QPointF center = geom.transformedNodes[k+k0];
       double r = geom.transformedRadii[k];
       /* How to calculate distance between a point P and the nearest
          point Q on the rim of a circle centered at C with radius R?
@@ -302,8 +324,9 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
           clickscale = geom.radiusFactor;
         } else {
           // move
-          clickidx = k + N;
-          origpt2 = geom.transformedNodes[k]; // source
+          clickidx = k + (e->modifiers() & Qt::ControlModifier) ? k0 : 2*k0;
+          // magic clickidx means to drag source along unless control held
+          origpt2 = geom.transformedNodes[k]; // source, only for Clone
         }
         clickpos = e->pos(); // target center
         origpos = center;
@@ -362,7 +385,7 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
     QList<int> rr; rr << radius;
     layer.setPointsAndRadii(layer.points(), rr);
   } else if (clickidx<-2) {
-    // this is resizing a clone (or heal?) circle
+    // this is resizing a clone or heal circle
     QPointF rnode = origpt2 + e->pos() - clickpos;
     double radius = clickscale * euclideanLength(rnode - origpos);
     QList<int> rr = layer.radii();
@@ -377,15 +400,20 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
 
     QPolygon poly = layer.points();
     /// QPointF oldpt = poly[clickidx];
-    poly[clickidx] = newpt.toPoint();
+    int effidx = clickidx;
+    bool dragalong = false; // pull source along?
+    if (effidx >= layer.points().size()) {
+      effidx -= layer.radii().size();
+      dragalong = true;
+    }
+    poly[effidx] = newpt.toPoint();
 
-    if (layer.type()==Layer::Type::Clone
-        && clickidx>=layer.points().size()/2) {
+    if (dragalong) {
       // pull source along
       QPointF newpt =  Geometry::mapFromAdjusted(ixf.map(origpt2
-                                                    + e->pos() - clickpos),
-                                              osize, adj);
-    poly[clickidx - layer.points().size()/2] = newpt.toPoint();
+                                                         + e->pos() - clickpos),
+                                                 osize, adj);
+      poly[effidx - layer.radii().size()] = newpt.toPoint();
     }
 
     layer.setPointsAndRadii(poly, layer.radii());

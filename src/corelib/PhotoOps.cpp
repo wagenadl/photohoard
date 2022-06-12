@@ -30,19 +30,21 @@ namespace PhotoOps {
   Image16 inpaint(Image16 const &target,
                   QImage const &mask,
                   double radius, int method) {
-    cv::Mat const tgt(target.height(), target.width(),
-                      Image16::cvFormat(target.format()),
-                      (void*)target.bytes(), target.bytesPerLine());
+    QImage in = target.toQImage();
+    in.convertTo(QImage::Format_RGB888);
+    cv::Mat const tgt(in.height(), in.width(), CV_8UC3,
+                      (void*)in.bits(), in.bytesPerLine());
     QImage msk1(mask.convertToFormat(QImage::Format_Grayscale8));
     cv::Mat const msk(msk1.height(), msk1.width(),
                       CV_8UC1,
                       (void*)(msk1.bits()), msk1.bytesPerLine());
-    Image16 res(target.size(), target.format());
-    cv::Mat out(res.height(), res.width(),
-                Image16::cvFormat(res.format()),
-                res.bytes(), res.bytesPerLine());
-    cv::inpaint(tgt, msk, out, radius, method);
-    return res;
+    QImage res(in.size(), QImage::Format_RGB888);
+    cv::Mat out(res.height(), res.width(), CV_8UC3,
+                res.bits(), res.bytesPerLine());
+    qDebug() << "inpaint" << CV_8UC1 << CV_8UC3 << tgt.type() << msk.type() << out.type();
+    cv::inpaint(tgt, msk, out, radius,
+                method ? cv::INPAINT_TELEA : cv::INPAINT_NS);
+    return Image16(res).convertedTo(target.format());
   }
 
   Image16 decolorizeOrBoost(Image16 const &target, bool boost) {

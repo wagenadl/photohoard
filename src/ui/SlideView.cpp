@@ -24,6 +24,7 @@ SlideView::SlideView(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
   rqid = 0;
   fit = true;
   zoom = 1;
+  showlayers = true;
   vsnid = 0;
   makeActions();
 }
@@ -180,7 +181,7 @@ void SlideView::makeActions() {
   acts
     << Action { {Qt::SHIFT + int('#'), Qt::SHIFT + Qt::Key_3},
       "Display grid of thirds",
-	[this]() {
+      [this]() {
 	SO_Grid *so = findOverlay<SO_Grid>(this);
         //qDebug() << "SV:so=" << so;
 	if (so) 
@@ -189,7 +190,20 @@ void SlideView::makeActions() {
 	  new SO_Grid(this);
 	update();
       }};
+  acts
+    << Action { {Qt::SHIFT + int('@'), Qt::SHIFT + Qt::Key_2},
+      "Show/hide layer outlines",
+      [this]() {
+        qDebug() << "showhide";
+        showlayers = !showlayers;
+        visualizeLayer(futvsn, futlay);
+      }};
 }
+
+void SlideView::showHideLayers() {
+  showlayers = !showlayers;
+  visualizeLayer(futvsn, futlay);
+}  
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
   if (acts.activateIf(e)) {
@@ -418,7 +432,8 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
   if (so) 
     delete so;
 
-  if (lay>0) {
+  qDebug() << "visualize" << vsn << lay << showlayers;
+  if (lay>0 && showlayers) {
     so = new SO_Layer(db, this);
     connect(so, &SO_Layer::layerMaskChanged,
 	    this, &SlideView::layerMaskChanged);

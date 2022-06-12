@@ -3,6 +3,7 @@
 #include "AllAdjuster.h"
 #include "PDebug.h"
 #include <cmath>
+#include "PhotoOps.h"
 
 AllAdjuster::AllAdjuster(QObject *parent): Adjuster(parent) {
   validInputUntil = -1;
@@ -149,6 +150,16 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				maxSize);
   };
 
+  auto applyClone = [=](Image16 const &img_below, Layer const &layer) {
+    PSize osize = originalSize();
+    PSize sclcrpsize = img_below.size();
+    QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
+    Image16 bot = img_below.convertedTo(Image16::Format::sRGB8); 
+    double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
+    qDebug() << "applyclone" << scl;
+    return PhotoOps::inpaint(bot, mask, 4.0*scl, 1); // radius?
+  };
+
   auto applyMask = [=](Image16 const &img_top, Image16 const &img_below,
 		       Layer const &layer) {
     PSize osize = originalSize();
@@ -173,9 +184,21 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
   while (true) {
     if (F-2>=0 && imgF2.isNull())
       imgF2 = getImageAt(F-2);
-    imgF1 = getImageAt(F-1);
-    pDebug() << "applying masks" << F;
-    Image16 img = F==1 ? imgF1 : applyMask(imgF1, imgF2, settings.layer(F-1));
+    Image16 img;
+    if (F==1) {
+      img = getImageAt(F-1);
+    } else {
+      switch (settings.layer(F-1).type()) {
+      case Layer::Type::Clone:
+      case Layer::Type::Inpaint:
+        img = applyClone(imgF2, settings.layer(F-1));
+        break;
+      default: 
+        imgF1 = getImageAt(F-1);
+        img = applyMask(imgF1, imgF2, settings.layer(F-1));
+        break;
+      }
+    }
     //imgF1.toQImage().save(QString("/tmp/image-%1-1.jpg").arg(F));
     //imgF2.toQImage().save(QString("/tmp/image-%1-2.jpg").arg(F));
     //img.toQImage().save(QString("/tmp/image-%1.jpg").arg(F));
