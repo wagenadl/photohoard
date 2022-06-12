@@ -45,6 +45,7 @@ public slots:
   void visualizeLayer(quint64 vsn, int layer);
   void updateFilterAndDialog();
   void restoreSizes();
+  void showHideLayers();
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);

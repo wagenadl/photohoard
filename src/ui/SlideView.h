@@ -85,6 +85,7 @@ public slots:
   void scaleToFit();
   /* SCALETOFIT - Zoom such that the image fits snugly
    */
+  void showHideLayers();
   void visualizeLayer(quint64 vsn, int lay);
 signals:
   void needImage(quint64 vsn, QSize desired);
@@ -137,6 +138,7 @@ private:
   PSize rqsize;
   quint64 futvsn;
   int futlay;
+  bool showlayers;
 private slots:
   void setCMSImage(quint64, Image16);
 };

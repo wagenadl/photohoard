@@ -123,6 +123,20 @@ void LayerDialog::addCloneLayer() {
   setVersion(vsn); // rebuild
 }
   
+void LayerDialog::addHealLayer() {
+  Layers ll(vsn, db);
+  Layer l;
+  l.setType(Layer::Type::Inpaint);
+  PSize osize = db->originalSize(vsn);
+  QPoint p0(osize.width()/2, osize.height()/2);
+  QPolygon pp; pp << p0;
+  l.setPointsAndRadii(pp, QList<int>{osize.width()/20});
+  ll.addLayer(l);
+  pDebug() << "LayerDialog: emitting maskEdited";
+  emit maskEdited(ll.count());
+
+  setVersion(vsn); // rebuild
+}
 
 void LayerDialog::deleteLayer() {
   int lay = selectedLayer();
@@ -133,13 +147,13 @@ void LayerDialog::deleteLayer() {
 
   Layers ll(vsn, db);
   ll.deleteLayer(lay);
+  selectLayer(Layers(vsn, db).count());
 
   pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
   
-  setVersion(vsn);
   //  pDebug() << "deleted layer" << lay << lastlay;
-  selectLayer(Layers(vsn, db).count());
+  setVersion(vsn);
 }
 
 void LayerDialog::raiseLayer() {

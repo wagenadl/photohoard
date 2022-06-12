@@ -217,9 +217,6 @@ void LightTable::setLayout(LayoutBar::Layout act) {
     else
       setLayout(LayoutBar::Layout::FullPhoto);
     return;
-  case LayoutBar::Layout::ToggleFullScreen:
-    COMPLAIN("ToggleFullScreen NYI");
-    break;
   case LayoutBar::Layout::ToggleOrg:
     strips->toggleOrganization();
     break;
@@ -736,5 +733,9 @@ void LightTable::saveSplitterPos() {
   default:
     break;
   }
+}
+
+void LightTable::showHideLayers() {
+  slide->showHideLayers();
 }
 

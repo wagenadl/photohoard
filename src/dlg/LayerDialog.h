@@ -34,6 +34,7 @@ private slots:
   void addLinearLayer();
   void addShapeLayer();
   void addCloneLayer();
+  void addHealLayer();
   void deleteLayer();
   void raiseLayer();
   void lowerLayer();

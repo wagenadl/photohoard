@@ -31,10 +31,6 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
   acts << Action{Qt::Key_F4, "Photo only",
       [=]() { lighttable->setLayout(Layout::FullPhoto); }};
   new PAction(acts.last(), QIcon(":icons/layoutFull.svg"), this);
-
-  acts << Action{Qt::Key_F5, "Full screen",
-      [=]() { lighttable->setLayout(Layout::ToggleFullScreen); }};
-  parent->addAction(new PAction(acts.last(), this));
                     
   acts << Action{Qt::Key_F6, "Toggle date/folder view",
       [=]() { lighttable->setLayout(Layout::ToggleOrg); }};
@@ -48,5 +44,12 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
           parent->showFullScreen();
       }};
     parent->addAction(new PAction(acts.last(), this));
-  }
+
+    acts << Action { {Qt::SHIFT + int('@'), Qt::SHIFT + Qt::Key_2},
+        "Show/hide layer outlines",
+        [this, lighttable]() {
+            lighttable->showHideLayers();
+        }};
+    parent->addAction(new PAction(acts.last(), this));    
+  }    
 }

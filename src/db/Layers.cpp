@@ -133,8 +133,8 @@ void Layer::setPointsAndRadii(QPolygon const &p, QList<int> const &rr) {
     *pts++ = rr[m];
 }
 
-QImage Layer::mask(QSize osize, class Adjustments const &adj0,
-		   QSize sclcrpsize) const {
+double Layer::scale(QSize osize, class Adjustments const &adj0,
+                    QSize sclcrpsize) const {
   /* I know the original size and the scaled cropped size. Can I figure
      out the scale factor? Of course: I just need to find the unscaled
      cropped size first
@@ -142,7 +142,12 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
   PSize crpsize = Geometry::croppedSize(osize, adj0);
   double xscale = sclcrpsize.width()*1.0/crpsize.width();
   double yscale = sclcrpsize.height()*1.0/crpsize.height();
-  double scale = std::sqrt(xscale*yscale);
+  return std::sqrt(xscale*yscale);
+}
+
+QImage Layer::mask(QSize osize, class Adjustments const &adj0,
+		   QSize sclcrpsize) const {
+  double scl = scale(osize, adj0, sclcrpsize);
   /* So now I have the scale factor needed for coordinate mapping.
    */
   QImage msk(sclcrpsize, QImage::Format_Grayscale8);
@@ -150,6 +155,11 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     msk.fill(0);
     return msk;
   }
+  QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
+                                              osize, adj0, scl));
+  QList<double> radi;
+  for (int r: radii())
+    radi << scl * r;
   switch (typ) {
   case Type::Invalid:
     msk.fill(0);
@@ -158,8 +168,6 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     msk.fill(255);
     break;
   case Type::LinearGradient: {
-    QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
-						osize, adj0, scale));
     ASSERT(pts.size()==2);
     QPainter ptr(&msk);
     QLinearGradient gr(pts[0], pts[1]);
@@ -169,8 +177,6 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
   } break;
   case Type::Area: {
     msk.fill(0);
-    QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
-						osize, adj0, scale));
     QPolygonF ppp = Spline(pts, 2).points;
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
@@ -178,14 +184,23 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
       ptr.drawPolygon(ppp);
     }
     ASSERT(radii().size()==1);
-    PhotoOps::blur(msk, scale*radii()[0]);
+    PhotoOps::blur(msk, radi[0]);
   } break;
   //case Type::Circular:
   case Type::Curve:
+    msk.fill(0);
+    COMPLAIN("layer mask NYI");
+    break;
   case Type::Clone:
   case Type::Inpaint:
     msk.fill(0);
-    COMPLAIN("layer mask NYI");
+    { QPainter ptr(&msk);
+      ptr.setPen(QPen(Qt::NoPen));
+      ptr.setBrush(QBrush(QColor(255,255,255)));
+      for (int k=0; k<radi.size(); k++) 
+        if (k<pts.size()) 
+          ptr.drawEllipse(pts[k], radi[k], radi[k]);
+    }
     break;
   }
   return msk;

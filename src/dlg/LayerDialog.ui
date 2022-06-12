@@ -134,6 +134,17 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="addHeal">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../Icons.qrc">
+          <normaloff>:/icons/layer-heal.svg</normaloff>:/icons/layer-heal.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="raise">
         <property name="enabled">
          <bool>false</bool>
@@ -343,6 +354,22 @@
     <hint type="destinationlabel">
      <x>93</x>
      <y>272</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addHeal</sender>
+   <signal>clicked()</signal>
+   <receiver>LayerDialog</receiver>
+   <slot>addHealLayer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>220</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>

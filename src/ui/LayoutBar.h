@@ -18,7 +18,7 @@ public:
       Line, // not a layout: selects HLine or VLine
       HalfGrid, // not a layout: selects HGrid or VGrid
       ToggleFullPhoto, // not a layout: selects FullPhoto or previous layout
-      ToggleFullScreen, // not a layout: toggles full screen display
+      //      ToggleFullScreen, // not a layout: toggles full screen display
       ToggleOrg,
       };
 public:

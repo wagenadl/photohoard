@@ -28,6 +28,7 @@
   <file alias="icons/layer-linear.svg">../res/icons/layer-linear.svg</file>
   <file alias="icons/layer-shape.svg">../res/icons/layer-shape.svg</file>
   <file alias="icons/layer-clone.svg">../res/icons/layer-clone.svg</file>
+  <file alias="icons/layer-heal.svg">../res/icons/layer-heal.svg</file>
   <file alias="icons/trash.svg">../res/icons/trash.svg</file>
   <file alias="icons/eye-regular.svg">../res/icons/eye-regular.svg</file>
   <file alias="icons/eye-slash-regular.svg">../res/icons/eye-slash-regular.svg</file>
