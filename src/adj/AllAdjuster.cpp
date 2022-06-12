@@ -155,15 +155,15 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     PSize osize = originalSize();
     PSize sclcrpsize = img_below.size();
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
-    Image16 bot = img_below.convertedTo(Image16::Format::sRGB8);
+    Image16 bot = img_below; //.convertedTo(Image16::Format::sRGB8);
     double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
     QPolygonF pts(layer.transformedPoints(osize, settings.baseAdjustments(),
                                           sclcrpsize));
     QPointF delta = pts[0] - pts[1];
     Image16 top = bot.translated(int(delta.x()), int(delta.y()));
     qDebug() << "applyclone" << scl << delta;
-    return PhotoOps::seamlessClone(bot, top, mask,
-                                   pts[1].toPoint(), 1);
+    return bot.alphablend(top, mask);
+    // return PhotoOps::seamlessClone(bot, top, mask, pts[1].toPoint(), 1);
   };
   
   auto applyInpaint = [=](Image16 const &img_below, Layer const &layer) {
