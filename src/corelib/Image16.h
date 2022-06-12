@@ -54,6 +54,7 @@ public:
   /* The ontop image and the mask must have the same size as we do.
      mask must be grayscale8. mask=255 means full use of ontop,
      mask=0 means full use of our pixel. */
+  Image16 translated(int dx, int dy) const;
   void rotate90CW();
   void rotate90CCW();
   void rotate180();

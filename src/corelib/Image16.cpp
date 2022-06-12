@@ -382,6 +382,30 @@ int Image16::cvInterpolation(Image16::Interpolation i) {
     : cv::INTER_LINEAR; // default
 }
 
+Image16 Image16::translated(int dx, int dy) const {
+  pDebug() << "translated" << dx << dy;
+  if (isNull() || (dx==0 && dy==0))
+    return *this;
+  int cvfmt = cvFormat(format());
+  cv::Mat const in(height(), width(), cvfmt, (void*)bytes(), bytesPerLine());
+  Image16 res(size(), format());
+  cv::Mat out(height(), width(), cvfmt, (void*)res.bytes(), res.bytesPerLine());
+  pDebug() << "premat";
+  cv::Mat mat(2, 3, CV_32FC1, cv::Scalar());
+  pDebug() << "postmat";
+  mat.at<float>(0,0) = 1;
+  mat.at<float>(1,1) = 1;
+  mat.at<float>(0,2) = dx;
+  mat.at<float>(1,2) = dy;
+  pDebug() << "will warp";
+  cv::warpAffine(in, out, mat, out.size(),
+                 cvInterpolation(Image16::Interpolation::NearestNeighbor)
+                 | cv::WARP_INVERSE_MAP,
+                 cv::BORDER_CONSTANT, cv::Scalar());
+  pDebug() << "warped";
+  return res;
+}
+
 Image16 Image16::rotated(double angle, 
                          Image16::Interpolation i) const {
   if (isNull() || angle==0)

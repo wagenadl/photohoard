@@ -150,6 +150,22 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				maxSize);
   };
 
+  auto applyClone = [=](Image16 const &img_below, Layer const &layer) {
+    // not yet correct
+    PSize osize = originalSize();
+    PSize sclcrpsize = img_below.size();
+    QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
+    Image16 bot = img_below.convertedTo(Image16::Format::sRGB8);
+    double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
+    QPolygonF pts(layer.transformedPoints(osize, settings.baseAdjustments(),
+                                          sclcrpsize));
+    QPointF delta = pts[0] - pts[1];
+    Image16 top = bot.translated(int(delta.x()), int(delta.y()));
+    qDebug() << "applyclone" << scl << delta;
+    return PhotoOps::seamlessClone(bot, top, mask,
+                                   pts[1].toPoint(), 1);
+  };
+  
   auto applyInpaint = [=](Image16 const &img_below, Layer const &layer) {
     PSize osize = originalSize();
     PSize sclcrpsize = img_below.size();
@@ -159,7 +175,7 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     return PhotoOps::inpaint(bot, mask, 4.0*scl, 1); // radius?
   };
 
-  auto applyMask = [=](Image16 const &img_top, Image16 const &img_below,
+  auto applyMask = [=](Image16 const &img_below, Image16 const &img_top,
 		       Layer const &layer) {
     PSize osize = originalSize();
     PSize sclcrpsize = img_top.size();
@@ -184,22 +200,22 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 	 && noSettingsChange(f-1))
     f++;
 
-  Image16 imgF1, imgF2;
+  Image16 img;
   while (true) {
-    if (f-2>=0 && imgF2.isNull())
-      imgF2 = getImageAt(f-2);
-    Image16 img;
     if (f==1) {
       img = getImageAt(0);
     } else {
+      if (img.isNull())
+        img = getImageAt(f-2);
       switch (settings.layer(f-1).type()) {
       case Layer::Type::Clone:
+        img = applyClone(img, settings.layer(f-1));
+        break;
       case Layer::Type::Inpaint:
-        img = applyInpaint(imgF2, settings.layer(f-1));
+        img = applyInpaint(img, settings.layer(f-1));
         break;
       default: 
-        imgF1 = getImageAt(f-1);
-        img = applyMask(imgF1, imgF2, settings.layer(f-1));
+        img = applyMask(img, getImageAt(f-1), settings.layer(f-1));
         break;
       }
     }
@@ -207,13 +223,10 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     //imgF2.toQImage().save(QString("/tmp/image-%1-2.jpg").arg(F));
     //img.toQImage().save(QString("/tmp/image-%1.jpg").arg(F));
     if (f>N) {
-      pDebug() << "AA::retrieveReduced returning layered img sized "
-	       << img.size();
       return img;
     } else {
       layerAdjuster(f)->setOriginal(img);
       validInputUntil = f;
-      imgF2 = img;
       f++;
     }
   }
