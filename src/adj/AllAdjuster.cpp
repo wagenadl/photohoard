@@ -104,7 +104,6 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
   int N = settings.layerCount();
   ensureAdjusters(N);
   // See notes p. 71 dd 7/28
-  int F = 1;
   /* To find Q: Of course I could look at maxAvailableSize for layer
      n, but that is not quite the relevant thing, because
      maxAvailableSize for a previous layer might be too restrictive. I
@@ -113,21 +112,29 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
      re-supply the input to n.  Specifically, if mAS_1 is insufficient
      and less than mAS_0, we need to reprovide input to layer 1. 
   */
-  QMap<int, PSize> mAS; // max retrievable size for layer n (n=0..N, inclusive)
-  mAS[0] = layerAdjuster(0)->maxAvailableSize(settings.baseAdjustments());
-  for (int n=1; n<=N; n++)
-    mAS[n] = layerAdjuster(n)->inputSize();
 
+  auto prepMAS = [=]() {
+    QList<PSize> mAS;    
+    mAS << layerAdjuster(0)->maxAvailableSize(settings.baseAdjustments());
+    for (int n=1; n<=N; n++)
+      mAS << layerAdjuster(n)->inputSize();
+    return mAS;
+  };
+    
   auto noSizeLimit = [=](int f) {
+    static QList<PSize> mAS = prepMAS();
+    // max retrievable size for layer n (n=0..N, inclusive)
     ASSERT(f>=1 && f<=N);
     return mAS[f].contains(maxSize) || mAS[f]==mAS[f-1];
   };
+
   auto noSettingsChange = [=](int f) {
     if (f==0)
       return settings.baseAdjustments()==lastrq.baseAdjustments();
     ASSERT(f>=1 && f<=N);
     return settings.layerAdjustments(f)==lastrq.layerAdjustments(f);
   };
+  
   auto noMaskChange = [=](int f) {
     if (f==0)
       return true;
@@ -135,13 +142,6 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     return settings.layer(f)==lastrq.layer(f);
   };
   
-  while (F < N+1
-	 && F <= validInputUntil
-	 && noSizeLimit(F)
-	 && noMaskChange(F-1)
-	 && noSettingsChange(F-1))
-    ++F;
-
   auto getImageAt = [=](int f) {
     Adjuster *adj = f==0 ? baseAdjuster() : layerAdjuster(f);
     return adj->retrieveReduced(f==0
@@ -150,13 +150,12 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				maxSize);
   };
 
-  auto applyClone = [=](Image16 const &img_below, Layer const &layer) {
+  auto applyInpaint = [=](Image16 const &img_below, Layer const &layer) {
     PSize osize = originalSize();
     PSize sclcrpsize = img_below.size();
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
     Image16 bot = img_below.convertedTo(Image16::Format::sRGB8); 
     double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
-    qDebug() << "applyclone" << scl;
     return PhotoOps::inpaint(bot, mask, 4.0*scl, 1); // radius?
   };
 
@@ -165,52 +164,57 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     PSize osize = originalSize();
     PSize sclcrpsize = img_top.size();
     if (img_below.size() != sclcrpsize) {
-      pDebug() << "osize" << osize << "sclcrpsize" << sclcrpsize << "below" << img_below.size();
       if (!sclcrpsize.isEmpty()) 
         COMPLAIN("AllAdjuster applyMask: mismatching image sizes");
       return img_top;  
     }
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
-    pDebug() << "Top image format was" << int(img_top.format());
-    pDebug() << "Bottom image format was" << int(img_below.format());
     Image16 top = img_top.convertedTo(Image16::Format::IPT16);
     Image16 bot = img_below.convertedTo(Image16::Format::IPT16);
     ASSERT(top.size()==bot.size());
     ASSERT(mask.size()==top.size());
     return bot.alphablend(top, mask);
   };
-  
+
+  int f = 1;
+  while (f <= N
+	 && f <= validInputUntil
+	 && noSizeLimit(f)
+	 && noMaskChange(f-1)
+	 && noSettingsChange(f-1))
+    f++;
+
   Image16 imgF1, imgF2;
   while (true) {
-    if (F-2>=0 && imgF2.isNull())
-      imgF2 = getImageAt(F-2);
+    if (f-2>=0 && imgF2.isNull())
+      imgF2 = getImageAt(f-2);
     Image16 img;
-    if (F==1) {
-      img = getImageAt(F-1);
+    if (f==1) {
+      img = getImageAt(0);
     } else {
-      switch (settings.layer(F-1).type()) {
+      switch (settings.layer(f-1).type()) {
       case Layer::Type::Clone:
       case Layer::Type::Inpaint:
-        img = applyClone(imgF2, settings.layer(F-1));
+        img = applyInpaint(imgF2, settings.layer(f-1));
         break;
       default: 
-        imgF1 = getImageAt(F-1);
-        img = applyMask(imgF1, imgF2, settings.layer(F-1));
+        imgF1 = getImageAt(f-1);
+        img = applyMask(imgF1, imgF2, settings.layer(f-1));
         break;
       }
     }
     //imgF1.toQImage().save(QString("/tmp/image-%1-1.jpg").arg(F));
     //imgF2.toQImage().save(QString("/tmp/image-%1-2.jpg").arg(F));
     //img.toQImage().save(QString("/tmp/image-%1.jpg").arg(F));
-    if (F>N) {
+    if (f>N) {
       pDebug() << "AA::retrieveReduced returning layered img sized "
 	       << img.size();
       return img;
     } else {
-      layerAdjuster(F)->setOriginal(img);
-      validInputUntil = F;
-      imgF2 = img; // is that right?
-      ++F;
+      layerAdjuster(f)->setOriginal(img);
+      validInputUntil = f;
+      imgF2 = img;
+      f++;
     }
   }
   return Image16(); // not executed

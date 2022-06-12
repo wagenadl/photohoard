@@ -145,21 +145,31 @@ double Layer::scale(QSize osize, class Adjustments const &adj0,
   return std::sqrt(xscale*yscale);
 }
 
+QPolygonF Layer::transformedPoints(QSize osize, class Adjustments const &adj0,
+                                   QSize sclcrpsize) const {
+  double scl = scale(osize, adj0, sclcrpsize);
+  return Geometry::mapToScaledAdjusted(points(), osize, adj0, scl);
+}
+
+QList<double> Layer::transformedRadii(QSize osize,
+                                      class Adjustments const &adj0,
+                                      QSize sclcrpsize) const {
+  double scl = scale(osize, adj0, sclcrpsize);
+  QList<double> radi;
+  for (int r: radii())
+    radi << scl * r;
+  return radi;
+}
+
 QImage Layer::mask(QSize osize, class Adjustments const &adj0,
 		   QSize sclcrpsize) const {
-  double scl = scale(osize, adj0, sclcrpsize);
-  /* So now I have the scale factor needed for coordinate mapping.
-   */
   QImage msk(sclcrpsize, QImage::Format_Grayscale8);
   if (!active) {
     msk.fill(0);
     return msk;
   }
-  QPolygonF pts(Geometry::mapToScaledAdjusted(points(),
-                                              osize, adj0, scl));
-  QList<double> radi;
-  for (int r: radii())
-    radi << scl * r;
+  QPolygonF pts(transformedPoints(osize, adj0, sclcrpsize));
+  QList<double> radi = transformedRadii(osize, adj0, sclcrpsize);
   switch (typ) {
   case Type::Invalid:
     msk.fill(0);
