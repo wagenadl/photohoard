@@ -39,6 +39,12 @@ public:
   void setPointsAndRadii(QPolygon const &, QList<int> const &);
   double scale(QSize origSize, class Adjustments const &baseadj,
                QSize scaledCroppedSize) const;
+  QPolygonF transformedPoints(QSize origSize,
+                              class Adjustments const &baseadj,
+                              QSize scaledCroppedSize) const;
+  QList<double> transformedRadii(QSize origSize,
+                              class Adjustments const &baseadj,
+                              QSize scaledCroppedSize) const;
   QImage mask(QSize origSize, class Adjustments const &baseadj,
 	      QSize scaledCroppedSize) const;
   /* MASK - Return alpha mask for layer
