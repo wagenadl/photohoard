@@ -207,9 +207,9 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
       ptr.setBrush(QBrush(QColor(255,255,255)));
+      int k0 = typ==Type::Clone ? radi.size() : 0;
       for (int k=0; k<radi.size(); k++) 
-        if (k<pts.size()) 
-          ptr.drawEllipse(pts[k], radi[k], radi[k]);
+          ptr.drawEllipse(pts[k + k0], radi[k], radi[k]);
     }
     break;
   }
