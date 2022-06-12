@@ -220,6 +220,67 @@ void SO_Layer::mouseReleaseEvent(QMouseEvent *e) {
   e->accept();
 }
 
+bool SO_Layer::perhapsDeleteAreaPoint(QPoint pos, LayerGeomBase const &geom) {
+  int N = geom.transformedNodes.size();
+  if (N < 4)
+    return false;
+  for (int k=0; k<N; k++) {
+    QPointF p = geom.transformedNodes[k];
+    double norm = L2norm(pos - p);
+    double r = geom.transformedRadii[k];
+    pDebug() << "compare" << k << norm;
+    if (norm < r*r* + POINTRADIUS*POINTRADIUS) {
+      QPolygon pts = layer.points();
+      pts.remove(k);
+      QList<int> rdi = layer.radii();
+      layer.setPointsAndRadii(pts, rdi);
+      Layers(vsn, db).setLayer(lay, layer);
+      update();
+      emit layerMaskChanged(vsn, lay);
+      return true;
+    }
+  }
+  return false;
+}
+
+bool SO_Layer::perhapsDeleteInpaint(QPoint pos, LayerGeomBase const &geom) {
+  int N = geom.transformedNodes.size();
+  if (N>=2) {
+    for (int k=0; k<N; k++) {
+      QPointF p = geom.transformedNodes[k];
+      double norm = L2norm(pos - p);
+      double r = geom.transformedRadii[k];
+      if (norm < r*r + POINTRADIUS*POINTRADIUS) { // in or very near circle
+        QPolygon pts = layer.points();
+        pts.remove(k);
+        QList<int> rdi = layer.radii();
+        rdi.removeAt(k);
+        layer.setPointsAndRadii(pts, rdi);
+        Layers(vsn, db).setLayer(lay, layer);
+        update();
+        emit layerMaskChanged(vsn, lay);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool SO_Layer::perhapsAddInpaint(QPoint pos, LayerGeomBase const &/*geom*/) {
+  QPolygon pts = layer.points();
+  QTransform const &ixf = base()->transformationToImage();
+  QPointF p(ixf.map(pos));
+  pts << Geometry::mapFromAdjusted(p, osize, adj).toPoint();
+  QList<int> rdi = layer.radii();
+  rdi << rdi[rdi.size()-1];
+  layer.setPointsAndRadii(pts, rdi);
+  Layers(vsn, db).setLayer(lay, layer);
+  update();
+  emit layerMaskChanged(vsn, lay);
+  return true;
+}
+
+
 void SO_Layer::mouseDoubleClickEvent(QMouseEvent *e) {
   if (e->button()!=Qt::LeftButton) {
     e->ignore();
@@ -227,28 +288,136 @@ void SO_Layer::mouseDoubleClickEvent(QMouseEvent *e) {
   }
 
   LayerGeomBase geom(this);
-  int N = geom.transformedNodes.size();
 
-  if (layer.type()==Layer::Type::Area && N>=4) {
-    // consider deleting a point
-    for (int k=0; k<N; k++) {
-      QPointF p = geom.transformedNodes[k];
-      double norm = L2norm(e->pos() - p);
-      pDebug() << "compare" << k << norm;
-      if (norm < POINTRADIUS*POINTRADIUS) {
-        QPolygon pts = layer.points();
-        pts.remove(k);
-        layer.setPointsAndRadii(pts, layer.radii());
-        Layers(vsn, db).setLayer(lay, layer);
-        update();
-        emit layerMaskChanged(vsn, lay);
-        e->accept();
-        return;
-      }
+  if (layer.type()==Layer::Type::Area) {
+    if (perhapsDeleteAreaPoint(e->pos(), geom)) {
+      e->accept();
+      return;
+    }
+  } else if (layer.type()==Layer::Type::Inpaint) {
+    if (perhapsDeleteInpaint(e->pos(), geom)
+        || perhapsAddInpaint(e->pos(), geom)) {
+      e->accept();
+      return;
     }
   }
 }
 
+bool SO_Layer::perhapsStartDragAreaRadius(QPoint pos, LayerGeomBase const &geom,
+                                          double &nearestNorm) {
+  ShapeLayerGeom shgeom(geom);
+  double norm = L2norm(pos - shgeom.radiusNode);
+  if (norm < nearestNorm) 
+    nearestNorm = norm; 
+  if (norm < POINTRADIUS*POINTRADIUS) {
+    clickidx = -2; // magic
+    clickpos = pos;
+    origpt2 = shgeom.radiusAnchor; // magic
+    origpos = shgeom.radiusNode;
+    clickscale = geom.radiusFactor;
+    layer = Layers(vsn, db).layer(lay); // in case something changed
+    return true;
+  }
+  return false;
+}
+
+bool SO_Layer::perhapsStartDragPoint(QPoint pos, LayerGeomBase const &geom,
+                                     int N, double &nearestNorm) {
+  for (int k=0; k<N; k++) {
+    QPointF p = geom.transformedNodes[k];
+    double norm = L2norm(pos - p);
+    if (norm < nearestNorm)
+      nearestNorm = norm;
+    pDebug() << "compare" << k << norm;
+    if (norm < POINTRADIUS*POINTRADIUS) {
+      clickidx = k;
+      clickpos = pos;
+      origpos = p;
+      layer = Layers(vsn, db).layer(lay); // in case something changed
+      return true;
+    }
+  }
+  return false;
+}  
+
+bool SO_Layer::perhapsStartDragCircleEdge(QPoint pos, LayerGeomBase const &geom,
+                                          int N, Qt::KeyboardModifiers m,
+                                          double &nearestNorm) {
+  int k0 = layer.type()==Layer::Type::Clone ? N : 0;
+  for (int k=0; k<N; k++) {
+    QPointF center = geom.transformedNodes[k+k0];
+    double r = geom.transformedRadii[k];
+    /* How to calculate distance between a point P and the nearest
+       point Q on the rim of a circle centered at C with radius R?
+       For simplicity, first set C=(0,0) and R=1.
+       Circle edge is (cos(phi), sin(phi)) for phi in 0..2pi
+       Can do all kinds of fancyness, but easiest is to just calculate
+       phi from atan2(P.y, P.x) and R separately.
+       In fact, I don't even care about phi for the purpose of knowing
+       whether I want to move this circle, only for resizing it.
+    */
+    QPointF dist = pos - center;
+    double d = euclideanLength(dist);
+    if (fabs(d-r) < POINTRADIUS) {
+      // got it
+      double nrm = (d-r)*(d-r);
+      if (nrm < nearestNorm)
+        nearestNorm = nrm;
+      if (m & Qt::ShiftModifier) {
+        // resize
+        clickidx = -3 - k;
+        // find point on radius closest to click
+        double phi = atan2(dist.y(), dist.x());
+        origpt2 = center + QPointF(r*cos(phi), r*sin(phi));
+        clickscale = geom.radiusFactor;
+      } else {
+        // move
+        clickidx = k + ((m & Qt::ControlModifier) ? k0 : 2*k0);
+        // magic clickidx means to drag source along unless control held
+        origpt2 = geom.transformedNodes[k]; // source, only for Clone
+      }
+      clickpos = pos; // target center
+      origpos = center;
+      layer = Layers(vsn, db).layer(lay); // in case something changed
+      return true;
+    }
+  }
+  return false;
+}   
+
+bool SO_Layer::perhapsAddControlPoint(QPoint pos, LayerGeomBase const &geom,
+                                      int N, double &nearestNorm) {
+  if (nearestNorm < 4*POINTRADIUS*POINTRADIUS)
+    return false;
+  int bestidx = -1;
+  ShapeLayerGeom shgeom(geom);
+  int M = shgeom.transformedCurve.points.size();
+  for (int m=0; m<M; m++) {
+    QPointF p = shgeom.transformedCurve.points[m];
+    double norm = L2norm(pos - p);
+    if (norm < nearestNorm) {
+      nearestNorm = norm;
+      bestidx = m;
+    }
+  }
+  if (nearestNorm < POINTRADIUS*POINTRADIUS) {
+    int after = 0;
+    for (int n=1; n<N; n++)
+      if (bestidx>shgeom.transformedCurve.origidx[n])
+        after = n;
+    QPolygon pts = layer.points();
+    QTransform const &ixf = base()->transformationToImage();
+    QPointF p(ixf.map(shgeom.transformedCurve.points[bestidx]));
+    p = Geometry::mapFromAdjusted(p, osize, adj);
+    pts.insert(after+1, p.toPoint());
+    layer.setPointsAndRadii(pts, layer.radii());
+    Layers(vsn, db).setLayer(lay, layer);
+    update();
+    return true;
+  }
+  return false;
+}
+ 
 void SO_Layer::mousePressEvent(QMouseEvent *e) {
   if (e->button()!=Qt::LeftButton) {
     e->ignore();
@@ -259,113 +428,37 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
   int N = geom.transformedNodes.size();
   if (layer.type()==Layer::Type::Clone)
     N /= 2; // convert # of points to # of circles
-  pDebug() << "mousepress N="<<N;
+  pDebug() << "mousepress N=" << N;
 
   double nearestNorm = 1e9;
 
   if (layer.type()==Layer::Type::Area) {
-    ShapeLayerGeom shgeom(geom);
-    double norm = L2norm(e->pos() - shgeom.radiusNode);
-    if (norm < nearestNorm) // yes, this is always true, but code may change
-      nearestNorm = norm; 
-    if (norm < POINTRADIUS*POINTRADIUS) {
-      clickidx = -2; // magic
-      clickpos = e->pos();
-      origpt2 = shgeom.radiusAnchor; // magic
-      origpos = shgeom.radiusNode;
-      clickscale = geom.radiusFactor;
-      layer = Layers(vsn, db).layer(lay); // in case something changed
+    if (perhapsStartDragAreaRadius(e->pos(), geom, nearestNorm)) {
       e->accept();
       return;
     }
   }
 
-  // This is for all layer types
-  for (int k=0; k<N; k++) {
-    QPointF p = geom.transformedNodes[k];
-    double norm = L2norm(e->pos() - p);
-    if (norm < nearestNorm)
-      nearestNorm = norm;
-    pDebug() << "compare" << k << norm;
-    if (norm < POINTRADIUS*POINTRADIUS) {
-      clickidx = k;
-      clickpos = e->pos();
-      origpos = p;
-      layer = Layers(vsn, db).layer(lay); // in case something changed
-      e->accept();
-      return;
-    }
+  if (perhapsStartDragPoint(e->pos(), geom, N, nearestNorm)) {
+    e->accept();
+    return;
   }
+
 
   if (layer.type()==Layer::Type::Clone || layer.type()==Layer::Type::Inpaint) {
-    int k0 = layer.type()==Layer::Type::Clone ? N : 0;
-    for (int k=0; k<N; k++) {
-      QPointF center = geom.transformedNodes[k+k0];
-      double r = geom.transformedRadii[k];
-      /* How to calculate distance between a point P and the nearest
-         point Q on the rim of a circle centered at C with radius R?
-         For simplicity, first set C=(0,0) and R=1.
-         Circle edge is (cos(phi), sin(phi)) for phi in 0..2pi
-         Can do all kinds of fancyness, but easiest is to just calculate
-         phi from atan2(P.y, P.x) and R separately.
-         In fact, I don't even care about phi for the purpose of knowing
-         whether I want to move this circle, only for resizing it.
-       */
-      QPointF dist = e->pos() - center;
-      double d = euclideanLength(dist);
-      if (fabs(d-r) < POINTRADIUS) {
-        // got it
-        if (e->modifiers() & Qt::ShiftModifier) {
-          // resize
-          clickidx = -3 - k;
-          // find point on radius closest to click
-          double phi = atan2(dist.y(), dist.x());
-          origpt2 = center + QPointF(r*cos(phi), r*sin(phi));
-          clickscale = geom.radiusFactor;
-        } else {
-          // move
-          clickidx = k + (e->modifiers() & Qt::ControlModifier) ? k0 : 2*k0;
-          // magic clickidx means to drag source along unless control held
-          origpt2 = geom.transformedNodes[k]; // source, only for Clone
-        }
-        clickpos = e->pos(); // target center
-        origpos = center;
-        layer = Layers(vsn, db).layer(lay); // in case something changed
-        e->accept();
-        return;
-      }
+    if (perhapsStartDragCircleEdge(e->pos(), geom, N, e->modifiers(),
+                                   nearestNorm)) {
+      e->accept();
+      return;
     }
   }
 
-  if (layer.type()==Layer::Type::Area
-      && nearestNorm >= 4*POINTRADIUS*POINTRADIUS) {
-    // consider adding a new control point
-    int bestidx = -1;
-    ShapeLayerGeom shgeom(geom);
-    int M = shgeom.transformedCurve.points.size();
-    for (int m=0; m<M; m++) {
-      QPointF p = shgeom.transformedCurve.points[m];
-      double norm = L2norm(e->pos() - p);
-      if (norm < nearestNorm) {
-        nearestNorm = norm;
-        bestidx = m;
-      }
-    }
-    if (nearestNorm < POINTRADIUS*POINTRADIUS) {
-      int after = 0;
-      for (int n=1; n<N; n++)
-        if (bestidx>shgeom.transformedCurve.origidx[n])
-          after = n;
-      QPolygon pts = layer.points();
-      QTransform const &ixf = base()->transformationToImage();
-      QPointF p(ixf.map(shgeom.transformedCurve.points[bestidx]));
-      p = Geometry::mapFromAdjusted(p, osize, adj);
-      pts.insert(after+1, p.toPoint());
-      layer.setPointsAndRadii(pts, layer.radii());
-      Layers(vsn, db).setLayer(lay, layer);
-      update();
-      pDebug() << "inserted new point at" << bestidx << after << pts;
-      mousePressEvent(e); // that should do it, right?
+  if (layer.type()==Layer::Type::Area) {
+    if (perhapsAddControlPoint(e->pos(), geom, N, nearestNorm)) {
+      LayerGeomBase geom(this);
+      int N = geom.transformedNodes.size();
+      perhapsStartDragPoint(e->pos(), geom, N, nearestNorm);      
+      e->accept();
       return;
     }
   }
@@ -380,26 +473,25 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
   }
   
   if (clickidx==-2) {
+    // dragging radius of area
     QPointF rnode = origpos + e->pos() - clickpos;
     double radius = clickscale * euclideanLength(rnode - origpt2);
     QList<int> rr; rr << radius;
     layer.setPointsAndRadii(layer.points(), rr);
   } else if (clickidx<-2) {
-    // this is resizing a clone or heal circle
+    // resizing a clone or heal circle
     QPointF rnode = origpt2 + e->pos() - clickpos;
     double radius = clickscale * euclideanLength(rnode - origpos);
     QList<int> rr = layer.radii();
-    pDebug() << "move" << origpos << origpt2 << e->pos() << clickpos << rnode << radius << rr[-3-clickidx] << " at " << -3-clickidx;
     rr[-3-clickidx] = radius + .5;
     layer.setPointsAndRadii(layer.points(), rr);
   } else {
+    // dragging a point
     QTransform const &ixf = base()->transformationToImage();
     QPointF newpt = Geometry::mapFromAdjusted(ixf.map(origpos
                                                       + e->pos() - clickpos),
                                               osize, adj);
-
     QPolygon poly = layer.points();
-    /// QPointF oldpt = poly[clickidx];
     int effidx = clickidx;
     bool dragalong = false; // pull source along?
     if (effidx >= layer.points().size()) {
@@ -407,21 +499,17 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
       dragalong = true;
     }
     poly[effidx] = newpt.toPoint();
-
     if (dragalong) {
-      // pull source along
       QPointF newpt =  Geometry::mapFromAdjusted(ixf.map(origpt2
                                                          + e->pos() - clickpos),
                                                  osize, adj);
       poly[effidx - layer.radii().size()] = newpt.toPoint();
     }
-
     layer.setPointsAndRadii(poly, layer.radii());
   }
-
   Layers(vsn, db).setLayer(lay, layer);
-  update();
   pDebug() << "SO_Layer: layermaskchanged";
   emit layerMaskChanged(vsn, lay);
+  update();
   e->accept();
 }

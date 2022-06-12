@@ -27,6 +27,20 @@ private:
   void paintArea(class LayerGeomBase const &);
   void paintClone(class LayerGeomBase const &);
   void paintInpaint(class LayerGeomBase const &);
+  bool perhapsStartDragAreaRadius(QPoint pos, LayerGeomBase const &geom,
+                                  double &nearestNorm);
+  bool perhapsStartDragPoint(QPoint pos, LayerGeomBase const &geom,
+                             int N, double &nearestNorm);
+  bool perhapsStartDragCircleEdge(QPoint pos, LayerGeomBase const &geom,
+                                  int N, Qt::KeyboardModifiers m,
+                                  double &nearestNorm);
+  bool perhapsAddControlPoint(QPoint pos, LayerGeomBase const &geom,
+                              int N, double &nearestNorm);
+  bool perhapsDeleteAreaPoint(QPoint pos, LayerGeomBase const &geom);
+  bool perhapsDeleteInpaint(QPoint pos, LayerGeomBase const &geom);
+  bool perhapsAddInpaint(QPoint pos, LayerGeomBase const &geom);
+  
+    
 private:
   PhotoDB *db;
   quint64 vsn;
