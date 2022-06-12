@@ -211,6 +211,8 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
       for (int k=0; k<radi.size(); k++) 
           ptr.drawEllipse(pts[k + k0], radi[k], radi[k]);
     }
+    if (typ==Type::Clone)
+      PhotoOps::blur(msk, radi[0]/10);
     break;
   }
   return msk;
