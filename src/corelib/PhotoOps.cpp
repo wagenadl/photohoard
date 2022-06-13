@@ -8,7 +8,7 @@ namespace PhotoOps {
   Image16 seamlessClone(Image16 const &target,
                         Image16 const &source, QImage const &mask,
                         QPoint p, int method) {
-    pDebug() << "seamlessclone" << p << target.size();
+    //    pDebug() << "seamlessclone" << p << target.size();
     QImage in = target.toQImage();
     in.convertTo(QImage::Format_RGB888);
     cv::Mat const tgt(in.height(), in.width(), CV_8UC3,
@@ -43,7 +43,7 @@ namespace PhotoOps {
     QImage res(in.size(), QImage::Format_RGB888);
     cv::Mat out(res.height(), res.width(), CV_8UC3,
                 res.bits(), res.bytesPerLine());
-    qDebug() << "inpaint" << CV_8UC1 << CV_8UC3 << tgt.type() << msk.type() << out.type();
+    //    qDebug() << "inpaint" << CV_8UC1 << CV_8UC3 << tgt.type() << msk.type() << out.type();
     cv::inpaint(tgt, msk, out, radius,
                 method ? cv::INPAINT_TELEA : cv::INPAINT_NS);
     return Image16(res).convertedTo(target.format());
@@ -77,7 +77,7 @@ namespace PhotoOps {
     int Y = target.height();
     int B = target.bytesPerLine();
     double alpha = 1/sigma;
-    pDebug() << "  blur" << X << Y << B << alpha;
+    //    pDebug() << "  blur" << X << Y << B << alpha;
     for (int y=0; y<Y; y++) {
       uchar *row = bits + B*y;
       double b = *row;
@@ -113,6 +113,6 @@ namespace PhotoOps {
 //                isGray?CV_8UC1:CV_8UC4,
 //                (void*)bits, target.bytesPerLine());
 //    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
-    pDebug() << "blurred";
+//    pDebug() << "blurred";
   }
 };

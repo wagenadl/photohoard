@@ -23,7 +23,8 @@ static inline double euclideanLength(QPointF p) {
 class LayerGeomBase {
 public:
   LayerGeomBase(SO_Layer const *so) {
-    QPolygonF poly = so->layer.points();
+    QPolygon pts0 = so->layer.points();
+    QPolygonF poly(pts0);
     if (poly.isEmpty())
       return;
 
@@ -36,8 +37,10 @@ public:
     transformedCenter = xf.map(Geometry::mapToAdjusted(originalCenter,
                                                        so->osize, so->adj));
 
+    //    pDebug() << "layergeombase - poly" << pts0 << poly << p0;
     for (auto &p: poly)
       p = xf.map(Geometry::mapToAdjusted(p, so->osize, so->adj));
+    //    pDebug() << "layergeombase - xfpoly" << poly;
     transformedNodes = poly;
 
     for (double a: so->layer.radii()) {
@@ -95,7 +98,7 @@ SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
 }
 
 void SO_Layer::setLayer(quint64 vsnid1, int lay1) {
-  qDebug() << "solayer::setlayer" << vsnid1 << lay1;
+  //qDebug() << "solayer::setlayer" << vsnid1 << lay1;
   vsn = vsnid1;
   lay = lay1;
   layer = Layers(vsn, db).layer(lay);
@@ -179,22 +182,24 @@ void SO_Layer::paintArea(LayerGeomBase const &geom) {
 
 void SO_Layer::paintClone(LayerGeomBase const &geom) {
   QPainter ptr(this);
+  //pDebug() << "paintclone" << geom.transformedNodes << geom.transformedRadii;
   int N = geom.transformedRadii.size();
   QPen b(QColor(255,0,0));
   b.setWidth(3);
   ptr.setPen(b);
-  for (int n=0; n<N; n++)
-    ptr.drawEllipse(geom.transformedNodes[n], POINTRADIUS, POINTRADIUS);
+  ptr.drawEllipse(geom.transformedNodes[N], POINTRADIUS, POINTRADIUS);
 
   QVector<qreal> pat; pat << 1 << 10;  
 
-  b.setColor(QColor(0, 200, 0));
+  b.setColor(QColor(100, 200, 0));
   b.setDashPattern(pat);
   ptr.setPen(b);
-  for (int n=0; n<N; n++) 
-    ptr.drawEllipse(geom.transformedNodes[n+N],
+  for (int n=0; n<N; n++) {
+    ptr.drawEllipse(geom.transformedNodes[n],
                     geom.transformedRadii[n],
                     geom.transformedRadii[n]);
+    b.setColor(QColor(0, 200, 0));
+  }
 
 }
 
@@ -228,7 +233,7 @@ bool SO_Layer::perhapsDeleteAreaPoint(QPoint pos, LayerGeomBase const &geom) {
     QPointF p = geom.transformedNodes[k];
     double norm = L2norm(pos - p);
     double r = geom.transformedRadii[k];
-    pDebug() << "compare" << k << norm;
+    //pDebug() << "compare" << k << norm;
     if (norm < r*r* + POINTRADIUS*POINTRADIUS) {
       QPolygon pts = layer.points();
       pts.remove(k);
@@ -244,7 +249,7 @@ bool SO_Layer::perhapsDeleteAreaPoint(QPoint pos, LayerGeomBase const &geom) {
 }
 
 bool SO_Layer::perhapsDeleteInpaint(QPoint pos, LayerGeomBase const &geom) {
-  int N = geom.transformedNodes.size();
+  int N = geom.transformedRadii.size();
   if (N>=2) {
     for (int k=0; k<N; k++) {
       QPointF p = geom.transformedNodes[k];
@@ -270,7 +275,8 @@ bool SO_Layer::perhapsAddInpaint(QPoint pos, LayerGeomBase const &/*geom*/) {
   QPolygon pts = layer.points();
   QTransform const &ixf = base()->transformationToImage();
   QPointF p(ixf.map(pos));
-  pts << Geometry::mapFromAdjusted(p, osize, adj).toPoint();
+  pts.insert(layer.radii().size(),
+             Geometry::mapFromAdjusted(p, osize, adj).toPoint());
   QList<int> rdi = layer.radii();
   rdi << rdi[rdi.size()-1];
   layer.setPointsAndRadii(pts, rdi);
@@ -294,7 +300,8 @@ void SO_Layer::mouseDoubleClickEvent(QMouseEvent *e) {
       e->accept();
       return;
     }
-  } else if (layer.type()==Layer::Type::Inpaint) {
+  } else if (layer.type()==Layer::Type::Clone
+             || layer.type()==Layer::Type::Inpaint) {
     if (perhapsDeleteInpaint(e->pos(), geom)
         || perhapsAddInpaint(e->pos(), geom)) {
       e->accept();
@@ -328,7 +335,7 @@ bool SO_Layer::perhapsStartDragPoint(QPoint pos, LayerGeomBase const &geom,
     double norm = L2norm(pos - p);
     if (norm < nearestNorm)
       nearestNorm = norm;
-    pDebug() << "compare" << k << norm;
+    //pDebug() << "compare" << k << norm;
     if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = k;
       clickpos = pos;
@@ -343,9 +350,8 @@ bool SO_Layer::perhapsStartDragPoint(QPoint pos, LayerGeomBase const &geom,
 bool SO_Layer::perhapsStartDragCircleEdge(QPoint pos, LayerGeomBase const &geom,
                                           int N, Qt::KeyboardModifiers m,
                                           double &nearestNorm) {
-  int k0 = layer.type()==Layer::Type::Clone ? N : 0;
   for (int k=0; k<N; k++) {
-    QPointF center = geom.transformedNodes[k+k0];
+    QPointF center = geom.transformedNodes[k];
     double r = geom.transformedRadii[k];
     /* How to calculate distance between a point P and the nearest
        point Q on the rim of a circle centered at C with radius R?
@@ -372,11 +378,13 @@ bool SO_Layer::perhapsStartDragCircleEdge(QPoint pos, LayerGeomBase const &geom,
         clickscale = geom.radiusFactor;
       } else {
         // move
-        clickidx = k + ((m & Qt::ControlModifier) ? k0 : 2*k0);
-        // magic clickidx means to drag source along unless control held
-        origpt2 = geom.transformedNodes[k]; // source, only for Clone
+        clickidx = k;
+        if (layer.type()==Layer::Type::Clone && k==0) {
+          dragsourcealong = true;
+          origpt2 = geom.transformedNodes[N];
+        }
       }
-      clickpos = pos; // target center
+      lastpos = clickpos = pos; // target center
       origpos = center;
       layer = Layers(vsn, db).layer(lay); // in case something changed
       return true;
@@ -423,12 +431,11 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     e->ignore();
     return;
   }
-
+  dragsourcealong = false;
   LayerGeomBase geom(this);
-  int N = geom.transformedNodes.size();
-  if (layer.type()==Layer::Type::Clone)
-    N /= 2; // convert # of points to # of circles
-  pDebug() << "mousepress N=" << N;
+  int N = (layer.type()==Layer::Type::Clone)
+    ? geom.transformedRadii.size()
+    : geom.transformedNodes.size();
 
   double nearestNorm = 1e9;
 
@@ -439,11 +446,11 @@ void SO_Layer::mousePressEvent(QMouseEvent *e) {
     }
   }
 
-  if (perhapsStartDragPoint(e->pos(), geom, N, nearestNorm)) {
+  if (perhapsStartDragPoint(e->pos(), geom, geom.transformedNodes.size(),
+                            nearestNorm)) {
     e->accept();
     return;
   }
-
 
   if (layer.type()==Layer::Type::Clone || layer.type()==Layer::Type::Inpaint) {
     if (perhapsStartDragCircleEdge(e->pos(), geom, N, e->modifiers(),
@@ -492,23 +499,20 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
                                                       + e->pos() - clickpos),
                                               osize, adj);
     QPolygon poly = layer.points();
-    int effidx = clickidx;
-    bool dragalong = false; // pull source along?
-    if (effidx >= layer.points().size()) {
-      effidx -= layer.radii().size();
-      dragalong = true;
-    }
-    poly[effidx] = newpt.toPoint();
-    if (dragalong) {
-      QPointF newpt =  Geometry::mapFromAdjusted(ixf.map(origpt2
-                                                         + e->pos() - clickpos),
+    poly[clickidx] = newpt.toPoint();
+    //pDebug() << "dragging" << origpos << e->pos() << clickpos << newpt << poly;
+    if (dragsourcealong && !(e->modifiers() & Qt::ControlModifier)) {
+      QPointF npt2 = origpt2 + e->pos() - lastpos;
+      QPointF newpt =  Geometry::mapFromAdjusted(ixf.map(npt2),
                                                  osize, adj);
-      poly[effidx - layer.radii().size()] = newpt.toPoint();
+      poly[poly.size()-1] = newpt.toPoint();
+      origpt2 = npt2;
     }
+    lastpos = e->pos();
     layer.setPointsAndRadii(poly, layer.radii());
   }
   Layers(vsn, db).setLayer(lay, layer);
-  pDebug() << "SO_Layer: layermaskchanged";
+  //  pDebug() << "SO_Layer: layermaskchanged";
   emit layerMaskChanged(vsn, lay);
   update();
   e->accept();

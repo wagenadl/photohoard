@@ -91,8 +91,8 @@ void LiveAdjuster::reloadLayers(quint64 v, int lowest) {
 void LiveAdjuster::forceUpdate() {
   mustshowupdate = true;
   mustoffermod = true;
-  pDebug() << "LiveAdjuster::forceUpdate" << adjuster->isEmpty()
-	   << targetsize.isEmpty();
+  //  pDebug() << "LiveAdjuster::forceUpdate" << adjuster->isEmpty()
+  //	   << targetsize.isEmpty();
   if (adjuster->isEmpty()) {
     ofinder->requestScaledOriginal(version, targetsize);
   } else {
@@ -108,7 +108,7 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
     COMPLAIN("LiveAdjuster::reloadSliders: vsn mismatch");
     return;
   }
-  pDebug() << "LiveAdjuster::reloadSliders" << v << lay << sli;
+  //  pDebug() << "LiveAdjuster::reloadSliders" << v << lay << sli;
   if (lay==0) {
     if (sli==adjs.baseAdjustments())
       return;
@@ -124,27 +124,27 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
-  pDebug() << "LiveAdjuster::provideAdjusted" << img.size() << fs << averagePixel(img);
+  //  pDebug() << "LiveAdjuster::provideAdjusted" << img.size() << fs << averagePixel(img);
   if (v!=version) {
     COMPLAIN("LiveAdjuster: version mismatch");
     return;
   }
   if (mustoffermod) {
-    pDebug() << "LiveAdj: must offer mod";
+    //    pDebug() << "LiveAdj: must offer mod";
     mustoffermod = false;
     cache->cacheModified(version, img);
   } else {
-    pDebug() << "LiveAdj: not offering mod";
+    //    pDebug() << "LiveAdj: not offering mod";
   }
   if (mustshowupdate) {
     //    pDebug() << "LiveAdj: mustshowupdate";
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
-    pDebug() << "LiveAdj::available" << version
-	     << img.size() << averagePixel(img);
+    //    pDebug() << "LiveAdj::available" << version
+    //	     << img.size() << averagePixel(img);
     emit imageAvailable(img, version, fs);
   } else {
-    pDebug() << "LiveAdj: not showing update";
+    //    pDebug() << "LiveAdj: not showing update";
   }
 }
   

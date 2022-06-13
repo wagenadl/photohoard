@@ -16,7 +16,8 @@ public:
 
     Curve=3, // data is N points and one radius (blur)
     Area=4, // data is N points and one radius (blur)
-    Clone=5, // data is 2N points (N sources followed by N target) and N radii
+    Clone=5, // data is N+1 points (N targets followed by 1 source) and N radii
+    // first radius is used for blur as well as area size
     Inpaint=6 // data is N points and N radii
   };
   static QString typeName(Type);
