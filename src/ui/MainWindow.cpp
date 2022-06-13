@@ -6,6 +6,7 @@
 #include "FileBar.h"
 #include "FilterBar.h"
 #include "HelpBar.h"
+#include "DatabaseBar.h"
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "AutoCache.h"
@@ -90,9 +91,11 @@ MainWindow::MainWindow(SessionDB *db,
   // etc.
   addToolBarBreak(area);
   addToolBar(area, helpBar = new HelpBar(this));
+  addToolBar(area, databaseBar = new DatabaseBar(this));
 
   shortcutHelp->addSection("General", fileBar->actions());
   shortcutHelp->addSection("General", filterBar->actions());
+  //  shortcutHelp->addSection("General", databaseBar->actions());
   shortcutHelp->addSection("Layout", layoutBar->actions());
   if (!db->isReadOnly())
     shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
