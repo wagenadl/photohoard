@@ -50,13 +50,13 @@ bool AllAdjuster::isEmpty() const {
 }
 
 void AllAdjuster::setOriginal(Image16 const &image) {
-  pDebug() << "AllAdjuster::setOriginal" << image.size();
+  //  pDebug() << "AllAdjuster::setOriginal" << image.size();
   Adjuster::setOriginal(image);
   validInputUntil = 0;
 }
 
 void AllAdjuster::setReduced(Image16 const &image, PSize originalSize) {
-  pDebug() << "AllAdjuster::setReduced" << image.size() << originalSize;
+  //  pDebug() << "AllAdjuster::setReduced" << image.size() << originalSize;
   Adjuster::setReduced(image, originalSize);
   validInputUntil = 0;
 }
@@ -89,16 +89,16 @@ Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
       layerAdjuster(n)->setOriginal(img);
     validInputUntil = n;
   }
-  pDebug() << "AA::retrieveFull returning layered img sized " << img.size();
+  //  pDebug() << "AA::retrieveFull returning layered img sized " << img.size();
   lastrq = settings;
   return img;
 }
 
 Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				     PSize maxSize) {
-  pDebug() << "AllAdjuster::retrieveReduced" << maxSize;
-  pDebug() << "  Layercount" << settings.layerCount();
-  pDebug() <<  "  settings" << settings;
+  //  pDebug() << "AllAdjuster::retrieveReduced" << maxSize;
+  //  pDebug() << "  Layercount" << settings.layerCount();
+  //  pDebug() <<  "  settings" << settings;
   if (validInputUntil<0)
     return Image16(); // no image set at all
   int N = settings.layerCount();
@@ -156,12 +156,12 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     PSize sclcrpsize = img_below.size();
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
     Image16 bot = img_below; //.convertedTo(Image16::Format::sRGB8);
-    double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
+    // double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
     QPolygonF pts(layer.transformedPoints(osize, settings.baseAdjustments(),
                                           sclcrpsize));
-    QPointF delta = pts[0] - pts[1];
+    QPointF delta = pts[pts.size()-1] - pts[0];
     Image16 top = bot.translated(int(delta.x()), int(delta.y()));
-    qDebug() << "applyclone" << scl << delta;
+    //qDebug() << "applyclone" << scl << delta;
     return bot.alphablend(top, mask);
     // return PhotoOps::seamlessClone(bot, top, mask, pts[1].toPoint(), 1);
   };
@@ -270,9 +270,9 @@ void AllAdjuster::cancel() {
 
 void AllAdjuster::ensureAdjusters(int nLayers) {
   while (layerAdjusters_.size() < nLayers) {
-    pDebug() << "AllAdjuster: creating new Adjuster";
+    //pDebug() << "AllAdjuster: creating new Adjuster";
     Adjuster *adj = new Adjuster(this);
-    pDebug() << "AA: done" << adj << this << adj->parent();
+    //pDebug() << "AA: done" << adj << this << adj->parent();
     adj->enableCaching(isCaching());
     adj->preserveOriginal(preservesOriginal());
     adj->setMaxThreads(maxThreads());

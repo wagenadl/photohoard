@@ -135,6 +135,9 @@
       </item>
       <item>
        <widget class="QToolButton" name="addHeal">
+        <property name="toolTip">
+         <string>Add new healing layer</string>
+        </property>
         <property name="text">
          <string>...</string>
         </property>

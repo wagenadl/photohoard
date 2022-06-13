@@ -28,7 +28,7 @@ QString Layer::typeName(Layer::Type t) {
   case Type::Clone:
     return "Clone";
   case Type::Inpaint:
-    return "In-paint";
+    return "Heal";
   }
   return "Invalid"; // not reached
 }
@@ -85,7 +85,7 @@ void Layer::setData(QByteArray const &d) {
 
 QList<int> Layer::radii() const {
   char const *raw = dat.data();
-  quint16 const *pts = reinterpret_cast<quint16 const *>(raw);
+  qint16 const *pts = reinterpret_cast<qint16 const *>(raw);
   int Nint = dat.size() / 2;
   int N0 = points().size() * 2;
 
@@ -97,7 +97,7 @@ QList<int> Layer::radii() const {
 
 QPolygon Layer::points() const {
   char const *raw = dat.data();
-  quint16 const *pts = reinterpret_cast<quint16 const *>(raw);
+  qint16 const *pts = reinterpret_cast<qint16 const *>(raw);
   int Nint = dat.size() / 2;
   int N = 0; // number of points
   switch (typ) {
@@ -123,7 +123,7 @@ void Layer::setPointsAndRadii(QPolygon const &p, QList<int> const &rr) {
   int M = rr.size();
   dat.resize(4*N + 2*M);
   char *raw = dat.data();
-  quint16 *pts = reinterpret_cast<quint16 *>(raw);
+  qint16 *pts = reinterpret_cast<qint16 *>(raw);
   for (int n=0; n<N; n++) {
     QPoint p0 = p[n];
     *pts++ = p0.x();
@@ -207,9 +207,8 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
       ptr.setBrush(QBrush(QColor(255,255,255)));
-      int k0 = typ==Type::Clone ? radi.size() : 0;
       for (int k=0; k<radi.size(); k++) 
-          ptr.drawEllipse(pts[k + k0], radi[k], radi[k]);
+        ptr.drawEllipse(pts[k], radi[k], radi[k]);
     }
     if (typ==Type::Clone)
       PhotoOps::blur(msk, radi[0]/10);

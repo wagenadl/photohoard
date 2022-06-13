@@ -49,11 +49,13 @@ private:
   QPoint clickpos; // widget coord of click
   QPointF origpt2; // widget coords of some other relevant point before move
   QPointF origpos; // widget coords of point before move
+  QPoint lastpos; // widget coord of last mouseevent, only when dragsourcealong
   double clickscale; // multiplier for 
   friend class LayerGeomBase;
   Layer layer;
   QSize osize;
   Adjustments adj;
+  bool dragsourcealong;
 };
 
 #endif
