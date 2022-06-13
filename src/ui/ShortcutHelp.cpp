@@ -59,7 +59,7 @@ void SHPrivate::rebuild() {
   html += "<body>";
 
   html += "<h2>Photohoard " + Version::toString() + "</h2>\n";
-  html += "<p>(C) Daniel Wagenaar 2016–2018\n";
+  html += "<p>(C) Daniel Wagenaar 2016–2022\n";
 
   html += "<h2>Keyboard shortcuts</h2>\n";
 
@@ -99,7 +99,7 @@ void SHPrivate::rebuild() {
   int col = 0;
   for (int n=0; n<N; n++) {
     if (n==0 || sectionNames[n]!=sectionNames[n-1])
-      html += "<tr><td colspan=\"2\"><b>" + sectionNames[n] + "</b></td></tr>";
+      html += "<tr></tr><tr><td colspan=\"2\"><b>" + sectionNames[n] + "</b></td></tr>";
     html += sectionCores[n];
     if (cumsum[n]>cs*(col+1)/3) {
       col++;

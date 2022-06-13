@@ -22,6 +22,7 @@ HEADERS += \
      ui/AppliedTagList.h  \
      ui/LightTable.h  \
      ui/MainWindow.h  \
+     ui/DatabaseBar.h  \
      ui/ProgressWidget.h  \
      ui/ControlSliders.h  \
      ui/BuildDate.h  \
@@ -74,6 +75,7 @@ SOURCES += \
      ui/StatusBar.cpp  \
      ui/ShortcutHelp.cpp  \
      ui/BuildDate.cpp  \
+     ui/DatabaseBar.cpp  \
      ui/SO_Layer.cpp  \
      ui/Strip.cpp  \
      ui/ColorLabelBar.cpp  \

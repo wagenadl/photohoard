@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>databaseDialog</class>
+ <widget class="QDialog" name="databaseDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>618</width>
+    <height>592</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Database information</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Current database:</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QWidget" name="widget_2" native="true">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Database:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="txtdbname">
+           <property name="text">
+            <string>default.db</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="dbsize">
+           <property name="text">
+            <string>24 MB</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="brename">
+           <property name="text">
+            <string>Rename...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Location:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="txtlocation">
+           <property name="text">
+            <string>/home/wagenaar/.local/share/photohoard</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="bmovedb">
+           <property name="text">
+            <string>Move...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="txtsession">
+           <property name="text">
+            <string>/home/wagenaar/.cache/photohoard/default-session.db</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QPushButton" name="bmovesession">
+           <property name="text">
+            <string>Move...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Cache:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="txtcache">
+           <property name="text">
+            <string>/home/wagenaar/.cache/photohoard/default-cache</string>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="cachesize">
+           <property name="text">
+            <string>3.4 GB</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
+          <widget class="QPushButton" name="bmovecache">
+           <property name="text">
+            <string>Move...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Session:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget_3" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="txtcount">
+           <property name="text">
+            <string>Database contains %1 photos in %2 locations.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>Details...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Other recent databases:</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>6</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QListWidget" name="listrecent">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="bcreate">
+        <property name="text">
+         <string>Create new...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bopen">
+        <property name="text">
+         <string>Open other...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bclose">
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>bmovedb</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>moveDB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>526</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>212</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bmovesession</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>moveSession()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>548</x>
+     <y>123</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>513</x>
+     <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bmovecache</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>moveCache()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>516</x>
+     <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>brename</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>renameDB()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>547</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>513</x>
+     <y>49</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bcreate</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>createNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>799</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>71</x>
+     <y>419</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bopen</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>openOther()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>156</x>
+     <y>805</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bclose</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>548</x>
+     <y>802</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>405</x>
+     <y>422</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listrecent</sender>
+   <signal>activated(QModelIndex)</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>openRecent(QModelIndex)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>285</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>464</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>showRoots()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>580</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>610</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>renameDB()</slot>
+  <slot>moveDB()</slot>
+  <slot>moveSession()</slot>
+  <slot>moveCache()</slot>
+  <slot>createNew()</slot>
+  <slot>openOther()</slot>
+  <slot>openRecent(QModelIndex)</slot>
+  <slot>showRoots()</slot>
+ </slots>
+</ui>
