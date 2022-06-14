@@ -102,6 +102,9 @@ private:
   void reportFolderProgress();
   void reportPhotoProgress();
   void reportScanDone();
+  QSet<QString> excludedTrees();
+  quint64 findDirOrAdd(QString path, bool secondary=false);
+  
 private:
   SessionDB *db0; // this is the original of the caller
   SessionDB db; // this is our copy in the thread

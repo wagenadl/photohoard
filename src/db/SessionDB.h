@@ -15,6 +15,7 @@ public:
   SessionDB();
   virtual ~SessionDB();
   QString photoDBFilename() const;
+  QString sessionFilename() const;
   QString cacheDirname() const;
   virtual void open(QString photodbfn, bool forcereadonly);
   virtual void clone(SessionDB const &);
@@ -23,6 +24,8 @@ public:
   quint64 current() const;
 private:
   void upgradeDBVersion();
+private:
+  QString sessiondbfn;
 };
 
 #endif

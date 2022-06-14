@@ -91,7 +91,7 @@ MainWindow::MainWindow(SessionDB *db,
   // etc.
   addToolBarBreak(area);
   addToolBar(area, helpBar = new HelpBar(this));
-  addToolBar(area, databaseBar = new DatabaseBar(this));
+  addToolBar(area, databaseBar = new DatabaseBar(db, this));
 
   shortcutHelp->addSection("General", fileBar->actions());
   shortcutHelp->addSection("General", filterBar->actions());

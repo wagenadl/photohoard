@@ -79,6 +79,7 @@ public: // exploration functions
   QString folder(quint64 folderid) const; // returns full pathname
   quint64 root(quint64 folderid) const; // returns id of root folder
   quint64 findFolder(QString) const; // 0 if not found
+  int countPhotos() const;
   int countInDateRange(QDateTime t0, QDateTime t1) const; // t1 is exclusive
   QList<quint64> versionsInDateRange(QDateTime t0, QDateTime t1) const;
   QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
