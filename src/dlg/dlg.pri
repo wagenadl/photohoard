@@ -8,15 +8,18 @@ HEADERS += \
      dlg/TagDialog.h  \
      dlg/ImportSelectorDialog.h  \
      dlg/AddRootDialog.h  \
+     dlg/DatabaseDialog.h  \
      dlg/ImportOtherUserDialog.h  \
      dlg/PurgeDialog.h  \
      dlg/FilterDialog.h  \
      dlg/Dialog.h  \
      dlg/ErrorDialog.h  \
+     dlg/RootsList.h  \
      dlg/ImportLocalDialog.h  \
      dlg/ImportExternalDialog.h  \
 
 SOURCES += \
+     dlg/DatabaseDialog.cpp  \
      dlg/RestoreDialog.cpp  \
      dlg/LayerDialog.cpp  \
      dlg/ImportExternalDialog.cpp  \
@@ -29,6 +32,7 @@ SOURCES += \
      dlg/ImportLocalDialog.cpp  \
      dlg/FilterDialog.cpp  \
      dlg/MultiDragDialog.cpp  \
+     dlg/RootsList.cpp  \
      dlg/PurgeDialog.cpp  \
      dlg/ErrorDialog.cpp  \
 
@@ -38,7 +42,9 @@ FORMS += \
      dlg/PurgeDialog.ui  \
      dlg/AddRootDialog.ui  \
      dlg/ImportExternalDialog.ui  \
+     dlg/DatabaseDialog.ui  \
      dlg/ImportLocalDialog.ui  \
+     dlg/RootsList.ui  \
      dlg/MultiDragDialog.ui  \
      dlg/LayerDialog.ui  \
      dlg/ExportDialog.ui  \
@@ -46,5 +52,6 @@ FORMS += \
      dlg/ImportOtherUserDialog.ui  \
      dlg/FilterDialog.ui  \
      dlg/CropDialog.ui  \
+     dlg/CreateDatabaseDialog.ui  \
      dlg/ImportSelectorDialog.ui  \
 

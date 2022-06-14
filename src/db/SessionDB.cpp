@@ -55,12 +55,17 @@ SessionDB::SessionDB() {
 SessionDB::~SessionDB() {
 }
 
+QString SessionDB::sessionFilename() const {
+  return sessiondbfn;
+}
+
 void SessionDB::open(QString photodbfn, bool forcereadonly) {
   photodbfn = QFileInfo(photodbfn).canonicalFilePath();
+  sessiondbfn = FileLocations::sessionFileForDB(photodbfn);
   
   if (!sessionExists(photodbfn))
     CRASH("Cannot open nonexistent session");
-  Database::open(FileLocations::sessionFileForDB(photodbfn));
+  Database::open(sessiondbfn);
 
   {
     QSqlQuery q = query("select id, version from sinfo limit 1");

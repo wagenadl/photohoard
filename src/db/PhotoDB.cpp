@@ -317,6 +317,10 @@ quint64 PhotoDB::root(quint64 folderid) const {
   }
 }
 
+int PhotoDB::countPhotos() const {
+  return simpleQuery("select count(*) from photos").toInt();
+}
+
 int PhotoDB::countInFolder(QString folder) const {
   quint64 id = findFolder(folder);
   if (id)

@@ -8,10 +8,11 @@
 
 class DatabaseBar: public ActionBar {
 public:
-  DatabaseBar(class MainWindow *parent);
+  DatabaseBar(class SessionDB *sdb, class MainWindow *parent);
 private:
-  void showDatabaseMenu(MainWindow *);
+  void showDatabaseMenu();
   PAction *showdb_action;
+  class DatabaseDialog *dlg;
 };
 
 #endif

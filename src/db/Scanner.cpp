@@ -24,6 +24,26 @@ Scanner::~Scanner() {
   db.close();
 }
 
+quint64 Scanner::findDirOrAdd(QString path, bool secondary) {
+  quint64 id = db0->findFolder(path);
+  if (id)
+    return id;
+  if (secondary && excludedTrees().contains(path))
+    return 0;
+  QDir parent(path);
+  parent.cdUp();
+  QString parentpath = parent.path();
+  quint64 parentid = (parentpath==path) ? 0 : findDirOrAdd(parentpath, true);
+  bool primary = !secondary;
+  if (primary || parentid) {
+    QDir dir(path);
+    Transaction t(db0);
+    id = addFolder(db0, parentid, path, parent.relativeFilePath(path));
+    t.commit();
+  }
+  return id;
+}
+
 void Scanner::addTree(QString path, QString defaultCollection,
                       QStringList excluded) {
   // This is called from outside of thread!
@@ -32,23 +52,15 @@ void Scanner::addTree(QString path, QString defaultCollection,
   
   if (!db0->findFolder(path)) {
     // We don't have the folder yet
-    QDir parent(path);
-    parent.cdUp();
-    QString leaf = parent.relativeFilePath(path);
-    QString parentPath = parent.path();
-    Transaction t(db0);
-    quint64 parentid = db0->defaultQuery("select id from folders"
-                                         " where pathname==:a", parentPath, 0)
-      .toULongLong();
-    // parentid is nonzero if we do have the parent
-    quint64 id = addFolder(db0, parentid, path, leaf);
+    quint64 id = findDirOrAdd(path);
     if (!defaultCollection.isEmpty()) {
+      Transaction tra(&db);
       Tags tags(db0);
       int t = tags.ensureCollection(defaultCollection);
-      db0->query("insert into defaulttags(folder, tag) values(:a,:b)",
-                 id, t);
+      db0->query("delete from defaulttags where folder==:a", id);
+      db0->query("insert into defaulttags(folder, tag) values(:a,:b)", id, t);
+      tra.commit();
     }
-    t.commit();
   }
 
   rescan(path);
@@ -118,14 +130,6 @@ quint64 Scanner::addFolder(PhotoDB *db,
     .lastInsertId().toULongLong();
 
   if (parentid) {
-    // update the foldertree
-    db->query("insert into foldertree(descendant, ancestor) "
-              " values (:a, :b)", id, parentid);
-    db->query("insert into foldertree(descendant, ancestor) "
-              " select :a, ancestor "
-              " from foldertree where descendant==:b",
-              id, parentid);
-
     // copy the defaulttags from parent
     db->query("insert into defaulttags(tag, folder) "
               " select tag, :a from defaulttags where folder==:b",
@@ -249,16 +253,19 @@ QSet<quint64> Scanner::findFoldersToScan() {
   return ids;
 }
 
+QSet<QString> Scanner::excludedTrees() {
+  QSet<QString> trees;
+  QSqlQuery q = db.query("select pathname from excludedtrees");
+  while (q.next())
+    trees.insert(q.value(0).toString());
+  return trees;
+}
+
 void Scanner::scanFolders(QSet<quint64> ids) {
   int N0 = N;
   int M0 = M;
   int m0 = m;
-  QSet<QString> excludedtrees;
-  // Collect exclusions
-  { QSqlQuery q = db.query("select pathname from excludedtrees");
-    while (q.next())
-      excludedtrees.insert(q.value(0).toString());
-  }
+  QSet<QString> excludedtrees = excludedTrees();
 
   for (auto id: ids) {
     scanFolder(id, excludedtrees);
