@@ -2,7 +2,8 @@ pragma foreign_keys = on;
 
 create table sinfo (
        id text,
-       version text );
+       version text,
+       runningpid integer);
 
 create table paths (
        photodb text,
@@ -36,6 +37,6 @@ create table expandedfolders (
        path string,
        unique(path) on conflict ignore);
        
-insert into sinfo values("PhotohoardSessionDB", "1.1");
+insert into sinfo values("PhotohoardSessionDB", "1.3");
 
 insert into currentvsn values(null);

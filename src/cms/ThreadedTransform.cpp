@@ -20,9 +20,13 @@ ThreadedTransform::ThreadedTransform(QObject *parent): QThread(parent) {
 ThreadedTransform::~ThreadedTransform() {
   if (isRunning()) {
     stopsoon = true;
-    cancel(0);
-    COMPLAIN("ThreadedTransform: Destructed while running. Waiting.");
-    wait(5000);
+    waiter.wakeOne();
+    if (!wait(1000)) {
+      COMPLAIN("ThreadedTransform: Failed to stop thread; terminating.");
+      terminate();
+      if (!wait(1000))
+        CRASH("ThreadedTransform: Still failed to stop thread");
+    }
   }
 }
 

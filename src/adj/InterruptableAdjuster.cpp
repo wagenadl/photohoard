@@ -80,6 +80,7 @@ void InterruptableAdjuster::start() {
 
 void InterruptableAdjuster::stop() {
   stopsoon = true;
+  waitcond.wakeOne();
 }
 
 PSize InterruptableAdjuster::maxAvailableSize(Adjustments const &s,
