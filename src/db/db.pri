@@ -25,7 +25,9 @@ HEADERS += \
      db/Settings.h  \
      db/Undo.h  \
      db/AutoCache.h  \
+     db/RunControl.h  \
      db/Layers.h  \
+     db/Session.h  \
      db/Scanner.h  \
      db/SessionDB.h  \
      db/DragOut.h  \
@@ -49,6 +51,7 @@ SOURCES += \
      db/Selection.cpp  \
      db/ExportSettings.cpp  \
      db/AC_Worker.cpp  \
+     db/RunControl.cpp  \
      db/InterruptableRawReader.cpp  \
      db/DragOut.cpp  \
      db/ImportJob.cpp  \
@@ -61,6 +64,7 @@ SOURCES += \
      db/MetaInfo.cpp  \
      db/BasicCache.cpp  \
      db/InterruptableFileReader.cpp  \
+     db/Session.cpp  \
      db/AutoCache.cpp  \
      db/ExifReport.cpp  \
      db/Scanner.cpp  \

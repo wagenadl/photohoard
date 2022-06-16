@@ -27,15 +27,6 @@ create table folders (
                on delete cascade
                on update cascade );
 
-create table foldertree (
-       ancestor integer,
-       descendant integer,
-       foreign key(ancestor) references folders(id)
-               on delete cascade on update cascade,
-       foreign key(descendant) references folders(id)
-               on delete cascade on update cascade 
-       unique(ancestor, descendant) on conflict ignore );
-
 create table excludedtrees (
        pathname text unique
                 on conflict ignore );

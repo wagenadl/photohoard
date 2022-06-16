@@ -1,31 +1,19 @@
 // main.cpp
 
 #include "Settings.h"
-#include "BasicCache.h"
 #include "ScreenResolution.h"
 #include <QTime>
 #include "PDebug.h"
 #include "Application.h"
 #include <QLabel>
 #include "NikonLenses.h"
-#include "Exif.h"
-#include "Scanner.h"
-#include "PhotoDB.h"
-#include "PurgeCache.h"
-#include "Exporter.h"
-#include "AutoCache.h"
-#include "MainWindow.h"
-#include "ExifReport.h"
-#include <sqlite3.h>
 #include <QDesktopWidget>
 #include "CMS.h"
 #include "CMSTransform.h"
 #include "CMS.h"
-#include "SessionDB.h"
-#include "ErrorDialog.h"
 #include <thread>
 #include <iostream>
-#include "FileLocations.h"
+#include "Session.h"
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
@@ -42,12 +30,10 @@ void usage() {
 
 int main(int argc, char **argv) {
   Settings settings;
-  QString dbfn = settings.get("currentdb", FileLocations::defaultDBFile())
-    .toString();
+  QString dbfn;
   QString icc;
   bool newdb = false;
   bool readonly = false;
-  bool customdb = false;
   
   QStringList args;
   for (int i=1; i<argc; i++)
@@ -57,7 +43,6 @@ int main(int argc, char **argv) {
     if (kwd=="-db") {
       Q_ASSERT(!args.isEmpty());
       dbfn = args.takeFirst();
-      customdb = true;
     } else if (kwd=="-icc") {
       Q_ASSERT(!args.isEmpty());
       icc = args.takeFirst();
@@ -71,12 +56,7 @@ int main(int argc, char **argv) {
   }
 
   Application app(argc, argv);
-  //pDebug() << "Application constructed";
-  //  ScreenResolution sr(app);
-  //std::thread sr_thread([&sr]() { sr.dpi(); });
-  ///* Experimentally, calculating the screen reso in a separate thread
-  //   saves 50 ms startup time on hirudo. */
-
+  app.setFont(ScreenResolution::defaultFont());
   
   CMSProfile rgb(CMSProfile::srgbProfile());
   if (icc=="")
@@ -86,85 +66,9 @@ int main(int argc, char **argv) {
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
 
-  if (newdb) {
-    bool olddb = QFile(dbfn).exists();
-    if (olddb) {
-      ErrorDialog::fatal("A database already exists at " + dbfn
-                         + ". Cannot create a new one.");
-      return 2;
-    }
-    pDebug() << "Creating database at " << dbfn;
-    PhotoDB::create(dbfn);
-  }
-
-  
-  if (!SessionDB::sessionExists(dbfn)) {
-    pDebug() << "Creating session";
-    SessionDB::createSession(dbfn, FileLocations::cacheDirForDB(dbfn));
-  }
-
-  if (!QFile(dbfn).exists()) {
-    if (customdb) {
-      ErrorDialog::fatal("No database found at " + dbfn
-                     + ". You may create a new one using “photohoard -new”.");
-      return 2;
-    } else {
-      pDebug() << "Creating database at " << dbfn;
-      PhotoDB::create(dbfn);
-    }
-  }
-
-  SessionDB sdb;
-  //  db.enableDebug();
-  sdb.open(dbfn, readonly);
-
-  QString cachefn = sdb.cacheDirname();
-    
-  if (!QDir(cachefn).exists()) {
-    pDebug() << "Creating cache at " << cachefn;
-    BasicCache::create(cachefn);
-  }
-
-  AutoCache *ac = new AutoCache(&sdb, cachefn);
-
-  Scanner *scan = 0;
-  if (!sdb.isReadOnly()) {
-    scan = new Scanner(&sdb);
-    QObject::connect(scan, SIGNAL(updated(QSet<quint64>)),
-		     ac, SLOT(recache(QSet<quint64>)));
-    QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
-		     ac, SLOT(cachePreview(quint64, Image16)));
-  }
-
-  Exporter *expo = new Exporter(&sdb, 0);
-  expo->start();
-
-  if (scan)
-    scan->start(); // doing this here ensures that the mainwindow can open 1st
-
-  app.setFont(ScreenResolution::defaultFont());
-  
-  // START APPLICATION
-  MainWindow *mw = new MainWindow(&sdb, scan, ac, expo);
-  mw->show();
-  mw->scrollToCurrent();
-
-  int res = app.exec();
-
-  // END APPLICATION
-
-  if (scan) {
-    scan->stopAndWait(1000);
-    delete scan;
-  }
-  delete ac;
-  expo->stop();
-  delete expo;
-
-  PurgeCache::purge(sdb, cachefn);
-    
-  sdb.close();
-
-  //  sr_thread.join();
+  Session *session = new Session(dbfn, newdb, readonly);
+  int res = 2;
+  if (session->isActive())
+    res = app.exec();
   return res;
 }

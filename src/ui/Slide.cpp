@@ -27,8 +27,7 @@ Slide::~Slide() {
   StripScene *fs = dynamic_cast<StripScene *>(scene());
   if (fs)
     fs->dropSlideFor(id);
-  else
-    CRASH("Slide not in a scene");
+  // this may not be true if scene is being destroyed
 }
 
 void Slide::updateImage(Image16 const &img1, bool chgd) {

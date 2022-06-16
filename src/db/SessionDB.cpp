@@ -68,9 +68,9 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   Database::open(sessiondbfn);
 
   {
-    QSqlQuery q = query("select id, version from sinfo limit 1");
-    ASSERT(q.next());
-    if (q.value(0).toString() != "PhotohoardSessionDB")
+    QSqlQuery q = query("select version from sinfo where id==:a",
+                        "PhotohoardSessionDB");
+    if (!q.next())
       CRASH("Cannot open session for “" + photodbfn + "”.");
   }
   
@@ -149,4 +149,23 @@ void SessionDB::upgradeDBVersion() {
     query("alter table layers add column name text");
     query("update info set version = '1.2' where id=='PhotoDB'");
   }
+
+  QString sdbvsn = simpleQuery("select version from sinfo where id==:a",
+                               "PhotohoardSessionDB").toString();
+  if (sdbvsn < "1.3") {
+    query("alter table sinfo add column runningpid integer");
+    query("update sinfo set version = '1.3' where id==:a",
+          "PhotohoardSessionDB");
+  }
 }
+
+void SessionDB::storePid(quint64 pid) {
+  query("update sinfo set runningpid=:a where id==:b",
+        pid, "PhotohoardSessionDB");
+}
+
+quint64 SessionDB::retrievePid() const {
+  return simpleQuery("select runningpid from sinfo where id==:a",
+                     "PhotohoardSessionDB").toULongLong();
+}
+  

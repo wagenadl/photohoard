@@ -19,6 +19,8 @@ public:
   QString cacheDirname() const;
   virtual void open(QString photodbfn, bool forcereadonly);
   virtual void clone(SessionDB const &);
+  quint64 retrievePid() const;
+  void storePid(quint64);
 public:
   void setCurrent(quint64);
   quint64 current() const;

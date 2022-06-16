@@ -238,7 +238,6 @@ void MainWindow::closeEvent(QCloseEvent *) {
   Settings s;
   s.set("mwgeom", saveGeometry());
   s.set("mwstate", saveState());
-  QApplication::quit();
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e) {
