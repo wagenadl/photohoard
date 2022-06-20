@@ -37,6 +37,15 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>untitled</string>
+        </property>
        </widget>
       </item>
      </layout>
@@ -59,11 +68,57 @@
       </property>
       <item>
        <widget class="QLineEdit" name="dblocation">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>100</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>119</red>
+              <green>118</green>
+              <blue>123</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>119</red>
+              <green>118</green>
+              <blue>123</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>190</red>
+              <green>190</green>
+              <blue>190</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>HOME/photohoard</string>
         </property>
        </widget>
       </item>
@@ -105,6 +160,15 @@
           <horstretch>100</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>HOME/cache</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -152,13 +216,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
-       <widget class="QPushButton" name="bReset">
-        <property name="text">
-         <string>Reset</string>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QPushButton" name="bCancel">
         <property name="text">
@@ -254,22 +311,6 @@
     <hint type="destinationlabel">
      <x>285</x>
      <y>293</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>bReset</sender>
-   <signal>clicked()</signal>
-   <receiver>createDatabaseDialog</receiver>
-   <slot>reset()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>39</x>
-     <y>340</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>47</x>
-     <y>286</y>
     </hint>
    </hints>
   </connection>

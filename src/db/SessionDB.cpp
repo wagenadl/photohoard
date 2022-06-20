@@ -36,6 +36,7 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
     t.commit();
   }
   sdb.close();
+  qDebug() << "created session" << photodbfn << sessionfn << cachedir;
 }
 
 QString SessionDB::photoDBFilename() const {
@@ -46,7 +47,8 @@ QString SessionDB::photoDBFilename() const {
 
 QString SessionDB::cacheDirname() const {
   QString fn = simpleQuery("select cachedir from paths").toString();
-  return QFileInfo(fn).canonicalFilePath();
+  qDebug() << "session cache" << fn;
+  return fn; // canonicalizing would fail if not exist
 }
 
 SessionDB::SessionDB() {
