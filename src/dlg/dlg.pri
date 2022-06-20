@@ -7,6 +7,7 @@ HEADERS += \
      dlg/RestoreDialog.h  \
      dlg/TagDialog.h  \
      dlg/ImportSelectorDialog.h  \
+     dlg/CreateDatabaseDialog.h  \
      dlg/AddRootDialog.h  \
      dlg/DatabaseDialog.h  \
      dlg/ImportOtherUserDialog.h  \
@@ -21,6 +22,7 @@ HEADERS += \
 SOURCES += \
      dlg/DatabaseDialog.cpp  \
      dlg/RestoreDialog.cpp  \
+     dlg/CreateDatabaseDialog.cpp  \
      dlg/LayerDialog.cpp  \
      dlg/ImportExternalDialog.cpp  \
      dlg/TagDialog.cpp  \

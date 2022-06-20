@@ -15,6 +15,10 @@
 #include "MainWindow.h"
 #include "BasicCache.h"
 
+QStringList Session::recentDatabases() {
+  return Settings().get("recentdbs", QStringList()).toStringList();
+}
+
 Session::Session(QString dbfn0, bool create, bool readonly):
   dbfn(dbfn0), readonly(readonly) {
   pDebug() << "Session" << dbfn;
@@ -48,6 +52,11 @@ Session::Session(QString dbfn0, bool create, bool readonly):
     return;
   }
 
+  if (!SessionDB::sessionExists(dbfn)) {
+    pDebug() << "Creating session for " << dbfn;
+    SessionDB::createSession(dbfn, FileLocations::cacheDirForDB(dbfn));
+  }
+  
   sdb = new SessionDB();
   //  db.enableDebug();
   sdb->open(dbfn, readonly);
@@ -70,7 +79,7 @@ Session::Session(QString dbfn0, bool create, bool readonly):
   }
 
   QString cachefn = sdb->cacheDirname();
-    
+  qDebug() << "cachedir" << sdb->cacheDirname();
   if (!QDir(cachefn).exists()) {
     pDebug() << "Creating cache at " << cachefn;
     BasicCache::create(cachefn);
@@ -96,6 +105,19 @@ Session::Session(QString dbfn0, bool create, bool readonly):
   active = true;
   mw->show();
   mw->scrollToCurrent();
+
+  QStringList recent = recentDatabases();
+  int idx = recent.indexOf(dbfn);
+  if (idx!=0) {
+    if (idx>0) 
+      recent.removeAt(idx);
+    recent.prepend(dbfn);
+    while (recent.size() > 20)
+      recent.removeLast();
+    Settings().set("recentdbs", recent);
+  } else {
+    // already at head of list, nothing to do
+  }
 }
 
 void Session::quit() {

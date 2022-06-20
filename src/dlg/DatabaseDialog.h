@@ -27,6 +27,8 @@ public slots:
   void openOther();
   void openRecent(QModelIndex);
   void showRoots();
+  void splitDatabase();
+  void incorporateDatabase();
 private:
   class Ui_databaseDialog *ui;
   class SessionDB *sdb;

@@ -38,6 +38,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="txtdbname">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>default.db</string>
            </property>
@@ -69,6 +72,9 @@
          </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="txtlocation">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>home/photohoard</string>
            </property>
@@ -91,6 +97,9 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
             <string>home/cache/photohoard/default-session</string>
@@ -116,6 +125,9 @@
          </item>
          <item row="3" column="1">
           <widget class="QLineEdit" name="txtcache">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
            <property name="text">
             <string>home/cache/photohoard/default-cache</string>
            </property>
@@ -173,8 +185,14 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton">
+           <property name="toolTip">
+            <string>Show details of locations included in this database</string>
+           </property>
+           <property name="shortcut">
+             <string>Ctrl+D</string>
+           </property>
            <property name="text">
-            <string>Details...</string>
+            <string>𝗗etails...</string>
            </property>
           </widget>
          </item>
@@ -233,15 +251,56 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QPushButton" name="bcreate">
-        <property name="text">
-         <string>Create new...</string>
+        <property name="toolTip">
+         <string>Create a new database for a new collection</string>
         </property>
+        <property name="text">
+         <string>Create 𝗡ew...</string>
+        </property>
+           <property name="shortcut">
+             <string>Ctrl+N</string>
+           </property>
+        
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="bopen">
+        <property name="toolTip">
+         <string>Open another existing database</string>
+        </property>
         <property name="text">
-         <string>Open other...</string>
+         <string>Open 𝗢ther...</string>
+        </property>
+           <property name="shortcut">
+             <string>Ctrl+O</string>
+           </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bsplit">
+        <property name="toolTip">
+         <string>Split off one collection from this database to a new database</string>
+        </property>
+        <property name="text">
+         <string>𝗦plit...</string>
+        </property>
+           <property name="shortcut">
+             <string>Ctrl+S</string>
+           </property>
+        
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bincorporate">
+        <property name="toolTip">
+         <string>Incorporate all photos from another database into this database</string>
+        </property>
+                   <property name="shortcut">
+             <string>Ctrl+I</string>
+           </property>
+
+        <property name="text">
+         <string>𝗜ncorporate...</string>
         </property>
        </widget>
       </item>
@@ -343,8 +402,8 @@
    <slot>createNew()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>799</y>
+     <x>82</x>
+     <y>573</y>
     </hint>
     <hint type="destinationlabel">
      <x>71</x>
@@ -359,8 +418,8 @@
    <slot>openOther()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
-     <y>805</y>
+     <x>197</x>
+     <y>573</y>
     </hint>
     <hint type="destinationlabel">
      <x>221</x>
@@ -375,8 +434,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>548</x>
-     <y>802</y>
+     <x>617</x>
+     <y>573</y>
     </hint>
     <hint type="destinationlabel">
      <x>405</x>
@@ -416,6 +475,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>bsplit</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>splitDatabase()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>232</x>
+     <y>567</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>503</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bincorporate</sender>
+   <signal>clicked()</signal>
+   <receiver>databaseDialog</receiver>
+   <slot>incorporateDatabase()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>561</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>448</x>
+     <y>531</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>renameDB()</slot>
@@ -426,5 +517,7 @@
   <slot>openOther()</slot>
   <slot>openRecent(QModelIndex)</slot>
   <slot>showRoots()</slot>
+  <slot>splitDatabase()</slot>
+  <slot>incorporateDatabase()</slot>
  </slots>
 </ui>

@@ -83,6 +83,7 @@ void BasicCache::readConfig() {
 }
   
 void BasicCache::create(QString rootdir) {
+  qDebug() << "creating cache" << rootdir;
   QDir root(rootdir);
   
   ASSERT(!root.exists());

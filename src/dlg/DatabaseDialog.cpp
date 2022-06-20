@@ -7,6 +7,10 @@
 #include <QDirIterator>
 #include <QDebug>
 #include "RootsList.h"
+#include "Session.h"
+#include "CreateDatabaseDialog.h"
+#include <QFileDialog>
+#include "FileLocations.h"
 
 DatabaseDialog::DatabaseDialog(SessionDB *sdb, QWidget *parent):
   QDialog(parent), sdb(sdb) {
@@ -22,11 +26,11 @@ DatabaseDialog::~DatabaseDialog() {
 }
 
 quint64 DatabaseDialog::dirSize(QString root) {
-  qDebug() << "dirsize" << root;
   quint64 size = 0;
   for (QDirIterator it(root, QDir::Files); it.hasNext(); )
     size += QFileInfo(it.next()).size();
-  for (QDirIterator it(root, QDir::Dirs | QDir::NoDotAndDotDot); it.hasNext(); )
+  for (QDirIterator it(root, QDir::Dirs | QDir::NoDotAndDotDot);
+       it.hasNext(); )
     size += dirSize(it.next());
   return size;
 }
@@ -61,7 +65,8 @@ QString DatabaseDialog::niceSize(quint64 bytesize) {
 }
 
 void DatabaseDialog::setup() {
-  QFileInfo dbinfo = sdb->photoDBFilename();
+  QString dbfn = sdb->photoDBFilename();
+  QFileInfo dbinfo(dbfn);
   ui->txtdbname->setText(dbinfo.fileName());
   ui->txtlocation->setText(dbinfo.canonicalPath());
   ui->txtsession->setText(sdb->sessionFilename());
@@ -72,6 +77,15 @@ void DatabaseDialog::setup() {
                         .arg(niceCount(sdb->countPhotos()))
                         .arg(niceCount(sdb->rootFolders().size())));
   resize(sizeHint());
+
+  QStringList recent = Session::recentDatabases();
+  int idx = recent.indexOf(dbfn);
+  if (idx>=0)
+    recent.removeAt(idx);
+  if (recent.isEmpty())
+    recent.append("(none)");
+  ui->listrecent->clear();
+  ui->listrecent->addItems(recent);
 }
 
 void DatabaseDialog::moveDB() {
@@ -91,15 +105,29 @@ void DatabaseDialog::renameDB() {
 }
 
 void DatabaseDialog::createNew() {
-  qDebug() << "DatabaseDialog: createNew NYI";
+  QDialog *dlg = new CreateDatabaseDialog();
+  dlg->setAttribute(Qt::WA_DeleteOnClose);
+  dlg->show();
+  close();
 }
 
 void DatabaseDialog::openOther() {
-  qDebug() << "DatabaseDialog: openOther NYI";
+  close();
+  QString fn = QFileDialog::getOpenFileName(0, "Open other database...",
+                                            FileLocations::dataRoot(),
+                                            "*.db");
+  if (fn=="")
+    return;
+  
+  new Session(fn);
 }
 
-void DatabaseDialog::openRecent(QModelIndex) {
-  qDebug() << "DatabaseDialog: openRecent NYI";
+void DatabaseDialog::openRecent(QModelIndex idx) {
+  close();
+  QString fn = idx.data().toString();
+  if (fn=="(none)" || fn=="")
+    return;
+  new Session(fn);
 }
 
 void DatabaseDialog::showRoots() {
@@ -108,3 +136,10 @@ void DatabaseDialog::showRoots() {
   dlg->show();
 }
 
+void DatabaseDialog::splitDatabase() {
+  qDebug() << "DatabaseDialog: splitDatabase";
+}
+
+void DatabaseDialog::incorporateDatabase() {
+  qDebug() << "DatabaseDialog: incorporateDatabase";
+}

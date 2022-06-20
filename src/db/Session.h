@@ -5,9 +5,12 @@
 #define SESSION_H
 
 #include <QObject>
+#include <QStringList>
 
 class Session: public QObject {
   Q_OBJECT;
+public:
+  static QStringList recentDatabases();
 public:
   Session(QString dbfn=QString(), bool create=false, bool readonly=false);
   virtual ~Session();

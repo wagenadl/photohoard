@@ -37,6 +37,6 @@ create table expandedfolders (
        path string,
        unique(path) on conflict ignore);
        
-insert into sinfo values("PhotohoardSessionDB", "1.3");
+insert into sinfo values("PhotohoardSessionDB", "1.3", null);
 
 insert into currentvsn values(null);
