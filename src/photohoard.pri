@@ -7,4 +7,5 @@ sourcedirs = \
     adj \
     ui \
     dlg \
+    cheind-inpaint \
 

@@ -501,24 +501,24 @@ Image16Data::Image16Data(Image16Data *src, QRect subimg):
     + bytesPerPixel()*subimg.left();
 }
 
-Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
+void Image16::alphablend(Image16 ontop, QImage mask) {
   /* This is a prime candidate for multithreading */
-  
   Format fmt = format();
-  if (fmt==Format::sRGB8)
-    fmt = Format::XYZp16;
-  Image16 out = convertedTo(fmt);
-     
+  if (fmt==Format::sRGB8) {
+    COMPLAIN("Alphablend: sRGB8 should not happen here");
+    return;
+  }
   if (ontop.size() != size() || mask.size() != size()) {
     COMPLAIN("Alphablend: size mismatch");
-    return *this;
+    return;
   }
   ontop.convertTo(fmt);
-  int X = out.width();
-  int Y = out.height();
-  int DLO = out.wordsPerLine() - 3*X;
+
+  int X = width();
+  int Y = height();
+  int DLO = wordsPerLine() - 3*X;
   int DLT = ontop.wordsPerLine() - 3*X;
-  uint16_t *dst = out.words();
+  uint16_t *dst = words();
   uint16_t const *src = ontop.words();
   switch (fmt) {
   case Format::sRGB8:
@@ -584,6 +584,14 @@ Image16 Image16::alphablend(Image16 ontop, QImage mask) const {
     }
   } break;
   }
+}  
+
+Image16 Image16::alphablended(Image16 ontop, QImage mask) const {
+  Format fmt = format();
+  if (fmt==Format::sRGB8)
+    fmt = Format::XYZp16;
+  Image16 out = convertedTo(fmt);
+  out.alphablend(ontop, mask);    
   return out;
 }
 

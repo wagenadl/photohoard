@@ -50,7 +50,8 @@ public:
                        Interpolation i=Interpolation::Linear) const;
   /* Produces a version where the polygon (which must have *precisely*
      four vertices) is transformed to a rectangle. */
-  Image16 alphablend(Image16 ontop, QImage mask) const;
+  void alphablend(Image16 ontop, QImage mask); // in-situ, RGB not supported
+  Image16 alphablended(Image16 ontop, QImage mask) const;
   /* The ontop image and the mask must have the same size as we do.
      mask must be grayscale8. mask=255 means full use of ontop,
      mask=0 means full use of our pixel. */

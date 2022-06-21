@@ -18,16 +18,15 @@ namespace PhotoOps {
    */
   Image16 inpaint(Image16 const &target,
                   QImage const &mask,
-                  double radius,
-                  int method);
+                  double radius);
   /* Replaces pixels in the TARGET image that are "on" in the MASK (which
      must be the same size as the target) with reasonable estimates from
      the neighborhood. RADIUS is specified in pixels.
-     METHOD is 1 for Navier-Stokes, or 2 for Telea at all.
      See https://docs.opencv.org/3.4/d7/d8b/group__photo__inpaint.html. */
 
   Image16 decolorizeOrBoost(Image16 const &target, bool boost=false);
   void blur(QImage &target, double sigma);
+  void clone(Image16 &target, QPointF dst, QPointF src, double radius);
 };
 
 #endif
