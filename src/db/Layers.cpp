@@ -335,13 +335,14 @@ void Layers::lowerLayer(int n) {
 
 void Layers::deleteLayer(int n) {
   int N = count();
+  pDebug() << "deletelayer" << n << N;
   ASSERT(n>=1 && n<=N);
   Transaction t(db);
   db->query("delete from layers where version==:a and stacking==:b",
 	    vsn, n);
   for (int k=n+1; k<=N; k++)
     db->query("update layers set stacking=:a"
-	      " where version==:b and stacking==:c", vsn, k-1, k);
+	      " where version==:b and stacking==:c", k-1, vsn, k);
   t.commit();
 }
 

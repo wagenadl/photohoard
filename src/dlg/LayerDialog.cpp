@@ -20,6 +20,7 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   QWidget(parent), db(db) {
   ui = new Ui_LayerDialog;
   ui->setupUi(this);
+  ui->addHeal->hide(); // not good enough yet
   ui->table->setHorizontalHeaderItem(0,
                                      new QTableWidgetItem(eyeIcon(true), ""));
   //  setVersion(0);

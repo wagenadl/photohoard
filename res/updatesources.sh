@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SUBDIRS="corelib cms db adj ui dlg"
+SUBDIRS="corelib cms db adj ui dlg cheind-inpaint"
 APP=photohoard
 
 cd `dirname $0`

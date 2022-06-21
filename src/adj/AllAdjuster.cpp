@@ -154,25 +154,47 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     // not yet correct
     PSize osize = originalSize();
     PSize sclcrpsize = img_below.size();
-    QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
     Image16 bot = img_below; //.convertedTo(Image16::Format::sRGB8);
     // double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
-    QPolygonF pts(layer.transformedPoints(osize, settings.baseAdjustments(),
+    QPolygonF pts(layer.transformedPoints(osize,
+                                          settings.baseAdjustments(),
                                           sclcrpsize));
+#if 1
+    QList<double> rr(layer.transformedRadii(osize,
+                                            settings.baseAdjustments(),
+                                          sclcrpsize));
+    QPointF dst = pts[0];
+    QPointF src = pts[1];
+    double r = rr[0];
+    Image16 res = img_below.convertedTo(Image16::Format::IPT16);
+    PhotoOps::clone(res, dst, src, r);
+    return res;
+#else
+    QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
     QPointF delta = pts[pts.size()-1] - pts[0];
     Image16 top = bot.translated(int(delta.x()), int(delta.y()));
-    //qDebug() << "applyclone" << scl << delta;
-    return bot.alphablend(top, mask);
-    // return PhotoOps::seamlessClone(bot, top, mask, pts[1].toPoint(), 1);
+    return bot.alphablended(top, mask);
+#endif
+    //    return PhotoOps::seamlessClone(bot, top, mask, pts[1].toPoint(), 2);
   };
   
   auto applyInpaint = [=](Image16 const &img_below, Layer const &layer) {
     PSize osize = originalSize();
     PSize sclcrpsize = img_below.size();
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
-    Image16 bot = img_below.convertedTo(Image16::Format::sRGB8); 
-    double scl = layer.scale(osize, settings.baseAdjustments(), sclcrpsize);
-    return PhotoOps::inpaint(bot, mask, 4.0*scl, 1); // radius?
+    Image16 bot = img_below.convertedTo(Image16::Format::sRGB8);
+    QList<double> rr = layer.transformedRadii(osize,
+                                              settings.baseAdjustments(),
+                                              sclcrpsize);
+    double r = 1;
+    if (rr.size()) {
+      r = 0;
+      for (auto r1: rr)
+        r += r1;
+      r /= rr.size();
+      r /= 4;
+    }
+    return PhotoOps::inpaint(bot, mask, r); // radius?
   };
 
   auto applyMask = [=](Image16 const &img_below, Image16 const &img_top,
@@ -189,7 +211,7 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     Image16 bot = img_below.convertedTo(Image16::Format::IPT16);
     ASSERT(top.size()==bot.size());
     ASSERT(mask.size()==top.size());
-    return bot.alphablend(top, mask);
+    return bot.alphablended(top, mask);
   };
 
   int f = 1;
