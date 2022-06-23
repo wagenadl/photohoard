@@ -32,14 +32,20 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   lay=lastlay=LayoutBar::Layout::VGrid;
   showmax = false;
   
-  bool oldcrash = db->simpleQuery("select count(*) from starting").toInt()>0;
+  bool oldcrash;
+  { DBReadLock lock(db);
+    oldcrash = db->simpleQuery("select count(*) from starting").toInt()>0;
+  }
   if (oldcrash) {
-    Untransaction t(db);
     db->setCurrent(0);
+    DBWriteLock lock(db);
+    pDebug() << "light1";
     db->query("delete from expanded");
+    db->query("delete from expandedfolders");
     db->query("delete from filtersettings");
   }
-  { Untransaction t(db);
+  { DBWriteLock lock(db);
+    pDebug() << "light2";
     db->query("insert into starting values(1)");
   }
 
@@ -99,7 +105,8 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
     Selection(db).add(c);
   }
 
-  { Untransaction t(db);
+  { DBWriteLock lock(db);
+    pDebug() << "light3";
     db->query("delete from starting");
   }
 
@@ -495,24 +502,27 @@ void LightTable::updateFilter() {
 }
 
 void LightTable::selectNearestInFilter(quint64 vsn) {
-  QSqlQuery q = db->query("select version, abs(version-:a) as x from filter"
-                          " order by x limit 1", vsn);
-  if (q.next())
-    select(q.value(0).toULongLong());
-  else
-    select(0);
+  quint64 v;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select version, abs(version-:a) as x from filter"
+                            " order by x limit 1", vsn);
+    v = q.next() ? q.value(0).toULongLong() : 0;
+  }
+  select(v);
 }
 
 void LightTable::applyFilterSettings() {
   // was populatefilterfromdialog
   Filter f(db);
   f.loadFromDb();
-  Untransaction t(db);
-  db->query("delete from filter");
-  db->query("insert into filter select versions.id, photos.id from versions "
-           + f.joinClause() + " where " + f.whereClause());
-  db->query("delete from selection"
-           " where version not in (select version from filter)");
+  { DBWriteLock lock(db);
+    pDebug() << "light4";
+    db->query("delete from filter");
+    db->query("insert into filter select versions.id, photos.id from versions "
+              + f.joinClause() + " where " + f.whereClause());
+    db->query("delete from selection"
+              " where version not in (select version from filter)");
+  }
   emit newCollection(f.hasCollection() ? f.collection() : QString(""));
 }
 
@@ -536,6 +546,8 @@ void LightTable::rotateSelected(int dphi) {
   }  
   
   Transaction t(db);
+  pDebug() << "lighttable1";
+  
   for (auto id: vsns) {
     int orient
       = db->simpleQuery("select orient from versions where id==:a", id).toInt();

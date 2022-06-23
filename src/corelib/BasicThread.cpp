@@ -5,6 +5,7 @@
 #include "PDebug.h"
 
 BasicThread::BasicThread(QObject *parent): QThread(parent) {
+  pDebug() << "BasicThread" << QThread::currentThread() << this;
 }
 
 BasicThread::~BasicThread() {

@@ -11,6 +11,8 @@
 #include <QVariant>
 #include <QSharedPointer>
 #include <QAtomicInt>
+#include <QReadWriteLock>
+#include <QMutex>
 
 class Database {
 public:
@@ -73,6 +75,10 @@ public:
   QSqlQuery constQuery(QString s, QVariant a, QVariant b, QVariant c,
                        QVariant d, QVariant e, QVariant f,
 		       QVariant g, QVariant h) const;
+  void lockForWriting();
+  void unlockForWriting();
+  void lockForReading() const;
+  void unlockForReading() const;
 protected:
   QString id;
   QSqlDatabase db;
@@ -82,9 +88,9 @@ private:
   static bool &debugging();
 protected:
   static QString autoid();
-  QSharedPointer<QAtomicInt> transWait;
   friend class Transaction;
-  friend class Untransaction;
+  QSharedPointer<QMutex> lock;
+  QSharedPointer<void*> locked;
 };
 
 class Transaction {
@@ -97,13 +103,21 @@ private:
   bool cmt;
 };
 
-class Untransaction {
-  // Not a transaction, but causes waiting transactions to wake up when done
+
+class DBWriteLock {
 public:
-  Untransaction(Database *db);
-  ~Untransaction();
+  DBWriteLock(Database *db): db(db) { db->lockForWriting(); }
+  ~DBWriteLock() { db->unlockForWriting(); }
 private:
   Database *db;
+};
+
+class DBReadLock {
+public:
+  DBReadLock(Database const *db): db(db) { db->lockForReading(); }
+  ~DBReadLock() { db->unlockForReading(); }
+private:
+  Database const *db;
 };
 
 #endif

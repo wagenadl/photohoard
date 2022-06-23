@@ -66,7 +66,6 @@ Session::Session(QString dbfn0, bool create, bool readonly):
     /* Strictly speaking, this procedure should be protected by some
        locking mechanism to prevent races. Is that possible?
     */
-    Transaction t(sdb); // not sure if that actually locks other processes out
     quint64 pid = sdb->retrievePid();
     qDebug() << "retrieve pid " << pid;
     if (pid && RunControl::isRunning(pid)) {
@@ -75,7 +74,6 @@ Session::Session(QString dbfn0, bool create, bool readonly):
       return;
     }
     sdb->storePid(RunControl::pid());
-    t.commit(); 
   }
 
   QString cachefn = sdb->cacheDirname();

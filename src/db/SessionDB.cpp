@@ -29,7 +29,8 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
   SqlFile sql(":/setupsession.sql");
   {
     Transaction t(&sdb);
-    for (auto c: sql) 
+    pDebug() << "sessiondb trans1";
+  for (auto c: sql) 
       sdb.query(c);
     sdb.query("insert into paths (photodb, cachedir) values (:a, :b)",
               photodbfn, cachedir);
@@ -40,12 +41,14 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
 }
 
 QString SessionDB::photoDBFilename() const {
+  DBReadLock lock(this);
   QString fn = simpleQuery("select photodb from paths").toString();
   return QFileInfo(fn).canonicalFilePath();
 }
 
 
 QString SessionDB::cacheDirname() const {
+  DBReadLock lock(this);
   QString fn = simpleQuery("select cachedir from paths").toString();
   qDebug() << "session cache" << fn;
   return fn; // canonicalizing would fail if not exist
@@ -69,16 +72,18 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
     CRASH("Cannot open nonexistent session");
   Database::open(sessiondbfn);
 
-  {
-    QSqlQuery q = query("select version from sinfo where id==:a",
+  { DBReadLock lock(this);
+    QSqlQuery q = constQuery("select version from sinfo where id==:a",
                         "PhotohoardSessionDB");
     if (!q.next())
       CRASH("Cannot open session for “" + photodbfn + "”.");
   }
   
-  query("pragma synchronous = 0");
-  query("pragma foreign_keys = on");
-
+  { DBWriteLock lock(this);
+    pDebug() << "sdb pr";
+    query("pragma synchronous = 0");
+    query("pragma foreign_keys = on");
+  }
 
   QString codedfn = photoDBFilename();
   if (codedfn != photodbfn) {
@@ -88,13 +93,18 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   if (!QFileInfo(photodbfn).exists()) {
     CRASH("Cannot open database “" + photodbfn + "”.");
   }
-  
-  query("attach database :a as P", photodbfn);
+
+  { DBWriteLock lock(this);
+    pDebug() << "sdb at";
+    query("attach database :a as P", photodbfn);
+  }
   if (forcereadonly || isDBReadOnly(photodbfn)) 
     setReadOnly();
   else
     upgradeDBVersion();
-  
+
+  DBWriteLock lock(this);
+  pDebug() << "sdb atm";
   query("attach database ':memory:' as M");
   query("create table if not exists M.filter"
         " ( version integer, "
@@ -108,17 +118,23 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
 
 void SessionDB::clone(SessionDB const &src) {
   PhotoDB::clone(src);
-  
-  query("pragma synchronous = 0");
-  query("pragma foreign_keys = on");
 
-  QString pdbfn = simpleQuery("select photodb from paths").toString();
-  query("attach database :a as P", pdbfn);
+  { DBWriteLock lock(this);
+    pDebug() << "sdb clone";
+    query("pragma synchronous = 0");
+    query("pragma foreign_keys = on");
+    pDebug() << "SDB clone";
+    QString pdbfn = simpleQuery("select photodb from paths").toString();
+    query("attach database :a as P", pdbfn);
+    pDebug() << "SDB Clone 2";
+  }
   upgradeDBVersion();
 }
 
 
 void SessionDB::setCurrent(quint64 vsn) {
+  DBWriteLock lock(this);
+  pDebug() << "sdb setcur";
   if (vsn>0)
     query("update currentvsn set version=:a", vsn);
   else
@@ -126,6 +142,7 @@ void SessionDB::setCurrent(quint64 vsn) {
 }
 
 quint64 SessionDB::current() const {
+  DBReadLock lock(this);
   quint64 vsn = simpleQuery("select version from currentvsn").toULongLong();
   if (!vsn)
     return 0;
@@ -141,6 +158,8 @@ quint64 SessionDB::current() const {
 }
 
 void SessionDB::upgradeDBVersion() {
+  DBWriteLock lock(this);
+  pDebug() << "sdb upgrdb";
   // update to version 1.2 if needed
   QString dbvsn
     = simpleQuery("select version from info where id=='PhotoDB'").toString();
@@ -162,11 +181,14 @@ void SessionDB::upgradeDBVersion() {
 }
 
 void SessionDB::storePid(quint64 pid) {
+  DBWriteLock lock(this);
+  pDebug() << "sdb storepid";
   query("update sinfo set runningpid=:a where id==:b",
         pid, "PhotohoardSessionDB");
 }
 
 quint64 SessionDB::retrievePid() const {
+  DBReadLock lock(this);
   return simpleQuery("select runningpid from sinfo where id==:a",
                      "PhotohoardSessionDB").toULongLong();
 }

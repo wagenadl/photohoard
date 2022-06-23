@@ -5,6 +5,7 @@
 #include <QSqlError>
 #include <system_error>
 #include <QSqlQuery>
+#include <QThread> // for debug
 
 static bool execWithRetry(QSqlQuery &q) {
   if (q.exec())
@@ -14,20 +15,28 @@ static bool execWithRetry(QSqlQuery &q) {
   /* This is a completely horrible hack that prevents some crashes when
      AC_Worker tries to read from the DB while something else is writing.
      This happens on rare occasions, and I cannot figure out why. */
-  pDebug() << "Retrying query " << q.lastQuery();
+  pDebug() << "Retrying query " << q.lastQuery() << q.boundValues();
   int n = 0;
   while (n<10) {
-    if (q.exec())
+    if (q.exec()) {
+      pDebug() << "Success retrying query " << q.lastQuery() << q.boundValues();
       return true;
-    if (q.lastError().type()!=QSqlError::ConnectionError)
+    }
+    if (q.lastError().type()!=QSqlError::ConnectionError) {
+      pDebug() << "Error retrying query " << q.lastQuery() << q.boundValues();
       return false;
+    }
     ++n;
   }
+  pDebug() << "Failed retrying query " << q.lastQuery() << q.boundValues();
   return false;
 }
 
 
-Database::Database(): id(autoid()), transWait(new QAtomicInt()) {
+Database::Database():
+  id(autoid()),
+  lock(new QMutex()), //QReadWriteLock::NonRecursive)),
+  locked(new void*(0)) {
 }
 
 void Database::open(QString filename) {
@@ -58,7 +67,8 @@ void Database::clone(Database const &src) {
   db = QSqlDatabase::cloneDatabase(src.db, id);
   if (!db.open()) 
     CRASH("Could not open cloned database:" + db.databaseName());
-  transWait = src.transWait;
+  lock = src.lock;
+  locked = src.locked;
 }
 
 Database::~Database() {
@@ -143,10 +153,14 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
 QSqlQuery Database::query(QString s) {
   // Operationally, query and constQuery are identical.
   // Both are provided for easier understanding of code.
+  if (!(*locked))
+    pDebug() << "query w/o lock" << s;
   return constQuery(s);
 }
 
 QSqlQuery Database::constQuery(QString s) const {
+  if (!(*locked))
+    pDebug() << "constQuery w/o lock" << s;
   if (debugging())
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
@@ -360,30 +374,83 @@ bool &Database::debugging() {
 
 Transaction::Transaction(Database *db): db(db) {
   cmt = false;
-  db->transWait->ref();
+  pDebug() << "trans";
+  db->lockForWriting();
+  pDebug() << "Translock";
   db->begin();
-  db->transWait->deref();
+  pDebug() << "transbegun";
 }
 
 void Transaction::commit() {
-  db->commit();
+  if (cmt) {
+    pDebug() << "double commit";
+    return;
+  }
   cmt = true;
+  db->commit();
+  db->unlockForWriting();
 }
 
 Transaction::~Transaction() {
   if (!cmt) {
     db->rollback();
+    db->unlockForWriting();
   }
 }
 
-Untransaction::Untransaction(Database *db): db(db) {
-  db->transWait->ref();
+
+void Database::lockForReading() const {
+  if (lock->tryLock(1000)) {
+    if (*locked)
+      pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();
+    *locked = QThread::currentThread();
+    pDebug() << "Locked for reading" << *locked;
+    return;
+  }
+  pDebug() << "Trying to lock for reading..." << *locked << QThread::currentThread();;
+  int n = 1;
+  while (!lock->tryLock(1000)) {
+    pDebug() << "Still trying R" << n++;
+  }
+  if (*locked)
+    pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();;
+  *locked = QThread::currentThread();
+  pDebug() << "Locked for reading" << *locked;
+    return;
 }
 
-Untransaction::~Untransaction() {
-  db->transWait->deref();
+void Database::lockForWriting() {
+  if (lock->tryLock(1000)) {
+    if (*locked)
+      pDebug() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
+    *locked =  QThread::currentThread();
+    pDebug() << "Locked for writing" << *locked << calltrace();;
+    return;
+  }
+  pDebug() << "Trying to lock for writing..." << *locked << QThread::currentThread();;
+  int n = 1;
+  while (!lock->tryLock(1000)) {
+    pDebug() << "Still trying W" << n++;
+  }
+  if (*locked)
+    pDebug() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
+  *locked = QThread::currentThread();
+  pDebug() << "Locked for writing" << *locked << calltrace();
+  return;
 }
 
-bool Database::transactionsWaiting() const {
-  return *transWait > 0;
+void Database::unlockForReading() const {
+  pDebug() << "unlock R" << *locked;
+  if (!locked)
+    pDebug() << "unlock R while not locked";
+  *locked = 0;
+  lock->unlock();
+}
+
+void Database::unlockForWriting() {
+  pDebug() << "unlock W" << *locked;
+  if (!locked)
+    pDebug() << "unlock W while not locked";
+  *locked = 0;
+  lock->unlock();
 }

@@ -14,7 +14,9 @@
 
 Exporter::Exporter(SessionDB *db0, QObject *parent):
   QThread(parent), db0(db0) {
+  pDebug() << "exporter";
   db.clone(*db0);
+  pDebug() << "exporter clone";
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");
   worker = new IF_Worker(this);
 }
@@ -57,10 +59,11 @@ void Exporter::copyFilenameToClipboard(quint64 vsn) {
 
 void Exporter::addSelection() {
   QSet<quint64> vsns;
-  QSqlQuery q(db0->query("select version from selection"));
-  while (q.next())
-    vsns << q.value(0).toULongLong();
-  q.finish();
+  { DBReadLock lock(db0);
+    QSqlQuery q(db0->constQuery("select version from selection"));
+    while (q.next())
+      vsns << q.value(0).toULongLong();
+  }
   if (!vsns.isEmpty())
     add(vsns);
 }
