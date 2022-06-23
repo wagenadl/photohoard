@@ -8,8 +8,8 @@
 
 namespace PurgeCache {
   void purge(PhotoDB &db, QString cachedir) {
+    pDebug() << "purgecache";
     DBWriteLock lock(&db);
-    pDebug() << "purgecache lock";
 
     db.query(QString("attach '%1/cache.db' as C").arg(cachedir));
     QSqlQuery q = db.constQuery("select max(dbno) from C.cache"
@@ -61,5 +61,6 @@ namespace PurgeCache {
       db.query(QString("detach B%1").arg(b));
 
     db.query("detach C");
+    pDebug() << "purgecache done";
   }
 };

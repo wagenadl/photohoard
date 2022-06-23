@@ -39,13 +39,11 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   if (oldcrash) {
     db->setCurrent(0);
     DBWriteLock lock(db);
-    pDebug() << "light1";
     db->query("delete from expanded");
     db->query("delete from expandedfolders");
     db->query("delete from filtersettings");
   }
   { DBWriteLock lock(db);
-    pDebug() << "light2";
     db->query("insert into starting values(1)");
   }
 
@@ -106,7 +104,6 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   }
 
   { DBWriteLock lock(db);
-    pDebug() << "light3";
     db->query("delete from starting");
   }
 
@@ -516,7 +513,6 @@ void LightTable::applyFilterSettings() {
   Filter f(db);
   f.loadFromDb();
   { DBWriteLock lock(db);
-    pDebug() << "light4";
     db->query("delete from filter");
     db->query("insert into filter select versions.id, photos.id from versions "
               + f.joinClause() + " where " + f.whereClause());
@@ -546,7 +542,6 @@ void LightTable::rotateSelected(int dphi) {
   }  
   
   Transaction t(db);
-  pDebug() << "lighttable1";
   
   for (auto id: vsns) {
     int orient

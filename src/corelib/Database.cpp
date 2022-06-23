@@ -404,7 +404,7 @@ void Database::lockForReading() const {
     if (*locked)
       pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();
     *locked = QThread::currentThread();
-    pDebug() << "Locked for reading" << *locked;
+    //pDebug() << "Locked for reading" << *locked;
     return;
   }
   pDebug() << "Trying to lock for reading..." << *locked << QThread::currentThread();;
@@ -415,8 +415,8 @@ void Database::lockForReading() const {
   if (*locked)
     pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();;
   *locked = QThread::currentThread();
-  pDebug() << "Locked for reading" << *locked;
-    return;
+  //pDebug() << "Locked for reading" << *locked;
+  return;
 }
 
 void Database::lockForWriting() {
@@ -424,7 +424,7 @@ void Database::lockForWriting() {
     if (*locked)
       pDebug() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
     *locked =  QThread::currentThread();
-    pDebug() << "Locked for writing" << *locked << calltrace();;
+    // pDebug() << "Locked for writing" << *locked << calltrace();;
     return;
   }
   pDebug() << "Trying to lock for writing..." << *locked << QThread::currentThread();;
@@ -435,12 +435,12 @@ void Database::lockForWriting() {
   if (*locked)
     pDebug() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
   *locked = QThread::currentThread();
-  pDebug() << "Locked for writing" << *locked << calltrace();
+  // pDebug() << "Locked for writing" << *locked << calltrace();
   return;
 }
 
 void Database::unlockForReading() const {
-  pDebug() << "unlock R" << *locked;
+  // pDebug() << "unlock R" << *locked;
   if (!locked)
     pDebug() << "unlock R while not locked";
   *locked = 0;
@@ -448,7 +448,7 @@ void Database::unlockForReading() const {
 }
 
 void Database::unlockForWriting() {
-  pDebug() << "unlock W" << *locked;
+  //  pDebug() << "unlock W" << *locked;
   if (!locked)
     pDebug() << "unlock W while not locked";
   *locked = 0;
