@@ -13,10 +13,14 @@
 
 Scanner::Scanner(SessionDB *db0): db0(db0) {
   setObjectName("Scanner");
+  pDebug() << "scanner";
   db.clone(*db0);
+  pDebug() << "scanner cloned";
+  DBReadLock lock(db0);
   QSqlQuery q = db0->constQuery("select extension, filetype from extensions");
   while (q.next()) 
     exts[q.value(0).toString()] = q.value(1).toInt();
+  pDebug() << "scanner ok";
 }
 
 Scanner::~Scanner() {
@@ -37,9 +41,7 @@ quint64 Scanner::findDirOrAdd(QString path, bool secondary) {
   bool primary = !secondary;
   if (primary || parentid) {
     QDir dir(path);
-    Transaction t(db0);
     id = addFolder(db0, parentid, path, parent.relativeFilePath(path));
-    t.commit();
   }
   return id;
 }
@@ -54,9 +56,10 @@ void Scanner::addTree(QString path, QString defaultCollection,
     // We don't have the folder yet
     quint64 id = findDirOrAdd(path);
     if (!defaultCollection.isEmpty()) {
-      Transaction tra(&db);
       Tags tags(db0);
       int t = tags.ensureCollection(defaultCollection);
+      Transaction tra(&db);
+      pDebug() << "scanner trans2";
       db0->query("delete from defaulttags where folder==:a", id);
       db0->query("insert into defaulttags(folder, tag) values(:a,:b)", id, t);
       tra.commit();
@@ -67,7 +70,8 @@ void Scanner::addTree(QString path, QString defaultCollection,
 }
 
 QStringList Scanner::allRoots() {
-  QSqlQuery q = db0->query("select pathname from folders"
+  DBReadLock lock(db0);
+  QSqlQuery q = db0->constQuery("select pathname from folders"
                            " where parentfolder is null");
   QStringList roots;
   while (q.next())
@@ -85,10 +89,12 @@ void Scanner::rescanAll() {
 
 void Scanner::rescan(QString path) {
   // This is called from outside of thread!
-  Untransaction t(db0);
-  db0->query("insert into folderstoscan select id from folders"
-             " where pathname==:a", path);
+  { DBWriteLock lock(db0);
+    pDebug() << "rescan";
 
+    db0->query("insert into folderstoscan select id from folders"
+               " where pathname==:a", path);
+  }
   QMutexLocker l(&mutex);
   waiter.wakeOne();
 }
@@ -97,6 +103,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
   // This is called from inside of thread!
   // Insert into photo table
   // Many details about the photo will be updated after scanning
+  // Must be called within a transaction
   int idx = leaf.lastIndexOf(".");
   QString ext = leaf.mid(idx+1).toLower();
 
@@ -105,7 +112,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
 	       " values (:a,:b,:c)",
 	       parentid, leaf, exts.contains(ext) ? exts[ext]: QVariant());
   quint64 photo = q.lastInsertId().toULongLong();
-
+  
   // Create first version
   q = db.query("insert into versions(photo,acceptreject)"
 	       " values(:a,:b)", photo,int(PhotoDB::AcceptReject::NewImport));
@@ -122,7 +129,7 @@ quint64 Scanner::addPhoto(quint64 parentid, QString leaf) {
 quint64 Scanner::addFolder(PhotoDB *db,
 			   quint64 parentid, QString path, QString leaf) {
   // This is called from with thread or caller's thread.
-  // Normally, a transaction should be in progress.
+  Transaction t(db);
   quint64 id = db->query("insert into"
                          " folders(parentfolder, leafname, pathname) "
                          " values (:a,:b,:c)",
@@ -138,7 +145,7 @@ quint64 Scanner::addFolder(PhotoDB *db,
 
   /* Now let's see if any folders that were hitherto roots are in fact
      direct children of this new folder */
-  QSqlQuery q = db->query("select id, pathname, leafname from folders"
+  QSqlQuery q = db->constQuery("select id, pathname, leafname from folders"
                           " where parentfolder is null"
                           " and pathname like :a", path + "/%");
   while (q.next()) {
@@ -148,19 +155,23 @@ quint64 Scanner::addFolder(PhotoDB *db,
     if (path + "/" + cleaf == cpath) 
       db->query("update folders set parentfolder=:a where id==:b", id, cid);
   }
-
+  t.commit();
   return id;
 }
 
 void Scanner::excludeTree(QString path) {
   removeTree(path);
-  Untransaction t(db0);
+  DBWriteLock lock(db0);
+  pDebug() << "excltr";
+
   db0->query("insert into excludedtrees values (:a)", path);
 }
 
 void Scanner::removeTree(QString path) {
   // called from caller, not our thread
-  Untransaction t(db0);
+  DBWriteLock lock(db0);
+  pDebug() << "rmtree";
+  
   db0->query("delete from folders where pathname==:a", path);
   db0->query("delete from excludedtrees where pathname like :a", path + "/%");
 
@@ -205,6 +216,7 @@ void Scanner::run() {
 }
 
 QSet<quint64> Scanner::findPhotosToScan() {
+  DBReadLock lock(&db);
   QSqlQuery qq = db.constQuery("select photo from photostoscan limit 100");
   QSet<quint64> ids;
   while (qq.next()) 
@@ -216,20 +228,16 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
   QSet<quint64> versions;
   int n0 = n;
   for (auto id: ids) {
-    while (db.transactionsWaiting()) {
-      //      pDebug() << "scanner waiting in photos";
-      usleep(100000);
-    }
 
-    Transaction t(&db);
     scanPhoto(id);
-    QSqlQuery q
-      = db.constQuery("select id from versions where photo==:a", id);
     QSet<quint64> vv;
-    while (q.next())
-      vv << q.value(0).toULongLong();
-    n++;
-    t.commit();
+    { DBReadLock lock(&db);
+      QSqlQuery q = db.constQuery("select id from versions where photo==:a",
+                                  id);
+      while (q.next())
+        vv << q.value(0).toULongLong();
+      n++;
+    }
 
     if (n>=n0+5) {
       reportPhotoProgress();
@@ -246,6 +254,7 @@ void Scanner::scanPhotos(QSet<quint64> ids) {
 }
 
 QSet<quint64> Scanner::findFoldersToScan() {
+  DBReadLock lock(&db);
   QSqlQuery qq = db.constQuery("select folder from folderstoscan limit 30");
   QSet<quint64> ids;
   while (qq.next())
@@ -254,8 +263,9 @@ QSet<quint64> Scanner::findFoldersToScan() {
 }
 
 QSet<QString> Scanner::excludedTrees() {
+  DBReadLock lock(&db);
   QSet<QString> trees;
-  QSqlQuery q = db.query("select pathname from excludedtrees");
+  QSqlQuery q = db.constQuery("select pathname from excludedtrees");
   while (q.next())
     trees.insert(q.value(0).toString());
   return trees;
@@ -279,17 +289,72 @@ void Scanner::scanFolders(QSet<quint64> ids) {
   }
 }
 
+QMap<QString, quint64> Scanner::photosInFolder(quint64 folderid) const {
+  QMap<QString, quint64> photos;
+  DBReadLock lock(&db);
+  QSqlQuery q = db.constQuery("select id, filename from photos"
+                              " where folder==:a", folderid);
+  while (q.next())
+    photos[q.value(1).toString()] = q.value(0).toULongLong();
+  return photos;
+}
+
+QMap<QString, quint64> Scanner::subFolders(quint64 folderid) const {
+  QMap<QString, quint64> folders;
+  DBReadLock lock(&db);
+  QSqlQuery q = db.constQuery("select id, leafname from folders"
+                              " where parentfolder==:a", folderid);
+  while (q.next())
+    folders[q.value(1).toString()] = q.value(0).toULongLong();
+  return folders;
+}
+
+void Scanner::dropPhotos(QList<quint64> photoids) {
+  // delete vanished photos from db
+  if (photoids.isEmpty())
+    return;
+  Transaction t(&db);
+  for (quint64 id: photoids)
+    db.query("delete from photos where id==:a", id);
+  t.commit();
+}
+
+void Scanner::dropPhotosInFolder(quint64 folderid) {
+  dropPhotos(photosInFolder(folderid).values());
+  QMap<QString, quint64> subfolders = subFolders(folderid);
+  for (quint64 id: subfolders)
+    dropPhotosInFolder(id);
+}
+
+void Scanner::dropFolders(QList<quint64> folderids) {
+  pDebug() << "dropfolders" << folderids;
+  if (folderids.isEmpty())
+    return;
+
+  // remove sub folders, recursively, first
+  for (quint64 id: folderids)
+    dropFolders(subFolders(id).values());
+
+  Transaction t(&db);
+  for (quint64 id: folderids) {
+    db.query("delete from folderstoscan where folder=:a", id);
+    db.query("delete from folders where id==:a", id);
+  }
+  t.commit();
+}
+  
 void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
   QString p = db.folder(id);
   QDir dir(p);
+  pDebug() << "scanfolder" << id << p << excludedtrees; 
 
-  QSet<QString> newsubdirs;
-  QSet<QString> newphotos;
-  QMap<QString, quint64> oldsubdirs;
-  QMap<QString, quint64> oldphotos;
-  QMap<QString, QDateTime> photodate;
+  QMap<QString, quint64> oldsubdirs = subFolders(id);
+  QMap<QString, quint64> oldphotos = photosInFolder(id);
 
   // Collect new subdirs and photos
+  QSet<QString> newsubdirs;
+  QSet<QString> newphotos;
+  QMap<QString, QDateTime> photodate;
   QFileInfoList infos(dir.entryInfoList(QDir::Dirs | QDir::Files
                                         | QDir::NoDotAndDotDot));
   for (auto i: infos) {
@@ -302,95 +367,103 @@ void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
     }
   }
 
-  QSqlQuery q;
-  
-  // Collect old subdirs
-  q = db.query("select id, leafname from folders where parentfolder==:a", id);
-  while (q.next())
-    oldsubdirs[q.value(1).toString()] = q.value(0).toULongLong();
-
-  // Collect old photos
-  q = db.query("select id, filename from photos where folder==:a", id);
-  while (q.next())
-    oldphotos[q.value(1).toString()] = q.value(0).toULongLong();
-  q.finish();
-  
-  // let's update the database
-
-  while (db.transactionsWaiting()) {
-    //    pDebug() << "Scanner waiting in folders";
-    usleep(100000); 
-  }
-  
-  Transaction t(&db);
-  db.query("delete from folderstoscan where folder=:a", id);
-  m++;
-  
-  // Drop subdirs that do not exist any more
-  for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
-    if (!newsubdirs.contains(it.key())) 
-      db.query("delete from folders where id==:a", it.value());
-
-  // Drop photos that do not exist any more
+  pDebug() << "st4";
+  QList<quint64> dropphotos;
   for (auto it=oldphotos.begin(); it!=oldphotos.end(); ++it) 
     if (!newphotos.contains(it.key())) 
-      db.query("delete from photos where id==:a", it.value());
+      dropphotos << it.value();
+  dropPhotos(dropphotos);
 
+  pDebug() << "st5";
+  QList<quint64> dropsubdirs;
+  for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
+    if (!newsubdirs.contains(it.key())) 
+      dropsubdirs << it.value();
+  dropFolders(dropsubdirs);
+
+  pDebug() << "st6";
   // Insert newly found subdirs (and store IDs)
   for (auto s: newsubdirs) 
     if (!oldsubdirs.contains(s)) 
       oldsubdirs[s] = addFolder(&db, id, dir.path()+"/"+s, s);
 
-  // Insert newly found photos
-  for (auto s: newphotos)
-    if (!oldphotos.contains(s))
-      oldphotos[s] = addPhoto(id, s);
+  pDebug() << "st7";
+  { Transaction t(&db);
+    // Insert newly found photos
+    for (auto s: newphotos)
+      if (!oldphotos.contains(s))
+        oldphotos[s] = addPhoto(id, s);
+    // remove this dir from scan list
+    db.query("delete from folderstoscan where folder=:a", id);
+    t.commit();
+  }
 
-  // Add all existing folders to scan list
-  for (auto s: newsubdirs) {
-    db.query("insert into folderstoscan values (:a)", oldsubdirs[s]);
-    M++;
+  pDebug() << "st8";
+  if (newsubdirs.size()) {
+    Transaction t(&db);
+    // Add all existing subfolders to scan list
+    for (auto s: newsubdirs) {
+      db.query("insert into folderstoscan values (:a)", oldsubdirs[s]);
+      M++;
+    }
+    t.commit();
   }
   
+  pDebug() << "st9";
   // Add new or modified photos to scan list
-  for (auto s: newphotos) {
-    QDateTime lastscan
-      = db.simpleQuery("select lastscan from photos where id==:a",
-		       oldphotos[s]).toDateTime();
-    if (photodate[s]>lastscan || !lastscan.isValid()) {
-      db.query("insert into photostoscan values (:a)", oldphotos[s]);
-      N++;
+  if (newphotos.size()) {
+    Transaction t(&db);
+    for (auto s: newphotos) {
+      QDateTime lastscan
+        = db.simpleQuery("select lastscan from photos where id==:a",
+                         oldphotos[s]).toDateTime();
+      if (photodate[s]>lastscan || !lastscan.isValid()) {
+        db.query("insert into photostoscan values (:a)", oldphotos[s]);
+        N++;
+      }
     }
+    t.commit();
   }
 
-  t.commit();
+  pDebug() << "st10";
 }
 
 int Scanner::photoQueueLength() {
+  DBReadLock lock(&db);
   return db.simpleQuery("select count(*) from photostoscan").toInt();
 }
 
 int Scanner::folderQueueLength() {
+  DBReadLock lock(&db);
   return db.simpleQuery("select count(*) from folderstoscan").toInt();
 }
 
 void Scanner::scanPhoto(quint64 id) {
-  // Do not create transaction: called from scanPhotos
-  
-  // Remove from queue
-  db.query("delete from photostoscan where photo==:a", id);
+  { DBWriteLock lock(&db);
+    pDebug() << "scanph";
+
+    // Remove from queue
+    db.query("delete from photostoscan where photo==:a", id);
+  }
 
   // Find the photo's filename on disk
-  QSqlQuery q = db.query("select filename,folder from photos where id==:a", id);
-  ASSERT(q.next());
-  QString filename = q.value(0).toString();
-  quint64 folder = q.value(1).toULongLong();
-  q.finish();
+  QString filename;
+  quint64 folder;
+  { DBReadLock lock(&db);
+    QSqlQuery q = db.constQuery("select filename,folder from photos where id==:a", id);
+    ASSERT(q.next());
+    filename = q.value(0).toString();
+    folder = q.value(1).toULongLong();
+  }
 
-  QString dirname = db.simpleQuery("select pathname from folders where id==:a",
+  QString dirname;
+  QString pathname;
+  { DBReadLock lock(&db);
+    dirname = db.simpleQuery("select pathname from folders where id==:a",
 				   folder).toString();
-  QString pathname = dirname + "/" + filename;
-
+    pathname = dirname + "/" + filename;
+  }
+  
   // Find exif info
   Exif exif(pathname);
   if (!exif.ok()) {
@@ -410,14 +483,19 @@ void Scanner::scanPhoto(quint64 id) {
   QString make = exif.make();
   quint64 camid = 0;
   if (!model.isEmpty()) {
-    QSqlQuery q
-      = db.query("select id from cameras where camera==:a and make==:b",
-                 model, make);
-    if (q.next()) {
-      camid = q.value(0).toULongLong();
-    } else {
-      q = db.query("insert into cameras(camera, make) values(:a,:b)",
-                   model, make);
+    { DBReadLock lock(&db);
+      QSqlQuery q
+        = db.constQuery("select id from cameras where camera==:a and make==:b",
+                        model, make);
+      if (q.next()) 
+        camid = q.value(0).toULongLong();
+    }
+    if (!camid) {
+      DBWriteLock lock(&db);
+      pDebug() << "inscam";
+
+      QSqlQuery q = db.query("insert into cameras(camera, make) values(:a,:b)",
+                             model, make);
       camid = q.lastInsertId().toULongLong();
     }
   }
@@ -426,47 +504,50 @@ void Scanner::scanPhoto(quint64 id) {
   QString lens = exif.lens();
   quint64 lensid = 0;
   if (!lens.isEmpty()) {
-    QSqlQuery q = db.query("select id from lenses where lens==:a", lens);
-    if (q.next()) {
-      lensid = q.value(0).toULongLong();
-    } else {
-      q = db.query("insert into lenses(lens) values (:a)", lens);
+    { DBReadLock lock(&db);
+      QSqlQuery q = db.constQuery("select id from lenses where lens==:a", lens);
+      if (q.next()) 
+        lensid = q.value(0).toULongLong();
+    }
+    if (!lensid) {
+      DBWriteLock lock(&db);
+          pDebug() << "inslens";
+
+      QSqlQuery q = db.query("insert into lenses(lens) values (:a)", lens);
       lensid = q.lastInsertId().toULongLong();
     }
   }
   // Now lensid is valid unless lens is empty
 
-  q.prepare("update photos set "
-            " width=:w, height=:h, camera=:c, lens=:l, "
-            " exposetime=:e, fnumber=:f, focallength=:fl, "
-            " distance=:d, iso=:iso, capturedate=:cd, "
-            " lastscan=:ls where id==:id");
-  q.bindValue(":w", exif.width());
-  q.bindValue(":h", exif.height());
-  q.bindValue(":c", model.isEmpty() ? QVariant() : QVariant(camid));
-  q.bindValue(":l", lens.isEmpty() ? QVariant() : QVariant(lensid));
-  //  q.bindValue(":or", int(exif.orientation()));
-  q.bindValue(":e", exif.exposureTime_s());
-  q.bindValue(":f", exif.fNumber());
-  q.bindValue(":fl", exif.focalLength_mm());
-  q.bindValue(":d", exif.focusDistance_m());
-  q.bindValue(":iso", exif.iso());
-  q.bindValue(":cd", captureDate);
-  q.bindValue(":ls", QDateTime::currentDateTime());
-  q.bindValue(":id", id);
-  ASSERT(q.exec());
+  { QSqlQuery q = db.query();
+    q.prepare("update photos set "
+              " width=:w, height=:h, camera=:c, lens=:l, "
+              " exposetime=:e, fnumber=:f, focallength=:fl, "
+              " distance=:d, iso=:iso, capturedate=:cd, "
+              " lastscan=:ls where id==:id");
+    q.bindValue(":w", exif.width());
+    q.bindValue(":h", exif.height());
+    q.bindValue(":c", model.isEmpty() ? QVariant() : QVariant(camid));
+    q.bindValue(":l", lens.isEmpty() ? QVariant() : QVariant(lensid));
+    //  q.bindValue(":or", int(exif.orientation()));
+    q.bindValue(":e", exif.exposureTime_s());
+    q.bindValue(":f", exif.fNumber());
+    q.bindValue(":fl", exif.focalLength_mm());
+    q.bindValue(":d", exif.focusDistance_m());
+    q.bindValue(":iso", exif.iso());
+    q.bindValue(":cd", captureDate);
+    q.bindValue(":ls", QDateTime::currentDateTime());
+    q.bindValue(":id", id);
+    DBWriteLock lock(&db);
+    pDebug() << "scanupdv";
+    if (!q.exec()) {
+      pDebug() << "fail!" << q.lastQuery() << q.boundValues();
+      CRASH(q.lastError().text());
+    }
 
-  db.query("update versions set orient=:a where photo==:b",
-	   int(exif.orientation()), id);
-
-#if 0
-  QList<PSize> pvsiz = exif.previewSizes();
-  if (!pvsiz.isEmpty()) {
-    /* Using these thumbnails makes scanning very slow. I don't think
-       it's worth it. Perhaps the cache process can somehow use
-       them? */
+    db.query("update versions set orient=:a where photo==:b",
+             int(exif.orientation()), id);
   }
-#endif
 }
 
 

@@ -33,20 +33,25 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
   // pDebug() << "OF::requestScaledOriginal" << vsn << ds;
-  QSqlQuery q
-    = db->query("select folder, filename, filetype, width, height, orient "
-                " from versions"
-                " inner join photos on versions.photo==photos.id"
-                " where versions.id=:a limit 1", vsn);
-  ASSERT(q.next());
-  quint64 folder = q.value(0).toULongLong();
-  QString fn = q.value(1).toString();
-  int ftype = q.value(2).toInt();
-  int wid = q.value(3).toInt();
-  int hei = q.value(4).toInt();
-  orient = Exif::Orientation(q.value(5).toInt());
-  osize = Exif::fixOrientation(PSize(wid, hei), orient);
-  q.finish();
+  quint64 folder;
+  QString fn;
+  int ftype;
+  int wid, hei;
+  { DBReadLock lock(db);
+    QSqlQuery q
+      = db->constQuery("select folder, filename, filetype, width, height, orient "
+                  " from versions"
+                  " inner join photos on versions.photo==photos.id"
+                  " where versions.id=:a limit 1", vsn);
+    ASSERT(q.next());
+    folder = q.value(0).toULongLong();
+    fn = q.value(1).toString();
+    ftype = q.value(2).toInt();
+    wid = q.value(3).toInt();
+    hei = q.value(4).toInt();
+    orient = Exif::Orientation(q.value(5).toInt());
+    osize = Exif::fixOrientation(PSize(wid, hei), orient);
+  }
   
   QString path = db->folder(folder) + "/" + fn;
   QString ext = db->ftype(ftype);

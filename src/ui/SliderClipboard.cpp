@@ -182,6 +182,7 @@ void SliderClipboard::apply() {
   Selection sel(db);
   QSet<quint64> vv = sel.current();
   Transaction t(db);
+  pDebug() << "slcapply";
   for (auto v: vv) {
     Adjustments a = Adjustments::fromDB(v, *db);
     get(&a);

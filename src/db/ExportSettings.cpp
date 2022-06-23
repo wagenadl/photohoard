@@ -23,6 +23,7 @@ bool ExportSettings::isValid() const {
 
 void ExportSettings::loadFromDB(PhotoDB const *db) {
   ASSERT(db);
+  DBReadLock lock(db);
   QSqlQuery q = db->constQuery("select k, v from exportsettings");
   while (q.next()) {
     QString k = q.value(0).toString();
@@ -48,6 +49,7 @@ void ExportSettings::loadFromDB(PhotoDB const *db) {
 
 void ExportSettings::saveToDB(PhotoDB *db) {
   Transaction t(db);
+  pDebug() << "Export stdb";
   db->query("delete from exportsettings");
   QString q = "insert into exportsettings values (:a, :b)";
   db->query(q, "ff", int(fileFormat));

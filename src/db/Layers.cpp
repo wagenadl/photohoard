@@ -230,6 +230,7 @@ Layer Layer::fromDB(quint64 vsn, int stacking, PhotoDB const &db) {
 }
 
 void Layer::readFromDB(quint64 layerid, PhotoDB const &db) {
+  DBReadLock lock(&db);
   QSqlQuery q = db.constQuery("select active, typ, alpha, name, dat"
 			      " from layers where id==:a",
 			      layerid);
@@ -237,6 +238,7 @@ void Layer::readFromDB(quint64 layerid, PhotoDB const &db) {
 }
 
 void Layer::readFromDB(quint64 vsn, int stacking, PhotoDB const &db) {
+  DBReadLock lock(&db);
   QSqlQuery q = db.constQuery("select active, typ, alpha, name, dat"
 			      " from layers where version==:a"
 			      " and stacking==:b",
@@ -255,6 +257,8 @@ void Layer::readFromDB(QSqlQuery &q) {
 }
 
 void Layer::writeToDB(quint64 vsn, int stacking, PhotoDB &db) const {
+  DBWriteLock lock(&db);
+  pDebug() << "Layer::writetodb";
   QSqlQuery q = db.constQuery("select id from layers"
 			      " where version==:a and stacking==:b",
 			      vsn, stacking);
@@ -286,12 +290,14 @@ Layers::Layers(quint64 vsn, PhotoDB *db): db(db), vsn(vsn) {
 }
 
 int Layers::count() const {
+  DBReadLock lock(db);
   return db->simpleQuery("select count(1) from layers"
 			 " where version==:a", vsn).toInt();
 }
 
 quint64 Layers::layerID(int n) const {
   ASSERT(n>=1 && n<=count());
+  DBReadLock lock(db);
   return  db->simpleQuery("select id from layers"
 			  " where version==:a and stacking==:b",
 			  vsn, n).toULongLong();
@@ -314,6 +320,7 @@ void Layers::raiseLayer(int n) {
   if (n==N)
     return;
   Transaction t(db);
+  pDebug() << "layerstrans1";
   quint64 idn = layerID(n);
   quint64 idabove = layerID(n+1);
   db->query("update layers set stacking=:a where id==:b", n+1, idn);
@@ -326,6 +333,7 @@ void Layers::lowerLayer(int n) {
   if (n==1)
     return;
   Transaction t(db);
+  pDebug() << "layerstrans2";
   quint64 idn = layerID(n);
   quint64 idbelow = layerID(n-1);
   db->query("update layers set stacking=:a where id==:b", n-1, idn);
@@ -338,6 +346,7 @@ void Layers::deleteLayer(int n) {
   pDebug() << "deletelayer" << n << N;
   ASSERT(n>=1 && n<=N);
   Transaction t(db);
+  pDebug() << "layerstrans3";
   db->query("delete from layers where version==:a and stacking==:b",
 	    vsn, n);
   for (int k=n+1; k<=N; k++)

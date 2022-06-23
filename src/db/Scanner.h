@@ -104,7 +104,11 @@ private:
   void reportScanDone();
   QSet<QString> excludedTrees();
   quint64 findDirOrAdd(QString path, bool secondary=false);
-  
+  QMap<QString, quint64> photosInFolder(quint64 folderid) const;
+  QMap<QString, quint64> subFolders(quint64 folderid) const; // leafnames->ids
+  void dropPhotos(QList<quint64> photoids);
+  void dropFolders(QList<quint64> folderids); // recursive
+  void dropPhotosInFolder(quint64 folderid); // recursive
 private:
   SessionDB *db0; // this is the original of the caller
   SessionDB db; // this is our copy in the thread

@@ -285,13 +285,14 @@ void LayerDialog::changeFromSliders() {
 void LayerDialog::storeInDatabase(Adjustments const &adj, int lay) {
   if (!lay)
     return;
-  Untransaction t(db);
   quint64 layid = Layers(vsn, db).layerID(lay);
   Adjustments const &a0(adjs[lay]);
   for (QString k: Adjustments::keys()) {
     double v = adj.get(k);
     double v0 = a0.get(k);
     if (v != v0) {
+      DBWriteLock lock(db);
+      pDebug() << "ldlgsid";
       db->addUndoStep(vsn, lay, k, v0, v);
       if (v==Adjustments::defaultFor(k))
         db->query("delete from layeradjustments where layer==:a and k==:b",
