@@ -39,8 +39,8 @@ void Strip::setHeaderID(quint64 id) {
     StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->dropHeaderFor(headerid, this);
-    else
-      CRASH("Strip not in a scene - disaster");
+    //else // this happens during closedown
+    //  COMPLAIN("Strip not in a scene");
   }
   headerimg = Image16();
   headerpm = QPixmap();
@@ -48,8 +48,8 @@ void Strip::setHeaderID(quint64 id) {
     StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
-    else
-      CRASH("Strip not in a scene - won't show image");
+    // else
+    // COMPLAIN("Strip not in a scene - won't show image");
   }
   headerid = id;
 }
@@ -627,13 +627,13 @@ void Strip::expand() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-    pDebug() << "strip1";
+      //pDebug() << "strip1";
       db->query("insert into expanded values(:a,:b)", d0, int(scl));
     }
     break;
   case Organization::ByFolder:
     { DBWriteLock lock(db);
-    pDebug() << "strip2";
+      //pDebug() << "strip2";
       db->query("insert into expandedfolders values(:a)", pathname);
     }
     break;
@@ -648,13 +648,13 @@ void Strip::collapse() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-    pDebug() << "strip3";
+      //    pDebug() << "strip3";
       db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
     }
     break;
   case Organization::ByFolder:
     { DBWriteLock lock(db);
-    pDebug() << "strip4";
+      //    pDebug() << "strip4";
       db->query("delete from expandedfolders where path==:a", pathname);
     }
     break;

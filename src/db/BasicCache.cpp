@@ -23,7 +23,6 @@ void BasicCache::open(QString rootdir) {
   db.open(rootdir + "/cache.db");
   readConfig();
   { DBWriteLock lock(&db);
-    pDebug() << "BC open";
     db.query("pragma synchronous = 0");
   }
   attach();
@@ -34,22 +33,17 @@ void BasicCache::clone(BasicCache const &src) {
     close();
 
   root = src.root;
-  pDebug() << "BCclone";
   db.clone(src.db);
-  pDebug() << "BCclone1";
   readConfig();
-  pDebug() << "BCclone2";
+
   { DBWriteLock lock(&db);
     db.query("pragma synchronous = 0");
   }
-  pDebug() << "BCclone3";
   attach();
-  pDebug() << "BCclone4";
 }  
 
 void BasicCache::attach() {
   DBWriteLock lock(&db);
-  pDebug() << "BC attach";
   QString q1 = "attach '" + root.absolutePath() + "/blobs%1.db' as B%2";
   QString q2 = "create table if not exists B%1.blobs ("
     " cacheid integer primary key on conflict replace,"
@@ -69,7 +63,6 @@ BasicCache::~BasicCache() {
  
 void BasicCache::close() {
   { DBWriteLock lock(&db);
-    pDebug() << "BC close";
     for (int k=1; k<=stdsizes.size(); k++) 
       db.query(QString("detach B%1").arg(k));
   }
@@ -92,7 +85,7 @@ void BasicCache::readConfig() {
     sizes << q.value(0).toInt();
   
   std::sort(sizes.begin(), sizes.end(), [](int a, int b) { return a > b; });
-  qDebug() << "sizes" << sizes;
+  //  qDebug() << "sizes" << sizes;
 
   stdsizes.clear();
   for (int s: sizes)
@@ -113,7 +106,6 @@ void BasicCache::create(QString rootdir) {
   Database db;
   db.open(rootdir + "/cache.db");
   Transaction t(&db);
-  pDebug() << "BCTrans";
   SqlFile sql(":/setupcache.sql");
   for (auto c: sql) 
     db.query(c);

@@ -14,9 +14,7 @@
 
 Exporter::Exporter(SessionDB *db0, QObject *parent):
   QThread(parent), db0(db0) {
-  pDebug() << "exporter";
   db.clone(*db0);
-  pDebug() << "exporter clone";
   qRegisterMetaType< QSet<quint64> >("QSet<quint64>");
   worker = new IF_Worker(this);
 }

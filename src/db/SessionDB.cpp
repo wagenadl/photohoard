@@ -29,7 +29,6 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
   SqlFile sql(":/setupsession.sql");
   {
     Transaction t(&sdb);
-    pDebug() << "sessiondb trans1";
   for (auto c: sql) 
       sdb.query(c);
     sdb.query("insert into paths (photodb, cachedir) values (:a, :b)",
@@ -50,7 +49,7 @@ QString SessionDB::photoDBFilename() const {
 QString SessionDB::cacheDirname() const {
   DBReadLock lock(this);
   QString fn = simpleQuery("select cachedir from paths").toString();
-  qDebug() << "session cache" << fn;
+  //  qDebug() << "session cache" << fn;
   return fn; // canonicalizing would fail if not exist
 }
 
@@ -80,7 +79,6 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   }
   
   { DBWriteLock lock(this);
-    pDebug() << "sdb pr";
     query("pragma synchronous = 0");
     query("pragma foreign_keys = on");
   }
@@ -95,7 +93,6 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   }
 
   { DBWriteLock lock(this);
-    pDebug() << "sdb at";
     query("attach database :a as P", photodbfn);
   }
   if (forcereadonly || isDBReadOnly(photodbfn)) 
@@ -104,7 +101,6 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
     upgradeDBVersion();
 
   DBWriteLock lock(this);
-  pDebug() << "sdb atm";
   query("attach database ':memory:' as M");
   query("create table if not exists M.filter"
         " ( version integer, "
@@ -120,13 +116,10 @@ void SessionDB::clone(SessionDB const &src) {
   PhotoDB::clone(src);
 
   { DBWriteLock lock(this);
-    pDebug() << "sdb clone";
     query("pragma synchronous = 0");
     query("pragma foreign_keys = on");
-    pDebug() << "SDB clone";
     QString pdbfn = simpleQuery("select photodb from paths").toString();
     query("attach database :a as P", pdbfn);
-    pDebug() << "SDB Clone 2";
   }
   upgradeDBVersion();
 }
@@ -134,7 +127,6 @@ void SessionDB::clone(SessionDB const &src) {
 
 void SessionDB::setCurrent(quint64 vsn) {
   DBWriteLock lock(this);
-  pDebug() << "sdb setcur";
   if (vsn>0)
     query("update currentvsn set version=:a", vsn);
   else
@@ -159,11 +151,9 @@ quint64 SessionDB::current() const {
 
 void SessionDB::upgradeDBVersion() {
   DBWriteLock lock(this);
-  pDebug() << "sdb upgrdb";
   // update to version 1.2 if needed
   QString dbvsn
     = simpleQuery("select version from info where id=='PhotoDB'").toString();
-  // pDebug() << "db version is" << dbvsn;
   if (dbvsn<"1.2") {
     query("alter table layers add column alpha real");
     query("alter table layers add column feather real");
@@ -182,7 +172,6 @@ void SessionDB::upgradeDBVersion() {
 
 void SessionDB::storePid(quint64 pid) {
   DBWriteLock lock(this);
-  pDebug() << "sdb storepid";
   query("update sinfo set runningpid=:a where id==:b",
         pid, "PhotohoardSessionDB");
 }

@@ -24,10 +24,8 @@ void PhotoDB::clone(PhotoDB const &src) {
   Database::clone(src);
 
   { DBWriteLock lock(this);
-    pDebug() << "photodb clone";
     query("pragma synchronous = 0");
     query("pragma foreign_keys = on");
-    pDebug() << "pragma done";
   }
   ftypes = src.ftypes;
   ro = src.ro;
@@ -49,7 +47,6 @@ void PhotoDB::create(QString fn) {
   db.open(fn);
   SqlFile sql(":/setupdb.sql");
   { Transaction t(&db);
-    pDebug() << "phototrans1";
     for (auto c: sql) 
       db.query(c);
     t.commit();
@@ -173,8 +170,7 @@ void PhotoDB::setCameraAlias(int id, QString alias) {
     return;
   }
   DBWriteLock lock(this);
-  pDebug() << "photodb setcamal";
-    query("update cameras set alias=:a where id==:b", alias, id);
+  query("update cameras set alias=:a where id==:b", alias, id);
 }
 
 void PhotoDB::setLensAlias(int id, QString alias) {
@@ -184,8 +180,6 @@ void PhotoDB::setLensAlias(int id, QString alias) {
     return;
   }
   DBWriteLock lock(this);
-  pDebug() << "photodb setlensal";
-
   query("update lenses set alias=:a where id==:b", alias, id);
 }
 
@@ -293,7 +287,6 @@ void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
     return;
   }
   DBWriteLock lock(this);
-  pDebug() << "photodb setclabel";
 
   QVariant old = simpleQuery("select colorlabel from versions where id==:a",
                              versionid);
@@ -308,7 +301,6 @@ void PhotoDB::setStarRating(quint64 versionid, int stars) {
     return;
   }
   DBWriteLock lock(this);
-  pDebug() << "photodb setstar";
 
   QVariant old = simpleQuery("select starrating from versions where id==:a",
                              versionid);
@@ -323,7 +315,6 @@ void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
     return;
   }
   DBWriteLock lock(this);
-    pDebug() << "photodb setaccrej";
   
   QVariant old = simpleQuery("select acceptreject from versions where id==:a",
                              versionid);
@@ -524,7 +515,6 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
   }
   VersionRecord vr = versionRecord(vsn);
   Transaction t(this);
-    pDebug() << "phototrans2";
 
   quint64 v1 = query("insert into versions(photo, orient, starrating,"
                      " colorlabel, acceptreject) values(:a,:b,:c,:d,:e)",
@@ -574,7 +564,6 @@ void PhotoDB::deleteVersion(quint64 vsn) {
     return;
   }
   DBWriteLock lock(this);
-      pDebug() << "photodb delv";
 
   query("delete from versions where id==:a", vsn);
 }
@@ -585,7 +574,6 @@ void PhotoDB::deletePhoto(quint64 vsn) {
     return;
   }
   DBWriteLock lock(this);
-  pDebug() << "photodb delp";
   
   query("delete from photos where id==:a", vsn);
 }

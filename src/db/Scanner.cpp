@@ -13,14 +13,11 @@
 
 Scanner::Scanner(SessionDB *db0): db0(db0) {
   setObjectName("Scanner");
-  pDebug() << "scanner";
   db.clone(*db0);
-  pDebug() << "scanner cloned";
   DBReadLock lock(db0);
   QSqlQuery q = db0->constQuery("select extension, filetype from extensions");
   while (q.next()) 
     exts[q.value(0).toString()] = q.value(1).toInt();
-  pDebug() << "scanner ok";
 }
 
 Scanner::~Scanner() {
@@ -59,7 +56,6 @@ void Scanner::addTree(QString path, QString defaultCollection,
       Tags tags(db0);
       int t = tags.ensureCollection(defaultCollection);
       Transaction tra(&db);
-      pDebug() << "scanner trans2";
       db0->query("delete from defaulttags where folder==:a", id);
       db0->query("insert into defaulttags(folder, tag) values(:a,:b)", id, t);
       tra.commit();
@@ -90,8 +86,6 @@ void Scanner::rescanAll() {
 void Scanner::rescan(QString path) {
   // This is called from outside of thread!
   { DBWriteLock lock(db0);
-    pDebug() << "rescan";
-
     db0->query("insert into folderstoscan select id from folders"
                " where pathname==:a", path);
   }
@@ -162,7 +156,6 @@ quint64 Scanner::addFolder(PhotoDB *db,
 void Scanner::excludeTree(QString path) {
   removeTree(path);
   DBWriteLock lock(db0);
-  pDebug() << "excltr";
 
   db0->query("insert into excludedtrees values (:a)", path);
 }
@@ -170,7 +163,6 @@ void Scanner::excludeTree(QString path) {
 void Scanner::removeTree(QString path) {
   // called from caller, not our thread
   DBWriteLock lock(db0);
-  pDebug() << "rmtree";
   
   db0->query("delete from folders where pathname==:a", path);
   db0->query("delete from excludedtrees where pathname like :a", path + "/%");
@@ -327,7 +319,6 @@ void Scanner::dropPhotosInFolder(quint64 folderid) {
 }
 
 void Scanner::dropFolders(QList<quint64> folderids) {
-  pDebug() << "dropfolders" << folderids;
   if (folderids.isEmpty())
     return;
 
@@ -346,7 +337,6 @@ void Scanner::dropFolders(QList<quint64> folderids) {
 void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
   QString p = db.folder(id);
   QDir dir(p);
-  pDebug() << "scanfolder" << id << p << excludedtrees; 
 
   QMap<QString, quint64> oldsubdirs = subFolders(id);
   QMap<QString, quint64> oldphotos = photosInFolder(id);
@@ -367,27 +357,23 @@ void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
     }
   }
 
-  pDebug() << "st4";
   QList<quint64> dropphotos;
   for (auto it=oldphotos.begin(); it!=oldphotos.end(); ++it) 
     if (!newphotos.contains(it.key())) 
       dropphotos << it.value();
   dropPhotos(dropphotos);
 
-  pDebug() << "st5";
   QList<quint64> dropsubdirs;
   for (auto it=oldsubdirs.begin(); it!=oldsubdirs.end(); ++it) 
     if (!newsubdirs.contains(it.key())) 
       dropsubdirs << it.value();
   dropFolders(dropsubdirs);
 
-  pDebug() << "st6";
   // Insert newly found subdirs (and store IDs)
   for (auto s: newsubdirs) 
     if (!oldsubdirs.contains(s)) 
       oldsubdirs[s] = addFolder(&db, id, dir.path()+"/"+s, s);
 
-  pDebug() << "st7";
   { Transaction t(&db);
     // Insert newly found photos
     for (auto s: newphotos)
@@ -398,7 +384,6 @@ void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
     t.commit();
   }
 
-  pDebug() << "st8";
   if (newsubdirs.size()) {
     Transaction t(&db);
     // Add all existing subfolders to scan list
@@ -409,7 +394,6 @@ void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
     t.commit();
   }
   
-  pDebug() << "st9";
   // Add new or modified photos to scan list
   if (newphotos.size()) {
     Transaction t(&db);
@@ -424,8 +408,6 @@ void Scanner::scanFolder(quint64 id, QSet<QString> const &excludedtrees) {
     }
     t.commit();
   }
-
-  pDebug() << "st10";
 }
 
 int Scanner::photoQueueLength() {
@@ -440,7 +422,6 @@ int Scanner::folderQueueLength() {
 
 void Scanner::scanPhoto(quint64 id) {
   { DBWriteLock lock(&db);
-    pDebug() << "scanph";
 
     // Remove from queue
     db.query("delete from photostoscan where photo==:a", id);
@@ -492,7 +473,6 @@ void Scanner::scanPhoto(quint64 id) {
     }
     if (!camid) {
       DBWriteLock lock(&db);
-      pDebug() << "inscam";
 
       QSqlQuery q = db.query("insert into cameras(camera, make) values(:a,:b)",
                              model, make);
@@ -511,7 +491,6 @@ void Scanner::scanPhoto(quint64 id) {
     }
     if (!lensid) {
       DBWriteLock lock(&db);
-          pDebug() << "inslens";
 
       QSqlQuery q = db.query("insert into lenses(lens) values (:a)", lens);
       lensid = q.lastInsertId().toULongLong();
@@ -539,7 +518,6 @@ void Scanner::scanPhoto(quint64 id) {
     q.bindValue(":ls", QDateTime::currentDateTime());
     q.bindValue(":id", id);
     DBWriteLock lock(&db);
-    pDebug() << "scanupdv";
     if (!q.exec()) {
       pDebug() << "fail!" << q.lastQuery() << q.boundValues();
       CRASH(q.lastError().text());

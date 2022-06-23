@@ -11,7 +11,6 @@ InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
   adjuster = new AllAdjuster(0);
   adjuster->moveToThread(this);
   // adjuster cannot be owned by us, because it must be moved into the thread
-  pDebug() << "InterruptableAdjuster" << QThread::currentThread() << this;
   start();
 }
 
@@ -175,7 +174,6 @@ void InterruptableAdjuster::handleNewImage() {
 }
 
 void InterruptableAdjuster::run() {
-  pDebug() << "InterruptableAdjuster::run" << QThread::currentThread() << this;
   mutex.lock();
   while (!stopsoon) {
     empty = adjuster->isEmpty();

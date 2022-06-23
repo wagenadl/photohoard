@@ -142,7 +142,7 @@ QString Filter::whereClause() const {
     clauses << starRatingClause();
   if (hasstatus)
     clauses << statusClause();
-  pDebug() << "filter: whereclause hascamera" << hascamera;
+  //pDebug() << "filter: whereclause hascamera" << hascamera;
   if (hascamera)
     clauses << cameraClause();
   if (hasdaterange)
@@ -221,8 +221,8 @@ QString Filter::statusClause() const {
 QString Filter::cameraClause() const {
   QStringList bits;
 
-  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
-	   << cameramake << cameramodel;
+  //  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
+  //	   << cameramake << cameramodel;
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
     // select on camera
     DBReadLock lock(db);
@@ -243,7 +243,7 @@ QString Filter::cameraClause() const {
     QStringList cameraids;
     while (q.next())
       cameraids << QString::number(q.value(0).toInt());
-    pDebug() << "cameraids" << cameraids.size();
+    //    pDebug() << "cameraids" << cameraids.size();
     if (cameraids.isEmpty())
       return "0>1";
     if (cameraids.size()==1)
@@ -322,7 +322,7 @@ bool Filter::isTrivial() const {
 void Filter::saveToDb() const {
   ASSERT(db);
   Transaction t(db);
-  pDebug() << "filtersavedb";
+  //  pDebug() << "filtersavedb";
   db->query("delete from filtersettings");
   QString q = "insert into filtersettings values (:a, :b)";
   db->query(q, "hascol", hascollection);

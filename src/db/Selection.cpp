@@ -9,13 +9,11 @@ Selection::Selection(PhotoDB *db): db(db) {
 
 void Selection::add(quint64 vsn) {
   DBWriteLock lock(db);
-  pDebug() << "selad";
   db->query("insert into selection values (:a)", vsn);
 }
 
 void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
   DBWriteLock lock(db);
-  pDebug() << "seladdr";
   db->query("insert into selection select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b",
@@ -28,7 +26,6 @@ void Selection::addDateRange(QDateTime start, Strip::TimeScale scl) {
 
 void Selection::dropDateRange(QDateTime start, QDateTime inclusiveend) {
   DBWriteLock lock(db);
-  pDebug() << "seldropdr";
   db->query("delete from selection where version in (select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b)",
@@ -41,19 +38,16 @@ void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
   
 void Selection::remove(quint64 vsn) {
   DBWriteLock lock(db);
-  pDebug() << "selrm";
   db->query("delete from selection where version==:a", vsn);
 }
   
 void Selection::clear() {
   DBWriteLock lock(db);
-  pDebug() << "selclr";
   db->query("delete from selection");
 }
 
 void Selection::selectAll() {
   DBWriteLock lock(db);
-  pDebug() << "selall";
   db->query("insert into selection select version from filter");
 }
 
@@ -80,7 +74,6 @@ QSet<quint64> Selection::current() {
 
 void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
   DBWriteLock lock(db);
-  pDebug() << "seladsof";
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate<=:b",
@@ -89,7 +82,6 @@ void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
 
 void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
   DBWriteLock lock(db);
-  pDebug() << "seladrof";
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate>=:b",
@@ -100,7 +92,6 @@ void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
   QString path1 = db->folder(fid1);
   QString path2 = db->folder(fid2);
   DBWriteLock lock(db);
-  pDebug() << "selfbw";
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " inner join folders on photos.folder==folders.id"
@@ -145,7 +136,6 @@ void Selection::addInFolder(QString folder) {
   quint64 id = db->findFolder(folder);
   if (id) {
     DBWriteLock lock(db);
-  pDebug() << "seladif";
     db->query("insert into selection select version from filter"
              " inner join photos on filter.photo=photos.id"
              " where photos.folder==:a", id);
@@ -155,7 +145,6 @@ void Selection::addInFolder(QString folder) {
 void Selection::addInTree(QString folder) {
   addInFolder(folder);
   DBWriteLock lock(db);
-  pDebug() << "seladit";
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
@@ -168,7 +157,6 @@ void Selection::dropInFolder(QString folder) {
   quint64 id = db->findFolder(folder);
   if (id) {
     DBWriteLock lock(db);
-  pDebug() << "seldif";
     db->query("delete from selection where version in"
              " (select version from filter"
              " inner join photos on filter.photo=photos.id"
@@ -179,7 +167,6 @@ void Selection::dropInFolder(QString folder) {
 void Selection::dropInTree(QString folder) {
   dropInFolder(folder);
   DBWriteLock lock(db);
-  pDebug() << "seldit";
   db->query("delete from selection select version from filter"
            " inner join photos on filter.photo=photos.id"
            " inner join folders on photos.folder==folders.id"
