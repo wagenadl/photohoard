@@ -19,10 +19,13 @@ OPTIONS
 -------
 -icc PROFILE  Specifies an ICC profile to use. The default is to
               use your monitor’s display profile.
+
 -ro  Open the database read-only. (This is not well-tested.)
+
 -new  Create a new database.
+
 -db DATABASE  Specifies a database file to use. The default is
-              $HOME/.local/photohoard/photodb.db.
+              $HOME/.local/photohoard/default.db.
 
 BUGS
 ----

@@ -21,20 +21,23 @@
 #include <QFileInfo>
 #include <QDebug>
 #include "BuildDate.h"
+#include "config.h"
 
 namespace Version {
   QString verbit() {
     static QString ver = "";
     if (ver.isEmpty()) {
-      QFile fv(":/version");
-      if (fv.open(QFile::ReadOnly)) 
-	ver = QString(fv.readAll()).simplified();
+      ver = QString::number(PHOTOHOARD_VERSION_MAJOR);
+      ver += "." + QString::number(PHOTOHOARD_VERSION_MINOR);
+      if (PHOTOHOARD_VERSION_MINOR & 1)
+        // development version, include build date
+        ver += "." + buildDate().toString("yyMMdd");
       else
-	ver = "?.?.?";
+        // release version, include patch number
+        ver += "." + QString::number(PHOTOHOARD_VERSION_PATCH);
     }
     return ver;
   }
-
     
   QDate buildDate() {
     QString date = ::buildDate();
