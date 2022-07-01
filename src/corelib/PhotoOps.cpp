@@ -13,11 +13,19 @@ namespace PhotoOps {
                         QPoint p, int method) {
     //    pDebug() << "seamlessclone" << p << target.size();
     QImage in = target.toQImage();
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    in = in.convertToFormat(QImage::Format_RGB888);
+#else
     in.convertTo(QImage::Format_RGB888);
+#endif
     cv::Mat const tgt(in.height(), in.width(), CV_8UC3,
                       (void*)in.bits(), in.bytesPerLine());
     QImage ins = source.toQImage();
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    ins = in.convertToFormat(QImage::Format_RGB888);
+#else
     ins.convertTo(QImage::Format_RGB888);
+#endif
     cv::Mat const src(ins.height(), ins.width(), CV_8UC3,
                       (void*)ins.bits(), ins.bytesPerLine());
     QImage msk1(mask.convertToFormat(QImage::Format_Grayscale8));
@@ -36,7 +44,11 @@ namespace PhotoOps {
                   QImage const &mask,
                   double radius) {
     QImage in = target.toQImage();
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    in = in.convertToFormat(QImage::Format_RGB888);
+#else
     in.convertTo(QImage::Format_RGB888);
+#endif
     cv::Mat const tgt(in.height(), in.width(), CV_8UC3,
                       (void*)in.bits(), in.bytesPerLine());
     QImage msk1(mask.convertToFormat(QImage::Format_Grayscale8));
