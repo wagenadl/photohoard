@@ -1,0 +1,6 @@
+// the configured options and settings for Photohoard
+
+#define PHOTOHOARD_VERSION @Photohoard_VERSION@
+#define PHOTOHOARD_VERSION_MAJOR @Photohoard_VERSION_MAJOR@
+#define PHOTOHOARD_VERSION_MINOR @Photohoard_VERSION_MINOR@
+#define PHOTOHOARD_VERSION_PATCH @Photohoard_VERSION_PATCH@

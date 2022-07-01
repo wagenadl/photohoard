@@ -75,13 +75,19 @@ void TagListWidget::reload() {
   if (!wheres.isEmpty())
     qq += " where " + wheres.join("and");
   qq += " order by tags.tag";
-  
-  QSqlQuery q = db->query(qq);
-  while (q.next()) {
-    int id = q.value(0).toInt();
-    QString tag = q.value(1).toString();
-    QListWidgetItem *it = new QListWidgetItem(tag);
-    it->setData(Qt::UserRole, QVariant(id));
+
+  QList<int> ids;
+  QStringList tags;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery(qq);
+    while (q.next()) {
+      ids << q.value(0).toInt();
+      tags << q.value(1).toString();
+    }
+  }
+  for (int n=0; n<ids.size(); n++) {
+    QListWidgetItem *it = new QListWidgetItem(tags[n]);
+    it->setData(Qt::UserRole, QVariant(ids[n]));
     addItem(it);
   }
   recalculateWidth();

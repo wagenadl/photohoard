@@ -57,10 +57,11 @@ void Exporter::copyFilenameToClipboard(quint64 vsn) {
 
 void Exporter::addSelection() {
   QSet<quint64> vsns;
-  QSqlQuery q(db0->query("select version from selection"));
-  while (q.next())
-    vsns << q.value(0).toULongLong();
-  q.finish();
+  { DBReadLock lock(db0);
+    QSqlQuery q(db0->constQuery("select version from selection"));
+    while (q.next())
+      vsns << q.value(0).toULongLong();
+  }
   if (!vsns.isEmpty())
     add(vsns);
 }

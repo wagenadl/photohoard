@@ -3,7 +3,7 @@
 #include "ColorLabelBar.h"
 #include "PhotoDB.h"
 #include "LightTable.h"
-#include <QDebug>
+#include "PDebug.h"
 
 ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
                              QWidget *parent):
@@ -20,10 +20,13 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
       lbl = "Remove color label";
     acts << Action{Qt::CTRL + Qt::Key_0 + n, lbl,
         [=]() {
-        db->query("update versions set colorlabel=:a where id in "
-                  " (select version from selection)", n);
-        lighttable->updateSelectedTiles();
-      }};
+          { DBWriteLock lock(db);
+            pDebug() << "colorbar1";
+            db->query("update versions set colorlabel=:a where id in "
+                      " (select version from selection)", n);
+          }
+          lighttable->updateSelectedTiles();
+        }};
     new PAction(acts.last(), QIcon(":icons/color" + clrs[n] + ".svg"), this);
   }
 
@@ -37,16 +40,21 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
       lbl = "Remove stars";
     acts << Action{Qt::ALT + Qt::Key_0 + n, lbl,
         [=]() {
-        db->query("update versions set starrating=:a where id in "
-                  " (select version from selection)", n);
-        lighttable->updateSelectedTiles();
-      }};
+          { DBWriteLock lock(db);
+            pDebug() << "colorbar2";
+            db->query("update versions set starrating=:a where id in "
+                      " (select version from selection)", n);
+          }
+          lighttable->updateSelectedTiles();
+        }};
     parent->addAction(new PAction(acts.last(), this));
   }
 
   auto foo = [db](int n) {
-      db->query("update versions set acceptreject=:a where id in "
-                " (select version from selection)", n);
+               DBWriteLock lock(db);
+               pDebug() << "colorbar3";
+               db->query("update versions set acceptreject=:a where id in "
+                         " (select version from selection)", n);
   };
   acts << Action{Qt::CTRL + Qt::Key_U, "Mark undecided",
       [=]() {

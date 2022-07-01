@@ -20,6 +20,8 @@ DatabaseDialog::DatabaseDialog(SessionDB *sdb, QWidget *parent):
   ui->bmovedb->hide();
   ui->bmovesession->hide();
   ui->bmovecache->hide();
+  ui->bsplit->hide();
+  ui->bincorporate->hide();
 }
 
 DatabaseDialog::~DatabaseDialog() {

@@ -29,6 +29,7 @@ void usage() {
 }
 
 int main(int argc, char **argv) {
+  pDebug() << "Photohoard";
   Settings settings;
   QString dbfn;
   QString icc;
@@ -70,5 +71,6 @@ int main(int argc, char **argv) {
   int res = 2;
   if (session->isActive())
     res = app.exec();
+  pDebug() << "exit" << res;
   return res;
 }

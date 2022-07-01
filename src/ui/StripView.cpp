@@ -35,46 +35,69 @@ StripView::StripView(SessionDB *db, QWidget *parent):
 
   dateStrip->block();
   dateStrip->expand();
-  QSqlQuery q = db->query("select d0, scl from expanded order by scl");
-  while (q.next()) {
-    QDateTime d0 = q.value(0).toDateTime();
-    Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
-    Strip *s = dateStrip->stripByDate(d0, scl);
+  QList<QDateTime> d0s;
+  QList<Strip::TimeScale> scls;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select d0, scl from expanded order by scl");
+    while (q.next()) {
+      d0s << q.value(0).toDateTime();
+      scls << Strip::TimeScale(q.value(1).toInt());
+    }
+  }
+  for (int n=0; n<d0s.size(); n++) {
+    Strip *s = dateStrip->stripByDate(d0s[n], scls[n]);
     if (s) {
       s->block();
       s->expand();
     }
   }
-  q = db->query("select d0, scl from expanded order by scl desc");
-  while (q.next()) {
-    QDateTime d0 = q.value(0).toDateTime();
-    Strip::TimeScale scl = Strip::TimeScale(q.value(1).toInt());
-    Strip *s = dateStrip->stripByDate(d0, scl);
+
+  d0s.clear();
+  scls.clear();
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select d0, scl from expanded order by scl desc");
+    while (q.next()) {
+      d0s << q.value(0).toDateTime();
+      scls << Strip::TimeScale(q.value(1).toInt());
+    }
+  }
+  for (int n=0; n<d0s.size(); n++) {
+    Strip *s = dateStrip->stripByDate(d0s[n], scls[n]);
     if (s) 
       s->unblock();
   }
-  q.finish();
+
   dateStrip->unblock();
 
   folderStrip->block();
   folderStrip->expand();
-  q = db->query("select path from expandedfolders order by path");
-  while (q.next()) {
-    QString path = q.value(0).toString();
+  QStringList paths;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select path from expandedfolders order by path");
+    while (q.next()) 
+      paths << q.value(0).toString();
+  }
+  for (QString path: paths) {
     Strip *s = folderStrip->stripByFolder(path);
     if (s) {
       s->block();
       s->expand();
     }
   }
-  q = db->query("select path from expandedfolders order by path desc");
-  while (q.next()) {
-    QString path = q.value(0).toString();
+
+  paths.clear();
+  { DBReadLock lock(db);
+    QSqlQuery q
+      = db->constQuery("select path from expandedfolders order by path desc");
+    while (q.next()) 
+      paths << q.value(0).toString();
+  }
+  for (QString path: paths) {
     Strip *s = folderStrip->stripByFolder(path);
     if (s) 
       s->unblock();
   }
-  q.finish();
+
   folderStrip->unblock();
   
   stripResized();

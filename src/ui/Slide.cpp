@@ -82,24 +82,28 @@ void Slide::paint(QPainter *painter,
 		  const QStyleOptionGraphicsItem *,
 		  QWidget *) {
   QRectF r = boundingRect();
-  bool isCurrent
-    = parent->database()->simpleQuery("select version from currentvsn")
-    .toULongLong() == id;
-  bool isSelected = isCurrent
-    ? true
-    : parent->database()->constQuery("select 1 from selection"
-                                     " where version==:a limit 1", id).next();
-
-  QSqlQuery q = parent->database()
-    ->query("select colorlabel, starrating, acceptreject"
-            " from versions where id==:a", id);
-  ASSERT(q.next());
-
-  int colorLabel = q.value(0).toInt();
-  int starRating = q.value(1).toInt();
-  PhotoDB::AcceptReject acceptReject
-    = PhotoDB::AcceptReject(q.value(2).toInt());
-
+  bool isCurrent;
+  bool isSelected;
+  int colorLabel;
+  int starRating;
+  PhotoDB::AcceptReject acceptReject;
+  { DBReadLock lock(parent->database());
+    isCurrent
+      = parent->database()->simpleQuery("select version from currentvsn")
+      .toULongLong() == id;
+    isSelected = isCurrent
+      ? true
+      : parent->database()->constQuery("select 1 from selection"
+                                       " where version==:a limit 1", id).next();
+    QSqlQuery q = parent->database()
+      ->constQuery("select colorlabel, starrating, acceptreject"
+              " from versions where id==:a", id);
+    ASSERT(q.next());
+    colorLabel = q.value(0).toInt();
+    starRating = q.value(1).toInt();
+    acceptReject = PhotoDB::AcceptReject(q.value(2).toInt());
+  }
+  
   painter->setPen(QPen(Qt::NoPen));
 
   QColor b0 = colorLabelColor(colorLabel);

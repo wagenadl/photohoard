@@ -8,6 +8,7 @@
 
 class Tags {
 public:
+  /* All of these create transactions as needed */
   Tags(PhotoDB *db);
   int collectionRoot();
   QStringList collections();

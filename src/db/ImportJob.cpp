@@ -85,6 +85,7 @@ void ImportJob::setAutoDestination() {
   QString root = "";
   int tagid = Tags(db).findCollection(coll);
   if (tagid>=0) {
+    DBReadLock lock(db);
     QSqlQuery q
       = db->constQuery("select pathname from folders"
                        " inner join defaulttags"
@@ -97,6 +98,7 @@ void ImportJob::setAutoDestination() {
   }
 
   if (root.isEmpty()) {
+    DBReadLock lock(db);
     QSqlQuery q
       = db->constQuery("select pathname from folders"
                        " order by length(pathname) limit 1");

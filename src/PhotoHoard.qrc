@@ -1,6 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
-    <file alias="version">version</file>
     <!-- SLIDERS -->
     <file alias="sliders.txt">../res/sliders.txt</file>
     <!-- STYLE -->

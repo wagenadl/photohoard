@@ -95,11 +95,16 @@ void AllControls::layerIndexChange(int lay) {
 }
 
 void AllControls::storeInDatabase(Adjustments const &adj) {
-  Untransaction t(db);
+  bool locked = false;
   for (QString k: Adjustments::keys()) {
     double v = adj.get(k);
     double v0 = adjs.get(k);
     if (v != v0) {
+      if (!locked) {
+        locked = true;
+        db->lockForWriting();
+        pDebug() << "allcontrolssid";
+      }
       db->addUndoStep(vsn, k, v0, v);
       if (v==Adjustments::defaultFor(k))
         db->query("delete from adjustments where version==:a and k==:b",
@@ -109,6 +114,8 @@ void AllControls::storeInDatabase(Adjustments const &adj) {
                   " values (:a, :b, :c)", vsn, k, v);
     }
   }
+  if (locked)
+    db->unlockForWriting();
   adjs = adj;
   pDebug() << "AllControls::storeInDatabase: emitting valuesChanged";
   emit valuesChanged(vsn, 0, adj);

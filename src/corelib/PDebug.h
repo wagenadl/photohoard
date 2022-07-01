@@ -15,6 +15,7 @@ namespace PDebug {
 
 inline void a_nop() { }
 
+QString calltrace();
 void complain(QString msg, char const *file, int line);
 void crash(QString msg, char const *file, int line);
 void crashdb(class QSqlDatabase const &db, QString msg,

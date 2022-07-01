@@ -48,6 +48,7 @@ void AC_Worker::countQueue() {
 }
 
 int AC_Worker::queueLength() const {
+  DBReadLock lock(cache->database());
   return cache->database()->simpleQuery("select count(*) from queue").toInt();
 }
 
@@ -64,8 +65,9 @@ void AC_Worker::boot() {
 }
 
 QSet<quint64> AC_Worker::getSomeFromDBQueue(int maxres) {
-  QSqlQuery qq = cache->database()->query("select version from queue limit :a",
-                                          maxres);
+  DBReadLock lock(cache->database());
+  QSqlQuery qq = cache->database()
+    ->constQuery("select version from queue limit :a", maxres);
   QSet<quint64> ids;
   while (qq.next()) 
     ids << qq.value(0).toULongLong();
@@ -92,6 +94,7 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   if (versions.isEmpty())
     return;
   Transaction t(cache->database());
+  pDebug() << "acworker addtodbq" << versions.size();
   for (auto v: versions) {
     cache->markOutdated(v);
     cache->database()->query("insert into queue values(:a)", v);
@@ -176,20 +179,26 @@ void AC_Worker::cacheModified(quint64 vsn) {
 
 void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
   // siz must be the orientation-corrected size for the given version
-  QSqlQuery q = db->query("select width, height, orient, photos.id"
-			 " from versions"
-			 " inner join photos on versions.photo==photos.id"
-			 " where versions.id==:a", vsn);
-  ASSERT(q.next());
-  int wid = q.value(0).toInt();
-  int hei = q.value(1).toInt();
-  Exif::Orientation orient = Exif::Orientation(q.value(2).toInt());
-  qulonglong photo = q.value(3).toULongLong();
-  PSize fs = Exif::fixOrientation(siz, orient);
-  q.finish();
+  int wid, hei;
+  Exif::Orientation orient;
+  qulonglong photo;
+  PSize fs;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select width, height, orient, photos.id"
+                            " from versions"
+                            " inner join photos on versions.photo==photos.id"
+                            " where versions.id==:a", vsn);
+    ASSERT(q.next());
+    wid = q.value(0).toInt();
+    hei = q.value(1).toInt();
+    orient = Exif::Orientation(q.value(2).toInt());
+    photo = q.value(3).toULongLong();
+    fs = Exif::fixOrientation(siz, orient);
+  }
 
   if (wid!=fs.width() || hei!=fs.height()) {
-    Untransaction ut(db);
+    DBWriteLock lock(db);
+    pDebug() << "AC_Worker::ensureDBSize";
     db->query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
   }
@@ -249,18 +258,25 @@ void AC_Worker::sendToBank(quint64 vsn) {
   AllAdjustments adjs;
   adjs.readFromDB(vsn, *db);
 
-  QSqlQuery q
-    = db->query("select folder, filename, filetype, width, height, orient "
-	       " from versions"
-	       " inner join photos on versions.photo==photos.id"
-	       " where versions.id==:a limit 1", vsn);
-  ASSERT(q.next());
-  quint64 folder = q.value(0).toULongLong();
-  QString fn = q.value(1).toString();
-  int ftype = q.value(2).toInt();
-  int wid = q.value(3).toInt();
-  int hei = q.value(4).toInt();
-  Exif::Orientation orient = Exif::Orientation(q.value(5).toInt());
+  quint64 folder;
+  QString fn;
+  int ftype;
+  int wid, hei;
+  Exif::Orientation orient;
+  { DBReadLock lock(db);
+    QSqlQuery q
+      = db->constQuery("select folder, filename, filetype, width, height, orient "
+                  " from versions"
+                  " inner join photos on versions.photo==photos.id"
+                  " where versions.id==:a limit 1", vsn);
+    ASSERT(q.next());
+    folder = q.value(0).toULongLong();
+    fn = q.value(1).toString();
+    ftype = q.value(2).toInt();
+    wid = q.value(3).toInt();
+    hei = q.value(4).toInt();
+    orient = Exif::Orientation(q.value(5).toInt());
+  }
   
   PSize osize = Exif::fixOrientation(PSize(wid,hei), orient);
   QString path = db->folder(folder) + "/" + fn;
@@ -273,6 +289,7 @@ void AC_Worker::sendToBank(quint64 vsn) {
 
 void AC_Worker::storeLoadedInDB() {
   Transaction t(cache->database());
+  pDebug() << "accworker storelid" << loaded.size();
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
     quint64 version = it.key();

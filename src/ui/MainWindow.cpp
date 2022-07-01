@@ -39,8 +39,8 @@ MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter):
   db(db), scanner(scanner), exporter(exporter) {
-
-  setWindowTitle("Photohoard");
+  QFileInfo dbf(db->photoDBFilename());
+  setWindowTitle("Photohoard - " + dbf.baseName());
   
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setObjectName("Histogram");
