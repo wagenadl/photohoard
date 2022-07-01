@@ -432,7 +432,6 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
   if (so) 
     delete so;
 
-  qDebug() << "visualize" << vsn << lay << showlayers;
   if (lay>0 && showlayers) {
     so = new SO_Layer(db, this);
     connect(so, &SO_Layer::layerMaskChanged,

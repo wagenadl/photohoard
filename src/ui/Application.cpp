@@ -2,8 +2,6 @@
 
 #include "Application.h"
 #include "PDebug.h"
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QFile>
 
 Application::Application(int &argc, char **argv): QApplication(argc, argv) {

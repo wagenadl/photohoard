@@ -1,0 +1,10 @@
+set(CPACK_GENERATOR "DEB")
+
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Daniel A. Wagenaar <daw@caltech.edu>")
+set(CPACK_DEBIAN_PACKAGE_RELEASE "1")
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+# Use my "concise-deps" to figure out minimal list of dependencies
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5widgets5 (>= 5.12), libqt5sql5 (>= 5.12), libstdc++6 (>=10.0), liblcms2-2 (>=2.9), libexiv2-27 (>=0.27), libopencv-core4.2 (>=4.2), libopencv-photo4.2 (>=4.2), libopencv-imgproc4.2 (>=4.2)")
+set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE_URL}")
+  

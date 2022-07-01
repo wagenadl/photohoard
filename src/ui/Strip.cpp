@@ -39,8 +39,8 @@ void Strip::setHeaderID(quint64 id) {
     StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->dropHeaderFor(headerid, this);
-    else
-      CRASH("Strip not in a scene - disaster");
+    //else // this happens during closedown
+    //  COMPLAIN("Strip not in a scene");
   }
   headerimg = Image16();
   headerpm = QPixmap();
@@ -48,8 +48,8 @@ void Strip::setHeaderID(quint64 id) {
     StripScene *fs = dynamic_cast<StripScene *>(scene());
     if (fs)
       fs->addHeaderFor(id, this);
-    else
-      CRASH("Strip not in a scene - won't show image");
+    // else
+    // COMPLAIN("Strip not in a scene - won't show image");
   }
   headerid = id;
 }
@@ -352,17 +352,21 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
   if (headerid==0) {
     switch (org) {
     case Organization::ByDate: {
-      QSqlQuery q = db->query("select version"
-                             " from filter inner join photos"
-                             " on filter.photo=photos.id"
-                             " where photos.capturedate>=:a"
-                             " and photos.capturedate<:b"
-                             " limit 1", d0, endFor(d0, scl));
-      if (q.next()) {
-        setHeaderID(q.value(0).toULongLong());
-      } else {
-        COMPLAIN("Could not find header image");
+      quint64 v = 0;
+      { DBReadLock lock(db);
+        QSqlQuery q = db->constQuery("select version"
+                                " from filter inner join photos"
+                                " on filter.photo=photos.id"
+                                " where photos.capturedate>=:a"
+                                " and photos.capturedate<:b"
+                                " limit 1", d0, endFor(d0, scl));
+        if (q.next())
+          v = q.value(0).toULongLong();
       }
+      if (v)
+        setHeaderID(v);
+        else 
+          COMPLAIN("Could not find header image");
     } break;
     case Organization::ByFolder:
       setHeaderID(db->firstVersionInTree(pathname));
@@ -620,13 +624,18 @@ void Strip::expand() {
     return;
   expanded = true;
   prepareGeometryChange();
-  Untransaction t(db);
   switch (org) {
   case Organization::ByDate:
-    db->query("insert into expanded values(:a,:b)", d0, int(scl));
+    { DBWriteLock lock(db);
+      //pDebug() << "strip1";
+      db->query("insert into expanded values(:a,:b)", d0, int(scl));
+    }
     break;
   case Organization::ByFolder:
-    db->query("insert into expandedfolders values(:a)", pathname);
+    { DBWriteLock lock(db);
+      //pDebug() << "strip2";
+      db->query("insert into expandedfolders values(:a)", pathname);
+    }
     break;
   }
 }
@@ -636,13 +645,18 @@ void Strip::collapse() {
     return;
   prepareGeometryChange();
   expanded = false;
-  Untransaction t(db);
   switch (org) {
   case Organization::ByDate:
-    db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
+    { DBWriteLock lock(db);
+      //    pDebug() << "strip3";
+      db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
+    }
     break;
   case Organization::ByFolder:
-    db->query("delete from expandedfolders where path==:a", pathname);
+    { DBWriteLock lock(db);
+      //    pDebug() << "strip4";
+      db->query("delete from expandedfolders where path==:a", pathname);
+    }
     break;
   }
 }

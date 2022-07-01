@@ -192,8 +192,9 @@ void TagDialog::updateApplyButton() {
     applyButton->setEnabled(true);
     return;
   }
-  
-  QSqlQuery q = db->query("select version from selection");
+
+  DBReadLock lock(db);
+  QSqlQuery q = db->constQuery("select version from selection");
   while (q.next()) {
     quint64 vsn = q.value(0).toULongLong();
     if (db->simpleQuery("select count(*) from appliedtags"
@@ -213,8 +214,9 @@ void TagDialog::updateRemoveButton() {
   int t = terminalTag();
   if (!t)
     return;
-  
-  QSqlQuery q = db->query("select version from selection");
+
+  DBReadLock lock(db);
+  QSqlQuery q = db->constQuery("select version from selection");
   while (q.next()) {
     quint64 vsn = q.value(0).toULongLong();
     if (db->simpleQuery("select count(*) from appliedtags"

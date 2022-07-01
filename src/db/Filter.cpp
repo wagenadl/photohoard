@@ -118,6 +118,7 @@ void Filter::unsetTags() {
 
 int Filter::count() const {
   ASSERT(db);
+  DBReadLock lock(db);
   return db->simpleQuery("select count(*) from versions "
 			+ joinClause()
 			+ " where " + whereClause()).toInt();
@@ -141,7 +142,7 @@ QString Filter::whereClause() const {
     clauses << starRatingClause();
   if (hasstatus)
     clauses << statusClause();
-  pDebug() << "filter: whereclause hascamera" << hascamera;
+  //pDebug() << "filter: whereclause hascamera" << hascamera;
   if (hascamera)
     clauses << cameraClause();
   if (hasdaterange)
@@ -157,7 +158,8 @@ QString Filter::whereClause() const {
 }
 
 QString Filter::collectionClause() const {
-  QSqlQuery q = db->query("select id from tags where tag==:a", "Collections");
+  DBReadLock lock(db);
+  QSqlQuery q = db->constQuery("select id from tags where tag==:a", "Collections");
   if (!q.next())
     return collection_.isEmpty() ? "1>0" : "0>1";
   int colparent = q.value(0).toInt();
@@ -166,7 +168,7 @@ QString Filter::collectionClause() const {
       "( select id from tags where parent==" + QString::number(colparent)
       +") )";
   } else {
-    q = db->query("select id from tags where tag==:a and parent==:b",
+    q = db->constQuery("select id from tags where tag==:a and parent==:b",
                  collection_, colparent);
     if (q.next())
       return "versions.id in ( select version from appliedtags where tag=="
@@ -219,28 +221,29 @@ QString Filter::statusClause() const {
 QString Filter::cameraClause() const {
   QStringList bits;
 
-  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
-	   << cameramake << cameramodel;
+  //  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
+  //	   << cameramake << cameramodel;
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
     // select on camera
+    DBReadLock lock(db);
     QSqlQuery q;
     if (cameramake.isEmpty()) {
       // select just on model
-      q = db->query("select id from cameras where camera==:a",
+      q = db->constQuery("select id from cameras where camera==:a",
 		   cameramodel);
     } else if (cameramodel.isEmpty()) {
       // select just on make
-      q = db->query("select id from cameras where make==:a",
+      q = db->constQuery("select id from cameras where make==:a",
 		   cameramake);
     } else {
       // select on both
-      q = db->query("select id from cameras where make==:a and camera==:b",
+      q = db->constQuery("select id from cameras where make==:a and camera==:b",
 		   cameramake, cameramodel);
     }
     QStringList cameraids;
     while (q.next())
       cameraids << QString::number(q.value(0).toInt());
-    pDebug() << "cameraids" << cameraids.size();
+    //    pDebug() << "cameraids" << cameraids.size();
     if (cameraids.isEmpty())
       return "0>1";
     if (cameraids.size()==1)
@@ -250,7 +253,8 @@ QString Filter::cameraClause() const {
   }
   
   if (!cameralens.isEmpty()) {
-    QSqlQuery q = db->query("select id from lenses where lens==:a", cameralens);
+    DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select id from lenses where lens==:a", cameralens);
     if (q.next())
       bits << "lens==" + QString::number(q.value(0).toInt());
     else
@@ -272,11 +276,12 @@ QString Filter::fileLocationClause() const {
   if (filelocation.isEmpty())
     return "0>1";
   QSet<int> folders;
-  QSqlQuery q = db->query("select id from folders where pathname==:a",
+  DBReadLock lock(db);
+  QSqlQuery q = db->constQuery("select id from folders where pathname==:a",
 			 filelocation);
   if (q.next())
     folders << q.value(0).toInt();
-  q = db->query("select id from folders where pathname like :a",
+  q = db->constQuery("select id from folders where pathname like :a",
 	       filelocation + "/%");
   while (q.next())
     folders << q.value(0).toInt();
@@ -317,6 +322,7 @@ bool Filter::isTrivial() const {
 void Filter::saveToDb() const {
   ASSERT(db);
   Transaction t(db);
+  //  pDebug() << "filtersavedb";
   db->query("delete from filtersettings");
   QString q = "insert into filtersettings values (:a, :b)";
   db->query(q, "hascol", hascollection);
@@ -350,7 +356,8 @@ void Filter::saveToDb() const {
 void Filter::loadFromDb() {
   ASSERT(db);
   reset();
-  QSqlQuery q = db->query("select k, v from filtersettings");
+  DBReadLock lock(db);
+  QSqlQuery q = db->constQuery("select k, v from filtersettings");
   while (q.next()) {
     QString k = q.value(0).toString();
     QVariant v = q.value(1);

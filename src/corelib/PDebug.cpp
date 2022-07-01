@@ -26,10 +26,10 @@ namespace PDebug {
   }
 };
 
-QMap<Qt::HANDLE, int> threads;
+QMap<QThread *, int> threads;
 
 QDebug pDebug() {
-  Qt::HANDLE thrid = QThread::currentThreadId();
+  QThread *thrid = QThread::currentThread();
   int k = threads.size() + 1;
   if (threads.contains(thrid))
     k = threads[thrid];
@@ -86,10 +86,6 @@ QString calltrace() {
   trc.replace("  ", " ");
   return trc;
 }
-
-
-
-
 
 void complain(QString msg, char const *file, int line) {
   qDebug() << "Trouble. Calltrace follows.";

@@ -14,6 +14,7 @@ PhotoDB::PhotoDB(): Database() {
 }
 
 void PhotoDB::readFTypes() const {
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select id, stdext from filetypes");
   while (q.next()) 
     ftypes[q.value(0).toInt()] = q.value(1).toString();
@@ -22,9 +23,10 @@ void PhotoDB::readFTypes() const {
 void PhotoDB::clone(PhotoDB const &src) {
   Database::clone(src);
 
-  query("pragma synchronous = 0");
-  query("pragma foreign_keys = on");
-
+  { DBWriteLock lock(this);
+    query("pragma synchronous = 0");
+    query("pragma foreign_keys = on");
+  }
   ftypes = src.ftypes;
   ro = src.ro;
 }
@@ -44,9 +46,7 @@ void PhotoDB::create(QString fn) {
   Database db;
   db.open(fn);
   SqlFile sql(":/setupdb.sql");
-  {
-    Transaction t(&db);
-
+  { Transaction t(&db);
     for (auto c: sql) 
       db.query(c);
     t.commit();
@@ -65,6 +65,7 @@ quint64 PhotoDB::findFolder(QString path) const {
   if (revFolders.contains(path))
     return revFolders[path];
 
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select id from folders where pathname==:a", path);
   if (!q.next())
     return 0;
@@ -78,6 +79,7 @@ QString PhotoDB::folder(quint64 id) const {
   if (folders.contains(id))
     return folders[id];
 
+  DBReadLock lock(this);
   QString folder = simpleQuery("select pathname from folders where id=:a", id)
     .toString();
   folders[id] = folder;
@@ -86,16 +88,19 @@ QString PhotoDB::folder(quint64 id) const {
 
 
 quint64 PhotoDB::photoFromVersion(quint64 v) const {
+  DBReadLock lock(this);
   return simpleQuery("select photo from versions where id==:a", v)
     .toULongLong();
 }
 
 QDateTime PhotoDB::captureDate(quint64 p) const {
+  DBReadLock lock(this);
   return simpleQuery("select capturedate from photos where id==:a", p)
     .toDateTime();
 }
 
 PSize PhotoDB::photoSize(quint64 p) const {
+  DBReadLock lock(this);
   QSqlQuery q
     = constQuery("select width, height from photos where id==:a", p);
   ASSERT(q.next());
@@ -110,28 +115,35 @@ QString PhotoDB::camera(int id) const {
 }
 
 QString PhotoDB::model(int id) const {
-  if (!models.contains(id)) 
+  if (!models.contains(id)) {
+    DBReadLock lock(this);
     models[id] = simpleQuery("select camera from cameras where id==:a", id)
       .toString();
+  }
   return models[id];
 }
 
 QString PhotoDB::make(int id) const {
-  if (!makes.contains(id)) 
+  if (!makes.contains(id)) {
+    DBReadLock lock(this);
     makes[id] = simpleQuery("select make from cameras where id==:a", id)
       .toString();
+  }
   return makes[id];
 }
 
 QString PhotoDB::lens(int id) const {
-  if (!lenses.contains(id)) 
+  if (!lenses.contains(id)) {
+    DBReadLock lock(this);
     lenses[id] = simpleQuery("select lens from lenses where id==:a", id)
       .toString();
+  }
   return lenses[id];
 }
 
 QString PhotoDB::cameraAlias(int id) const {
   if (!cameraAliases.contains(id)) {
+    DBReadLock lock(this);
     QString alias = simpleQuery("select alias from cameras where id==:a", id)
       .toString();
     cameraAliases[id] = alias.isEmpty() ? camera(id) : alias;
@@ -141,8 +153,11 @@ QString PhotoDB::cameraAlias(int id) const {
 
 QString PhotoDB::lensAlias(int id) const {
   if (!lensAliases.contains(id)) {
-    QString alias = simpleQuery("select alias from lenses where id==:a", id)
-      .toString();
+    QString alias;
+    { DBReadLock lock(this);
+      alias = simpleQuery("select alias from lenses where id==:a", id)
+        .toString();
+    }
     lensAliases[id] = alias.isEmpty() ? lens(id) : alias;
   }
   return lensAliases[id];
@@ -154,6 +169,7 @@ void PhotoDB::setCameraAlias(int id, QString alias) {
     COMPLAIN("Setting a camera alias in read-only mode is not permanent");
     return;
   }
+  DBWriteLock lock(this);
   query("update cameras set alias=:a where id==:b", alias, id);
 }
 
@@ -163,11 +179,13 @@ void PhotoDB::setLensAlias(int id, QString alias) {
     COMPLAIN("Setting a lens alias in read-only mode is not permanent");
     return;
   }
+  DBWriteLock lock(this);
   query("update lenses set alias=:a where id==:b", alias, id);
 }
 
 PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
   VersionRecord vr;
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select photo,"
                            " starrating, colorlabel, acceptreject, orient"
                            " from versions where id==:a", id);
@@ -183,6 +201,7 @@ PhotoDB::VersionRecord PhotoDB::versionRecord(quint64 id) const {
 
 PhotoDB::PhotoRecord PhotoDB::photoRecord(quint64 id) const {
   PhotoRecord pr;
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select folder, filename, filetype, width, height,"
                            " camera, lens, exposetime, fnumber, focallength,"
                            " distance, iso, capturedate"
@@ -227,7 +246,7 @@ void PhotoDB::addUndoStep(quint64 versionid, int layer,
   }
   QDateTime now = QDateTime::currentDateTime();
   query("delete from undo where version==:a and undone==1", versionid);
-  QSqlQuery q = query("select stepid, version,"
+  QSqlQuery q = constQuery("select stepid, version,"
                       " item, oldvalue, newvalue, created, layer"
                       " from undo"
                       " order by stepid desc limit 1");
@@ -267,6 +286,8 @@ void PhotoDB::setColorLabel(quint64 versionid, PhotoDB::ColorLabel label) {
     COMPLAIN("Cannot set color label in read only mode");
     return;
   }
+  DBWriteLock lock(this);
+
   QVariant old = simpleQuery("select colorlabel from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".colorlabel", old, int(label));
@@ -279,6 +300,8 @@ void PhotoDB::setStarRating(quint64 versionid, int stars) {
     COMPLAIN("Cannot set star rating in read only mode");
     return;
   }
+  DBWriteLock lock(this);
+
   QVariant old = simpleQuery("select starrating from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".starrating", old, stars);
@@ -291,6 +314,8 @@ void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
     COMPLAIN("Cannot set accept/reject in read only mode");
     return;
   }
+  DBWriteLock lock(this);
+  
   QVariant old = simpleQuery("select acceptreject from versions where id==:a",
                              versionid);
   addUndoStep(versionid, ".acceptreject", old, int(label));
@@ -299,12 +324,14 @@ void PhotoDB::setAcceptReject(quint64 versionid, PhotoDB::AcceptReject label) {
 }
 
 PhotoDB::AcceptReject PhotoDB::acceptReject(quint64 versionid) const {
+  DBReadLock lock(this);
   QVariant old = simpleQuery("select acceptreject from versions where id==:a",
                              versionid);
   return PhotoDB::AcceptReject(old.toInt());
 }
 
 quint64 PhotoDB::root(quint64 folderid) const {
+  DBReadLock lock(this);
   while (true) {
     bool ok;
     quint64 parentid
@@ -318,33 +345,39 @@ quint64 PhotoDB::root(quint64 folderid) const {
 }
 
 int PhotoDB::countPhotos() const {
+  DBReadLock lock(this);
   return simpleQuery("select count(*) from photos").toInt();
 }
 
 int PhotoDB::countInFolder(QString folder) const {
   quint64 id = findFolder(folder);
-  if (id)
+  if (id) {
+    DBReadLock lock(this);
     return simpleQuery("select count(*) from filter"
                        " inner join photos on filter.photo=photos.id"
                        " where photos.folder==:a", id).toInt();
-  else
-    return 0;
+  } 
+  return 0;
 }
 
 int PhotoDB::countInTree(QString folder) const {
-  int nsub =  simpleQuery("select count(*) from filter"
-                          " inner join photos on filter.photo=photos.id"
-                          " inner join folders on photos.folder==folders.id"
-                          " where folders.id in "
-			  " (select id from folders where pathname like :a)",
-			  folder+"/%")
-    .toInt();
+  int nsub;
+  { DBReadLock lock(this);
+    nsub = simpleQuery("select count(*) from filter"
+                       " inner join photos on filter.photo=photos.id"
+                       " inner join folders on photos.folder==folders.id"
+                       " where folders.id in "
+                       " (select id from folders where pathname like :a)",
+                       folder+"/%")
+      .toInt();
+  }
   return nsub + countInFolder(folder);
 }
 
 bool PhotoDB::anyInTreeBelow(QString folder) const {
   if (folder=="/")
     folder = "";
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select 1 from filter"
                            " inner join photos on filter.photo=photos.id"
                            " inner join folders on photos.folder==folders.id"
@@ -356,6 +389,7 @@ bool PhotoDB::anyInTreeBelow(QString folder) const {
 }
 
 int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
+  DBReadLock lock(this);
   return simpleQuery("select count(*) from filter"
                      " inner join photos on filter.photo==photos.id"
                      " where photos.capturedate>=:a"
@@ -363,6 +397,7 @@ int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
 }
 
 QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select capturedate from filter"
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and capturedate<:b"
@@ -375,6 +410,7 @@ QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
 }
 
 QDateTime PhotoDB::lastDateInRange(QDateTime t0, QDateTime t1) const {
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select capturedate from filter"
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and photos.capturedate<:b"
@@ -387,6 +423,7 @@ QDateTime PhotoDB::lastDateInRange(QDateTime t0, QDateTime t1) const {
 }
 
 QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select version"
                            " from filter inner join photos"
                            " on filter.photo=photos.id"
@@ -405,6 +442,7 @@ QList<quint64> PhotoDB::versionsInFolder(QString folder) const {
   if (fid==0)
     return QList<quint64>();
   
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select version"
                            " from filter inner join photos"
                            " on filter.photo=photos.id"
@@ -418,6 +456,7 @@ QList<quint64> PhotoDB::versionsInFolder(QString folder) const {
 
 QList<QString> PhotoDB::rootFolders() const {
   QList<QString> res;
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select pathname from folders"
                            " where parentfolder is null"
                            " order by pathname");
@@ -436,6 +475,7 @@ QList<QString> PhotoDB::subFolders(QString folder) const {
   if (fid==0)
     return res;
   
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select pathname from folders"
                            " where parentfolder==:a"
                            " order by leafname", fid);
@@ -449,6 +489,7 @@ quint64 PhotoDB::firstVersionInTree(QString folder) const {
   if (fid==0)
     return 0;
   
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select version"
                            " from filter inner join photos"
                            " on filter.photo=photos.id"
@@ -493,6 +534,7 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
 }
   
 PSize PhotoDB::originalSize(quint64 vsn) const {
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select width, height, orient"
                           " from versions"
                           " inner join photos on versions.photo==photos.id"
@@ -509,6 +551,7 @@ PSize PhotoDB::originalSize(PhotoDB::VersionRecord const &vr,
 }
 
 bool PhotoDB::hasSiblings(quint64 vsn) {
+  DBReadLock lock(this);
   int n = simpleQuery("select count(1) from versions where photo in"
                       " (select photo from versions where id==:a", vsn)
     .toInt();
@@ -520,6 +563,8 @@ void PhotoDB::deleteVersion(quint64 vsn) {
     COMPLAIN("Cannot delete version in read only mode");
     return;
   }
+  DBWriteLock lock(this);
+
   query("delete from versions where id==:a", vsn);
 }
 
@@ -528,11 +573,14 @@ void PhotoDB::deletePhoto(quint64 vsn) {
     COMPLAIN("Cannot delete photo in read only mode");
     return;
   }
+  DBWriteLock lock(this);
+  
   query("delete from photos where id==:a", vsn);
 }
 
 QSet<quint64> PhotoDB::versionsForPhoto(quint64 photo) {
   QSet<quint64> res;
+  DBReadLock lock(this);
   QSqlQuery q = constQuery("select id from versions where photo==:a", photo);
   while (q.next())
     res.insert(q.value(0).toULongLong());

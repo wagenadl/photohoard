@@ -22,7 +22,9 @@ void BasicCache::open(QString rootdir) {
   root.setPath(rootdir);
   db.open(rootdir + "/cache.db");
   readConfig();
-  db.query("pragma synchronous = 0");
+  { DBWriteLock lock(&db);
+    db.query("pragma synchronous = 0");
+  }
   attach();
 }
 
@@ -33,11 +35,15 @@ void BasicCache::clone(BasicCache const &src) {
   root = src.root;
   db.clone(src.db);
   readConfig();
-  db.query("pragma synchronous = 0");
+
+  { DBWriteLock lock(&db);
+    db.query("pragma synchronous = 0");
+  }
   attach();
 }  
 
 void BasicCache::attach() {
+  DBWriteLock lock(&db);
   QString q1 = "attach '" + root.absolutePath() + "/blobs%1.db' as B%2";
   QString q2 = "create table if not exists B%1.blobs ("
     " cacheid integer primary key on conflict replace,"
@@ -56,13 +62,16 @@ BasicCache::~BasicCache() {
 }
  
 void BasicCache::close() {
-  for (int k=1; k<=stdsizes.size(); k++) 
-    db.query(QString("detach B%1").arg(k));
+  { DBWriteLock lock(&db);
+    for (int k=1; k<=stdsizes.size(); k++) 
+      db.query(QString("detach B%1").arg(k));
+  }
   db.close();
 }
 
 void BasicCache::readConfig() {
-  QSqlQuery q = db.query("select bytes from memthresh");
+  DBReadLock lock(&db);
+  QSqlQuery q = db.constQuery("select bytes from memthresh");
   if (q.next()) {
     memthresh = q.value(0).toInt();
   } else {
@@ -70,12 +79,13 @@ void BasicCache::readConfig() {
     CRASH("Could not read memory threshold from db");
   }
 
-  q = db.query("select maxdim from sizes");
   QList<int> sizes;
+  q = db.constQuery("select maxdim from sizes");
   while (q.next())
     sizes << q.value(0).toInt();
+  
   std::sort(sizes.begin(), sizes.end(), [](int a, int b) { return a > b; });
-  qDebug() << "sizes" << sizes;
+  //  qDebug() << "sizes" << sizes;
 
   stdsizes.clear();
   for (int s: sizes)
@@ -129,7 +139,7 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
 
 void BasicCache::dropOutdatedFromCache(quint64 vsn) {
   // should be called within a transaction
-  QSqlQuery q(db.query("select id, maxdim, dbno from cache"
+  QSqlQuery q(db.constQuery("select id, maxdim, dbno from cache"
 		       " where version==:a and outdated>0", vsn));
   while (q.next()) {
     quint64 id = q.value(0).toULongLong();
@@ -164,7 +174,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
   int d = s.maxDim();
 
 
-  QSqlQuery q = db.query("select id, dbno from cache"
+  QSqlQuery q = db.constQuery("select id, dbno from cache"
 			 " where version==:a and maxdim==:b",
 			 vsn, d);
   if (q.next()) {
@@ -218,7 +228,7 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
 
 void BasicCache::remove(quint64 vsn) {
   // should be called within a transaction
-  QSqlQuery q(db.query("select id, maxdim, dbno from cache"
+  QSqlQuery q(db.constQuery("select id, maxdim, dbno from cache"
 		       " where version==:a", vsn));
   while (q.next()) {
     quint64 cacheid = q.value(0).toULongLong();
@@ -234,21 +244,28 @@ void BasicCache::remove(quint64 vsn) {
 }
 
 Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
-  QSqlQuery q = db.query("select id, dbno, outdated from cache"
-			 " where version==:a and maxdim==:b limit 1",
-			 vsn, s.maxDim());
-  ASSERT(q.next());
-
-  quint64 cacheid = q.value(0).toInt();
-  int k = q.value(1).toInt();
-  bool od = q.value(2).toInt()>0;
+  quint64 cacheid;
+  int k;
+  bool od;
+  { DBReadLock lock(&db);
+    QSqlQuery q = db.constQuery("select id, dbno, outdated from cache"
+                                " where version==:a and maxdim==:b limit 1",
+                                vsn, s.maxDim());
+    ASSERT(q.next());
+    cacheid = q.value(0).toInt();
+    k = q.value(1).toInt();
+    od = q.value(2).toInt()>0;
+  }
   if (outdated_return)
     *outdated_return = od;
   if (k) {
-    QByteArray bits(db.simpleQuery(QString("select bits from B%1.blobs"
-                                           " where cacheid==:a").arg(k),
-                                   cacheid)
-		    .toByteArray());
+    QByteArray bits;
+    { DBReadLock lock(&db);
+      bits = db.simpleQuery(QString("select bits from B%1.blobs"
+                                    " where cacheid==:a").arg(k),
+                            cacheid)
+        .toByteArray();
+    }
     QBuffer buf(&bits);
     QImageReader reader(&buf, "jpeg");
     return reader.read();
@@ -262,7 +279,8 @@ Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
 }
 
 PSize BasicCache::bestSize(quint64 vsn, PSize desired) {
-  QSqlQuery q(db.query("select width, height, outdated from cache"
+  DBReadLock lock(&db);
+  QSqlQuery q(db.constQuery("select width, height, outdated from cache"
 		       " where version==:a", vsn));
   PSize sbest;
   bool gotbig = false;
@@ -312,7 +330,7 @@ QList<PSize> BasicCache::sizes(quint64 vsn, bool outdatedOK) {
   if (!outdatedOK)
     query += " and outdated==0";
   query += " order by maxdim";
-  QSqlQuery q(db.query(query, vsn));
+  QSqlQuery q(db.constQuery(query, vsn));
   
   QList<PSize> lst;
   while (q.next()) {
@@ -341,7 +359,7 @@ QString BasicCache::constructFilename(quint64 vsn, int d) {
 }
 
 void BasicCache::markOutdated(quint64 vsn) {
-  // may be called inside a transaction
+  // must be called inside a transaction
   db.query("update cache set outdated=1 where version==:a", vsn);
 }
 

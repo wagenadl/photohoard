@@ -4,6 +4,7 @@
 #include "PhotoDB.h"
 #include "AutoCache.h"
 #include <QFileInfo>
+#include "PDebug.h"
 
 Purge::Purge(PhotoDB *db, AutoCache *cache): db(db), cache(cache) {
   refresh();
@@ -17,7 +18,9 @@ void Purge::refresh() {
   phsThatCanBeDeld.clear();
   orphans.clear();
   orphsThatCanBeDeld.clear();
-  
+
+  DBWriteLock lock(db);
+  pDebug() << "purge lock";
   db->query("create table M.rejects as"
             " select id as vsn, photo from versions"
 	    " where acceptreject<0");

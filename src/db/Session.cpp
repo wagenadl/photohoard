@@ -21,7 +21,6 @@ QStringList Session::recentDatabases() {
 
 Session::Session(QString dbfn0, bool create, bool readonly):
   dbfn(dbfn0), readonly(readonly) {
-  pDebug() << "Session" << dbfn;
   active = false;
   sdb = 0;
   ac = 0;
@@ -66,20 +65,18 @@ Session::Session(QString dbfn0, bool create, bool readonly):
     /* Strictly speaking, this procedure should be protected by some
        locking mechanism to prevent races. Is that possible?
     */
-    Transaction t(sdb); // not sure if that actually locks other processes out
     quint64 pid = sdb->retrievePid();
-    qDebug() << "retrieve pid " << pid;
+    //    qDebug() << "retrieve pid " << pid;
     if (pid && RunControl::isRunning(pid)) {
       ErrorDialog::fatal("The database “" + dbfn
                          + "” is already open in photohoard.");
       return;
     }
     sdb->storePid(RunControl::pid());
-    t.commit(); 
   }
 
   QString cachefn = sdb->cacheDirname();
-  qDebug() << "cachedir" << sdb->cacheDirname();
+  //  qDebug() << "cachedir" << sdb->cacheDirname();
   if (!QDir(cachefn).exists()) {
     pDebug() << "Creating cache at " << cachefn;
     BasicCache::create(cachefn);
@@ -121,7 +118,6 @@ Session::Session(QString dbfn0, bool create, bool readonly):
 }
 
 void Session::quit() {
-  pDebug() << "quit session";
   if (!active)
     return;
   active = false;
@@ -153,7 +149,6 @@ void Session::quit() {
 }
 
 Session::~Session() {
-  pDebug() << "~Session" << dbfn;
 }
 
 bool Session::isActive() const {

@@ -39,11 +39,12 @@ void FilterDialog::prepMakes() {
   ui->cMake->clear();
   ui->cMake->addItem("Any make");
 
-  QSqlQuery q = db->query("select distinct make from cameras");
   QStringList makes;
-  while (q.next()) 
-    makes << q.value(0).toString();
-  q.finish();
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select distinct make from cameras");
+    while (q.next()) 
+      makes << q.value(0).toString();
+  }
   
   std::sort(makes.begin(), makes.end());
   makes.removeOne("");
@@ -60,13 +61,14 @@ void FilterDialog::prepModels(QString make) {
   ui->cCamera->clear();
   ui->cCamera->addItem("Any model");
 
-  QSqlQuery q = make.isEmpty()
-    ? db->query("select distinct camera from cameras")
-    : db->query("select distinct camera from cameras where make=:a", make);
   QStringList models;
-  while (q.next())
-    models << q.value(0).toString();
-  q.finish();
+  { DBReadLock lock(db);
+    QSqlQuery q = make.isEmpty()
+      ? db->constQuery("select distinct camera from cameras")
+      : db->constQuery("select distinct camera from cameras where make=:a", make);
+    while (q.next())
+      models << q.value(0).toString();
+  }
   
   std::sort(models.begin(), models.end());
   models.removeOne("");
@@ -98,35 +100,37 @@ void FilterDialog::prepLenses(QString make, QString model) {
   ui->cLens->clear();
   ui->cLens->addItem("Any lens");
 
-  QSqlQuery q;
-  if (make.isEmpty() && model.isEmpty()) {
-    q = db->query("select lens from lenses");
-  } else {
-    QString qq = "select distinct lenses.lens from lenses "
-      "inner join photos on lenses.id==photos.lens "
-      "inner join cameras on photos.camera==cameras.id where ";
-    if (model.isEmpty()) {
-      qq += "cameras.make==:a";
-      q = db->query(qq, make);
-    } else if (make.isEmpty()) {
-      qq += "cameras.camera==:a";
-      q = db->query(qq, model);
+  QStringList lenses;
+  { DBReadLock lock(db);
+    QSqlQuery q;
+    if (make.isEmpty() && model.isEmpty()) {
+      q = db->constQuery("select lens from lenses");
     } else {
-      qq += "cameras.make==:a and cameras.camera==:b";
-      q = db->query(qq, make, model);
+      QString qq = "select distinct lenses.lens from lenses "
+        "inner join photos on lenses.id==photos.lens "
+        "inner join cameras on photos.camera==cameras.id where ";
+      if (model.isEmpty()) {
+        qq += "cameras.make==:a";
+        q = db->constQuery(qq, make);
+      } else if (make.isEmpty()) {
+        qq += "cameras.camera==:a";
+        q = db->query(qq, model);
+      } else {
+        qq += "cameras.make==:a and cameras.camera==:b";
+        q = db->query(qq, make, model);
+      }
+    }
+    
+    while (q.next()) {
+      QString l = q.value(0).toString();
+      if (l>="0" && l<="99999") {
+        // ignore numeric lenses
+      } else {
+        lenses << l;
+      }
     }
   }
 
-  QStringList lenses;
-  while (q.next()) {
-    QString l = q.value(0).toString();
-    if (l>="0" && l<="99999") {
-      // ignore numeric lenses
-    } else {
-      lenses << l;
-    }
-  }
-  q.finish();
   
   std::sort(lenses.begin(), lenses.end());
   lenses.removeOne("");
@@ -391,17 +395,23 @@ void FilterDialog::browseTags() {
 }
 
 void FilterDialog::buildTree(QTreeWidgetItem *parentit, quint64 parentid) {
-  QSqlQuery q = db->query("select pathname, leafname, id from folders"
-                         " where parentfolder==:a order by pathname",
-                         parentid);
-  while (q.next()) {
-    QString path = q.value(0).toString();
-    QString leaf = q.value(1).toString();
-    quint64 id = q.value(2).toULongLong();
-    QStringList cc; cc << leaf << path;
+  QStringList paths, leaves;
+  QList<quint64> ids;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select pathname, leafname, id from folders"
+                            " where parentfolder==:a order by pathname",
+                            parentid);
+    while (q.next()) {
+      paths << q.value(0).toString();
+      leaves << q.value(1).toString();
+      ids << q.value(2).toULongLong();
+    }
+  }
+  for (int n=0; n<ids.size(); n++) {
+    QStringList cc; cc << leaves[n] << paths[n];
     QTreeWidgetItem *it = new QTreeWidgetItem(cc);
     parentit->addChild(it);
-    buildTree(it, id);
+    buildTree(it, ids[n]);
   }
 }  
   
@@ -409,15 +419,21 @@ void FilterDialog::buildTree(QTreeWidgetItem *parentit, quint64 parentid) {
 void FilterDialog::prepFolderTree() {
   ui->location->clear();
 
-  QSqlQuery q = db->query("select pathname, id from folders"
-                         " where parentfolder is null order by pathname");
-  while (q.next()) {
-    QString path = q.value(0).toString();
-    quint64 id = q.value(1).toULongLong();
-    QStringList cc; cc << path << path;
+  QStringList paths;
+  QList<quint64> ids;
+  { DBReadLock lock(db);
+    QSqlQuery q = db->constQuery("select pathname, id from folders"
+                            " where parentfolder is null order by pathname");
+    while (q.next()) {
+      paths << q.value(0).toString();
+      ids << q.value(1).toULongLong();
+    }
+  }
+  for (int n=0; n<ids.size(); n++) {
+    QStringList cc; cc << paths[n] << paths[n];
     QTreeWidgetItem *it = new QTreeWidgetItem(cc);
     ui->location->addTopLevelItem(it);
-    buildTree(it, id);
+    buildTree(it, ids[n]);
   }
 }
 
