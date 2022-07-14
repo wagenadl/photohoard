@@ -10,6 +10,7 @@
 AutoCache::AutoCache(SessionDB *db, QString rootdir, QObject *parent):
   QObject(parent), db(db) {
   setObjectName("AutoCache");
+  pDebug() << "Autocache" << this;
   holder = new AC_ImageHolder(this);
   worker = new AC_Worker(db, rootdir, holder);
   worker->moveToThread(&thread);
@@ -46,7 +47,7 @@ AutoCache::~AutoCache() {
 }
 
 void AutoCache::cachePreview(quint64 id, Image16 img) {
-  qDebug() << "autocache::cachepreview emit available" << id << img.size();
+  pDebug() << "autocache::cachepreview emit available" << id << img.size();
   emit available(id, img, 1, QSize());
   emit forwardCachePreview(id, img);
 }

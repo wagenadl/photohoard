@@ -8,11 +8,13 @@
 #include "Extensions.h"
 
 Collector::Collector(QObject *parent): QThread(parent) {
+  pDebug() << "Collector" << this;
   complete_ = false;
   cnt = 0;
 }
 
 Collector::~Collector() {
+  pDebug() << "~Collector" << this;
   if (isRunning()) {
     cancel();
     qDebug() << "Collector: Destructing while active. Canceling, and waiting.";

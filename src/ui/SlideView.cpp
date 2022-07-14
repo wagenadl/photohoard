@@ -53,7 +53,7 @@ double SlideView::fittingZoom() const {
 }
 
 void SlideView::newImage(quint64 vsn, QSize nat) {
-  // pDebug() << "SlideView::newImage" << vsn << nat;
+  pDebug() << "SlideView::newImage" << vsn << nat;
   if (db->acceptReject(vsn)==PhotoDB::AcceptReject::NewImport)
     db->setAcceptReject(vsn, PhotoDB::AcceptReject::Undecided);
   rqid = 0;
@@ -74,31 +74,31 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
 			    QSize fs) {
   if (vsn!=vsnid) 
     return;
-  // pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs;
+  pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs << rqid << rqsize << img.size();
   if (!fs.isEmpty())
     naturalSize = fs;
 
   if (force || img1.size().exceeds(rqid ? rqsize : img.size())) {
     if (CMS::monitorTransform.isValid()) {
-      img = Image16();
-      // pDebug() << "SV::uI: requesting";
+      // img = Image16(); // this caused massive recursive updates
+      pDebug() << "SV::uI: requesting";
       rqsize = img1.size();
       rqid = threadedTransform->request(img1);
-      // pDebug() << "SV::uI: requested" << rqid;
+      pDebug() << "SV::uI: requested" << rqid;
     } else {
-      // pDebug() << "SV::uI: will update";
+      pDebug() << "SV::uI: will update";
       rqid = 0;
       img = img1;
       update();
     }
   } else if (!fs.isEmpty()) {
-    // pDebug() << "SV::uI: will update (2)";
+    pDebug() << "SV::uI: will update (2)";
     update();
   }
 }
 
 void SlideView::setCMSImage(quint64 id, Image16 img1) {
-  // pDebug() << "SV::setCMSImage" << id << rqid << img1.size();
+  pDebug() << "SV::setCMSImage" << id << rqid << img1.size();
   if (id==rqid) {
     img = img1;
     rqid = 0;
@@ -280,7 +280,7 @@ void SlideView::paintEvent(QPaintEvent *) {
 
 
   if (img.isNull()) {
-    // pDebug() << "SV:paintEvent" << img.isNull();
+    pDebug() << "SV:paintEvent" << img.isNull();
     needLargerImage();
     return;
   }
@@ -415,6 +415,7 @@ QList<SlideOverlay *> SlideView::overlays() const {
 }
 
 void SlideView::needLargerImage() {
+  pDebug() << "needLargerImage" << vsnid << desiredSize();
   emit needImage(vsnid, desiredSize());
 }
 

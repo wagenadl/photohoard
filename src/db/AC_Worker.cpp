@@ -20,6 +20,7 @@ AC_Worker::AC_Worker(SessionDB const *db0, QString rootdir,
 		     AC_ImageHolder *holder,
                      QObject *parent):
   QObject(parent), holder(holder) {
+  pDebug() << "AC_Worker" << this;
   setObjectName("AC_Worker");
   db = new SessionDB;
   db->clone(*db0);

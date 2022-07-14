@@ -10,6 +10,7 @@
 #include "CMS.h"
 
 ThreadedTransform::ThreadedTransform(QObject *parent): QThread(parent) {
+  pDebug() << "ThreadedTransform" << this;
   rqid = 0;
   workid = 0;
   nextid = 1;
@@ -18,6 +19,7 @@ ThreadedTransform::ThreadedTransform(QObject *parent): QThread(parent) {
 }
 
 ThreadedTransform::~ThreadedTransform() {
+  pDebug() << "~ThreadedTransform" << this;
   if (isRunning()) {
     stopsoon = true;
     waiter.wakeOne();
@@ -69,9 +71,10 @@ static int runabit(uchar *bit, int npix, bool *cancelflag) {
 }
 
 void ThreadedTransform::run() {
+  pDebug() << "ThreadedTransform::run" << this;
   mutex.lock();
   while (!stopsoon) {
-    //    pDebug() << "TT:rqid=" << rqid;
+    pDebug() << "TT:rqid=" << rqid;
     if (rqid) {
       cancelflag = false;
       workid = rqid;
@@ -87,7 +90,7 @@ void ThreadedTransform::run() {
       int pixperrun = std::max((npix+NTHREADS-1)/NTHREADS, 512*1024);
       while (npix>0) {
         int now = std::min(pixperrun, npix);
-	//        pDebug() << "TT:adding" << now << npix;
+        pDebug() << "TT:adding" << now << npix;
         futures.push_back(std::async(std::launch::async, runabit,
                                      ptr, now, &cancelflag));
         ptr += 4*now;
@@ -101,7 +104,7 @@ void ThreadedTransform::run() {
           ok = false;
 	//        pDebug() << "TT: got" << ok;
       }
-      //      pDebug() << "TT: got all" << ok;
+      pDebug() << "TT: got all" << ok;
       mutex.lock();
 
       if (ok && rqid==workid) {
@@ -110,7 +113,7 @@ void ThreadedTransform::run() {
         rqid = 0;
         rqimg = Image16();
         mutex.unlock();
-	//        pDebug() << "TT: emitting";
+        pDebug() << "TT: emitting" << doneid << workimg.size();
         emit available(doneid, workimg);
         mutex.lock();
       } 

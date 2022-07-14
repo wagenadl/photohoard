@@ -7,6 +7,7 @@
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QThread(parent) {
+  pDebug() << "InterruptableReader" << this;
   qRegisterMetaType<InterruptableReader::Result>("InterruptableReader::Result");
   running = false;
   canceling = false;
