@@ -522,7 +522,7 @@ quint64 PhotoDB::newVersion(quint64 vsn, bool clone) {
                      int(vr.colorlabel), int(vr.acceptreject))
     .lastInsertId().toULongLong();
   if (clone) 
-    Adjustments::fromDB(vsn, *this).writeToDB(v1, *this);
+    Adjustments::fromDB(vsn, *this, &t).writeToDB(v1, *this, &t);
   QSqlQuery q = constQuery("select tag from appliedtags where version==:a",
                            vsn);
   while (q.next())

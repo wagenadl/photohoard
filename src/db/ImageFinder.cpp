@@ -6,6 +6,7 @@
 #include "PDebug.h"
 
 ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
+  pDebug() << "ImageFinder" << this;
   setObjectName("ImageFinder");
   queuelength = 0;
   worker = new IF_Worker(0);
@@ -24,6 +25,7 @@ ImageFinder::ImageFinder(QObject *parent): QObject(parent) {
 }
 
 ImageFinder::~ImageFinder() {
+  pDebug() << "~ImageFinder" << this;
   thread.quit();
   thread.wait();
 }
@@ -33,6 +35,7 @@ void ImageFinder::findImage(quint64 id, QString path, QString ext,
 			    AllAdjustments const &mods,
 			    int maxdim, bool urgent) {
   queuelength++;
+  pDebug() << "findImage" << this << id << path;
   emit forwardFindImage(id, path, ext, orient, ns, mods, maxdim, urgent);
 }
 
