@@ -110,30 +110,37 @@ bool Adjustments::isDefault(QString k) const {
   return get(k) == defaultFor(k);
 }
 
-Adjustments Adjustments::fromDB(quint64 vsn, class PhotoDB &db) {
+Adjustments Adjustments::fromDB(quint64 vsn, class PhotoDB &db,
+                                class Transaction *t) {
   Adjustments s;
-  s.readFromDB(vsn, db);
+  s.readFromDB(vsn, db, t);
   return s;
 }
 
-Adjustments Adjustments::fromDB(quint64 vsn, int layer, class PhotoDB &db) {
+Adjustments Adjustments::fromDB(quint64 vsn, int layer, class PhotoDB &db,
+                                Transaction *t) {
   Adjustments s;
-  s.readFromDB(vsn, layer, db);
+  s.readFromDB(vsn, layer, db, t);
   return s;
 }
 
-void Adjustments::readFromDB(quint64 vsn, PhotoDB &db) {
+void Adjustments::readFromDB(quint64 vsn, PhotoDB &db, Transaction *t) {
   reset();
-  DBReadLock lock(&db);
+  if (!t)
+    db.lockForReading();
   QSqlQuery q = db.constQuery("select k, v from adjustments where version==:a",
                          vsn);
   while (q.next())
     set(q.value(0).toString(), q.value(1).toDouble());
+  if (!t)
+    db.unlockForReading();
 }
 
-void Adjustments::readFromDB(quint64 vsn, int layer, PhotoDB &db) {
+void Adjustments::readFromDB(quint64 vsn, int layer, PhotoDB &db,
+                             Transaction *t) {
   reset();
-  DBReadLock lock(&db);
+  if (!t)
+    db.lockForReading();
   quint64 layerid = db.simpleQuery("select id from layers"
 				   " where version==:a and stacking==:b",
 				   vsn, layer).toULongLong();
@@ -141,10 +148,13 @@ void Adjustments::readFromDB(quint64 vsn, int layer, PhotoDB &db) {
                          layerid);
   while (q.next())
     set(q.value(0).toString(), q.value(1).toDouble());
+  if (!t)
+    db.unlockForReading();
 }
 
-void Adjustments::writeToDB(quint64 vsn, PhotoDB &db) const {
-  DBWriteLock lock(&db);
+void Adjustments::writeToDB(quint64 vsn, PhotoDB &db, Transaction *t) const {
+  if (!t)
+    db.lockForWriting();
   pDebug() << "adjustments::writeToDB";
   for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
     QString k = it.key();
@@ -157,10 +167,14 @@ void Adjustments::writeToDB(quint64 vsn, PhotoDB &db) const {
       db.query("insert or replace into adjustments(version, k, v)"
                " values(:a,:b,:c)", vsn, k, v);
   }
+  if (!t)
+    db.unlockForWriting();
 }  
 
-void Adjustments::writeToDB(quint64 vsn, int layer, PhotoDB &db) const {
-  DBWriteLock lock(&db);
+void Adjustments::writeToDB(quint64 vsn, int layer, PhotoDB &db,
+                            Transaction *t) const {
+  if (!t)
+    db.lockForWriting();
   pDebug() << "Adjustments::writeToDB";
 
   quint64 layerid = db.simpleQuery("select id from layers"
@@ -177,6 +191,8 @@ void Adjustments::writeToDB(quint64 vsn, int layer, PhotoDB &db) const {
       db.query("insert or replace into layeradjustments(layer, k, v)"
                " values(:a,:b,:c)", layerid, k, v);
   }
+  if (!t)
+    db.unlockForWriting();
 }  
 
 PSize Adjustments::cropSize(PSize filesize, Exif::Orientation orient) {

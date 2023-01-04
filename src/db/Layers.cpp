@@ -193,7 +193,10 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
       ptr.setBrush(QBrush(QColor(255,255,255)));
       ptr.drawPolygon(ppp);
     }
-    ASSERT(radii().size()==1);
+    if (radii().size()!=1) {
+      pDebug() << "Number of radii" << radii().size() << "for layer type Area";
+      break;
+    }
     PhotoOps::blur(msk, radi[0]);
   } break;
   //case Type::Circular:
