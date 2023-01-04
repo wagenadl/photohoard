@@ -35,10 +35,23 @@ find_package(OpenCV REQUIRED)
 find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 #find_package(LCMS2 REQUIRED)
 
+#set(CMAKE_C_FLAGS "-O0 -ggdb")
+#set(CMAKE_CXX_FLAGS "-O0 -ggdb")
+
+
 ######################################################################
 # Add the executables
 add_executable(photohoard WIN32 MACOSX_BUNDLE src/ui/main.cpp)
+#target_link_options(photohoard private "$<$<CONFIG:Release>:-s>")
+
+######################################################################
+# DEBUG VERSION
+#set(CMAKE_BUILD_TYPE DEBUG)
+
+# RELEASE VERSION
+set(CMAKE_BUILD_TYPE RELEASE)
 set_target_properties(photohoard PROPERTIES LINK_FLAGS -s)
+######################################################################
 
 include(src/CMakeLists.txt)
 

@@ -11,18 +11,12 @@
 #include <QThread>
 
 namespace PDebug {
-  QTime &time() {
-    static QTime t0;
-    static bool started = false;
-    if (!started) {
-      t0.start();
-      started = true;
-    }
-    return t0;
-  }
+  quint64 elapsed() {
+    static QElapsedTimer timer;
+    if (!timer.isValid())
+      timer.start();
 
-  void reset() {
-    time().restart();
+    return timer.elapsed();
   }
 };
 
@@ -36,7 +30,7 @@ QDebug pDebug() {
   else
     threads[thrid] = k;
   return qDebug() << QString("%1 [%2]")
-    .arg(PDebug::time().elapsed()/1000.0, 7, 'f', 3)
+    .arg(PDebug::elapsed()/1000.0, 7, 'f', 3)
     .arg(k)
     .toUtf8().data();
 }

@@ -20,12 +20,14 @@ public:
   Adjustments();
   void reset();
   void setAll(QMap<QString, double> const &);
-  static Adjustments fromDB(quint64 vsn, class PhotoDB &db);
-  static Adjustments fromDB(quint64 vsn, int layer, class PhotoDB &db);
-  void readFromDB(quint64 vsn, class PhotoDB &db);
-  void readFromDB(quint64 vsn, int layer, class PhotoDB &db);
-  void writeToDB(quint64 vsn, class PhotoDB &db) const;
-  void writeToDB(quint64 vsn, int layer, class PhotoDB &db) const;
+  static Adjustments fromDB(quint64 vsn, class PhotoDB &db,
+                            class Transaction *t=0);
+  static Adjustments fromDB(quint64 vsn, int layer, PhotoDB &db,
+                            Transaction *t=0);
+  void readFromDB(quint64 vsn, PhotoDB &db, Transaction *t=0);
+  void readFromDB(quint64 vsn, int layer, PhotoDB &db, Transaction *t=0);
+  void writeToDB(quint64 vsn, PhotoDB &db, Transaction *t=0) const;
+  void writeToDB(quint64 vsn, int layer, PhotoDB &db, Transaction *t=0) const;
   /* WRITETODB - Write all values to DB
      WRITETODB(vsn, db) writes all values into the ADJUSTMENTS table of DB,
      for the base layer of version VSN.
@@ -35,8 +37,10 @@ public:
      rows are deleted from the table.)
      These functione do not create a TRANSACTION. The caller should do that.
   */
-  void readFromDBForLayer(quint64 layer,  class PhotoDB &db);
-  void writeToDBForLayer(quint64 layer, class PhotoDB &db) const;
+  void readFromDBForLayer(quint64 layer,  class PhotoDB &db,
+                          Transaction *t=0);
+  void writeToDBForLayer(quint64 layer, class PhotoDB &db,
+                         Transaction *t=0) const;
   bool set(QString k, double v);
   double get(QString k) const;
   bool operator==(Adjustments const &) const;

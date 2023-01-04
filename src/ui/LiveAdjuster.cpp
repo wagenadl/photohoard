@@ -51,6 +51,7 @@ void LiveAdjuster::loadLayers(int lowest) {
 }  
 
 void LiveAdjuster::requestAdjusted(quint64 v, QSize s) {
+  pDebug() << "LiveAdjuster::requestAdjusted" << v << s;
   bool newvsn = version!=v;
   if (newvsn)
     markVersionAndSize(v, s);
@@ -89,6 +90,7 @@ void LiveAdjuster::reloadLayers(quint64 v, int lowest) {
 }
 
 void LiveAdjuster::forceUpdate() {
+  pDebug() << "LiveAdjuster::forceUpdate";
   mustshowupdate = true;
   mustoffermod = true;
   //  pDebug() << "LiveAdjuster::forceUpdate" << adjuster->isEmpty()
@@ -104,6 +106,7 @@ void LiveAdjuster::forceUpdate() {
 }  
 
 void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
+  pDebug() << "LiveAdjuster::reloadSliders" << v << lay;
   if (v!=version) {
     COMPLAIN("LiveAdjuster::reloadSliders: vsn mismatch");
     return;
@@ -124,31 +127,32 @@ void LiveAdjuster::reloadSliders(quint64 v, int lay, Adjustments sli) {
 }
 
 void LiveAdjuster::provideAdjusted(Image16 img, quint64 v, QSize fs) {
-  //  pDebug() << "LiveAdjuster::provideAdjusted" << img.size() << fs << averagePixel(img);
+  pDebug() << "LiveAdjuster::provideAdjusted" << img.size() << fs << averagePixel(img);
   if (v!=version) {
     COMPLAIN("LiveAdjuster: version mismatch");
     return;
   }
   if (mustoffermod) {
-    //    pDebug() << "LiveAdj: must offer mod";
+    pDebug() << "LiveAdj: must offer mod";
     mustoffermod = false;
     cache->cacheModified(version, img);
   } else {
-    //    pDebug() << "LiveAdj: not offering mod";
+    pDebug() << "LiveAdj: not offering mod";
   }
   if (mustshowupdate) {
-    //    pDebug() << "LiveAdj: mustshowupdate";
+    pDebug() << "LiveAdj: mustshowupdate";
     mustshowupdate = false;
     img.convertTo(Image16::Format::sRGB8);
-    //    pDebug() << "LiveAdj::available" << version
-    //	     << img.size() << averagePixel(img);
+    pDebug() << "LiveAdj::available" << version
+    	     << img.size() << averagePixel(img);
     emit imageAvailable(img, version, fs);
   } else {
-    //    pDebug() << "LiveAdj: not showing update";
+    pDebug() << "LiveAdj: not showing update";
   }
 }
   
 void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
+  pDebug() << "LiveAdjuster::provideOriginal" << v << version;
   if (v!=version)
     return;
   originalSize = img.size();
@@ -162,6 +166,7 @@ void LiveAdjuster::provideOriginal(quint64 v, Image16 img) {
 }
 
 void LiveAdjuster::provideScaledOriginal(quint64 v, QSize osize, Image16 img) {
+  pDebug() << "LiveAdjuster::provideScaledOriginal" << v << osize << version;
   if (v!=version)
     return;
   originalSize = osize;
