@@ -90,7 +90,8 @@ Exif::Orientation Exif::orientation() const {
 
 static QString dropWords(QString s, QString pool) {
   QStringList ss = s.split(" ");
-  QSet<QString> pp = QSet<QString>::fromList(pool.split(" "));
+  QList<QString> poolbits = pool.split(" ");
+  QSet<QString> pp = QSet<QString>(poolbits.begin(), poolbits.end());
   QStringList out;
   for (auto s: ss)
     if (!pp.contains(s))
