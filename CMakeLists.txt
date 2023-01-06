@@ -52,6 +52,8 @@ add_executable(photohoard WIN32 MACOSX_BUNDLE src/ui/main.cpp)
 set(CMAKE_BUILD_TYPE RELEASE)
 set_target_properties(photohoard PROPERTIES LINK_FLAGS -s)
 ######################################################################
+=======
+#set_target_properties(photohoard PROPERTIES LINK_FLAGS -s)
 
 include(src/CMakeLists.txt)
 
