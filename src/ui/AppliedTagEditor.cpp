@@ -218,8 +218,8 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
   QPainter p(this);
   if (selend>=0) {
     QFontMetrics fm(p.font());
-    int l = fm.width(txt.left(selectionStart()));
-    int l1 = fm.width(txt.left(selectionEnd()));
+    int l = fm.horizontalAdvance(txt, selectionStart());
+    int l1 = fm.horizontalAdvance(txt, selectionEnd());
     QRect sel = QRect(r.topLeft() + QPoint(l, 0),
 		      r.bottomLeft() + QPoint(l1, 0));
     p.setBrush(QColor("#888800"));
@@ -229,7 +229,7 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
   drawText(p);
   if (hasFocus()) {
     QFontMetrics fm(p.font());
-    int l = fm.width(txt.left(cursorpos));
+    int l = fm.horizontalAdvance(txt, cursorpos);
     QRect rl(r.topLeft() + QPoint(l-1, 0),
 	     r.bottomLeft() + QPoint(l+1, 0));
     p.setPen(QColor("#440000")) ;

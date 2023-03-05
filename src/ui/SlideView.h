@@ -73,7 +73,7 @@ public slots:
      SETZOOM(zm) sets the zoom level to the ratio ZM.
      If ZM is less than the fitting zoom, we shift to scale-to-fit.
    */
-  void changeZoomLevel(QPoint center, double delta, bool roundtodelta=false);
+  void changeZoomLevel(QPointF center, double delta, bool roundtodelta=false);
   /* CHANGEZOOMLEVEL - Change zoom level by a fraction
      CHANGEZOOMLEVEL(center, delta) changes the zoom level by a factor 2^DELTA
      keeping the point CENTER where it is.
@@ -118,6 +118,9 @@ private:
   void makeActions();
   QList<class SlideOverlay *> overlays() const;
   void needLargerImage();
+  QPointF relativeImagePoint(QPointF screenpos) const;
+  // Convert pixel position (widget coords) to fractional position (0..1)
+  // within the image
 private:
   PhotoDB *db;
   quint64 vsnid;

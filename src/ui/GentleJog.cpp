@@ -281,7 +281,7 @@ void GentleJog::wheelEvent(QWheelEvent *e) {
   if (e->modifiers() & Qt::ControlModifier) {
     e->ignore();
   } else {
-    setValueVisually(val + e->delta()*stepFor(e->modifiers())/120);
+    setValueVisually(val + e->angleDelta().y()*stepFor(e->modifiers())/120);
     timer->start(300);
     e->accept();
   }
