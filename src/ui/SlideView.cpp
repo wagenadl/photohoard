@@ -106,11 +106,85 @@ void SlideView::setCMSImage(quint64 id, Image16 img1) {
   }
 }
 
-void SlideView::changeZoomLevel(QPoint, double delta, bool round) {
+QPointF SlideView::relativeImagePoint(QPointF p) const {
+  QRect r = contentsRect();
+  if (fit) {
+    double scale = naturalSize.scaleFactorToSnuglyFitIn(r.size());
+    QPointF pcenter((r.right() + r.left())/2, (r.top() + r.bottom())/2);
+    return QPointF(0.5 + (p.x()-pcenter.x())/scale / naturalSize.width(),
+                   0.5 + (p.y()-pcenter.y())/scale / naturalSize.height());
+  } else {
+    PSize showSize = naturalSize*zoom;
+    PSize availSize = r.size();
+    QRectF sourceRect;
+    QRectF destRect;
+    if (showSize.width()<=availSize.width()) {
+      sourceRect.setLeft(0);
+      sourceRect.setWidth(naturalSize.width());
+      destRect.setLeft((r.left()+r.right())/2 - showSize.width()/2);
+      destRect.setWidth(showSize.width());
+    } else {
+      destRect.setLeft(r.left());
+      destRect.setWidth(availSize.width());
+      sourceRect.setLeft(relx
+			 * (showSize.width() - availSize.width()) / zoom);
+      sourceRect.setWidth(availSize.width() / zoom);
+    }
+    if (showSize.height()<=availSize.height()) {
+      sourceRect.setTop(0);
+      sourceRect.setHeight(naturalSize.height());
+      destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
+      destRect.setHeight(showSize.height());
+    } else {
+      destRect.setTop(r.top());
+      destRect.setHeight(availSize.height());
+      sourceRect.setTop(rely
+			* (showSize.height() - availSize.height()) / zoom);
+      sourceRect.setHeight(availSize.height() / zoom);
+    }
+    double reldestx = (p.x() - destRect.left()) / destRect.width();
+    double reldesty = (p.y() - destRect.top()) / destRect.height();
+    double srcx = sourceRect.left() + reldestx * sourceRect.width();
+    double srcy = sourceRect.top() + reldesty * sourceRect.height();
+    return QPointF(srcx/naturalSize.width(),
+                   srcy/naturalSize.height());
+  }
+}
+                   
+void SlideView::changeZoomLevel(QPointF p, double delta, bool round) {
+  QPointF relp0 = relativeImagePoint(p);
   double zm = currentZoom() * pow(2.0, delta);
   if (round) 
     zm = pow(2.0, ::round(log(zm)/log(2) / delta) * delta);
   setZoom(zm);
+  if (!fit) {
+    // find appropriate relx/rely - there should be no need to do this
+    // iteratively, but I cannot right now figure out the closed-form
+    // formula
+    double scl = .5;
+    relx = rely = .5;
+    while (scl>.0001) {
+      QPointF relp = relativeImagePoint(p);
+      if (relp.x() < relp0.x())
+        relx += scl;
+      else if (relp.x() > relp0.x())
+        relx -= scl;
+      if (relp.y() < relp0.y())
+        rely += scl;
+      else if (relp.y() > relp0.y())
+        rely -= scl;
+      scl /= 2;
+      if (relx<0)
+        relx = 0;
+      else if (relx>1)
+        relx = 1;
+      if (rely<0)
+        rely = 0;
+      else if (rely>1)
+        rely = 1;
+    }
+    update();
+  }
 }
 
 void SlideView::setZoom(double z) {
@@ -165,7 +239,7 @@ void SlideView::resizeEvent(QResizeEvent *) {
 }
 
 void SlideView::wheelEvent(QWheelEvent *e) {
-  changeZoomLevel(e->pos(), e->delta()/1000.0);
+  changeZoomLevel(e->position(), e->angleDelta().y()/1000.0);
 }
 
 template<class X> X *findOverlay(SlideView *sv) {
