@@ -10,19 +10,32 @@ Photohoard also contains lots of tools for basic editing.
 Binaries are available for Ubuntu Linux. To install from git source,
 simply type:
 
-        make
-        sudo make install
-
+    cmake -S . -B build
+    cmake --build build
+        
 You may have to get some dependencies satisfied first. On Ubuntu, the
 following will likely suffice:
 
         sudo apt install git qtbase5-dev qttools5-dev-tools asciidoc \
              docbook-xml docbook-xsl libexiv2-dev liblcms2-dev \
              libopencv-imgproc-dev libxcb-randr0-dev libx11-xcb-dev  
+             
+The photohoard binary may be run directly from the "build" folder. 
+More conveniently, to install in /usr/local, type
+
+    sudo make -C build install
+    
+or to build a .deb installation package, type
+
+    cd build; cpack
+    
+the resulting .deb may then be installed with
+
+    sudo dpkg -i ./photohoard_0.2.0-1_amd64.deb
 
 ## Acknowledgments
 
-Photohoard was written by Daniel A. Wagenaar and is distributed under the
+Photohoard is developed by Daniel A. Wagenaar and is distributed under the
 terms of the GNU GENERAL PUBLIC LICENSE, Version 3.
 
 The following items were obtained from other sources under license:
