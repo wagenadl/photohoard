@@ -38,117 +38,67 @@
 MainWindow::MainWindow(SessionDB *db,
                        Scanner *scanner, AutoCache *autocache,
                        Exporter *exporter):
-  db(db), scanner(scanner), exporter(exporter) {
+  db(db), scanner(scanner), exporter(exporter), autocache(autocache) {
   QFileInfo dbf(db->photoDBFilename());
   setWindowTitle("Photohoard - " + dbf.baseName());
   
-  QDockWidget *dock = new QDockWidget("Histogram", this);
-  dock->setObjectName("Histogram");
-  dock->setWidget(histogram = new HistoWidget(this));
-  dock->setTitleBarWidget(new QWidget());
-  addDockWidget(Qt::RightDockWidgetArea, dock);
   
-  dock = new QDockWidget("Adjustments", this);
-  dock->setObjectName("Adjustments");  
-  dock->setWidget(allControls = new AllControls(db, this));
-  dock->setTitleBarWidget(new QWidget());
-  addDockWidget(Qt::RightDockWidgetArea, dock);
-  allControls->setVersion(db->current());
-  
-  dock = new QDockWidget("Metadata",this);
-  dock->setObjectName("MetaData");
-  dock->setWidget(metaViewer = new MetaViewer(db, this));
-  dock->setTitleBarWidget(new QWidget());
-  addDockWidget(Qt::RightDockWidgetArea, dock);
-
-  dock = new QDockWidget("Tags",this);
-  dock->setObjectName("Tags");
-  dock->setWidget(tagList = new AppliedTagList(db, this));
-  dock->setTitleBarWidget(new QWidget());
-  addDockWidget(Qt::RightDockWidgetArea, dock);
-
-  dock = new QDockWidget("Status",this);
-  dock->setObjectName("Status");
-  dock->setWidget(statusBar = new StatusBar(db, this));
-  dock->setTitleBarWidget(new QWidget());
-  addDockWidget(Qt::RightDockWidgetArea, dock);
-
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
   //  qDebug() << "help sizehint" << shortcutHelp->sizeHint();
 
-  setCentralWidget(lightTable = new LightTable(db, autocache, adjuster,
+  setCentralWidget(lighttable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
 
-  constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
-  addToolBar(area, fileBar = new FileBar(db, autocache,
-                                         exporter, scanner, this));
-  addToolBar(area, layoutBar = new LayoutBar(lightTable, this));
-  if (!db->isReadOnly())
-    addToolBar(area, colorLabelBar = new ColorLabelBar(db, lightTable, this));
-  addToolBar(area, filterBar = new FilterBar(lightTable, this));
-  // etc.
-  addToolBarBreak(area);
-  addToolBar(area, helpBar = new HelpBar(this));
-  addToolBar(area, databaseBar = new DatabaseBar(db, this));
+  makeDocks();
+  makeToolbars();
 
-  shortcutHelp->addSection("General", fileBar->actions());
-  shortcutHelp->addSection("General", filterBar->actions());
-  //  shortcutHelp->addSection("General", databaseBar->actions());
-  shortcutHelp->addSection("Layout", layoutBar->actions());
-  if (!db->isReadOnly())
-    shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
-  shortcutHelp->addSection("Image strip and photo editor",
-                           lightTable->actions());
-  if (!db->isReadOnly())
-    shortcutHelp->addSection("Slider panel", allControls->actions());
-  
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           histogram, SLOT(setImage(Image16))); // is this ok?
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           metaViewer, SLOT(setImage(Image16, quint64)));
 
-  connect(lightTable, SIGNAL(needImage(quint64, QSize)),
+  connect(lighttable, SIGNAL(needImage(quint64, QSize)),
           autocache, SLOT(request(quint64, QSize)));
-  connect(lightTable, SIGNAL(wantImage(quint64, QSize)),
+  connect(lighttable, SIGNAL(wantImage(quint64, QSize)),
           autocache, SLOT(requestIfEasy(quint64, QSize)));
-  connect(lightTable, SIGNAL(recacheReoriented(QSet<quint64>)),
-	  autocache, SLOT(recache(QSet<quint64>)));
+  connect(lighttable, SIGNAL(recacheReoriented(QSet<quint64>)),
+         autocache, SLOT(recache(QSet<quint64>)));
   connect(autocache, SIGNAL(available(quint64, Image16, quint64, QSize)),
           SLOT(updateImage(quint64, Image16, quint64, QSize)));
   if (scanner) {
     connect(scanner, SIGNAL(updatedBatch(QSet<quint64>)),
-	    lightTable, SLOT(rescan()));
+           lighttable, SLOT(rescan()));
     connect(scanner, SIGNAL(message(QString)),
             statusBar, SLOT(setMessage(QString)));
   }
 
-  autocache->requestIfEasy(db->current(), QSize(1024, 1024));
+ autocache->requestIfEasy(db->current(), QSize(1024, 1024));
 
-  connect(lightTable, SIGNAL(newCurrent(quint64)),
+  connect(lighttable, SIGNAL(newCurrent(quint64)),
           metaViewer, SLOT(setVersion(quint64)));
-  connect(lightTable, SIGNAL(newZoom(double)),
+  connect(lighttable, SIGNAL(newZoom(double)),
           statusBar, SLOT(setZoom(double)));
-  connect(lightTable, SIGNAL(newCollection(QString)),
+  connect(lighttable, SIGNAL(newCollection(QString)),
           statusBar, SLOT(setCollection(QString)));
 
-  connect(lightTable, SIGNAL(newCurrent(quint64)),
+  connect(lighttable, SIGNAL(newCurrent(quint64)),
 	  tagList, SLOT(setCurrent(quint64)));
-  connect(lightTable, SIGNAL(newSelection()),
+  connect(lighttable, SIGNAL(newSelection()),
 	  tagList, SLOT(newSelection()));
 
-  connect(lightTable, SIGNAL(newCurrent(quint64)),
+  connect(lighttable, SIGNAL(newCurrent(quint64)),
           histogram, SLOT(setVersion(quint64)));
 
-  connect(lightTable, SIGNAL(newCurrent(quint64)),
+  connect(lighttable, SIGNAL(newCurrent(quint64)),
 	  allControls, SLOT(setVersion(quint64)));
   connect(allControls, SIGNAL(valuesChanged(quint64, int, Adjustments)),
 	  adjuster, SLOT(reloadSliders(quint64, int, Adjustments)));
   connect(allControls, SIGNAL(maskChanged(quint64, int)),
 	  adjuster, SLOT(reloadLayers(quint64, int)));
   connect(allControls, SIGNAL(layerSelected(quint64, int)),
-	  lightTable, SLOT(visualizeLayer(quint64, int)));
+	  lighttable, SLOT(visualizeLayer(quint64, int)));
 
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));
@@ -164,7 +114,7 @@ MainWindow::MainWindow(SessionDB *db,
           SLOT(reloadVersion(quint64)));
 
   connect(metaViewer, SIGNAL(filterModified()),
-	  lightTable, SLOT(updateFilterAndDialog()));
+	  lighttable, SLOT(updateFilterAndDialog()));
 
   dragout = false;
   dragin = false;
@@ -176,19 +126,19 @@ MainWindow::MainWindow(SessionDB *db,
   if (s.contains("mwstate"))
     restoreState(s.get("mwstate").toByteArray());
   //  qDebug() << "Mainwindow" << geometry();
-  lightTable->resize(size());
-  lightTable->restoreSizes();
+  lighttable->resize(size());
+  lighttable->restoreSizes();
 }
 
 MainWindow::~MainWindow() {
 }
 
 void MainWindow::scrollToCurrent() {
-  lightTable->scrollToCurrent();
+  lighttable->scrollToCurrent();
 }
 
 void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
-  lightTable->updateImage(i, img, chgid, fs);
+  lighttable->updateImage(i, img, chgid, fs);
   if (i==db->current())
     histogram->setImage(img); // this is *bad*
 }
@@ -231,7 +181,7 @@ void MainWindow::reloadVersion(quint64 vsn) {
     histogram->setVersion(vsn);
     metaViewer->setVersion(vsn);
   }
-  lightTable->reloadVersion(vsn);
+  lighttable->reloadVersion(vsn);
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
@@ -259,7 +209,7 @@ void MainWindow::dragLeaveEvent(QDragLeaveEvent *e) {
   if (dragout) {
     QPoint cp = mapFromGlobal(QCursor::pos());
     if (!rect().contains(cp))
-      lightTable->ensureDragExportComplete();
+      lighttable->ensureDragExportComplete();
     dragout = false;
   }
   e->accept();
@@ -289,3 +239,91 @@ void MainWindow::dropEvent(QDropEvent *e) {
   dragin = false;
 }
 
+void MainWindow::makeDocks() {
+  QDockWidget *dock = new QDockWidget("Histogram", this);
+  dock->setObjectName("Histogram");
+  dock->setWidget(histogram = new HistoWidget(this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+  
+  dock = new QDockWidget("Adjustments", this);
+  dock->setObjectName("Adjustments");  
+  dock->setWidget(allControls = new AllControls(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+  allControls->setVersion(db->current());
+  
+  dock = new QDockWidget("Metadata",this);
+  dock->setObjectName("MetaData");
+  dock->setWidget(metaViewer = new MetaViewer(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+
+  dock = new QDockWidget("Tags",this);
+  dock->setObjectName("Tags");
+  dock->setWidget(tagList = new AppliedTagList(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+
+  dock = new QDockWidget("Status",this);
+  dock->setObjectName("Status");
+  dock->setWidget(statusBar = new StatusBar(db, this));
+  dock->setTitleBarWidget(new QWidget());
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+}
+
+void MainWindow::makeToolbars() {
+  constexpr Qt::ToolBarArea area = Qt::TopToolBarArea;
+  addToolBar(area, fileBar = new FileBar(db, autocache,
+                                         exporter, scanner, this));
+  addToolBar(area, layoutBar = new LayoutBar(lighttable, this));
+  if (!db->isReadOnly())
+    addToolBar(area, colorLabelBar = new ColorLabelBar(db, lighttable, this));
+  addToolBar(area, filterBar = new FilterBar(lighttable, this));
+  //  addToolBarBreak(area);
+  //  addToolBar(area, helpBar = new HelpBar(this));
+  //  addToolBar(area, databaseBar = new DatabaseBar(db, this));
+  addHiddenActions();
+
+  shortcutHelp->addSection("General", fileBar->actions());
+  shortcutHelp->addSection("General", filterBar->actions());
+  //  shortcutHelp->addSection("General", databaseBar->actions());
+  shortcutHelp->addSection("Layout", layoutBar->actions());
+  if (!db->isReadOnly())
+    shortcutHelp->addSection("Labels and marks", colorLabelBar->actions());
+  shortcutHelp->addSection("Image strip and photo editor",
+                           lighttable->actions());
+  if (!db->isReadOnly())
+    shortcutHelp->addSection("Slider panel", allControls->actions());
+
+  addHiddenActions();
+}
+
+void MainWindow::addHiddenActions() {
+  auto add = [this](Action const &act) {
+     hiddenactions << act;
+     addAction(new PAction{hiddenactions.last(), this});
+  };
+
+  add(Action{Qt::CTRL + Qt::Key_Minus,
+             "Reduce tile size", 
+             [=]() { lighttable->increaseTileSize(1/1.25); }});
+  /* QIcon(":icons/scaleSmaller.svg") */
+
+  add(Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
+             "Increase tile size", 
+             [=]() { lighttable->increaseTileSize(1.25); }});
+  /* QIcon(":icons/scaleLarger.svg") */
+  
+  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A,
+             "Clear selection", 
+             [=]() { lighttable->clearSelection(); }});
+  add(Action{Qt::CTRL + Qt::Key_A,
+             "Select all", 
+             [=]() { lighttable->selectAll(); }});
+  shortcutHelp->addSection("General", hiddenactions);
+}
+
+void MainWindow::showMenu() {
+  qDebug() << "NYI";
+}
