@@ -8,17 +8,12 @@
 #include <QFile>
 #include "Session.h"
 #include <QMessageBox>
+#include <QFileDialog>
 
 CreateDatabaseDialog::CreateDatabaseDialog(QWidget *parent):
   QDialog(parent) {
   ui = new Ui_createDatabaseDialog();
   ui->setupUi(this);
-  ui->browsecachelocation->hide();
-  ui->browsedblocation->hide();
-  ui->dblocation->setReadOnly(true);
-  ui->dblocation->setFocusPolicy(Qt::NoFocus);
-  ui->cachelocation->setReadOnly(true);
-  ui->cachelocation->setFocusPolicy(Qt::NoFocus);
 }
 
 CreateDatabaseDialog::~CreateDatabaseDialog() {
@@ -27,41 +22,51 @@ CreateDatabaseDialog::~CreateDatabaseDialog() {
 void CreateDatabaseDialog::showEvent(QShowEvent *e) {
   QDialog::showEvent(e);
   setup();
-  ui->dbname->setFocus();
-  ui->dbname->setSelection(0, ui->dbname->text().size());
 }
 
 void CreateDatabaseDialog::setup() {
-  ui->dblocation->setText(FileLocations::dataRoot());
+  QString name = FileLocations::dataRoot() + "/Untitled.photohoardDB";
+  int n = 0 ;
+  while (QFileInfo(name).exists()) {
+    n += 1;
+    name = (FileLocations::dataRoot() + "/Untitled%1.photohoardDB").arg(n);
+  }
+    
+  ui->dblocation->setText(name);
   ui->cachelocation->setText(FileLocations::cacheRoot());
-  ui->dbname->setText("untitled");
 }
 
 void CreateDatabaseDialog::browseLocation() {
-  qDebug() << "CreateDatabaseDialog::browseLocation NYI";
+  QString fn = QFileDialog::getSaveFileName(this,
+                                            "Database filename…",
+                                            FileLocations::dataRoot(),
+                                            "*.photohoardDB");
+  if (!fn.isEmpty())
+    ui->dblocation->setText(fn);
 }
 
 void CreateDatabaseDialog::browseCache() {
-  qDebug() << "CreateDatabaseDialog::browseCache NYI";
+  QString dir = QFileDialog::getExistingDirectory(this,
+                                                  "Cache location…",
+                                                  ui->cachelocation->text());
+  if (!dir.isEmpty())
+    ui->cachelocation->setText(dir);
 }
 
 void CreateDatabaseDialog::accept() {
   qDebug() << "accept";
-  QString dbname = ui->dbname->text();
-  QString dblocation = ui->dblocation->text();
+  QString dbfn = ui->dblocation->text();
   QString cachelocation = ui->cachelocation->text();
-  if (!dbname.endsWith(".db"))
-    dbname += ".db";
-  qDebug() << "  dbname " << dbname;
-  qDebug() << "  dblocation " << dblocation;
+  if (!dbfn.endsWith(".photohoardDB"))
+    dbfn += ".photohoardDB";
+  qDebug() << "  dbfn " << dbfn;
   qDebug() << "  cachelocation " << cachelocation;
-  QString dbfn = dblocation + "/" + dbname;
   if (QFile(dbfn).exists()) {
-    QMessageBox::warning(0, "Photohoard", "A database named “" + dbname
-                         + "“ already exists in “" + dblocation
-                         + "”. Cannot create a new one.");
+    QMessageBox::warning(0, "Photohoard", "A database named “" + dbfn
+                         + "” already exists."
+                         + " Cannot create a new one.");
     return;
   }
-  new Session(dbfn, true);
+  new Session(dbfn, true, false, cachelocation);
   QDialog::accept();
 }

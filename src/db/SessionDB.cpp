@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "SqlFile.h"
 #include "FileLocations.h"
+#include <QUuid>
 
 bool SessionDB::sessionExists(QString photodbfn) {
   return QFileInfo(FileLocations::sessionFileForDB(photodbfn)).exists();
@@ -27,9 +28,8 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
   Database sdb;
   sdb.open(sessionfn);
   SqlFile sql(":/setupsession.sql");
-  {
-    Transaction t(&sdb);
-  for (auto c: sql) 
+  { Transaction t(&sdb);
+    for (auto c: sql) 
       sdb.query(c);
     sdb.query("insert into paths (photodb, cachedir) values (:a, :b)",
               photodbfn, cachedir);
@@ -150,23 +150,15 @@ quint64 SessionDB::current() const {
 }
 
 void SessionDB::upgradeDBVersion() {
-  DBWriteLock lock(this);
-  // update to version 1.2 if needed
-  QString dbvsn
-    = simpleQuery("select version from info where id=='PhotoDB'").toString();
-  if (dbvsn<"1.2") {
-    query("alter table layers add column alpha real");
-    query("alter table layers add column feather real");
-    query("alter table layers add column name text");
-    query("update info set version = '1.2' where id=='PhotoDB'");
-  }
-
   QString sdbvsn = simpleQuery("select version from sinfo where id==:a",
                                "PhotohoardSessionDB").toString();
+  pDebug() << "SessionDB upgradedbversion" << sdbvsn;
+  
   if (sdbvsn < "1.3") {
+    Transaction t(this);
     query("alter table sinfo add column runningpid integer");
-    query("update sinfo set version = '1.3' where id==:a",
-          "PhotohoardSessionDB");
+    query("update sinfo set version='1.3' where id=='PhotohoardSessionDB'");
+    t.commit();
   }
 }
 

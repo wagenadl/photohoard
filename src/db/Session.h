@@ -12,7 +12,8 @@ class Session: public QObject {
 public:
   static QStringList recentDatabases();
 public:
-  Session(QString dbfn=QString(), bool create=false, bool readonly=false);
+  Session(QString dbfn=QString(), bool create=false, bool readonly=false,
+          QString cacheloc=QString());
   virtual ~Session();
   bool isActive() const;
 public slots:

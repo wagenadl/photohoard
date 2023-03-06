@@ -59,7 +59,7 @@ void SHPrivate::rebuild() {
   html += "<body>";
 
   html += "<h2>Photohoard " + Version::toString() + "</h2>\n";
-  html += "<p>(C) Daniel Wagenaar 2016–2022\n";
+  html += "<p>(C) Daniel Wagenaar 2016–2023\n";
 
   html += "<h2>Keyboard shortcuts</h2>\n";
 

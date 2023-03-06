@@ -5,6 +5,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include "Settings.h"
+#include "PhotoDB.h"
+#include "SessionDB.h"
 
 namespace FileLocations {
   Settings settings;
@@ -25,21 +27,30 @@ namespace FileLocations {
     return dataRoot() + "/default.db";
   }
 
-  QString shortDBName(QString fn) {
-    fn = QFileInfo(fn).canonicalFilePath();
-    if (fn.endsWith(".db"))
-      fn = fn.left(fn.size() - 3);
-    if (fn.startsWith(dataRoot() + "/"))
-      fn = fn.mid((dataRoot() + "/").size());
-    return fn.replace("/", "_");
+  QString databaseUuid(QString dbfn) {
+    //// this mechanism does not yet work, because we do not yet store uuids 
+    //QStringList uuidlist
+    //  = Settings().get("uuids", QQstringList()).toStringList();
+    //for (int k=0; k<uuidlist.size()-1; k+=2)
+    //  if (uuidlist[k]==dbfn)
+    //    return uuidlist[k+1];
+
+    // this mechanism should now work
+    PhotoDB pdb;
+    pdb.open(dbfn);
+    QString id = pdb.databaseID();
+    pdb.close();
+    return id;
   }
   
-  QString cacheDirForDB(QString fn) {
-    return cacheRoot() + "/" + shortDBName(fn) + "-cache";
+  QString defaultCacheDirForDB(QString fn) {
+    QString uuid = databaseUuid(fn);
+    return cacheRoot() + "/" + uuid + "-cache";
   }
 
   QString sessionFileForDB(QString fn) {
-    return cacheRoot() + "/" + shortDBName(fn) + "-session.db";
+    QString uuid = databaseUuid(fn);
+    return cacheRoot() + "/" + uuid + "-session.db";
   }
 
   void ensureDataRoot() {

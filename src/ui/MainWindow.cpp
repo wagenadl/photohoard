@@ -1,6 +1,9 @@
 // MainWindow.cpp
 
 #include "MainWindow.h"
+#include "DBInfoDialog.h"
+#include "CreateDatabaseDialog.h"
+#include "Version.h"
 #include "LightTable.h"
 #include "LayoutBar.h"
 #include "FileBar.h"
@@ -14,6 +17,7 @@
 #include "AllControls.h"
 #include "HistoWidget.h"
 #include <QDockWidget>
+#include <QMenu>
 #include "LiveAdjuster.h"
 #include "MetaViewer.h"
 #include "StatusBar.h"
@@ -51,6 +55,7 @@ MainWindow::MainWindow(SessionDB *db,
   setCentralWidget(lighttable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
 
+  makeMenu();
   makeDocks();
   makeToolbars();
 
@@ -279,7 +284,7 @@ void MainWindow::makeToolbars() {
   addToolBar(area, layoutBar = new LayoutBar(lighttable, this));
   if (!db->isReadOnly())
     addToolBar(area, colorLabelBar = new ColorLabelBar(db, lighttable, this));
-  addToolBar(area, filterBar = new FilterBar(lighttable, this));
+  addToolBar(area, filterBar = new FilterBar(lighttable, menu, this));
   //  addToolBarBreak(area);
   //  addToolBar(area, helpBar = new HelpBar(this));
   //  addToolBar(area, databaseBar = new DatabaseBar(db, this));
@@ -295,8 +300,6 @@ void MainWindow::makeToolbars() {
                            lighttable->actions());
   if (!db->isReadOnly())
     shortcutHelp->addSection("Slider panel", allControls->actions());
-
-  addHiddenActions();
 }
 
 void MainWindow::addHiddenActions() {
@@ -305,16 +308,6 @@ void MainWindow::addHiddenActions() {
      addAction(new PAction{hiddenactions.last(), this});
   };
 
-  add(Action{Qt::CTRL + Qt::Key_Minus,
-             "Reduce tile size", 
-             [=]() { lighttable->increaseTileSize(1/1.25); }});
-  /* QIcon(":icons/scaleSmaller.svg") */
-
-  add(Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
-             "Increase tile size", 
-             [=]() { lighttable->increaseTileSize(1.25); }});
-  /* QIcon(":icons/scaleLarger.svg") */
-  
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A,
              "Clear selection", 
              [=]() { lighttable->clearSelection(); }});
@@ -324,6 +317,56 @@ void MainWindow::addHiddenActions() {
   shortcutHelp->addSection("General", hiddenactions);
 }
 
-void MainWindow::showMenu() {
-  qDebug() << "NYI";
+void MainWindow::makeMenu() {
+  menu = new QMenu(this);
+  auto add = [this](Action const &act) {
+    PAction *pact = new PAction{act, this};
+    addAction(pact);
+    menu->addAction(pact);
+  };
+
+  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_N, "&New database…",
+             [this]() { newDatabase(); }});
+  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_O, "&Open other database…",
+             [this]() { openOther(); }});
+  menu->addSeparator();
+  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_B, "Database &info…",
+             [this]() { databaseInfo(); }});
+  add(Action{0, "&About Photohoard…",
+             [this]() { showAbout(); }});
+  add(Action{Qt::CTRL + Qt::Key_H, "Keyboard &help…",
+             [this]() { showShortcutHelp(); }});
+  add(Action{Qt::CTRL + Qt::Key_Q, "&Quit",
+             []() { QApplication::quit(); }});
+}
+
+void MainWindow::showAbout() {
+  QString me = "<b>Photohoard</b>";
+  QString vsn = Version::toString();
+  QMessageBox::about(0, "About Photohoard",
+                     me + " " + vsn
+                     + "<p>" + "(C) 2016–2023 Daniel A. Wagenaar\n"
+                     + "<p>" + me + " is a program to organize collections of digital photographs. More information is available at <a href=\"http://www.github.com/wagenadl/photohoard\">github.com/wagenadl/photohoard</a>.\n"
+                     + "<p>" + me + " is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n"
+                     + "<p>" + me + " is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n"
+                     + "<p>" + "You should have received a copy of the GNU General Public License along with this program. If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0.en.html\">www.gnu.org/licenses/gpl-3.0.en.html</a>.");
+}
+
+void MainWindow::databaseInfo() {
+  auto *dlg = new DBInfoDialog(db, this);
+  dlg->exec();
+  delete dlg;
+}
+
+void MainWindow::newDatabase() {
+  auto *dlg = new CreateDatabaseDialog(this);
+  if (dlg->exec()) {
+    qDebug() << "create";
+  } else {
+    qDebug() << "cancel";
+  }
+}
+
+void MainWindow::openOther() {
+  qDebug() << "open other";
 }

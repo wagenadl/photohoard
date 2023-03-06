@@ -24,7 +24,10 @@ public slots:
   void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
   void showShortcutHelp();
   void setStatusMessage(QString msg);
-  void showMenu();
+  void showAbout();
+  void databaseInfo();
+  void newDatabase();
+  void openOther();
 protected:
   virtual void closeEvent(QCloseEvent *) override;
   virtual void dragEnterEvent(QDragEnterEvent *) override;
@@ -38,6 +41,7 @@ private:
   void makeDocks();
   void makeToolbars();
   void addHiddenActions();
+  void makeMenu();
 private:
   class SessionDB *db;
   class Scanner *scanner;
@@ -58,6 +62,8 @@ private:
   class AppliedTagList *tagList;
   class StatusBar *statusBar;
   class ShortcutHelp *shortcutHelp;
+  class QMenu *menu;
+  class QMenu *recent;
 private:
   Actions hiddenactions;
 private:
