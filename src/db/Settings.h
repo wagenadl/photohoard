@@ -14,6 +14,8 @@ public:
   QVariant get(QString key) const;
   QVariant get(QString key, QVariant dflt); // sets if not found
   bool contains(QString key) const;
+  QStringList recentFiles() const;
+  void markRecentFile(QString fn);
 private:
   class QSettings *data;
 };

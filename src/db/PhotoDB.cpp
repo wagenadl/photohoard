@@ -8,9 +8,18 @@
 #include <QDir>
 #include "Adjustments.h"
 #include "BasicCache.h"
+#include <QUuid>
 
 PhotoDB::PhotoDB(): Database() {
   ro = false;
+}
+
+void PhotoDB::open(QString photodbfn, bool readonly) {
+  Database::open(photodbfn);
+  if (readonly || !QFileInfo(photodbfn).isWritable())
+    setReadOnly();
+  else
+    upgradeDBVersion();
 }
 
 void PhotoDB::readFTypes() const {
@@ -31,7 +40,7 @@ void PhotoDB::clone(PhotoDB const &src) {
   ro = src.ro;
 }
 
-void PhotoDB::create(QString fn) {
+QString PhotoDB::create(QString fn) {
   QFile f(fn);
   if (f.exists())
     CRASH("Could not create new PhotoDB: File exists: " + fn);
@@ -46,13 +55,15 @@ void PhotoDB::create(QString fn) {
   Database db;
   db.open(fn);
   SqlFile sql(":/setupdb.sql");
+  QString uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
   { Transaction t(&db);
     for (auto c: sql) 
       db.query(c);
+    db.query("update info set uuid=:a where id=='PhotoDB'", uuid);
     t.commit();
   }
-    
   db.close();
+  return uuid;
 }
 
 QString PhotoDB::ftype(int ft) const {
@@ -594,4 +605,35 @@ bool PhotoDB::isReadOnly() const {
 
 void PhotoDB::setReadOnly() {
   ro = true;
+}
+
+QString PhotoDB::databaseID() const {
+  DBReadLock lock(this);
+  QString id = simpleQuery("select uuid from info").toString();
+  return id; 
+}
+
+void PhotoDB::upgradeDBVersion() {
+  // update to version 1.2 if needed
+  QString dbvsn
+    = simpleQuery("select version from info where id=='PhotoDB'").toString();
+  pDebug() << "PhotoDB upgradedbversion" << dbvsn;
+
+  if (dbvsn<"1.2") {
+    Transaction t(this);
+    query("alter table layers add column alpha real");
+    query("alter table layers add column feather real");
+    query("alter table layers add column name text");
+    query("update info set version = '1.2' where id=='PhotoDB'");
+    t.commit();
+  }
+
+  if (dbvsn<"1.3") {
+    Transaction t(this);
+    query("alter table info add column uuid string");
+    query("update info set uuid=:a where id=='PhotoDB'",
+          QUuid::createUuid().toString(QUuid::WithoutBraces));
+    query("update info set version='1.3' where id=='PhotoDB'");
+    t.commit();
+  }
 }

@@ -4,6 +4,7 @@
 #include "ScreenResolution.h"
 #include <QTime>
 #include "PDebug.h"
+#include "FileLocations.h"
 #include "Application.h"
 #include <QLabel>
 #include "NikonLenses.h"
@@ -14,6 +15,8 @@
 #include <thread>
 #include <iostream>
 #include "Session.h"
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
@@ -23,42 +26,39 @@ void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
   }
 }
 
-void usage() {
-  fprintf(stderr, "Usage: photohoard -icc profile -ro -new -db database\n");
-  exit(1);
-}
-
 int main(int argc, char **argv) {
-  pDebug() << "Photohoard";
+  pDebug() << "Photohoard" << argc << argv;
   Settings settings;
-  QString dbfn;
-  QString icc;
-  bool newdb = false;
-  bool readonly = false;
-  
-  QStringList args;
-  for (int i=1; i<argc; i++)
-    args << argv[i];
-  while (!args.isEmpty()) {
-    QString kwd = args.takeFirst();
-    if (kwd=="-db") {
-      Q_ASSERT(!args.isEmpty());
-      dbfn = args.takeFirst();
-    } else if (kwd=="-icc") {
-      Q_ASSERT(!args.isEmpty());
-      icc = args.takeFirst();
-    } else if (kwd=="-new") {
-      newdb = true;
-    } else if (kwd=="-ro") {
-      readonly = true;
-    } else {
-      usage();
-    }
-  }
-
   Application app(argc, argv);
   app.setFont(ScreenResolution::defaultFont());
-  
+
+  QCommandLineOption cli_db("db", "Specify database to use",
+                            "file.photohoardDB");
+  QCommandLineOption cli_icc("icc", "Specify ICC color profile",
+                             "file.icc");
+  QCommandLineOption cli_new("new", "Create new database");
+  QCommandLineOption cli_ro("ro", "Open database read-only");
+
+  QCommandLineParser cli;
+  cli.setApplicationDescription("\n"
+    "Photohoard is a collection manager for digital photographs.\n"
+    "More information is at https://github.com/wagenadl/photohoard.");
+  cli.addHelpOption();                    
+  cli.addVersionOption();
+  cli.addOption(cli_db);
+  cli.addOption(cli_icc);
+  cli.addOption(cli_new);
+  cli.addOption(cli_ro);
+  cli.process(app);
+  QStringList args = cli.positionalArguments();
+
+  QString dbfn = cli.value("db");
+  QString icc = cli.value("icc");
+  bool newdb = cli.isSet("new");
+  bool readonly = cli.isSet("ro");
+
+  FileLocations::ensureDataRoot();
+
   CMSProfile rgb(CMSProfile::srgbProfile());
   if (icc=="")
     CMS::monitorProfile = CMSProfile::displayProfile();
@@ -68,9 +68,8 @@ int main(int argc, char **argv) {
                                        CMS::monitorProfile);
 
   Session *session = new Session(dbfn, newdb, readonly);
-  int res = 2;
   if (session->isActive())
-    res = app.exec();
-  pDebug() << "exit" << res;
-  return res;
+    return app.exec();
+  else
+    return 2;
 }

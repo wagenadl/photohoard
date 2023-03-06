@@ -19,7 +19,7 @@ QStringList Session::recentDatabases() {
   return Settings().get("recentdbs", QStringList()).toStringList();
 }
 
-Session::Session(QString dbfn0, bool create, bool readonly):
+Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
   dbfn(dbfn0), readonly(readonly) {
   active = false;
   sdb = 0;
@@ -28,13 +28,13 @@ Session::Session(QString dbfn0, bool create, bool readonly):
   expo = 0;
   mw = 0;
 
-  bool isdefault = false;
   if (dbfn=="") {
-    QString defaultdbfn = FileLocations::defaultDBFile();
-    dbfn = Settings().get("currentdb", defaultdbfn).toString();
-    isdefault = dbfn==defaultdbfn;
+    QStringList recent = Settings().recentFiles();
+    dbfn = recent.isEmpty() ? FileLocations::defaultDBFile() : recent[0];
   }
-
+  bool isdefault = dbfn==FileLocations::defaultDBFile();
+  Settings().markRecentFile(dbfn);
+  
   if (create && QFile(dbfn).exists()) {
     ErrorDialog::fatal("A database already exists at " + dbfn
                          + ". Cannot create a new one.");
@@ -52,8 +52,11 @@ Session::Session(QString dbfn0, bool create, bool readonly):
   }
 
   if (!SessionDB::sessionExists(dbfn)) {
-    pDebug() << "Creating session for " << dbfn;
-    SessionDB::createSession(dbfn, FileLocations::cacheDirForDB(dbfn));
+    pDebug() << "Creating session for " << dbfn << cacheloc;
+    QString cachedir = cacheloc.isEmpty()
+      ? FileLocations::defaultCacheDirForDB(dbfn)
+      : cacheloc + "/" + FileLocations::databaseUuid(dbfn) + "-cache";
+    SessionDB::createSession(dbfn, cachedir);
   }
   
   sdb = new SessionDB();
@@ -102,19 +105,6 @@ Session::Session(QString dbfn0, bool create, bool readonly):
   active = true;
   mw->show();
   mw->scrollToCurrent();
-
-  QStringList recent = recentDatabases();
-  int idx = recent.indexOf(dbfn);
-  if (idx!=0) {
-    if (idx>0) 
-      recent.removeAt(idx);
-    recent.prepend(dbfn);
-    while (recent.size() > 20)
-      recent.removeLast();
-    Settings().set("recentdbs", recent);
-  } else {
-    // already at head of list, nothing to do
-  }
 }
 
 void Session::quit() {

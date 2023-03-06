@@ -70,10 +70,11 @@ PAction::PAction(Action const &a, QObject *parent):
   QString key = " (" + a.keyName() + ")";
   int idx = doc.indexOf("\n");
   if (idx>=0) {
-    setText(doc.left(idx) + key);
+    setText(doc.left(idx)); // + key);
     setToolTip(doc + key);
   } else {
-    setText(doc + key);
+    setText(doc); // + key);
+    setToolTip(doc + key);
   }
 }
 

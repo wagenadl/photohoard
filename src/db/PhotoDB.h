@@ -41,9 +41,13 @@ public:
   };
 public:
   PhotoDB();
+  virtual void open(QString photodbfn, bool readonly=false);
   virtual void clone(PhotoDB const &);
-  static void create(QString fn);
+  static QString create(QString fn); // returns uuid
+public:
+  // information about database
   bool isReadOnly() const;
+  QString databaseID() const;
 public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
   QDateTime captureDate(quint64 photoid) const;
@@ -123,6 +127,7 @@ protected:
   void setReadOnly();
 private:
   void readFTypes() const;
+  void upgradeDBVersion();
 private:
   bool ro;
   mutable QMap<quint64, QString> folders;

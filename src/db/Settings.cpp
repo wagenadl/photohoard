@@ -1,7 +1,7 @@
 // Settings.cpp
 
 #include "Settings.h"
-
+#include <QFileInfo>
 #include <QSettings>
 
 Settings::Settings() {
@@ -31,3 +31,20 @@ bool Settings::contains(QString key) const {
   return data->contains(key);
 }
 
+QStringList Settings::recentFiles() const {
+  QStringList fns = get("recentdbs").toStringList();
+  QStringList res;
+  for (QString const &fn: fns)
+    if (QFileInfo(fn).exists())
+      res << fn;
+  return res;
+}
+
+void Settings::markRecentFile(QString fn) {
+  QStringList fns = recentFiles();
+  fns.removeAll(fn);
+  fns.insert(0, fn);
+  while (fns.size()>20)
+    fns.removeLast();
+  set("recentdbs", fns);
+}
