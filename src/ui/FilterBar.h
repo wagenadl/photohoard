@@ -8,7 +8,7 @@
 
 class FilterBar: public ActionBar {
 public:
-  FilterBar(class LightTable *lighttable, QWidget *parent);
+  FilterBar(class LightTable *lighttable, class MainWindow *parent);
 };
 
 #endif

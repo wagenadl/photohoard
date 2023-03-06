@@ -8,6 +8,7 @@
 #include "FileBar.h"
 #include "Image16.h"
 #include "LayoutBar.h"
+#include "Action.h"
 
 class MainWindow: public QMainWindow {
   Q_OBJECT;
@@ -23,6 +24,7 @@ public slots:
   void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
   void showShortcutHelp();
   void setStatusMessage(QString msg);
+  void showMenu();
 protected:
   virtual void closeEvent(QCloseEvent *) override;
   virtual void dragEnterEvent(QDragEnterEvent *) override;
@@ -33,11 +35,16 @@ private slots:
   void reportExportResults(QString dst, int nOK, int nFail);
   void reloadVersion(quint64 vsn);
 private:
+  void makeDocks();
+  void makeToolbars();
+  void addHiddenActions();
+private:
   class SessionDB *db;
   class Scanner *scanner;
   class Exporter *exporter;
+  class AutoCache *autocache;
 private:
-  class LightTable *lightTable;
+  class LightTable *lighttable;
   class FileBar *fileBar;
   class LayoutBar *layoutBar;
   class ColorLabelBar *colorLabelBar;
@@ -51,6 +58,8 @@ private:
   class AppliedTagList *tagList;
   class StatusBar *statusBar;
   class ShortcutHelp *shortcutHelp;
+private:
+  Actions hiddenactions;
 private:
   bool dragout;
   bool dragin;

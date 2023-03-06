@@ -5,8 +5,9 @@
 #include <QMetaType>
 #include "PDebug.h"
 #include "LightTable.h"
+#include "MainWindow.h"
 
-FilterBar::FilterBar(LightTable *lighttable, QWidget *parent):
+FilterBar::FilterBar(LightTable *lighttable, MainWindow *parent):
   ActionBar(parent) {
   setObjectName("Filter");
 
@@ -14,23 +15,12 @@ FilterBar::FilterBar(LightTable *lighttable, QWidget *parent):
                     [=]() { lighttable->openFilterDialog(); }};
   new PAction{acts.last(), QIcon(":icons/search.svg"), this};
 
-  acts << Action{Qt::CTRL + Qt::Key_Minus, "Reduce tile size", 
-                     [=]() { lighttable->increaseTileSize(1/1.25); }};
-  parent->addAction(new PAction{acts.last(), this});
-  /* QIcon(":icons/scaleSmaller.svg") */
+  acts << Action{Qt::CTRL + Qt::Key_H, "Help",
+                    [=]() { parent->showShortcutHelp(); }};
+  new PAction{acts.last(), QIcon(":icons/help.svg"), this};
 
-  acts << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
-                    "Increase tile size", 
-                    [=]() { lighttable->increaseTileSize(1.25); }};
-  parent->addAction(new PAction{acts.last(), this});
-  /* QIcon(":icons/scaleLarger.svg") */
-
-  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A, "Clear selection", 
-                    [=]() { lighttable->clearSelection(); }};
-  parent->addAction(new PAction{acts.last(), this});
-
-  acts << Action{Qt::CTRL + Qt::Key_A, "Select all", 
-                    [=]() { lighttable->selectAll(); }};
-  parent->addAction(new PAction{acts.last(), this});
+  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_M, "Menu",
+                    [=]() { parent->showMenu(); }};
+  new PAction{acts.last(), QIcon(":icons/menu.svg"), this};
+  
 }
-
