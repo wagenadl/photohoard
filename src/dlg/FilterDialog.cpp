@@ -9,6 +9,7 @@
 #include "TagDialog.h"
 #include "Dialog.h"
 #include <algorithm>
+
 FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   QDialog(parent), db(db) {
   starting = true;

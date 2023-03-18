@@ -119,9 +119,10 @@ void Filter::unsetTags() {
 int Filter::count() const {
   ASSERT(db);
   DBReadLock lock(db);
-  return db->simpleQuery("select count(*) from versions "
-			+ joinClause()
-			+ " where " + whereClause()).toInt();
+  QString query = "select count(*) from versions "
+    + joinClause()
+    + " where " + whereClause();
+  return db->simpleQuery(query).toInt();
 }
 
 QString Filter::joinClause() const {
@@ -158,7 +159,6 @@ QString Filter::whereClause() const {
 }
 
 QString Filter::collectionClause() const {
-  DBReadLock lock(db);
   QSqlQuery q = db->constQuery("select id from tags where tag==:a", "Collections");
   if (!q.next())
     return collection_.isEmpty() ? "1>0" : "0>1";
@@ -225,7 +225,6 @@ QString Filter::cameraClause() const {
   //	   << cameramake << cameramodel;
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
     // select on camera
-    DBReadLock lock(db);
     QSqlQuery q;
     if (cameramake.isEmpty()) {
       // select just on model
@@ -253,7 +252,6 @@ QString Filter::cameraClause() const {
   }
   
   if (!cameralens.isEmpty()) {
-    DBReadLock lock(db);
     QSqlQuery q = db->constQuery("select id from lenses where lens==:a", cameralens);
     if (q.next())
       bits << "lens==" + QString::number(q.value(0).toInt());
@@ -276,7 +274,6 @@ QString Filter::fileLocationClause() const {
   if (filelocation.isEmpty())
     return "0>1";
   QSet<int> folders;
-  DBReadLock lock(db);
   QSqlQuery q = db->constQuery("select id from folders where pathname==:a",
 			 filelocation);
   if (q.next())
