@@ -8,7 +8,7 @@
 
 
 ######################################################################
-cmake_minimum_required(VERSION 3.11.0)
+cmake_minimum_required(VERSION 3.22.0)
 
 ######################################################################
 # Set the project name and version
@@ -49,8 +49,8 @@ add_executable(photohoard WIN32 MACOSX_BUNDLE src/ui/main.cpp)
 #set(CMAKE_BUILD_TYPE DEBUG)
 
 # RELEASE VERSION
-set(CMAKE_BUILD_TYPE RELEASE)
-set_target_properties(photohoard PROPERTIES LINK_FLAGS -s)
+#set(CMAKE_BUILD_TYPE RELEASE)
+
 ######################################################################
 #set_target_properties(photohoard PROPERTIES LINK_FLAGS -s)
 
@@ -80,11 +80,12 @@ target_include_directories(photohoard PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
 target_include_directories(photohoard PUBLIC "${OpenCV_INCLUDE_DIRS}")
 
 ######################################################################
-# Userguide
+# Documentation
 if (UNIX AND NOT APPLE)
-  include(doc/UseLATEX.cmake)
-  add_latex_document(doc/userguide.tex IMAGE_DIRS doc
-    FORCE_PDF INCLUDE_DIRECTORIES doc)
+  #include(doc/UseLATEX.cmake)
+  #add_latex_document(doc/userguide.tex IMAGE_DIRS doc
+  #  FORCE_PDF INCLUDE_DIRECTORIES doc)
+  add_subdirectory("docs")
 endif()
 
 ######################################################################
