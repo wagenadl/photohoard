@@ -41,7 +41,7 @@ find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 
 ######################################################################
 # Add the executables
-add_executable(photohoard WIN32 MACOSX_BUNDLE src/ui/main.cpp)
+add_executable(photohoard WIN32 MACOSX_BUNDLE src/main.cpp)
 #target_link_options(photohoard private "$<$<CONFIG:Release>:-s>")
 
 ######################################################################
