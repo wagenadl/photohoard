@@ -5,7 +5,7 @@
 #include <QSettings>
 
 Settings::Settings() {
-  data = new QSettings("danielwagenaar.net", "photohoard");
+  data = new QSettings("photohoard", "photohoard");
 }
 
 Settings::~Settings() {
