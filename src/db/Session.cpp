@@ -117,7 +117,7 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
 
     if (create) {
       for (QString root: roots) 
-        scan->addTree(QFileInfo(root).absoluteFilePath(), "Default");
+        scan->addTree(QFileInfo(root).absoluteFilePath());
     }
   }
 
