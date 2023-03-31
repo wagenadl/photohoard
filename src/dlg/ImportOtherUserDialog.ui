@@ -14,7 +14,7 @@
    <enum>Qt::TabFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>Import (Photohoard)</string>
+   <string>Photohoard: Import</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -26,7 +26,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Importing %1 image%2 from:</string>
+      <string>Importing %1 image%2 from other user’s folder:</string>
      </property>
     </widget>
    </item>

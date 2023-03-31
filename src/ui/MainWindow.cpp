@@ -9,7 +9,6 @@
 #include "FileBar.h"
 #include "FilterBar.h"
 #include "HelpBar.h"
-#include "DatabaseBar.h"
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "AutoCache.h"
@@ -22,7 +21,6 @@
 #include "MetaViewer.h"
 #include "StatusBar.h"
 #include "AppliedTagList.h"
-#include "AddRootDialog.h"
 #include <QDir>
 #include "PDebug.h"
 #include "ShortcutHelp.h"
@@ -239,7 +237,7 @@ void MainWindow::dropEvent(QDropEvent *e) {
   
   e->accept();
   auto *gui = new ImportGUI(db, scanner, urls, this);
-  gui->showAndGo(true);
+  gui->showAndGo();
 
   dragin = false;
 }

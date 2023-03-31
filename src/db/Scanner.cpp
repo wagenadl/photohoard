@@ -46,6 +46,10 @@ quint64 Scanner::findDirOrAdd(QString path, bool secondary) {
 void Scanner::addTree(QString path, QString defaultCollection,
                       QStringList excluded) {
   // This is called from outside of thread!
+  { DBWriteLock lock(db0);
+    db0->query("delete from excludedtrees where pathname==:a", path);
+  }
+
   foreach (QString e, excluded)
     excludeTree(e);
   

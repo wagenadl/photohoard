@@ -95,6 +95,7 @@ public: // exploration functions
   QList<quint64> versionsInFolder(QString folder) const;
   QList<QString> subFolders(QString folders) const;
   QList<QString> rootFolders() const;
+  QList<QString> excludedFolders(QString root) const;
   quint64 firstVersionInTree(QString folder) const;
   // all of the above look at the filter
 public: // manipulating the database

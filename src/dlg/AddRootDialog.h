@@ -28,7 +28,6 @@ protected slots:
   void browse();
   void addExclusion();
   void removeExclusion();
-  void editExclusion(QModelIndex);
 private:
   void prepCollections();
   QString reasonableStartingPoint();

@@ -46,7 +46,6 @@ bool isSubFolder(QString parent, QString child) {
   }
   return false;
 }
-  
 
 void FirstRunDialog::add() {
   QString newfld = QFileDialog::getExistingDirectory(this,

@@ -11,12 +11,20 @@
 #include <QMessageBox>
 #include "Dialog.h"
 
+const QString noneLabel = "(none)";
+
 AddRootDialog::AddRootDialog(PhotoDB *db, QWidget *parent):
   QDialog(parent), db(db) {
   ui = new Ui_addRootDialog();
   ui->setupUi(this);
+  ui->excluded->addItem(noneLabel);
   prepCollections();
   Dialog::ensureSize(this);
+  connect(ui->excluded, &QListWidget::currentItemChanged,
+          this, [this]() {
+            QListWidgetItem *item = ui->excluded->currentItem();
+            ui->removeExcluded->setEnabled(item && item->text()!=noneLabel);
+          });
 }
 
 AddRootDialog::~AddRootDialog() {
@@ -24,11 +32,10 @@ AddRootDialog::~AddRootDialog() {
 
 QString AddRootDialog::path() const {
   QString p = ui->location->text();
-  if (p.startsWith("~/")) {
-    QString home = QString(qgetenv("HOME"));
-    p = home + p.mid(1);
-  }
-  return p;
+  if (p.startsWith("~/")) 
+    return QDir::homePath() + p.mid(1);
+  else
+    return QFileInfo(p).absoluteFilePath();
 }
 
 QString AddRootDialog::defaultCollection() const {
@@ -37,9 +44,9 @@ QString AddRootDialog::defaultCollection() const {
 
 int AddRootDialog::exec() {
   prepCollections();
-  ui->location->setText(QString(qgetenv("HOME")) + "/Pictures");
+  ui->location->setText(QDir::homePath() + "/Pictures");
   if (Tags(db).collections().isEmpty())
-    ui->collection->addItem("Family photos");
+    ui->collection->addItem(noneLabel);
   DialogCode c = DialogCode(QDialog::exec());
   return c;
 }
@@ -77,23 +84,6 @@ void AddRootDialog::browse() {
     ui->location->setText(dir);
 }
 
-void AddRootDialog::editExclusion(QModelIndex) {
-  QListWidgetItem *item = ui->excluded->currentItem();
-  if (!item)
-    return;
-  QString start = item->text();
-  if (start=="(none)")
-    start = reasonableStartingPoint();
-  QString fn
-    = QFileDialog::getExistingDirectory(this,
-                                        tr("Select root of tree to exclude"),
-                                        start,
-                                        QFileDialog::ShowDirsOnly);
-  if (fn.isEmpty())
-    return;
-  item->setText(fn);
-}
-
 void AddRootDialog::addExclusion() {
   pDebug() << "AddExclusion";
   QString fn
@@ -104,33 +94,34 @@ void AddRootDialog::addExclusion() {
   if (fn.isEmpty())
     return;
 
+  fn = QFileInfo(fn).absoluteFilePath();
+
   if (ui->excluded->count()==1
-      && ui->excluded->item(0)->text() == "none")
+      && ui->excluded->item(0)->text() == noneLabel)
     ui->excluded->item(0)->setText(fn);
   else
     ui->excluded->addItem(fn);
 }
 
 void AddRootDialog::removeExclusion() {
-  pDebug() << "RemoveExclusion";
-  int n = ui->excluded->currentRow();
-  if (n>=0 && n<ui->excluded->count())
-    ui->excluded->removeItemWidget(ui->excluded->item(n));
+  QListWidgetItem *item = ui->excluded->currentItem();       
+  if (item)
+    delete item;
   if (ui->excluded->count()==0)
-    ui->excluded->addItem("(none)");
+    ui->excluded->addItem(noneLabel);
 }
 
 QStringList AddRootDialog::exclusions() const {
   QStringList ee;
   for (int n=0; n<ui->excluded->count(); n++) {
     QString fn = ui->excluded->item(n)->text();
-    if (fn.isEmpty() || fn=="(none)")
+    if (fn.isEmpty() || fn==noneLabel)
       continue;
     ee << fn;
   }
   return ee;
 }
-    
+
 bool AddRootDialog::validate(bool interactive) const {
   if (path().isEmpty()) {
     if (interactive)
@@ -141,8 +132,7 @@ bool AddRootDialog::validate(bool interactive) const {
     return false;
   }
 
-  QDir root(path());
-  if (!root.exists()) {
+  if (!QDir(path()).exists()) {
     if (interactive)
       QMessageBox::warning(0, "Photohoard",
 			   "The specified path could not be found. Please"
@@ -158,6 +148,15 @@ bool AddRootDialog::validate(bool interactive) const {
 	    " least one “collection.” Please select a"
 	    " default collection for your new folder tree."
 	    " You may also type the name of a new collection."),
+	    QMessageBox::Ok);
+    return false;
+  }
+
+  if (db->findFolder(path())) {
+    if (interactive)
+      QMessageBox::warning(0, "Photohoard", 
+            "The specified folder is already included."
+            " Therefore, it cannot be added again.",
 	    QMessageBox::Ok);
     return false;
   }

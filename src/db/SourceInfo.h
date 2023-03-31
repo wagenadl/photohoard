@@ -31,7 +31,6 @@ public:
   static QString commonRoot(QList<QUrl> const &);
   static QString commonRoot(QStringList const &);
   static bool isAllLocal(QList<QUrl> const &);
-  static QString homeDirectory();
 private:
   QList<QUrl> sources_;
   QString commonroot_;
