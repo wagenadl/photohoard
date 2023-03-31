@@ -33,7 +33,12 @@ quint64 DBInfoDialog::dirSize(QString root) {
 }
 
 QString DBInfoDialog::niceCount(quint64 count) {
-  return QString("%L1").arg(count);
+  if (count==0)
+    return "zero";
+  else if (count==1)
+    return "one";
+  else
+    return QString("%L1").arg(count);
 }
 
 QString DBInfoDialog::niceSize(quint64 bytesize) {
@@ -69,9 +74,13 @@ void DBInfoDialog::setup() {
   ui->txtcache->setText(sdb->cacheDirname());
   ui->dbsize->setText(niceSize(dbinfo.size()));
   ui->cachesize->setText(niceSize(dirSize(sdb->cacheDirname())));
+  int nphotos = sdb->countPhotos();
+  int nroots = sdb->rootFolders().size();
   ui->txtcount->setText(locationlabel
-                        .arg(niceCount(sdb->countPhotos()))
-                        .arg(niceCount(sdb->rootFolders().size())));
+                        .arg(niceCount(nphotos))
+                        .arg(nphotos==1 ? "" : "s")
+                        .arg(niceCount(nroots))
+                        .arg(nroots==1 ? "": "s"));
   QStringList roots(sdb->rootFolders());
   ui->locations->setText(roots.join("\n"));
   ui->collapse->setTarget(ui->details);
