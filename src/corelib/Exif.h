@@ -45,7 +45,6 @@ private:
   static class CanonLenses const &canonLenses();
 private:
   Exiv2::Image::AutoPtr image;
-  Exiv2::Exifdatum nullDatum;
 };
 
 #endif

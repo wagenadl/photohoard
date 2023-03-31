@@ -38,23 +38,23 @@ CanonLenses const &Exif::canonLenses() {
   return lenses;
 }
 
-Exif::Exif(QString filename):
-  image(Exiv2::ImageFactory::open(filename.toUtf8().data())),
-  nullDatum(Exiv2::ExifKey("Exif.Photo.ExifVersion")) {
-  if (image.get()) {
-    try {
+Exif::Exif(QString filename) {
+  try {
+    image = Exiv2::ImageFactory::open(filename.toUtf8().data());
+    if (image.get())
       image->readMetadata();
-    } catch (...) {
-      image = Exiv2::Image::AutoPtr();
-    }
+  } catch (...) {
+    image = Exiv2::Image::AutoPtr();
   }
 }
 
 bool Exif::ok() const {
-  return image->good();
+  return image.get() && image->good();
 }
 
 Exiv2::Exifdatum const &Exif::exifDatum(QString const &key) const {
+  static Exiv2::Exifdatum nullDatum(Exiv2::ExifKey("Exif.Photo.ExifVersion"));
+
   Exiv2::ExifData &data = image->exifData();
   Exiv2::ExifKey k(key.toUtf8().data());
   auto it(data.findKey(k));

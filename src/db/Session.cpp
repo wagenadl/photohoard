@@ -14,6 +14,7 @@
 #include "AutoCache.h"
 #include "MainWindow.h"
 #include "BasicCache.h"
+#include "FirstRunDialog.h"
 
 QStringList Session::recentDatabases() {
   return Settings().get("recentdbs", QStringList()).toStringList();
@@ -32,22 +33,40 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
     QStringList recent = Settings().recentFiles();
     dbfn = recent.isEmpty() ? FileLocations::defaultDBFile() : recent[0];
   }
-  bool isdefault = dbfn==FileLocations::defaultDBFile();
-  Settings().markRecentFile(dbfn);
-  
-  if (create && QFile(dbfn).exists()) {
-    ErrorDialog::fatal("A database already exists at " + dbfn
-                         + ". Cannot create a new one.");
+
+  if (readonly)
+    create = false;
+
+  if (readonly && !QFile(dbfn).exists()) {
+    ErrorDialog::fatal("No database exists at “" + dbfn
+                       + "”. Cannot open read-only.");
     return;
   }
 
-  if (create || (isdefault && !QFile(dbfn).exists())) {
+  bool isdefault = dbfn==FileLocations::defaultDBFile();
+  
+  if (isdefault && !QFile(dbfn).exists()) {
+    create = true; // autocreate default db
+  }
+  
+  if (create && QFile(dbfn).exists()) {
+    ErrorDialog::fatal("A database already exists at “" + dbfn
+                         + "”. Cannot create a new one.");
+    return;
+  }
+
+  QStringList roots;
+  if (create) {
+    FirstRunDialog frd;
+    if (!frd.exec())
+      return; // never mind, I guess
     pDebug() << "Creating database at " << dbfn;
     PhotoDB::create(dbfn);
+    roots = frd.roots();
   }
   
   if (!QFile(dbfn).exists()) {
-    ErrorDialog::fatal("No database found at " + dbfn);
+    ErrorDialog::fatal("No database found at “" + dbfn + "”.");
     return;
   }
 
@@ -60,7 +79,6 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
   }
   
   sdb = new SessionDB();
-  //  db.enableDebug();
   sdb->open(dbfn, readonly);
 
   if (!readonly) {
@@ -78,6 +96,8 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
     sdb->storePid(RunControl::pid());
   }
 
+  Settings().markRecentFile(dbfn);
+
   QString cachefn = sdb->cacheDirname();
   //  qDebug() << "cachedir" << sdb->cacheDirname();
   if (!QDir(cachefn).exists()) {
@@ -94,6 +114,11 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
     QObject::connect(scan, SIGNAL(cacheablePreview(quint64, Image16)),
 		     ac, SLOT(cachePreview(quint64, Image16)));
     scan->start();
+
+    if (create) {
+      for (QString root: roots) 
+        scan->addTree(QFileInfo(root).absoluteFilePath());
+    }
   }
 
   expo = new Exporter(sdb, 0);

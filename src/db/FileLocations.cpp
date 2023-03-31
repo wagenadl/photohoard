@@ -27,6 +27,10 @@ namespace FileLocations {
     return dataRoot() + "/default.db";
   }
 
+  QString defaultImageRoot() {
+    return QDir::home().absoluteFilePath("Pictures");
+  }
+
   QString databaseUuid(QString dbfn) {
     //// this mechanism does not yet work, because we do not yet store uuids 
     //QStringList uuidlist

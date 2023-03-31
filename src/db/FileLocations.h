@@ -13,6 +13,7 @@ namespace FileLocations {
   QString databaseUuid(QString dbfn);
   QString defaultCacheDirForDB(QString dbfn);
   QString sessionFileForDB(QString dbfn);
+  QString defaultImageRoot();
   void ensureDataRoot();
   void ensureCacheRoot();
 };

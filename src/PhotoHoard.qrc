@@ -4,7 +4,7 @@
     <file alias="sliders.txt">../res/sliders.txt</file>
     <!-- STYLE -->
     <file alias="style.css">../res/style.css</file>
-    
+    <file alias="banner.png">../docs/source/banner.png</file>
     <!-- SQL CODE -->
     <file alias="setupcache.sql">../res/setupcache.sql</file>
     <file alias="setupdb.sql">../res/setupdb.sql</file>
