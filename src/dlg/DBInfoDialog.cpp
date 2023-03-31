@@ -9,6 +9,7 @@
 #include "RootsList.h"
 #include "Session.h"
 #include "FileLocations.h"
+#include "CollapsingGroupBox.h"
 
 DBInfoDialog::DBInfoDialog(SessionDB *sdb, QWidget *parent):
   QDialog(parent), sdb(sdb) {
@@ -73,5 +74,7 @@ void DBInfoDialog::setup() {
                         .arg(niceCount(sdb->rootFolders().size())));
   QStringList roots(sdb->rootFolders());
   ui->locations->setText(roots.join("\n"));
+  ui->collapse->setTarget(ui->details);
+  ui->collapse->hideTarget();
 }
 

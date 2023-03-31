@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QStringList>
 #include "PDebug.h"
+#include <QDir>
 
 SourceInfo::SourceInfo(QList<QUrl> const &urls) {
   for (QUrl const &url: urls) 
@@ -95,17 +96,12 @@ bool SourceInfo::isTemporaryLike() const {
     || commonroot_.contains("/Downloads");
 }
 
-QString SourceInfo::homeDirectory() {
-  static QString home(QString(qgetenv("HOME")));
-  return home;
-}
-
 static uid_t myUid() {
   static bool have = false;
   static uid_t uid = 0;
   if (!have) {
     struct stat s;
-    QByteArray ba = SourceInfo::homeDirectory().toLatin1();
+    QByteArray ba = QDir::homePath().toLatin1();
     if (::stat(ba.data(), &s) < 0) {
       perror("stat failed");
       CRASH("stat failed");
@@ -140,11 +136,11 @@ QString SourceInfo::reconstructed(QString fn) {
   if (fn.startsWith("/"))
     return fn;
   else
-    return homeDirectory() + "/" + fn;
+    return QDir::homePath() + "/" + fn;
 }
 
 QString SourceInfo::simplified(QString fn) {
-  QString home = homeDirectory();
+  QString home = QDir::homePath();
   if (fn==home)
     return "Home directory";
   else if (fn.startsWith(home))

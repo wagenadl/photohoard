@@ -16,7 +16,7 @@ public:
 	    QList<QUrl> const &sources,
 	    QObject *parent=0);
   virtual ~ImportGUI();
-  void showAndGo(bool considerIncorporate=false);
+  void showAndGo();
 public:
   static bool acceptable(QList<QUrl> const &);
   static void clickImportButton(class SessionDB *db, class Scanner *scanner,
@@ -25,19 +25,16 @@ private slots:
   void finishUpCompletedJob(QString errmsg); 
   void cleanUpCanceledJob();
   void dlgAcceptExternal();
-  void dlgAcceptLocal();
   void dlgAcceptOtherUser();
   void dlgCancel();
 private:
   void showAndGoExternal();
-  void showAndGoLocal();
   void showAndGoAltLocal();
   void showAndGoOtherUser();
 private:
   class ImportJob *job;
   class ImportExternalDialog *extDlg;
   class ImportOtherUserDialog *otherUserDlg;
-  class ImportLocalDialog *localDlg;
   class QProgressDialog *progressDlg; // our responsibility, but not our child
 };
 

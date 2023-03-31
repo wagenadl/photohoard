@@ -19,19 +19,23 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
 
   if (job->sourceInfo().isTemporaryLike()) {
     ui->disposition->removeItem(1);
-    ui->source->setText("Temporary location");
+    ui->source->setText("Temporary location: ");
     bkremoved = true;
+  } else if (job->sourceInfo().isExternalMedia()) {
+    ui->source->setText("External media: ");
+    bkremoved = false;
   } else {
+    ui->source->setText("");
     bkremoved = false;
   }
   changeDisposition();
   
   what = ui->what->text();
   movieWhat = ui->copyMovies->text();
-  ui->source->setText(ui->source->text() + ": "
+  ui->source->setText(ui->source->text() 
                       + job->sourceInfo().simplifiedRoot());
 
-  QString home = QString(qgetenv("HOME"));
+  QString home = QDir::homePath();
   ui->movieDestination->setText(ImportJob::autoDest(home
                                                     + "/Pictures/movies"));
   ui->movieContainer->hide();

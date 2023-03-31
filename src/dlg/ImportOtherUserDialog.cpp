@@ -25,11 +25,7 @@ ImportOtherUserDialog::ImportOtherUserDialog(class ImportJob *job,
   multi2 = ui->multi2->text();
   refer = ui->refer->text();
   copymov = ui->copyMovies->text();
-  if (job->sourceInfo().isOtherUser())
-    ui->source->setText(ui->source->text() + ": "
-			+ job->sourceInfo().simplifiedRoot());
-  else // temp. fix while using primitive "AltLocal"
-    ui->source->setText(job->sourceInfo().simplifiedRoot());
+  ui->source->setText(job->sourceInfo().simplifiedRoot());
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 

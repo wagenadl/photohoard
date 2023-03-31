@@ -4,7 +4,6 @@
 #include "ImportJob.h"
 #include "ImportExternalDialog.h"
 #include "ImportOtherUserDialog.h"
-#include "ImportLocalDialog.h"
 #include "PDebug.h"
 #include <QProgressDialog>
 #include "Tags.h"
@@ -23,7 +22,6 @@ ImportGUI::ImportGUI(class SessionDB *db,
                      QObject *parent): QObject(parent) {
   extDlg = 0;
   otherUserDlg = 0;
-  localDlg = 0;
   progressDlg = 0;
   
   job = new ImportJob(db, scanner, sources, this);
@@ -37,11 +35,10 @@ ImportGUI::ImportGUI(class SessionDB *db,
 ImportGUI::~ImportGUI() {
   delete extDlg;
   delete otherUserDlg;
-  delete localDlg;
   delete job;
 }
 
-void ImportGUI::showAndGo(bool considerIncorporate) {
+void ImportGUI::showAndGo() {
   if (job->sourceInfo().isEmpty())
     cleanUpCanceledJob();
   else if (job->sourceInfo().isOtherUser()) 
@@ -49,16 +46,12 @@ void ImportGUI::showAndGo(bool considerIncorporate) {
   else if (job->sourceInfo().isExternalMedia()
            || job->sourceInfo().isTemporaryLike()) 
     showAndGoExternal();
-  else if (job->sourceInfo().isOnlyFolders() && considerIncorporate) 
-    showAndGoLocal();
   else 
     showAndGoAltLocal();
 }
 
 void ImportGUI::showAndGoAltLocal() {
   showAndGoExternal();
-  // This is not perfect, obviously, because Delete should be an option
-  // for source disposition
 }
 
 void ImportGUI::showAndGoOtherUser() {
@@ -70,17 +63,6 @@ void ImportGUI::showAndGoOtherUser() {
   connect(otherUserDlg, SIGNAL(accepted()), SLOT(dlgAcceptOtherUser()));
   connect(otherUserDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
   otherUserDlg->show();
-}
-
-void ImportGUI::showAndGoLocal() {
-  job->setOperation(ImportJob::Operation::Incorporate);
-  job->setAutoCollection();
-  localDlg = new ImportLocalDialog(job,
-				   Tags(job->database()).collections());
-
-  connect(localDlg, SIGNAL(accepted()), SLOT(dlgAcceptLocal()));
-  connect(localDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
-  localDlg->show();
 }
 
 void ImportGUI::showAndGoExternal() {
@@ -105,6 +87,25 @@ void ImportGUI::cleanUpCanceledJob() {
 
 void ImportGUI::dlgAcceptOtherUser() {
   ASSERT(otherUserDlg);
+
+  QString dest = otherUserDlg->destination();
+  bool contained = false;
+  for (QString root: job->database()->rootFolders())
+    if (dest.startsWith(root + "/"))
+      contained = true;
+  if (!contained) {
+    QStringList roots = job->database()->rootFolders();
+    QString tgt = (roots.size()==1)
+      ? "the following folder"
+      : "one of the following folders";
+    QMessageBox::warning(otherUserDlg, "Photohoard",
+                         "The destination must be a location that is"
+                         " already included the database. In other words,"
+                         " it must be (a subfolder of) " + tgt + ":\n\n  "
+                         + roots.join("  \n"));
+    return;
+  }
+
   job->setCollection(otherUserDlg->collection());
   job->setDestination(otherUserDlg->destination());
   job->setSourceDisposition(CopyIn::SourceDisposition::Leave);
@@ -129,31 +130,26 @@ void ImportGUI::dlgAcceptOtherUser() {
   job->authorize();
 }
 
-void ImportGUI::dlgAcceptLocal() {
-  ASSERT(localDlg);
-  job->setCollection(localDlg->collection());
-  job->setDestination(localDlg->destination());
-  job->setSourceDisposition(CopyIn::SourceDisposition::Leave);
-  job->setNoMovieDestination();
-  if (localDlg->importInstead())
-    job->setOperation(ImportJob::Operation::Import);
-  
-  localDlg->hide();
-
-  if (job->operation()==ImportJob::Operation::Import) {
-    progressDlg = new QProgressDialog("Copying...", "Cancel",
-				      0, job->preliminarySourceCount());
-    connect(progressDlg, SIGNAL(canceled()), job, SLOT(cancel()));
-    connect(job, SIGNAL(countsUpdated(int, int)),
-	    progressDlg, SLOT(setMaximum(int)));
-    connect(job, SIGNAL(progress(int)), progressDlg, SLOT(setValue(int)));
-  }
-
-  job->authorize();
-}
-
 void ImportGUI::dlgAcceptExternal() {
   ASSERT(extDlg);
+  QString dest = extDlg->destination();
+  bool contained = false;
+  for (QString root: job->database()->rootFolders())
+    if (dest.startsWith(root + "/"))
+      contained = true;
+  if (!contained) {
+    QStringList roots = job->database()->rootFolders();
+    QString tgt = (roots.size()==1)
+      ? "the following folder"
+      : "one of the following folders";
+    QMessageBox::warning(extDlg, "Photohoard",
+                         "The destination must be a location that is"
+                         " already included the database. In other words,"
+                         " it must be (a subfolder of) " + tgt + ":\n\n  "
+                         + roots.join("  \n"));
+    return;
+  }
+  
   job->setCollection(extDlg->collection());
   job->setDestination(extDlg->destination());
   job->setSourceDisposition(extDlg->sourceDisposition());

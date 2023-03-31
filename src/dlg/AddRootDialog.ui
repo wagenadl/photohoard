@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add new folder tree</string>
+   <string>Photohoard: Add new folder tree</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -127,11 +127,6 @@
           <height>70</height>
          </size>
         </property>
-        <item>
-         <property name="text">
-          <string>(none)</string>
-         </property>
-        </item>
        </widget>
       </item>
       <item>
@@ -152,14 +147,17 @@
          <item>
           <widget class="QToolButton" name="addExcluded">
            <property name="text">
-            <string>+</string>
+            <string>Add</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QToolButton" name="removeExcluded">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
-            <string>–</string>
+            <string>Remove</string>
            </property>
           </widget>
          </item>
@@ -248,28 +246,12 @@
    <slot>browse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>146</y>
+     <x>522</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
      <x>284</x>
      <y>43</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>excluded</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>addRootDialog</receiver>
-   <slot>editExclusion(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>92</x>
-     <y>381</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>8</x>
-     <y>235</y>
     </hint>
    </hints>
   </connection>
@@ -280,8 +262,8 @@
    <slot>addExclusion()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>433</y>
+     <x>80</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>2</x>

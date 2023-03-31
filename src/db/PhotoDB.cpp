@@ -474,7 +474,20 @@ QList<QString> PhotoDB::rootFolders() const {
   while (q.next())
     res << q.value(0).toString();
   return res;
-}  
+}
+
+QList<QString> PhotoDB::excludedFolders(QString root) const {
+  QList<QString> res;
+  DBReadLock lock(this);
+  QSqlQuery q = constQuery("select pathname from excludedtrees"
+                           " order by pathname");
+  while (q.next()) {
+    QString pth = q.value(0).toString();
+    if (pth.startsWith(root))
+      res << pth;
+  }
+  return res;
+}
 
 QList<QString> PhotoDB::subFolders(QString folder) const {
   if (folder=="/")
