@@ -34,6 +34,7 @@ public:
 private:
   QList<QUrl> sources_;
   QString commonroot_;
+  QStringList rootbits_;
 };
 
 #endif
