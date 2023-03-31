@@ -10,6 +10,8 @@
 #include "Dialog.h"
 #include <algorithm>
 
+QString const noneLabel = "(none)";
+
 FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   QDialog(parent), db(db) {
   starting = true;
@@ -37,136 +39,128 @@ void FilterDialog::prepCameras() {
 }
 
 void FilterDialog::prepMakes() {
-  ui->cMake->clear();
-  ui->cMake->addItem("Any make");
-
   QStringList makes;
   { DBReadLock lock(db);
-    QSqlQuery q = db->constQuery("select distinct make from cameras");
+    QSqlQuery q = db->constQuery("select distinct make from cameras"
+                                 " where make>'' order by make");
     while (q.next()) 
       makes << q.value(0).toString();
   }
-  
-  std::sort(makes.begin(), makes.end());
-  makes.removeOne("");
 
-  if (!makes.isEmpty())
-    ui->cMake->insertSeparator(1);
-
+  ui->cMake->clear();
+  ui->cMake->addItem("Any make");
+  if (makes.isEmpty())
+    return;
+  ui->cMake->insertSeparator(1);
   for (QString m: makes)
     ui->cMake->addItem(m);
 }
 
 void FilterDialog::prepModels(QString make) {
   QString current = ui->cCamera->currentText();
-  ui->cCamera->clear();
-  ui->cCamera->addItem("Any model");
 
   QStringList models;
   { DBReadLock lock(db);
     QSqlQuery q = make.isEmpty()
-      ? db->constQuery("select distinct camera from cameras")
-      : db->constQuery("select distinct camera from cameras where make=:a", make);
+      ? db->constQuery("select distinct camera from cameras"
+                       " where camera>'' order by camera")
+      : db->constQuery("select distinct camera from cameras"
+                       " where make=:a and camera>'' order by camera",
+                       make);
     while (q.next())
       models << q.value(0).toString();
   }
-  
-  std::sort(models.begin(), models.end());
-  models.removeOne("");
 
-  if (!make.isEmpty() || models.size()<20) {
-    if (!models.isEmpty())
-      ui->cCamera->insertSeparator(1);
-  
-    for (QString m: models)
-      ui->cCamera->addItem(m);
-    if (models.size()==1) {
-      ui->cCamera->setCurrentIndex(2);
-      ui->cCamera->setEnabled(false);
-    } else {
-      int idx = ui->cCamera->findText(current);
-      if (idx>=0)
-        ui->cCamera->setCurrentIndex(idx);
-      ui->cCamera->setEnabled(true);    
-    }
-    ui->cCamera->setMaxVisibleItems(models.size()+2);
-  } else {
-    ui->cCamera->setItemText(0, "Select make first");
+  ui->cCamera->clear();
+  if (make.isEmpty() && models.size()>20) {
+    ui->cCamera->addItem("Select make first");
     ui->cCamera->setEnabled(false);
+    return;
   }
+  ui->cCamera->addItem("Any model");
+  ui->cCamera->setEnabled(true);
+  if (models.isEmpty())
+    return;
+  ui->cCamera->insertSeparator(1);
+  for (QString m: models)
+    ui->cCamera->addItem(m);
+  
+  int idx = ui->cCamera->findText(current);
+  if (idx>=0)
+    ui->cCamera->setCurrentIndex(idx);
+  else
+    ui->cCamera->setCurrentIndex(0);
+  ui->cCamera->setMaxVisibleItems(models.size()+2);
 }
 
 void FilterDialog::prepLenses(QString make, QString model) {
   QString current = ui->cLens->currentText();
-  ui->cLens->clear();
-  ui->cLens->addItem("Any lens");
 
   QStringList lenses;
   { DBReadLock lock(db);
     QSqlQuery q;
+    QString ordr = " order by lenses.lens";
     if (make.isEmpty() && model.isEmpty()) {
-      q = db->constQuery("select lens from lenses");
+      q = db->constQuery("select lens from lenses" + ordr);
     } else {
-      QString qq = "select distinct lenses.lens from lenses "
-        "inner join photos on lenses.id==photos.lens "
-        "inner join cameras on photos.camera==cameras.id where ";
+      QString qq = "select distinct lenses.lens from lenses"
+        " inner join photos on lenses.id==photos.lens"
+        " inner join cameras on photos.camera==cameras.id"
+        " where lenses.lens>'' and";
       if (model.isEmpty()) {
-        qq += "cameras.make==:a";
+        qq += " cameras.make==:a" + ordr;
         q = db->constQuery(qq, make);
       } else if (make.isEmpty()) {
-        qq += "cameras.camera==:a";
+        qq += " cameras.camera==:a" + ordr;
         q = db->query(qq, model);
       } else {
-        qq += "cameras.make==:a and cameras.camera==:b";
+        qq += " cameras.make==:a and cameras.camera==:b" + ordr;
         q = db->query(qq, make, model);
       }
     }
     
     while (q.next()) {
-      QString l = q.value(0).toString();
-      if (l>="0" && l<="99999") {
-        // ignore numeric lenses
+      QString lens = q.value(0).toString();
+      bool ok;
+      lens.toInt(&ok);
+      if (ok) {
+        // ignore purely numeric lense names
       } else {
-        lenses << l;
+        lenses << lens;
       }
     }
   }
 
-  
-  std::sort(lenses.begin(), lenses.end());
-  lenses.removeOne("");
-
-  if (!model.isEmpty() || lenses.size()<20) {
-    if (!lenses.isEmpty())
-      ui->cLens->insertSeparator(1);
-  
-    for (QString m: lenses)
-      ui->cLens->addItem(m);
-  
-    if (lenses.size()==0) {
-      ui->cLens->setItemText(0, "Fixed lens");
-      ui->cLens->setEnabled(false);
-    } else if (lenses.size()==1) {
-      ui->cLens->setCurrentIndex(2);
-      ui->cLens->setEnabled(false);
-    } else {
-      int idx = ui->cLens->findText(current);
-      if (idx>=0)
-        ui->cLens->setCurrentIndex(idx);
-      ui->cLens->setEnabled(true);
-    }
-    ui->cLens->setMaxVisibleItems(lenses.size()+2);
-  } else {
-    ui->cLens->setItemText(0, "Select make or model first");
+  ui->cLens->clear();
+  if (model.isEmpty() && lenses.size()>20) {
+    ui->cLens->addItem("Select make or model first");
     ui->cLens->setEnabled(false);
+    return;
   }
+  if (lenses.isEmpty() && !make.isEmpty() && !model.isEmpty()) {
+    ui->cLens->addItem("Fixed lens");
+    ui->cLens->setEnabled(false);
+    return;
+  }
+  ui->cLens->addItem("Any lens");
+  ui->cLens->setEnabled(true);
+  ui->cLens->insertSeparator(1);
+  for (QString m: lenses)
+    ui->cLens->addItem(m);
+  
+  int idx = ui->cLens->findText(current);
+  if (idx>=0)
+    ui->cLens->setCurrentIndex(idx);
+  else
+    ui->cLens->setCurrentIndex(0);
+  ui->cLens->setMaxVisibleItems(lenses.size()+2);
 }
 
 void FilterDialog::prepCollections() {
   Tags tags(db);
 
   ui->collectionBox->clear();
-  ui->collectionBox->addItem("None");
+  ui->collectionBox->addItem(noneLabel);
 
   QStringList cc = tags.collections();
   if (cc.isEmpty())

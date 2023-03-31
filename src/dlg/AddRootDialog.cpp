@@ -39,20 +39,20 @@ QString AddRootDialog::path() const {
 }
 
 QString AddRootDialog::defaultCollection() const {
-  return ui->collection->currentText();
+  QString col = ui->collection->currentText();
+  return col==noneLabel ? QString() : col;
 }
 
 int AddRootDialog::exec() {
   prepCollections();
   ui->location->setText(QDir::homePath() + "/Pictures");
-  if (Tags(db).collections().isEmpty())
-    ui->collection->addItem(noneLabel);
   DialogCode c = DialogCode(QDialog::exec());
   return c;
 }
 
 void AddRootDialog::prepCollections() {
   ui->collection->clear();
+  ui->collection->addItem(noneLabel);
   for (QString c: Tags(db).collections())
     ui->collection->addItem(c);
 }
@@ -141,16 +141,16 @@ bool AddRootDialog::validate(bool interactive) const {
     return false;
   }
   
-  if (defaultCollection().isEmpty()) {
-    if (interactive)
-      QMessageBox::warning(0, "Photohoard", QString::fromUtf8(
-	    "Every image in Photohoard should be part of at"
-	    " least one “collection.” Please select a"
-	    " default collection for your new folder tree."
-	    " You may also type the name of a new collection."),
-	    QMessageBox::Ok);
-    return false;
-  }
+  //if (defaultCollection().isEmpty()) {
+  //  if (interactive)
+  //    QMessageBox::warning(0, "Photohoard", QString::fromUtf8(
+  //          "Every image in Photohoard should be part of at"
+  //          " least one “collection.” Please select a"
+  //          " default collection for your new folder tree."
+  //          " You may also type the name of a new collection."),
+  //          QMessageBox::Ok);
+  //  return false;
+  //}
 
   if (db->findFolder(path())) {
     if (interactive)
