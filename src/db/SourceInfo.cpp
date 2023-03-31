@@ -3,17 +3,18 @@
 #include "SourceInfo.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <QFileInfo>
 #include <QStringList>
 #include "PDebug.h"
 #include <QDir>
+#include <QStorageInfo>
 
 SourceInfo::SourceInfo(QList<QUrl> const &urls) {
   for (QUrl const &url: urls) 
     if (url.isLocalFile())
       sources_ << url;
   commonroot_ = commonRoot(urls);
+  rootbits_ = commonroot_.split("/");
 }
 
 bool SourceInfo::isAllLocal(QList<QUrl> const &urls) {
@@ -24,26 +25,18 @@ bool SourceInfo::isAllLocal(QList<QUrl> const &urls) {
 }  
 
 QString SourceInfo::fsRoot(QString fn) {
-  dev_t dev0 = 0;
   QFileInfo fi(fn);
+  QDir dir(fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+  QByteArray dev = QStorageInfo(dir).device();
   while (true) {
-    QString dir = fi.path();
-    if (dir==fn)
-      return fn;
-    QByteArray ba = dir.toLatin1();
-    struct stat s;
-    if (::stat(ba.data(), &s) < 0) {
-      perror("stat failed");
-      return fn;
-    }
-    if (dev0==0)
-      dev0 = s.st_dev;
-    else if (s.st_dev != dev0)
-      return fn;
-    fn = dir;
+    QDir parent = dir;
+    if (!parent.cdUp())
+      return dir.absolutePath();
+    if (QStorageInfo(parent).device()!=dev)
+      return dir.absolutePath();
+    dir = parent;
   }
-  return fn; // not reached
-};
+}
 
 QString SourceInfo::fsRoot() const {
   return fsRoot(commonRoot());
@@ -56,75 +49,53 @@ QString SourceInfo::commonRoot() const {
 QString SourceInfo::commonRoot(QList<QUrl> const &urls) {
   QStringList paths;
   for (QUrl const &url: urls) 
-    paths << url.path();
+    paths << url.toLocalFile();
   return commonRoot(paths);
 }
 
 QString SourceInfo::commonRoot(QStringList const &paths) {
-  QStringList parts;
-  bool any = false;
+  if (paths.isEmpty())
+    return QString();
+  if (paths.size()==1) {
+    QFileInfo fi(paths[0]);
+    return fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+  }
+  
+  QStringList parts = paths[0].split("/");
   for (QString const &path: paths) {
     QStringList p0 = path.split("/");
-    if (!p0.isEmpty() && p0.last().contains("."))
-      p0.takeLast();
-    if (any) {
-      while (p0.size()>parts.size())
-        p0.takeLast();
-      while (parts.size()>p0.size())
-        parts.takeLast();
-      while (!parts.isEmpty()) {
-        if (p0==parts)
-          break;
-        p0.takeLast();
-        parts.takeLast();
-      }
-    } else {
-      parts = p0;
-      any = true;
+    while (p0.size()>parts.size())
+      p0.removeLast();
+    while (parts.size()>p0.size())
+      parts.removeLast();
+    while (p0!=parts) {
+      p0.removeLast();
+      parts.removeLast();
     }
   }
   return parts.join("/");
 }
 
 bool SourceInfo::isExternalMedia() const {
-  return commonroot_.startsWith("/media/")
-    && commonroot_.count("/")>=3;
+  return rootbits_.size()>=3 && rootbits_[0]=="media";
+  /* On Windows, the "getdrivetypea" function should probably be used:
+     https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdrivetypea
+     On Mac, I don't yet know.
+  */
 }
 
 bool SourceInfo::isTemporaryLike() const {
-  return commonroot_.startsWith("/tmp")
-    || commonroot_.contains("/Downloads");
-}
-
-static uid_t myUid() {
-  static bool have = false;
-  static uid_t uid = 0;
-  if (!have) {
-    struct stat s;
-    QByteArray ba = QDir::homePath().toLatin1();
-    if (::stat(ba.data(), &s) < 0) {
-      perror("stat failed");
-      CRASH("stat failed");
-    }
-    uid = s.st_uid;
-    have = true;
-  }
-  return uid;
+  return rootbits_.contains("tmp")
+    || rootbits_.contains("Downloads")
+    || rootbits_.contains("temp")
+    || rootbits_.contains("Temp");
 }
 
 bool SourceInfo::isOtherUser() const {
-  for (QUrl const &url: sources_) {
-    QByteArray ba = url.path().toLatin1();
-    struct stat s;
-    if (::stat(ba.data(), &s) < 0) {
-      perror("stat failed");
-      COMPLAIN("stat failed");
-      return false;
-    } else {
-      if (s.st_uid != myUid())
-	return true;
-    }
-  }
+  int me = QFileInfo(QDir::homePath()).ownerId();
+  for (QUrl const &url: sources_)
+    if (QFileInfo(url.toLocalFile()).ownerId() != me)
+      return true;
   return false;
 }
 
@@ -133,7 +104,9 @@ QString SourceInfo::simplifiedRoot() const {
 }
 
 QString SourceInfo::reconstructed(QString fn) {
-  if (fn.startsWith("/"))
+  if (fn=="Home directory")
+    return QDir::homePath();
+  else if (fn.startsWith("/"))
     return fn;
   else
     return QDir::homePath() + "/" + fn;
@@ -150,34 +123,33 @@ QString SourceInfo::simplified(QString fn) {
 }
 
 bool SourceInfo::isWritableLocation() const {
-  QFileInfo fi(commonroot_);
-  return fi.isWritable();
+  return QFileInfo(commonroot_).isWritable();
 }
 
 bool SourceInfo::isSingleFolder() const {
   if (sources_.size() == 1)
-    return QFileInfo(sources_.first().path()).isDir();
+    return QFileInfo(sources_[0].toLocalFile()).isDir();
   else
     return false;
 }
 
 bool SourceInfo::isOnlyFolders() const {
   for (QUrl const &url: sources_)
-    if (!QFileInfo(url.path()).isDir())
+    if (!QFileInfo(url.toLocalFile()).isDir())
       return false;
   return true;
 }
   
 bool SourceInfo::isSingleFile() const {
   if (sources_.size() == 1)
-    return QFileInfo(sources_.first().path()).isFile();
+    return QFileInfo(sources_[0].toLocalFile()).isFile();
   else
     return false;
 }
 
 bool SourceInfo::isOnlyFiles() const {
   for (QUrl const &url: sources_)
-    if (!QFileInfo(url.path()).isFile())
+    if (!QFileInfo(url.toLocalFile()).isFile())
       return false;
   return true;
 }
