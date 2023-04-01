@@ -14,16 +14,15 @@ FirstRunDialog::FirstRunDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_FirstRunDialog();
   ui->setupUi(this);
   QString fld = FileLocations::defaultImageRoot();
-  if (QFileInfo(fld).exists()) {
+  if (QFileInfo(fld).exists()) 
     ui->folderList->addItem(fld);
-  } else {
-    auto *but = ui->buttonBox->button(QDialogButtonBox::Ok);
-    if (but)
-      but->setEnabled(false);
-  }
-  connect(ui->folderList, &QListWidget::currentRowChanged,
-          this, [this](int idx) {
-            ui->removeButton->setEnabled(idx>=0);
+   else 
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+  
+  connect(ui->folderList, &QListWidget::currentItemChanged,
+          this, [this]() {
+            QListWidgetItem *item = ui->folderList->currentItem();
+            ui->removeButton->setEnabled(item);
           });
   connect(ui->addButton, &QAbstractButton::clicked,
           this, [this]() { add(); });
@@ -34,7 +33,8 @@ FirstRunDialog::FirstRunDialog(QWidget *parent): QDialog(parent) {
 FirstRunDialog::~FirstRunDialog() {
 }
 
-bool isSubFolder(QString parent, QString child) {
+static bool isSubFolder(QString parent, QString child) {
+  // identical copy from CreateDatabaseDialog
   QDir par(parent);
   QDir ch(child);
   if (ch==par)
@@ -48,6 +48,7 @@ bool isSubFolder(QString parent, QString child) {
 }
 
 void FirstRunDialog::add() {
+  // identical copy of "addFolder" in CreateDatabaseDialog
   QString newfld = QFileDialog::getExistingDirectory(this,
                                                      "Select an image folder…");
   if (newfld.isEmpty()) // nothing selected
@@ -75,21 +76,18 @@ void FirstRunDialog::add() {
     }
   }
   ui->folderList->addItem(newfld);
-  auto *but = ui->buttonBox->button(QDialogButtonBox::Ok);
-  if (but)
-    but->setEnabled(true);
+  ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
 void FirstRunDialog::drop() {
+  // identical copy of "removeFolder" in CreateDatabaseDialog
   QListWidgetItem *item = ui->folderList->currentItem();       
   if (!item)
     return;
   delete item;
   if (ui->folderList->count()>0)
     return;
-  auto *but = ui->buttonBox->button(QDialogButtonBox::Ok);
-  if (but)
-    but->setEnabled(false);
+  ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 }  
 
 QStringList FirstRunDialog::roots() const {

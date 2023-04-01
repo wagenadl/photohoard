@@ -13,7 +13,7 @@ public:
   static QStringList recentDatabases();
 public:
   Session(QString dbfn=QString(), bool create=false, bool readonly=false,
-          QString cacheloc=QString());
+          QString cacheloc=QString(), QStringList roots=QStringList());
   virtual ~Session();
   bool isActive() const;
 public slots:

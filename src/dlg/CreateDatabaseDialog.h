@@ -17,6 +17,8 @@ public slots:
   void browseLocation();
   void browseCache();
   void accept() override;
+  void addFolder();
+  void removeFolder();
 private:
   class Ui_createDatabaseDialog *ui;
 };

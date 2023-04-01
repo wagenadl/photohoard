@@ -20,7 +20,8 @@ QStringList Session::recentDatabases() {
   return Settings().get("recentdbs", QStringList()).toStringList();
 }
 
-Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
+Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc,
+                 QStringList roots):
   dbfn(dbfn0), readonly(readonly) {
   active = false;
   sdb = 0;
@@ -55,14 +56,15 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc):
     return;
   }
 
-  QStringList roots;
   if (create) {
-    FirstRunDialog frd;
-    if (!frd.exec())
-      return; // never mind, I guess
-    pDebug() << "Creating database at " << dbfn;
+    if (roots.isEmpty()) {
+      FirstRunDialog frd;
+      if (!frd.exec())
+        return; // never mind, I guess
+      pDebug() << "Creating database at " << dbfn;
+      roots = frd.roots();
+    }
     PhotoDB::create(dbfn);
-    roots = frd.roots();
   }
   
   if (!QFile(dbfn).exists()) {

@@ -358,11 +358,8 @@ void MainWindow::databaseInfo() {
 
 void MainWindow::newDatabase() {
   auto *dlg = new CreateDatabaseDialog(this);
-  if (dlg->exec()) {
-    qDebug() << "create";
-  } else {
-    qDebug() << "cancel";
-  }
+  dlg->exec();
+  delete dlg;
 }
 
 void MainWindow::openOther() {
