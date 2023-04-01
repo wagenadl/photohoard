@@ -11,6 +11,7 @@
 #include "HelpBar.h"
 #include "ColorLabelBar.h"
 #include "Scanner.h"
+#include "Session.h"
 #include "AutoCache.h"
 #include "SessionDB.h"
 #include "AllControls.h"
@@ -26,6 +27,7 @@
 #include "ShortcutHelp.h"
 #include "Exporter.h"
 #include <QMessageBox>
+#include <QFileDialog>
 #include "Filter.h"
 #include "SliderClipboard.h"
 #include <QApplication>
@@ -363,5 +365,11 @@ void MainWindow::newDatabase() {
 }
 
 void MainWindow::openOther() {
-  qDebug() << "open other";
+  QString fn = QFileDialog::getOpenFileName(this,
+                                            "Database filename…",
+                                            QDir::homePath() + "/Documents",
+                                            "*.photohoard");
+  if (fn.isEmpty())
+    return;
+  new Session(fn);
 }
