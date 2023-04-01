@@ -85,6 +85,12 @@
         <property name="focusPolicy">
          <enum>Qt::WheelFocus</enum>
         </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="currentText">
+         <string>(none)</string>
+        </property>
         <item>
          <property name="text">
           <string>Family pictures</string>
@@ -418,8 +424,8 @@
    <slot>changeCollection(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>246</x>
-     <y>205</y>
+     <x>273</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
@@ -434,12 +440,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>106</x>
-     <y>524</y>
+     <x>115</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>45</x>
-     <y>572</y>
+     <x>54</x>
+     <y>386</y>
     </hint>
    </hints>
   </connection>
@@ -450,8 +456,8 @@
    <slot>browseDestination()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>514</x>
-     <y>312</y>
+     <x>737</x>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
      <x>345</x>
@@ -466,8 +472,8 @@
    <slot>browseMovieDestination()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>514</x>
-     <y>568</y>
+     <x>737</x>
+     <y>382</y>
     </hint>
     <hint type="destinationlabel">
      <x>347</x>
@@ -482,8 +488,8 @@
    <slot>changeDisposition()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>351</x>
-     <y>393</y>
+     <x>378</x>
+     <y>294</y>
     </hint>
     <hint type="destinationlabel">
      <x>548</x>

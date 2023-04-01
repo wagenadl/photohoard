@@ -10,6 +10,8 @@
 #include <QKeyEvent>
 #include <QFileDialog>
 
+static QString const noneLabel = "(none)";
+
 ImportExternalDialog::ImportExternalDialog(ImportJob *job,
                                            QStringList collections,
                                            QWidget *parent):
@@ -46,6 +48,7 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   connect(job, SIGNAL(countsUpdated(int,int)), SLOT(updateCounts(int,int)));
 
   ui->collection->clear();
+  ui->collection->addItem(noneLabel);
   for (auto s: collections)
     ui->collection->addItem(s);
   QString coll = job->collection();  
@@ -85,7 +88,11 @@ bool ImportExternalDialog::hasMovieDestination() const {
 }
 
 QString ImportExternalDialog::collection() const {
-  return ui->collection->currentText();
+  QString col = ui->collection->currentText();
+  if (col==noneLabel)
+    return QString();
+  else
+    return col;
 }
 
 CopyIn::SourceDisposition ImportExternalDialog::sourceDisposition() const {
