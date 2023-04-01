@@ -8,7 +8,12 @@
 
 class SessionDB: public PhotoDB {
 public:
-  enum class SInfoID { Photohoard, SessionDBVersion, LastTag, RunningPID };
+  enum class SInfoID {
+    Photohoard,
+    SessionDBVersion,
+    LastImportCollection,
+    RunningPID
+  };
 public:
   static bool sessionExists(QString photodbfn);
   static void createSession(QString photodbfn, QString cachedir);

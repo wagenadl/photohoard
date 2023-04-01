@@ -44,12 +44,15 @@ void ImportJob::setAutoCollection() {
   if (filter.hasCollection()) {
     coll = filter.collection();
   } else {
-    QStringList collections = Tags(db).collections();
-    if (collections.isEmpty())
-      coll = "";
-    else
-      coll = collections.first();
+    coll
+      = db->sessionDBInfo(SessionDB::SInfoID::LastImportCollection).toString();
+    if (coll=="") {
+      QStringList collections = Tags(db).collections();
+      if (!collections.isEmpty())
+        coll = collections[0];
+    }
   }
+  db->setSessionDBInfo(SessionDB::SInfoID::LastImportCollection, coll);
   if (autodest)
     setAutoDestination();
 }

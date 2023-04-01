@@ -77,11 +77,15 @@ void ImportGUI::showAndGoExternal() {
 
 void ImportGUI::finishUpCompletedJob(QString errmsg) {
   qDebug() << "finishUpCompletedJob" << errmsg;
+  if (progressDlg)
+    progressDlg->deleteLater();
   deleteLater();
 }
 
 void ImportGUI::cleanUpCanceledJob() {
   qDebug() << "cleanUpCanceledJob";
+  if (progressDlg)
+    progressDlg->deleteLater();
   deleteLater();
 }
 

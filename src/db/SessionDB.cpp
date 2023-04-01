@@ -157,7 +157,7 @@ QString SessionDB::infoIDName(SessionDB::SInfoID id) {
   static QMap<SInfoID, QString> map = {
     { SInfoID::Photohoard, "photohoard" },
     { SInfoID::SessionDBVersion, "sessiondb" },
-    { SInfoID::LastTag, "lasttag" },
+    { SInfoID::LastImportCollection, "lastimportcollection" },
     { SInfoID::RunningPID, "runningpid" },
   };
   return map[id];
