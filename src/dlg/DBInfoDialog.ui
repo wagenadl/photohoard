@@ -664,7 +664,7 @@
     </spacer>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="widgetx" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <spacer name="horizontalSpacer">
@@ -707,8 +707,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>617</x>
-     <y>573</y>
+     <x>528</x>
+     <y>398</y>
     </hint>
     <hint type="destinationlabel">
      <x>405</x>
