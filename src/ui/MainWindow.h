@@ -63,7 +63,7 @@ private:
   class StatusBar *statusBar;
   class ShortcutHelp *shortcutHelp;
   class QMenu *menu;
-  class QMenu *recent;
+  class RecentFiles *recent;
 private:
   Actions hiddenactions;
 private:

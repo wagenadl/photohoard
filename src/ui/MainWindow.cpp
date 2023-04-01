@@ -30,6 +30,7 @@
 #include <QFileDialog>
 #include "Filter.h"
 #include "SliderClipboard.h"
+#include "RecentFiles.h"
 #include <QApplication>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -318,6 +319,13 @@ void MainWindow::addHiddenActions() {
 }
 
 void MainWindow::makeMenu() {
+  recent = new RecentFiles("recentdbs", this,
+                           QFileInfo(db->photoDBFilename()).absoluteFilePath());
+  connect(recent, &RecentFiles::selected,
+          this, [this](QString fn) {
+            new Session(fn);
+          });
+  
   menu = new QMenu(this);
   auto add = [this](Action const &act) {
     PAction *pact = new PAction{act, this};
@@ -327,6 +335,7 @@ void MainWindow::makeMenu() {
 
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_N, "&New database…",
              [this]() { newDatabase(); }});
+  menu->addMenu(recent);
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_O, "&Open other database…",
              [this]() { openOther(); }});
   menu->addSeparator();
