@@ -8,6 +8,8 @@
 
 class SessionDB: public PhotoDB {
 public:
+  enum class SInfoID { Photohoard, SessionDBVersion, LastTag, RunningPID };
+public:
   static bool sessionExists(QString photodbfn);
   static void createSession(QString photodbfn, QString cachedir);
   static bool isDBReadOnly(QString photodbfn);
@@ -21,10 +23,13 @@ public:
   virtual void clone(SessionDB const &);
   quint64 retrievePid() const;
   void storePid(quint64);
+  QVariant sessionDBInfo(SInfoID id) const;
+  void setSessionDBInfo(SInfoID id, QVariant val);
 public:
   void setCurrent(quint64);
   quint64 current() const;
 private:
+  static QString infoIDName(SInfoID);
   void upgradeDBVersion();
 private:
   QString sessiondbfn;

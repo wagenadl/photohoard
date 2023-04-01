@@ -9,6 +9,7 @@
 #include "Adjustments.h"
 #include "BasicCache.h"
 #include <QUuid>
+#include "config.h"
 
 PhotoDB::PhotoDB(): Database() {
   ro = false;
@@ -20,6 +21,14 @@ void PhotoDB::open(QString photodbfn, bool readonly) {
     setReadOnly();
   else
     upgradeDBVersion();
+
+
+  { DBReadLock lock(this);
+    QSqlQuery q = constQuery("select count(1) from info where id==:a",
+                             infoIDName(InfoID::Photohoard));
+    if (!q.next())
+      CRASH("Cannot open database “" + photodbfn + "”.");
+  }
 }
 
 void PhotoDB::readFTypes() const {
@@ -52,17 +61,22 @@ QString PhotoDB::create(QString fn) {
       pdir.mkpath(".");
   }
 
+  QString uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
+
   Database db;
   db.open(fn);
   SqlFile sql(":/setupdb.sql");
-  QString uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
   { Transaction t(&db);
     for (auto c: sql) 
       db.query(c);
-    db.query("update info set uuid=:a where id=='PhotoDB'", uuid);
+    db.query("insert into info(id, val) values(:a,:b)",
+             infoIDName(InfoID::DatabaseID), uuid);
+    db.query("insert into info(id, val) values(:a,:b)",
+             infoIDName(InfoID::Photohoard), PHOTOHOARD_VERSION);
     t.commit();
   }
   db.close();
+
   return uuid;
 }
 
@@ -622,11 +636,43 @@ void PhotoDB::setReadOnly() {
 
 QString PhotoDB::databaseID() const {
   DBReadLock lock(this);
-  QString id = simpleQuery("select uuid from info").toString();
-  return id; 
+  return simpleQuery("select val from info where id=:a",
+                     infoIDName(InfoID::DatabaseID)).toString();
 }
 
+QString PhotoDB::infoIDName(PhotoDB::InfoID id) {
+  static QMap<InfoID, QString> map = {
+    { InfoID::Photohoard, "photohoard" },
+    { InfoID::DBVersion, "dbversion" },
+    { InfoID::DatabaseID, "databaseid" },
+  };
+  return map[id];
+}
+
+void PhotoDB::setDBInfo(PhotoDB::InfoID id, QVariant val) {
+  DBWriteLock lock(this);
+  query("insert or replace into info(id, val) values(:a,:b)",
+        infoIDName(id), val);
+}
+
+QVariant PhotoDB::dbInfo(PhotoDB::InfoID id) const {
+  DBReadLock lock(this);
+  auto q = constQuery("select val from info where id==:a", infoIDName(id));
+  if (q.next())
+    return q.value(0);
+  return QVariant();
+}
+
+
 void PhotoDB::upgradeDBVersion() {
+  bool modern = simpleQuery("select count(1) from info where id==:a",
+                            infoIDName(InfoID::Photohoard)).toInt() > 0;
+  if (modern)
+    return; /* In the future, we may have to check for version, but for now,
+               the only "modern" version in existence is 1.4. */
+
+  /* We have an old style INFO table. */
+
   // update to version 1.2 if needed
   QString dbvsn
     = simpleQuery("select version from info where id=='PhotoDB'").toString();
@@ -641,12 +687,30 @@ void PhotoDB::upgradeDBVersion() {
     t.commit();
   }
 
+  // update to version 1.3 if needed
   if (dbvsn<"1.3") {
     Transaction t(this);
     query("alter table info add column uuid string");
     query("update info set uuid=:a where id=='PhotoDB'",
           QUuid::createUuid().toString(QUuid::WithoutBraces));
     query("update info set version='1.3' where id=='PhotoDB'");
+    t.commit();
+  }
+
+  // now upgrade to modern style info table
+  { Transaction t(this);
+    QString uuid
+      = simpleQuery("select uuid from info where id=='PhotoDB'").toString();
+    query("drop table info");
+    query("create table info ("
+          " id text unique,"
+          " val )");
+    query("insert into info(id, val) values(:a, :b)",
+          infoIDName(InfoID::Photohoard), PHOTOHOARD_VERSION);
+    query("insert into info(id, val) values(:a, :b)",
+          infoIDName(InfoID::DBVersion), "1.4");
+    query("insert into info(id, val) values(:a, :b)",
+          infoIDName(InfoID::DatabaseID), uuid);
     t.commit();
   }
 }

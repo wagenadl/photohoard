@@ -6,7 +6,6 @@
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QDebug>
-#include "RootsList.h"
 #include "Session.h"
 #include "FileLocations.h"
 #include "CollapsingGroupBox.h"

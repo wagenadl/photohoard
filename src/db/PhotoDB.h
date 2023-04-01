@@ -15,6 +15,7 @@ class PhotoDB: public Database {
 public:
   enum class ColorLabel { None=0, Red, Yellow, Green, Blue, Purple };
   enum class AcceptReject { Undecided=0, Accept=1, Reject=-1, NewImport=2 };
+  enum class InfoID { Photohoard, DBVersion, DatabaseID };
 public:
   struct VersionRecord {
     quint64 id;
@@ -47,6 +48,8 @@ public:
 public:
   // information about database
   bool isReadOnly() const;
+  QVariant dbInfo(InfoID id) const;
+  void setDBInfo(InfoID id, QVariant val);
   QString databaseID() const;
 public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
@@ -129,12 +132,14 @@ protected:
 private:
   void readFTypes() const;
   void upgradeDBVersion();
+  static QString infoIDName(InfoID);
 private:
   bool ro;
   mutable QMap<quint64, QString> folders;
   mutable QMap<QString, quint64> revFolders;
   mutable QMap<int, QString> ftypes;
-  mutable QMap<int, QString> makes, models, lenses, cameraAliases, lensAliases;
+  mutable QMap<int, QString> makes, models, lenses;
+  mutable QMap<int, QString> cameraAliases, lensAliases;
 };
 
 #endif

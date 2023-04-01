@@ -8,6 +8,7 @@
 #include "SqlFile.h"
 #include "FileLocations.h"
 #include <QUuid>
+#include "config.h"
 
 bool SessionDB::sessionExists(QString photodbfn) {
   return QFileInfo(FileLocations::sessionFileForDB(photodbfn)).exists();
@@ -33,6 +34,8 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
       sdb.query(c);
     sdb.query("insert into paths (photodb, cachedir) values (:a, :b)",
               photodbfn, cachedir);
+    sdb.query("insert into sinfo(id, val) values(:a, :b)",
+              infoIDName(SInfoID::Photohoard), PHOTOHOARD_VERSION);
     t.commit();
   }
   sdb.close();
@@ -70,13 +73,6 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   if (!sessionExists(photodbfn))
     CRASH("Cannot open nonexistent session");
   Database::open(sessiondbfn);
-
-  { DBReadLock lock(this);
-    QSqlQuery q = constQuery("select version from sinfo where id==:a",
-                        "PhotohoardSessionDB");
-    if (!q.next())
-      CRASH("Cannot open session for “" + photodbfn + "”.");
-  }
   
   { DBWriteLock lock(this);
     query("pragma synchronous = 0");
@@ -100,6 +96,14 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   else
     upgradeDBVersion();
 
+
+  { DBReadLock lock(this);
+    QSqlQuery q = constQuery("select count(1) from sinfo where id==:a",
+                             infoIDName(SInfoID::Photohoard));
+    if (!q.next())
+      CRASH("Cannot open session for “" + photodbfn + "”.");
+  }
+  
   DBWriteLock lock(this);
   query("attach database ':memory:' as M");
   query("create table if not exists M.filter"
@@ -149,28 +153,74 @@ quint64 SessionDB::current() const {
     return 0;
 }
 
+QString SessionDB::infoIDName(SessionDB::SInfoID id) {
+  static QMap<SInfoID, QString> map = {
+    { SInfoID::Photohoard, "photohoard" },
+    { SInfoID::SessionDBVersion, "sessiondb" },
+    { SInfoID::LastTag, "lasttag" },
+    { SInfoID::RunningPID, "runningpid" },
+  };
+  return map[id];
+}
+
+void SessionDB::setSessionDBInfo(SessionDB::SInfoID id, QVariant val) {
+  DBWriteLock lock(this);
+  query("insert or replace into sinfo(id, val) values(:a,:b)",
+        infoIDName(id), val);
+}
+
+QVariant SessionDB::sessionDBInfo(SessionDB::SInfoID id) const {
+  DBReadLock lock(this);
+  auto q = constQuery("select val from sinfo where id==:a", infoIDName(id));
+  if (q.next())
+    return q.value(0);
+  return QVariant();
+}
+
 void SessionDB::upgradeDBVersion() {
+  bool modern = simpleQuery("select count(1) from sinfo where id==:a",
+                            infoIDName(SInfoID::Photohoard)).toInt() > 0;
+  if (modern)
+    return; /* In the future, we may have to check for version, but for now,
+               the only "modern" version in existence is 1.4. */
+
+  /* We have an old style SINFO table. */
+
   QString sdbvsn = simpleQuery("select version from sinfo where id==:a",
                                "PhotohoardSessionDB").toString();
-  pDebug() << "SessionDB upgradedbversion" << sdbvsn;
   
+  // update to version 1.3 if needed
   if (sdbvsn < "1.3") {
     Transaction t(this);
     query("alter table sinfo add column runningpid integer");
     query("update sinfo set version='1.3' where id=='PhotohoardSessionDB'");
     t.commit();
   }
+
+  // upgrade to modern style sinfo table
+  { Transaction t(this);
+    QVariant runningpid = simpleQuery("select runningpid from sinfo"
+                                      " where id=='PhotohoardSessionDB'");
+    query("drop table sinfo");
+    query("create table sinfo ("
+          " id text unique,"
+          " val )");
+    query("insert into sinfo(id, val) values(:a, :b)",
+          infoIDName(SInfoID::Photohoard), PHOTOHOARD_VERSION);
+    query("insert into sinfo(id, val) values(:a, :b)",
+          infoIDName(SInfoID::SessionDBVersion), "1.4");
+    query("insert into sinfo(id, val) values(:a, :b)",
+          infoIDName(SInfoID::RunningPID), runningpid);
+    t.commit();
+  }
+    
 }
 
 void SessionDB::storePid(quint64 pid) {
-  DBWriteLock lock(this);
-  query("update sinfo set runningpid=:a where id==:b",
-        pid, "PhotohoardSessionDB");
+  setSessionDBInfo(SInfoID::RunningPID, pid);
 }
 
 quint64 SessionDB::retrievePid() const {
-  DBReadLock lock(this);
-  return simpleQuery("select runningpid from sinfo where id==:a",
-                     "PhotohoardSessionDB").toULongLong();
+  return sessionDBInfo(SInfoID::RunningPID).toULongLong();
 }
   
