@@ -1,6 +1,7 @@
 // MainWindow.cpp
 
 #include "MainWindow.h"
+#include "Messenger.h"
 #include "DBInfoDialog.h"
 #include "CreateDatabaseDialog.h"
 #include "Version.h"
@@ -47,7 +48,6 @@ MainWindow::MainWindow(SessionDB *db,
   QFileInfo dbf(db->photoDBFilename());
   setWindowTitle("Photohoard - " + dbf.baseName());
   
-  
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
@@ -59,6 +59,7 @@ MainWindow::MainWindow(SessionDB *db,
   makeMenu();
   makeDocks();
   makeToolbars();
+  messenger = new Messenger(this);
 
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
           histogram, SLOT(setImage(Image16))); // is this ok?
@@ -169,13 +170,6 @@ void MainWindow::reportExportResults(QString dst, int nOK, int nFail) {
                            + QString(" %1 failures out of %2")
                            .arg(nFail).arg(nOK+nFail));
   }
-}
-
-void MainWindow::setStatusMessage(QString msg, QWidget *src) {
-  ASSERT(src);
-  MainWindow *mw = dynamic_cast<MainWindow*>(src->window());
-  ASSERT(mw);
-  mw->setStatusMessage(msg);
 }
 
 void MainWindow::setStatusMessage(QString msg) {

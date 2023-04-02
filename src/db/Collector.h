@@ -17,6 +17,7 @@ public:
   QStringList const &movieFiles() const; // do not touch unless complete
   bool isComplete() const;
   int preliminaryCount() const;
+  int preliminaryMovieCount() const;
 public slots:
   void collect(QList<QUrl> urls);
   void cancel();
@@ -33,6 +34,7 @@ private:
   QStringList imgFiles;
   QStringList movFiles;
   int cnt;
+  int movcnt;
 };
 
 #endif

@@ -11,6 +11,7 @@ Collector::Collector(QObject *parent): QThread(parent) {
   pDebug() << "Collector" << this;
   complete_ = false;
   cnt = 0;
+  movcnt = 0;
 }
 
 Collector::~Collector() {
@@ -96,8 +97,9 @@ void Collector::run() {
       else if (Extensions::movieExtensions().contains(fi.suffix().toLower()))
         movFiles << fi.absoluteFilePath();
     }
-    cnt = imgFiles.size() + movFiles.size();
-    emit progress(cnt, movFiles.size());
+    movcnt = movFiles.size();
+    cnt = imgFiles.size() + movcnt;
+    emit progress(cnt, movcnt);
   }
 
   complete_ = true;
@@ -106,4 +108,8 @@ void Collector::run() {
 
 int Collector::preliminaryCount() const {
   return cnt;
+}
+
+int Collector::preliminaryMovieCount() const {
+  return movcnt;
 }
