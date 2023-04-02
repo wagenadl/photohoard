@@ -527,14 +527,15 @@ quint64 PhotoDB::firstVersionInTree(QString folder) const {
   if (fid==0)
     return 0;
   
-  DBReadLock lock(this);
-  QSqlQuery q = constQuery("select version"
-                           " from filter inner join photos"
-                           " on filter.photo=photos.id"
-                           " where photos.folder==:a"
-                           " order by photos.capturedate limit 1", fid);
-  if (q.next())
-    return q.value(0).toULongLong();
+  { DBReadLock lock(this);
+    QSqlQuery q = constQuery("select version"
+                             " from filter inner join photos"
+                             " on filter.photo=photos.id"
+                             " where photos.folder==:a"
+                             " order by photos.capturedate limit 1", fid);
+    if (q.next())
+      return q.value(0).toULongLong();
+  }
 
   QList<QString> fff = subFolders(folder);
   for (QString f: fff) {
