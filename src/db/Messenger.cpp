@@ -7,8 +7,8 @@
 Messenger::Messenger(MainWindow *parent): QObject(parent) {
   ASSERT(parent);
   messengers()[parent] = this;
-  connect(this, SIGNAL(posted(QString)),
-          parent, SLOT(setStatusMessage(QString)),
+  connect(this, &Messenger::posted,
+          parent, &MainWindow::setStatusMessage,
           Qt::QueuedConnection);
 }
 

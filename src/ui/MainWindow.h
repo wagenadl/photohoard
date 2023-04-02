@@ -18,7 +18,6 @@ public:
              class AutoCache *,
              class Exporter *);
   virtual ~MainWindow();
-  static void setStatusMessage(QString msg, QWidget *src);
 public slots:
   void scrollToCurrent();
   void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
@@ -64,6 +63,7 @@ private:
   class ShortcutHelp *shortcutHelp;
   class QMenu *menu;
   class RecentFiles *recent;
+  class Messenger *messenger;
 private:
   Actions hiddenactions;
 private:
