@@ -172,12 +172,12 @@ int Tags::define(QString tag, int parent) {
 }
 
 bool Tags::canUndefine(int tagid) {
+  QSet<int> cc = descendants(tagid);
   DBReadLock lock(db);
   if (db->simpleQuery("select count(*) from appliedtags where tag==:a",
 		     tagid).toInt()>0)
     return false;
 
-  QSet<int> cc = descendants(tagid);
   for (int c: cc)
     if (db->simpleQuery("select count(*) from appliedtags where tag==:a",
 		       c).toInt()>0)
