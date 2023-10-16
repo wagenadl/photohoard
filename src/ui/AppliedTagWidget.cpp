@@ -69,8 +69,8 @@ void AppliedTagWidget::paintEvent(QPaintEvent *) {
   
   if (inall)
     p.setPen(QColor("#000000"));
-  else if (incur)
-    p.setPen(QColor("#883300"));
+  //else if (incur)
+  //    p.setPen(QColor("#883300"));
   else
     p.setPen(QColor("#4466ee"));
   p.drawText(contentsRect(), Qt::AlignLeft | Qt::AlignVCenter,

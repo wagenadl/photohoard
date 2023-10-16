@@ -256,7 +256,7 @@ void AppliedTagEditor::drawText(QPainter &p) {
     else
       p.setPen(QColor("#ff0000"));
   } else if (ids.size()==1) {
-    p.setPen(QColor("#008800"));
+    p.setPen(QColor("#00cc00"));
   } else {
     p.setPen(QColor("#000000"));
   }
