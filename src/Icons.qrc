@@ -15,7 +15,7 @@
   <file alias="icons/layoutVLine.svg">../res/icons/layoutVLine.svg</file>
   <file alias="icons/scaleLarger.svg">../res/icons/tilezoomin.svg</file>
   <file alias="icons/scaleSmaller.svg">../res/icons/tilezoomout.svg</file>
-  <file alias="icons/cameraImport.svg">../res/icons/cameraImport-1.svg</file>
+  <file alias="icons/cameraImport.svg">../res/icons/cameraImport.svg</file>
   <file alias="icons/folderAdd.svg">../res/icons/folderAdd.svg</file>
   <file alias="icons/export.svg">../res/icons/export.svg</file>
   <file alias="icons/search.svg">../res/icons/filter.svg</file>
