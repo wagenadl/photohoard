@@ -8,4 +8,6 @@ debug:;
 	cmake  -DCMAKE_BUILD_TYPE=Debug -S . -B debug
 	+cmake --build debug 
 
+clean:; rm -rf build
+
 .PHONY: release debug
