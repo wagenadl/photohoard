@@ -1,6 +1,6 @@
 install(TARGETS photohoard DESTINATION bin)
 
-install(FILES ${CMAKE_BINARY_DIR}/userguide.pdf DESTINATION share/doc/photohoard)
+#install(FILES ${CMAKE_BINARY_DIR}/userguide.pdf DESTINATION share/doc/photohoard)
 install(FILES doc/photohoard.1 DESTINATION share/man/man1)
 install(FILES README.md DESTINATION share/doc/photohoard)
 install(FILES CHANGELOG DESTINATION share/doc/photohoard)
