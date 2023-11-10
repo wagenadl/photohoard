@@ -104,7 +104,6 @@ private:
   Image16 perspectiveSigned(QPolygonF corners, 
                             Interpolation i=Interpolation::Linear) const;
   void flipSignedness();
-  //Image16(Image16 *src, QRect sub);
 public:
   static int cvFormat(Format f);
   static int cvInterpolation(Interpolation i);

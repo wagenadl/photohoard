@@ -459,23 +459,6 @@ Image16 Image16::loadFromMemory(QByteArray const &ar) {
   return res;
 }
 
-/* THIS DOES NOT WORK
-Image16 Image16::subImage(QRect sub) {
-  qDebug() << "subimage" << size() << sub;
-  qDebug() << "... d" << d;
-  qDebug() << "... image" << (*d).image;
-  qDebug() << "... " << (*d).image.constBits();
-  qDebug() << "... " << (*d).image.width();
-  qDebug() << "... " << (*d).image.height();
-  qDebug() << "... " << (*d).image.format();
-  return Image16(this, sub);
-}
-
-Image16::Image16(Image16 *src, QRect sub):
-  d(new Image16Data(src->d, sub)) {
-}
-*/
-
 //////////////////////////////////////////////////////////////////////
 Image16Data::Image16Data(int w, int h,
                          Image16Base::Format f):
@@ -502,23 +485,6 @@ Image16Data::Image16Data(QImage const &img,
     width = img.width()/3;
 }
 
-/* THIS DOES NOT WORK
-Image16Data::Image16Data(Image16Data *src, QRect subimg):
-  width(subimg.width()),
-  height(subimg.height()),
-  bytesperline(src->bytesperline),
-  format(src->format),
-  image(QImage(const_cast<uchar*>(src->image.constBits()),
-               src->image.width(), src->image.height(),
-               src->image.format())) {
-  qDebug() << "image16data(sub)" << this << subimg;
-  qDebug() << "..." << src->image.width() << " " << src->image.height()
-           << "..." << src->bytesperline << " " << src->roibyteoffset;
-  roibyteoffset = src->roibyteoffset + bytesperline*subimg.top()
-    + bytesPerPixel()*subimg.left();
-  qDebug() << "..." << roibyteoffset;
-}
-*/
 
 Image16Data::~Image16Data() {
   qDebug() << "~image16data" << this ;
