@@ -13,7 +13,10 @@ public:
 	      Image16Base::Format f=Image16Base::Format::sRGB8);
   Image16Data(QImage const &img,
               Image16Base::Format f=Image16Base::Format::sRGB8);
+  /* THIS DOES NOT WORK
   Image16Data(Image16Data *src, QRect subimg);
+  */
+  virtual ~Image16Data();
   inline int bytesPerPixel() const { return is8Bits() ? 4 : 6; }
   inline bool is8Bits() const { return format == Image16Base::Format::sRGB8; }
 public:

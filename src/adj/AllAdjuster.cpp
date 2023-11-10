@@ -167,7 +167,7 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
     QPointF src = pts[1];
     double r = rr[0];
     Image16 res = img_below.convertedTo(Image16::Format::IPT16);
-    PhotoOps::clone(res, dst, src, r);
+    PhotoOps::blendclone(res, dst, src, r); // ???
     return res;
 #else
     QImage mask = layer.mask(osize, settings.baseAdjustments(), sclcrpsize);
