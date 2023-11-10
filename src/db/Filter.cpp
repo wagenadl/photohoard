@@ -118,14 +118,14 @@ void Filter::unsetTags() {
 
 int Filter::count() const {
   ASSERT(db);
-  DBReadLock lock(db);
   QString query = "select count(*) from versions "
     + joinClause()
     + " where " + whereClause();
+  DBReadLock lock(db);
   return db->simpleQuery(query).toInt();
 }
 
-QString Filter::joinClause() const {
+QString Filter::joinClause() const { 
   QStringList joins;
   //  if (hasdaterange || hasfilelocation || hascamera)
   joins << "inner join photos on versions.photo==photos.id";
@@ -135,21 +135,23 @@ QString Filter::joinClause() const {
 QString Filter::whereClause() const {
   ASSERT(db);
   QStringList clauses;
-  if (hascollection)
-    clauses << collectionClause();
-  if (hascolorlabels)
-    clauses << colorLabelClause();
-  if (hasstarrating)
-    clauses << starRatingClause();
-  if (hasstatus)
-    clauses << statusClause();
-  //pDebug() << "filter: whereclause hascamera" << hascamera;
-  if (hascamera)
-    clauses << cameraClause();
-  if (hasdaterange)
-    clauses << dateRangeClause();
-  if (hasfilelocation)
-    clauses << fileLocationClause();
+  { DBReadLock lock(db);
+    if (hascollection)
+      clauses << collectionClause();
+    if (hascolorlabels)
+      clauses << colorLabelClause();
+    if (hasstarrating)
+      clauses << starRatingClause();
+    if (hasstatus)
+      clauses << statusClause();
+    //pDebug() << "filter: whereclause hascamera" << hascamera;
+    if (hascamera)
+      clauses << cameraClause();
+    if (hasdaterange)
+      clauses << dateRangeClause();
+    if (hasfilelocation)
+      clauses << fileLocationClause();
+  }
   if (hastags)
     clauses << tagsClause();
   if (clauses.isEmpty())
@@ -158,7 +160,7 @@ QString Filter::whereClause() const {
     return clauses.join(" and ");
 }
 
-QString Filter::collectionClause() const {
+QString Filter::collectionClause() const { // needs lock
   QSqlQuery q = db->constQuery("select id from tags where tag==:a", "Collections");
   if (!q.next())
     return collection_.isEmpty() ? "1>0" : "0>1";
@@ -178,7 +180,7 @@ QString Filter::collectionClause() const {
   }
 }
 
-QString Filter::colorLabelClause() const {
+QString Filter::colorLabelClause() const { // doesn't care about lock
   if (colorlabels.size()==0)
     return "0>1";
   if (colorlabels.size()==1) 
@@ -189,7 +191,7 @@ QString Filter::colorLabelClause() const {
   return "colorlabel in (" + cc.join(", ") + ")";
 }
 
-QString Filter::starRatingClause() const {
+QString Filter::starRatingClause() const { // doesn't care about lock
   QStringList bits;
   if (minstars>0)
     bits << "starrating>" + QString::number(minstars);
@@ -201,7 +203,7 @@ QString Filter::starRatingClause() const {
     return bits.join(" and ");
 }
 
-QString Filter::statusClause() const {
+QString Filter::statusClause() const { // doesn't care about lock
   if (statusaccepted || statusunset || statusrejected || statusnew) {
     QStringList vv;
     if (statusaccepted)
@@ -218,11 +220,8 @@ QString Filter::statusClause() const {
   }
 }
 
-QString Filter::cameraClause() const {
+QString Filter::cameraClause() const { // needs lock
   QStringList bits;
-
-  //  pDebug() << "cameraClause" << cameramake.isEmpty() << cameramodel.isEmpty()
-  //	   << cameramake << cameramodel;
   if (!cameramake.isEmpty() || !cameramodel.isEmpty()) {
     // select on camera
     QSqlQuery q;
@@ -265,12 +264,12 @@ QString Filter::cameraClause() const {
     return bits.join(" and ");      
 }
 
-QString Filter::dateRangeClause() const {
+QString Filter::dateRangeClause() const { // doesn't care about lock
   return "capturedate>='" + startdate.toString("yyyy-MM-dd") + "T00:00:00'"
     + " and capturedate<='" + enddate.toString("yyyy-MM-dd") + "T23:59:59'";
 }
 
-QString Filter::fileLocationClause() const {
+QString Filter::fileLocationClause() const { // needs lock
   if (filelocation.isEmpty())
     return "0>1";
   QSet<int> folders;
@@ -290,7 +289,7 @@ QString Filter::fileLocationClause() const {
   return "folder in ( " + ss.join(", ") + " )";
 }
 
-QString Filter::tagsClause() const {
+QString Filter::tagsClause() const { // must NOT have lock
   QStringList bits;
   Tags tdb(db);
   for (QString t: tags_) {

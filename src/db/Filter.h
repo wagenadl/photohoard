@@ -70,11 +70,10 @@ public:
   bool hasTags() const { return hastags; }
   QStringList tags() const { return tags_; }
 public:
-  /* count grabs its own DBReadLock */
-  int count() const;
-  /* you must hold a DBReadLock before calling any of the xxClause functions */
-  QString joinClause() const;
-  QString whereClause() const;
+  int count() const; /* grabs its own DBReadLock */
+  QString joinClause() const; // OK with or without lock
+  QString whereClause() const; // grabs its own DBReadLock
+private:
   QString collectionClause() const;
   QString colorLabelClause() const;
   QString starRatingClause() const;

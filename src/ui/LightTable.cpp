@@ -512,10 +512,12 @@ void LightTable::applyFilterSettings() {
   // was populatefilterfromdialog
   Filter f(db);
   f.loadFromDb();
+  QString join = f.joinClause();
+  QString where = f.whereClause();
   { DBWriteLock lock(db);
     db->query("delete from filter");
     db->query("insert into filter select versions.id, photos.id from versions "
-              + f.joinClause() + " where " + f.whereClause());
+              + join + " where " + where);
     db->query("delete from selection"
               " where version not in (select version from filter)");
   }
