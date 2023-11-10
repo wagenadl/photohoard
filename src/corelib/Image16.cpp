@@ -66,6 +66,7 @@ Image16::Image16(uchar const *data, int width, int height, int bytesPerLine,
 }
 
 Image16 &Image16::operator=(Image16 const &image) {
+  qDebug() << "image::operator=" << d << image.d;
   d = image.d;
   return *this;
 }
@@ -458,13 +459,22 @@ Image16 Image16::loadFromMemory(QByteArray const &ar) {
   return res;
 }
 
+/* THIS DOES NOT WORK
 Image16 Image16::subImage(QRect sub) {
+  qDebug() << "subimage" << size() << sub;
+  qDebug() << "... d" << d;
+  qDebug() << "... image" << (*d).image;
+  qDebug() << "... " << (*d).image.constBits();
+  qDebug() << "... " << (*d).image.width();
+  qDebug() << "... " << (*d).image.height();
+  qDebug() << "... " << (*d).image.format();
   return Image16(this, sub);
 }
 
 Image16::Image16(Image16 *src, QRect sub):
   d(new Image16Data(src->d, sub)) {
 }
+*/
 
 //////////////////////////////////////////////////////////////////////
 Image16Data::Image16Data(int w, int h,
@@ -473,6 +483,7 @@ Image16Data::Image16Data(int w, int h,
   image(format==Image16Base::Format::sRGB8 ? w : 3*w, h,
         format==Image16Base::Format::sRGB8 ? QImage::Format_RGB32
         : QImage::Format_RGB16), roibyteoffset(0) {
+  qDebug() << "image16data(-)" << this;
   bytesperline = image.bytesPerLine();
 }
 
@@ -485,20 +496,32 @@ Image16Data::Image16Data(QImage const &img,
         ? img.convertToFormat(QImage::Format_RGB32)
         : img),
   roibyteoffset(0) {
+  qDebug() << "image16data(img)" << this;
   bytesperline = image.bytesPerLine();
   if (f!=Image16Base::Format::sRGB8)
     width = img.width()/3;
 }
 
+/* THIS DOES NOT WORK
 Image16Data::Image16Data(Image16Data *src, QRect subimg):
   width(subimg.width()),
   height(subimg.height()),
   bytesperline(src->bytesperline),
   format(src->format),
-  image(QImage(src->image.bits(), src->image.width(), src->image.height(),
+  image(QImage(const_cast<uchar*>(src->image.constBits()),
+               src->image.width(), src->image.height(),
                src->image.format())) {
+  qDebug() << "image16data(sub)" << this << subimg;
+  qDebug() << "..." << src->image.width() << " " << src->image.height()
+           << "..." << src->bytesperline << " " << src->roibyteoffset;
   roibyteoffset = src->roibyteoffset + bytesperline*subimg.top()
     + bytesPerPixel()*subimg.left();
+  qDebug() << "..." << roibyteoffset;
+}
+*/
+
+Image16Data::~Image16Data() {
+  qDebug() << "~image16data" << this ;
 }
 
 void Image16::alphablend(Image16 ontop, QImage mask) {

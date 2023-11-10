@@ -27,6 +27,7 @@ namespace PhotoOps {
   Image16 decolorizeOrBoost(Image16 const &target, bool boost=false);
   void blur(QImage &target, double sigma);
   void clone(Image16 &target, QPointF dst, QPointF src, double radius);
+  void blendclone(Image16 &target, QPointF dst, QPointF src, double radius);
 };
 
 #endif

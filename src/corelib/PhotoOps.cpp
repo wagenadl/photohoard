@@ -224,6 +224,8 @@ namespace PhotoOps {
       return;
     QRect srcrect(QPoint(x0, y0), QPoint(x1, y1));
     QRect dstrect(QPoint(sx0, sy0), QPoint(sx1, sy1));
+    qDebug() << "Clone broken - subimage does not work";
+    /*
     Image16 srcbit(target.subImage(srcrect));
     Image16 dstbit(target.subImage(dstrect));
     QImage mask(srcrect.size(), QImage::Format_Grayscale8);
@@ -233,7 +235,8 @@ namespace PhotoOps {
       p.drawEllipse(QPoint(xc - x0, yc - y0), int(.8*radius), int(.8*radius));
     }
     PhotoOps::blur(mask, .15*radius);
-    srcbit.alphablend(dstbit, mask);
+    srcbit.alphablend(dstbit, mask); // is this right??
+    */
   }
 
   

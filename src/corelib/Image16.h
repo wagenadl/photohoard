@@ -70,7 +70,7 @@ public:
      equals the source format.
      applyROI() is trivially fast if there is no ROI.
    */
-  Image16 subImage(QRect);
+  //Image16 subImage(QRect);
   /* A sub-image is an Image16 that shares its memory with its source, without
      copy-on-write semantics. All operations performed on the subimage will
      directly affect the source image. The user is responsible for making
@@ -104,7 +104,7 @@ private:
   Image16 perspectiveSigned(QPolygonF corners, 
                             Interpolation i=Interpolation::Linear) const;
   void flipSignedness();
-  Image16(Image16 *src, QRect sub);
+  //Image16(Image16 *src, QRect sub);
 public:
   static int cvFormat(Format f);
   static int cvInterpolation(Interpolation i);
