@@ -1,0 +1,438 @@
+{ "typ": "page",
+  "cre": "2023-11-09T21:30:47.238",
+  "mod": "2023-11-10T21:00:26.407",
+  "cui": "2edabb2b1502c998",
+  "stampTime": 0,
+  "startPage": 72,
+  "unlocked": false,
+  "uuid": "0a4bf05e",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2023-11-09T21:30:47.232",
+      "mod": "2023-11-10T00:22:18.028",
+      "uuid": "efc2a72a",
+      "cc": [
+        { "typ": "res",
+          "cre": "2023-11-09T21:31:50.110",
+          "mod": "2023-11-09T21:31:50.254",
+          "archive": "_1_-2d4fd936.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "*1",
+          "title": "",
+          "uuid": "2d4fd936"
+        },
+        { "typ": "res",
+          "cre": "2023-11-09T21:32:32.939",
+          "mod": "2023-11-09T21:32:33.016",
+          "archive": "_2_-b2916c61.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "*2",
+          "title": "",
+          "uuid": "b2916c61"
+        },
+        { "typ": "res",
+          "cre": "2023-11-10T00:22:18.011",
+          "mod": "2023-11-10T00:22:18.028",
+          "archive": "_3_-e8ccd572.png",
+          "desc": "",
+          "preview": "",
+          "source": "",
+          "tag": "*3",
+          "title": "",
+          "uuid": "e8ccd572"
+        }
+      ]
+    },
+    { "typ": "title",
+      "cre": "2023-11-09T21:30:49.240",
+      "mod": "2023-11-09T21:30:59.008",
+      "uuid": "1912c5ed",
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-09T21:30:49.240",
+          "mod": "2023-11-09T21:30:59.008",
+          "lines": [
+            0
+          ],
+          "text": "Twee bugs",
+          "uuid": "1805c058"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-09T21:31:00.298",
+      "mod": "2023-11-09T21:31:16.603",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "5d463950",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-09T21:31:00.298",
+          "mod": "2023-11-09T21:31:16.603",
+          "lines": [
+            0
+          ],
+          "text": "Ten eerste, in filter dialoog: freeze als je in tags tikt:",
+          "uuid": "b4df37b3"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2023-11-09T21:32:32.939",
+      "mod": "2023-11-09T21:32:33.025",
+      "h": 180.555,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "996574b6",
+      "xref": 0.0,
+      "y0": 99.166,
+      "yref": -9.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2023-11-09T21:32:33.016",
+          "mod": "2023-11-09T21:32:33.016",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 549.0,
+          "res": [
+            "*2"
+          ],
+          "resName": "*2",
+          "scale": 0.296093,
+          "uuid": "455af743",
+          "width": 1459.0,
+          "x": 0.0,
+          "y": 0.0
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-09T21:31:19.356",
+      "mod": "2023-11-09T21:31:24.985",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b5248a3f",
+      "y0": 279.721,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-09T21:31:19.356",
+          "mod": "2023-11-09T21:31:24.985",
+          "lines": [
+            0
+          ],
+          "text": "Ten tweede, zomaar een crash:",
+          "uuid": "5f098198"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2023-11-09T21:31:50.110",
+      "mod": "2023-11-09T21:33:50.290",
+      "h": 203.058,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "1a7881bd",
+      "xref": 0.0,
+      "y0": 306.887,
+      "yref": -9.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2023-11-09T21:31:50.254",
+          "mod": "2023-11-09T21:33:50.290",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 625.0,
+          "res": [
+            "*1"
+          ],
+          "resName": "*1",
+          "scale": 0.296093,
+          "uuid": "ca70657f",
+          "width": 1459.0,
+          "x": 0.0,
+          "y": 0.0
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-09T22:55:45.037",
+      "mod": "2023-11-10T00:17:29.058",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b5ce3090",
+      "y0": 509.945,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-09T22:55:45.037",
+          "mod": "2023-11-10T00:17:29.058",
+          "lines": [
+            0,
+            47,
+            108,
+            156
+          ],
+          "text": "@1. Het probleem is dat de “Tags” functies een DBReadLock nemen, terwijl de “Filter” functies ervanuit gaan dat ze dat niet doen. Dat is nu gerepareerd, en gedocumenteerd.",
+          "uuid": "e6d00e8c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:18:16.557",
+      "mod": "2023-11-10T00:22:00.776",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "cb2d1469",
+      "y0": 606.609,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:18:16.557",
+          "mod": "2023-11-10T00:22:00.776",
+          "lines": [
+            0,
+            56,
+            107
+          ],
+          "text": "@2. vsn #79312 is photo #79253 is dsc_0674.jpg in /home/wagenaar/Pictures/photohoard/2022/220609. De crash gebeurt opnieuw, deze keer als:",
+          "uuid": "570e95c5"
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2023-11-10T00:22:18.008",
+      "mod": "2023-11-10T00:22:18.029",
+      "h": 114.694,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "20e17c1d",
+      "xref": 0.0,
+      "y0": 72.0,
+      "yref": -9.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2023-11-10T00:22:18.028",
+          "mod": "2023-11-10T00:22:18.028",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 325.0,
+          "res": [
+            "*3"
+          ],
+          "resName": "*3",
+          "scale": 0.297521,
+          "uuid": "2df3825e",
+          "width": 1452.0,
+          "x": 0.0,
+          "y": 0.0
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:23:52.460",
+      "mod": "2023-11-10T00:25:28.193",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "bc7cb9bb",
+      "y0": 186.694,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:23:52.460",
+          "mod": "2023-11-10T00:25:27.293",
+          "lines": [
+            0
+          ],
+          "text": "Crash op Image16.cpp l. 498:",
+          "uuid": "f7a216ea"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:24:21.075",
+      "mod": "2023-11-10T00:24:32.205",
+      "h": 54.787,
+      "ind": 6,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "f49de1f4",
+      "y0": 213.86,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:24:21.075",
+          "mod": "2023-11-10T00:24:21.075",
+          "lines": [
+            0,
+            56,
+            73
+          ],
+          "text": "image(QImage(src->image.bits(), src->image.width(), src->image.height(),\n               src->image.format()))",
+          "uuid": "0150a6bb"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:25:30.683",
+      "mod": "2023-11-10T00:25:31.640",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "e61fe7e3",
+      "y0": 268.647,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:25:30.683",
+          "mod": "2023-11-10T00:25:31.640",
+          "lines": [
+            0
+          ],
+          "text": "alwaar:",
+          "uuid": "88bfed00"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:25:32.608",
+      "mod": "2023-11-10T00:25:47.048",
+      "h": 161.707,
+      "ind": 2,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "181128e5",
+      "y0": 295.813,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:25:32.608",
+          "mod": "2023-11-10T00:25:47.048",
+          "lines": [
+            0,
+            20,
+            63,
+            81,
+            105,
+            172,
+            248,
+            308,
+            375
+          ],
+          "text": "(gdb) print(subimg)\n$1 = {x1 = 0, y1 = 537, x2 = 44, y2 = 637}\n(gdb) print(*src)\n$3 = {<QSharedData> = {\n    ref = {<QAtomicInteger<int>> = {<QBasicAtomicInteger<int>> = {\n          _q_value = std::atomic<int> = { 1 }}, <No data fields>}, <No data fields>}}, width = 992, height = 663, bytesperline = 5952, \n  format = Image16Base::Format::IPT16, image = <incomplete type>, \n  roibyteoffset = 0}",
+          "uuid": "3adfd688"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:29:39.782",
+      "mod": "2023-11-10T00:30:44.942",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "837792a2",
+      "y0": 457.52,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:29:39.782",
+          "mod": "2023-11-10T00:30:44.942",
+          "lines": [
+            0,
+            62,
+            126
+          ],
+          "text": "Dat ziet er op zich niet gek uit, maar twee niveaus hoger, in AllAdjuster l. 170 (auto applyClone() in retrieveReduced(), zie ik dat ",
+          "uuid": "4dacd84c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:30:52.709",
+      "mod": "2023-11-10T00:30:56.364",
+      "h": 72.607,
+      "ind": 2,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "990b4215",
+      "y0": 531.018,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:30:52.709",
+          "mod": "2023-11-10T00:30:56.364",
+          "lines": [
+            0,
+            17,
+            74,
+            91
+          ],
+          "text": "(gdb) print(dst)\n$8 = {xp = -7.3107952102056348, yp = 587.28698461105614}\n(gdb) print(src)\n$9 = {xp = 33.250167518837621, yp = 579.40673894230406}",
+          "uuid": "f26eba29"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T00:31:00.548",
+      "mod": "2023-11-10T00:33:31.212",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "dfb8f8bc",
+      "y0": 603.625,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T00:31:00.548",
+          "mod": "2023-11-10T00:33:31.212",
+          "lines": [
+            0,
+            63
+          ],
+          "text": "Dat is verdacht. Is die negative xp een probleem? Nee, want in PhotoOps::clone wordt de rect geclipt.",
+          "uuid": "ffbc631d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2023-11-10T20:59:42.826",
+      "mod": "2023-11-10T21:00:26.407",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [
+        46.332
+      ],
+      "uuid": "77d64015",
+      "y0": 653.957,
+      "cc": [
+        { "typ": "text",
+          "cre": "2023-11-10T20:59:42.826",
+          "mod": "2023-11-10T21:00:26.407",
+          "lines": [
+            0,
+            54,
+            104,
+            163
+          ],
+          "text": "Het probleem blijkt dat Image16::subImage gewoon niet werkt, omdat het de cow-semantiek van QImage niet respecteert. Ik weet niet hoe daar omheen te programmeren, dus ik laat het maar. Clone kan ook zonder.",
+          "uuid": "ee5adc74"
+        }
+      ]
+    }
+  ]
+}
