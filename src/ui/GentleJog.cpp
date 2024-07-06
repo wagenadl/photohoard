@@ -220,6 +220,8 @@ void GentleJog::renderJog(QStylePainter *p) {
   p->drawEllipse(QPoint(x, y0), jogr, jogr);
   QBrush b(palette().color(QPalette::Normal, QPalette::WindowText));
   p->setBrush(b);
+  if (!p->isActive())
+    qDebug() << "Painter not active in GentleJog.cpp";
   pen.setColor(c0);
   pen.setWidth(1);
   p->setPen(pen);

@@ -190,6 +190,8 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     QPolygonF ppp = Spline(pts, 2).points;
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
+      if (!ptr.isActive())
+        qDebug() << "Painter not active in Layers.cpp";
       ptr.setBrush(QBrush(QColor(255,255,255)));
       ptr.drawPolygon(ppp);
     }
@@ -209,6 +211,8 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     msk.fill(0);
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
+      if (!ptr.isActive())
+        qDebug() << "Painter not active in Layers.cpp";
       ptr.setBrush(QBrush(QColor(255,255,255)));
       for (int k=0; k<radi.size(); k++) 
         ptr.drawEllipse(pts[k], radi[k], radi[k]);

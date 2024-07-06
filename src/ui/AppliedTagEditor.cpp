@@ -244,6 +244,9 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
 		 QString::fromUtf8("New tag…"));
     }
   }
+  if (!p.isActive())
+    qDebug() << "Painter not active in AppliedTagEditor.cpp";
+  
 }
 
 void AppliedTagEditor::drawText(QPainter &p) {
