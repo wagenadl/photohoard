@@ -168,6 +168,10 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     msk.fill(0);
     return msk;
   }
+  if (sclcrpsize.isEmpty()) {
+    qDebug () << "Layer::mask: empty request";
+    return msk;
+  }
   QPolygonF pts(transformedPoints(osize, adj0, sclcrpsize));
   QList<double> radi = transformedRadii(osize, adj0, sclcrpsize);
   switch (typ) {
