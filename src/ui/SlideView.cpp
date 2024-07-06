@@ -372,12 +372,7 @@ void SlideView::paintEvent(QPaintEvent *) {
         && i1.width()>img.width()
         && img.height()<naturalSize.height()
         && i1.height()>img.height()) {
-      // I should only request it if I haven't already
-      if (img.size()!=lastSize)
-        needLargerImage();
-      lastSize = img.size();
-    } else {
-      lastSize = PSize();
+      needLargerImage();
     }
     p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2,
                        (r.top() + r.bottom())/2 - i1.height()/2),
@@ -391,11 +386,7 @@ void SlideView::paintEvent(QPaintEvent *) {
     QRectF destRect;
     if (!img.size().isLargeEnoughFor(showSize)
 	&& naturalSize.exceeds(img.size())) {
-      if (img.size()!=lastSize) 
-	emit needLargerImage();
-      lastSize = img.size();
-    } else {
-      lastSize = PSize();
+      emit needLargerImage();
     }
     if (showSize.width()<=availSize.width()) {
       sourceRect.setLeft(0);
@@ -489,8 +480,15 @@ QList<SlideOverlay *> SlideView::overlays() const {
 }
 
 void SlideView::needLargerImage() {
-  pDebug() << "needLargerImage" << vsnid << desiredSize();
-  emit needImage(vsnid, desiredSize());
+  QSize ds = desiredSize();
+  pDebug() << "needLargerImage" << vsnid << ds;
+  if (ds != lastSize) {
+    pDebug() << "  requesting larger image";
+    emit needImage(vsnid, desiredSize());
+    lastSize = ds;
+  } else {
+    pDebug() << "  not repeating previous request";
+  }
 }
 
 void SlideView::visualizeLayer(quint64 vsn, int lay) {
