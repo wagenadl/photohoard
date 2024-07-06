@@ -4,6 +4,7 @@
 #include <QFontMetrics>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QDebug>
 
 AppliedTagWidget::AppliedTagWidget(int id, QString name, bool ro,
 				   QWidget *parent):
@@ -95,6 +96,8 @@ void AppliedTagWidget::paintEvent(QPaintEvent *) {
     p.setPen(QPen("#000000"));
     p.drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, QString::fromUtf8("−"));
   }
+  if (!p.isActive())
+    qDebug() << "Painter not active in AppliedTagWidget.cpp";
 }
 
 void AppliedTagWidget::mousePressEvent(QMouseEvent *e) {

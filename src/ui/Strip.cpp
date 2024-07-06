@@ -226,6 +226,8 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
     break;
   }
   painter->setPen(QPen(Qt::NoPen));
+  if (!painter->isActive())
+    qDebug() << "Painter not active in Strip.cpp";
   painter->setBrush(QBrush(QColor(129, 129, 129)));
   painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
   painter->setBrush(QBrush(QColor(240, 240, 240)));
@@ -294,6 +296,8 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
     poly << QPointF(r.topRight());
     painter->drawPolyline(poly);
     painter->setPen(QPen(Qt::NoPen));
+    if (!painter->isActive())
+      qDebug() << "Painter not active in Strip.cpp 2";
     painter->setBrush(QBrush(bg));
     painter->drawRect(r);
   } else {    
@@ -313,6 +317,8 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
       painter->drawPolyline(poly);
       poly.clear();
       painter->setPen(QPen(Qt::NoPen));
+      if (!painter->isActive())
+        qDebug() << "Painter not active in Strip.cpp 3";
       painter->setBrush(QBrush(bg));
       poly << QPointF(r.bottomLeft());
       poly << QPointF(r.topLeft()) + QPointF(0, slantw);
@@ -336,6 +342,8 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
       painter->drawPolyline(poly);
       poly.clear();
       painter->setPen(QPen(Qt::NoPen));
+      if (!painter->isActive())
+        qDebug() << "Painter not active in Strip.cpp 4";
       painter->setBrush(QBrush(bg));
       poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
       poly << QPointF(r.topLeft()) + QPointF(0, slantw);
