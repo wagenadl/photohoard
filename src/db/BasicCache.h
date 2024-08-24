@@ -8,6 +8,7 @@
 #include <QSet>
 #include "Image16.h"
 #include "Database.h"
+#include <QExplicitlySharedDataPointer>
 
 class BasicCache {
 public:
@@ -75,13 +76,11 @@ private:
 		  bool instantlyOutdated=false);
   void dropOutdatedFromCache(quint64 vsn);
   void readConfig();
-  QString constructFilename(quint64 vsn, int d);
-  void attach();
 private:
   QDir root;
   Database db;
   QList<PSize> stdsizes; // in decreasing order
-  int memthresh;
+  QExplicitlySharedDataPointer<class RocksDB> rdb;
 };
 
 #endif

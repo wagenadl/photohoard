@@ -11,6 +11,17 @@
 #include <algorithm>
 #include "SessionDB.h"
 
+#include "rocksdb/db.h"
+#include "rocksdb/options.h"
+#include "rocksdb/slice.h"
+
+
+class RocksDB: public QSharedData {
+public:
+  rocksdb::DB *db;
+  RocksDB() { db = 0; }
+  ~RocksDB() { delete db; }
+};
 
 BasicCache::BasicCache() {
 }
@@ -25,7 +36,20 @@ void BasicCache::open(QString rootdir) {
   { DBWriteLock lock(&db);
     db.query("pragma synchronous = 0");
   }
-  attach();
+
+  // ROCKSDB
+  rocksdb::Options options;
+  // Optimize RocksDB. This is the easiest way to get RocksDB to perform well
+  options.IncreaseParallelism();
+  options.OptimizeLevelStyleCompaction();
+  // create the DB if it's not already present
+  options.create_if_missing = true;
+
+  // open DB
+  RocksDB *rdb1 = new RocksDB;
+  rocksdb::Status s = rocksdb::DB::Open(options, std::string(rootdir.toUtf8().data()), &rdb1->db);
+  assert(s.ok());
+  rdb = rdb1;
 }
 
 void BasicCache::clone(BasicCache const &src) {
@@ -39,20 +63,10 @@ void BasicCache::clone(BasicCache const &src) {
   { DBWriteLock lock(&db);
     db.query("pragma synchronous = 0");
   }
-  attach();
+
+  rdb = src.rdb;
 }  
 
-void BasicCache::attach() {
-  DBWriteLock lock(&db);
-  QString q1 = "attach '" + root.absolutePath() + "/blobs%1.db' as B%2";
-  QString q2 = "create table if not exists B%1.blobs ("
-    " cacheid integer primary key on conflict replace,"
-    " bits blob )";
-  for (int k=1; k<=stdsizes.size(); k++) {
-    db.query(q1.arg(k).arg(k));
-    db.query(q2.arg(k));
-  }
-}
 
 BasicCache::~BasicCache() {
   if (db.isOpen()) {
@@ -62,25 +76,13 @@ BasicCache::~BasicCache() {
 }
  
 void BasicCache::close() {
-  { DBWriteLock lock(&db);
-    for (int k=1; k<=stdsizes.size(); k++) 
-      db.query(QString("detach B%1").arg(k));
-  }
   db.close();
 }
 
 void BasicCache::readConfig() {
   DBReadLock lock(&db);
-  QSqlQuery q = db.constQuery("select bytes from memthresh");
-  if (q.next()) {
-    memthresh = q.value(0).toInt();
-  } else {
-    memthresh = 200000;
-    CRASH("Could not read memory threshold from db");
-  }
-
   QList<int> sizes;
-  q = db.constQuery("select maxdim from sizes");
+  QSqlQuery q = db.constQuery("select maxdim from sizes");
   while (q.next())
     sizes << q.value(0).toInt();
   
@@ -139,16 +141,12 @@ void BasicCache::add(quint64 vsn, Image16 img, bool instantlyOutdated) {
 
 void BasicCache::dropOutdatedFromCache(quint64 vsn) {
   // should be called within a transaction
-  QSqlQuery q(db.constQuery("select id, maxdim, dbno from cache"
+  QSqlQuery q(db.constQuery("select id from cache"
 		       " where version==:a and outdated>0", vsn));
   while (q.next()) {
     quint64 id = q.value(0).toULongLong();
-    int d = q.value(1).toInt();
-    int k = q.value(2).toInt();
-    if (k==0)
-      QFile(constructFilename(vsn, d)).remove();
-    else
-      db.query(QString("delete from B%1.blobs where cacheid=:a").arg(k), id);
+    rdb.data()->db->Delete(rocksdb::WriteOptions(),
+                       rocksdb::Slice((char const *)&id, sizeof(id)));
   }
 
   db.query("delete from cache where version==:a and outdated>0", vsn);
@@ -163,89 +161,53 @@ void BasicCache::addToCache(quint64 vsn, Image16 const &img,
 
   PSize s = img.size();
   Q_ASSERT(!s.exceeds(maxSize()));
-  int k = 0;
-  if (buf.data().size() < memthresh) {
-    k = 1;
-    for (int l=1; l<stdsizes.size(); l++)
-      if (s.exceeds(stdsizes[l]))
-        k++;
-  }
-
   int d = s.maxDim();
 
 
-  QSqlQuery q = db.constQuery("select id, dbno from cache"
+  QSqlQuery q = db.constQuery("select id from cache"
 			 " where version==:a and maxdim==:b",
 			 vsn, d);
   if (q.next()) {
     // preexist
     quint64 cacheid = q.value(0).toULongLong();
-    int oldk = q.value(1).toInt();
-
-    if (oldk && k!=oldk) 
-      db.query(QString("delete from B%1.blobs where cacheid==:a").arg(oldk),
-               cacheid);
-    else if (!oldk && k)
-      QFile(constructFilename(vsn, d)).remove();
+    rdb.data()->db->Put(rocksdb::WriteOptions(),
+                    rocksdb::Slice((char const *)&cacheid, sizeof(cacheid)),
+                    rocksdb::Slice(buf.data().constData(), buf.data().size()));
     
     db.query("update cache set dbno=:a, width=:b, height=:c, outdated=:d"
              " where version==:e and maxdim==:f",
-	     k, s.width(), s.height(),
+	     0, s.width(), s.height(),
 	     instantlyOutdated ? 1 : 0,
 	     vsn, d);
-
-    if (k) {
-      db.query(QString("insert into B%1.blobs (cacheid, bits) values(:a,:b)")
-               .arg(k), cacheid, buf.data());
-    } else {
-      QFile f(constructFilename(vsn, d));
-      if (f.open(QFile::WriteOnly)) 
-	f.write(buf.data());
-      else
-	CRASH("Cannot write");
-    }
   } else {
     // new
     quint64 cacheid
       = db.query("insert into cache"
 		 " (version, maxdim, width, height, outdated, dbno)"
 		 " values (:a, :b, :c, :d, :e, :f)",
-		 vsn, d, s.width(), s.height(), instantlyOutdated?1:0, k)
+		 vsn, d, s.width(), s.height(), instantlyOutdated?1:0, 0)
       .lastInsertId().toULongLong();
 
-    if (k) {
-      db.query(QString("insert into B%1.blobs (cacheid, bits) values (:a, :b)")
-               .arg(k), cacheid, buf.data());
-    } else {
-      QFile f(constructFilename(vsn, d));
-      if (f.open(QFile::WriteOnly)) 
-	f.write(buf.data());
-      else
-	CRASH("Cannot write");
-    }
+    rdb.data()->db->Put(rocksdb::WriteOptions(),
+                    rocksdb::Slice((char const *)&cacheid, sizeof(cacheid)),
+                    rocksdb::Slice(buf.data().constData(), buf.data().size()));
   }
 }
 
 void BasicCache::remove(quint64 vsn) {
   // should be called within a transaction
-  QSqlQuery q(db.constQuery("select id, maxdim, dbno from cache"
+  QSqlQuery q(db.constQuery("select id from cache"
 		       " where version==:a", vsn));
   while (q.next()) {
     quint64 cacheid = q.value(0).toULongLong();
-    int d = q.value(1).toInt();
-    int k = q.value(2).toInt();
-    if (k)
-      db.query(QString("delete from B%1.blobs where cacheid==:a").arg(k),
-               cacheid);
-    else
-      QFile(constructFilename(vsn, d)).remove();
+    rdb.data()->db->Delete(rocksdb::WriteOptions(),
+                       rocksdb::Slice((char const *)&cacheid, sizeof(cacheid)));
   }
   db.query("delete from cache where version==:a", vsn);
 }
 
 Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
   quint64 cacheid;
-  int k;
   bool od;
   { DBReadLock lock(&db);
     QSqlQuery q = db.constQuery("select id, dbno, outdated from cache"
@@ -253,29 +215,19 @@ Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
                                 vsn, s.maxDim());
     ASSERT(q.next());
     cacheid = q.value(0).toInt();
-    k = q.value(1).toInt();
     od = q.value(2).toInt()>0;
   }
   if (outdated_return)
     *outdated_return = od;
-  if (k) {
-    QByteArray bits;
-    { DBReadLock lock(&db);
-      bits = db.simpleQuery(QString("select bits from B%1.blobs"
-                                    " where cacheid==:a").arg(k),
-                            cacheid)
-        .toByteArray();
-    }
-    QBuffer buf(&bits);
-    QImageReader reader(&buf, "jpeg");
-    return reader.read();
-  } else {
-    QString fn(constructFilename(vsn, s.maxDim()));
-    if (QFile(fn).exists()) 
-      return Image16(fn);
-    CRASH("Missing file " + fn + " from cache"); // could tolerate
-    return Image16();
-  }
+  rocksdb::PinnableSlice val;
+  rdb.data()->db->Get(rocksdb::ReadOptions(),
+                      rdb.data()->db->DefaultColumnFamily(),
+                  rocksdb::Slice((char const *)&cacheid, sizeof(cacheid)),
+                  &val);
+  QByteArray bits(val.data(), val.size());
+  QBuffer buf(&bits);
+  QImageReader reader(&buf, "jpeg");
+  return reader.read();
 }
 
 PSize BasicCache::bestSize(quint64 vsn, PSize desired) {
@@ -340,22 +292,6 @@ QList<PSize> BasicCache::sizes(quint64 vsn, bool outdatedOK) {
   }
 
   return lst;
-}
-
-QString BasicCache::constructFilename(quint64 vsn, int d) {
-  QList<int> bits;
-  while (vsn>0) {
-    bits << vsn % 100;
-    vsn /= 100;
-  }
-  QString leaf(QString("%1-%2.jpg").arg(bits.takeFirst()).arg(d));
-  QStringList pathlist;
-  for (auto b: bits)
-    pathlist.push_front(QString("%1").arg(b));
-  pathlist.push_front("thumbs");
-  QString path = pathlist.join("/");
-  root.mkpath(path);
-  return root.absoluteFilePath(path + "/" + leaf);
 }
 
 void BasicCache::markOutdated(quint64 vsn) {
