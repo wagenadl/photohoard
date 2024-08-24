@@ -31,7 +31,7 @@ void BasicCache::open(QString rootdir) {
     close();
   
   root.setPath(rootdir);
-  db.open(rootdir + "/cache.db");
+  db.open(rootdir + ".db");
   readConfig();
   { DBWriteLock lock(&db);
     db.query("pragma synchronous = 0");
@@ -47,7 +47,9 @@ void BasicCache::open(QString rootdir) {
 
   // open DB
   RocksDB *rdb1 = new RocksDB;
-  rocksdb::Status s = rocksdb::DB::Open(options, std::string(rootdir.toUtf8().data()), &rdb1->db);
+  rocksdb::Status s = rocksdb::DB::Open(options,
+                                        std::string(rootdir.toUtf8().data()),
+                                        &rdb1->db);
   assert(s.ok());
   rdb = rdb1;
 }
@@ -214,6 +216,7 @@ Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
                                 " where version==:a and maxdim==:b limit 1",
                                 vsn, s.maxDim());
     ASSERT(q.next());
+    // can we not recover from this somehow?
     cacheid = q.value(0).toInt();
     od = q.value(2).toInt()>0;
   }
@@ -224,6 +227,7 @@ Image16 BasicCache::get(quint64 vsn, PSize s, bool *outdated_return) {
                       rdb.data()->db->DefaultColumnFamily(),
                   rocksdb::Slice((char const *)&cacheid, sizeof(cacheid)),
                   &val);
+  // check for errors?
   QByteArray bits(val.data(), val.size());
   QBuffer buf(&bits);
   QImageReader reader(&buf, "jpeg");
