@@ -1,0 +1,491 @@
+{ "typ": "page",
+  "cre": "2024-08-22T09:59:25.301",
+  "mod": "2024-08-22T10:41:57.389",
+  "cui": "2edabb2b1502c998",
+  "stampTime": 0,
+  "startPage": 78,
+  "unlocked": false,
+  "uuid": "e4e658fe",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2024-08-22T09:59:25.271",
+      "mod": "2024-08-22T09:59:25.271",
+      "uuid": "ab839f57"
+    },
+    { "typ": "title",
+      "cre": "2024-08-22T09:59:26.558",
+      "mod": "2024-08-22T09:59:31.316",
+      "uuid": "4cec2814",
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T09:59:26.558",
+          "mod": "2024-08-22T09:59:31.315",
+          "lines": [
+            0
+          ],
+          "text": "Database use in Photohoard",
+          "uuid": "2b512520"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T09:59:32.379",
+      "mod": "2024-08-22T09:59:57.586",
+      "h": 50.332,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "89e39ca0",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T09:59:32.379",
+          "mod": "2024-08-22T09:59:57.586",
+          "lines": [
+            0,
+            60
+          ],
+          "text": "There are multiple SQLite databases in Photohoard, and I am trying to figure out what I can do to speed things up.",
+          "uuid": "451d8a64",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T09:59:36.685",
+              "mod": "2024-08-22T09:59:36.685",
+              "end": 18,
+              "start": 10,
+              "style": 1,
+              "uuid": "bfca6fc8"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T09:59:58.175",
+      "mod": "2024-08-22T10:02:06.115",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "0b8260c3",
+      "y0": 122.332,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T09:59:58.175",
+          "mod": "2024-08-22T10:02:06.115",
+          "lines": [
+            0,
+            58,
+            121,
+            185
+          ],
+          "text": "The main database is ~/.local/share/photohoard/default.db and contains all the information about photos and versions. It is, at least in principle, possible to run photohoard with read-only access to the main database.",
+          "uuid": "79ecf622",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T10:00:00.229",
+              "mod": "2024-08-22T10:00:00.229",
+              "end": 8,
+              "start": 4,
+              "style": 2,
+              "uuid": "01b7d351"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:00:55.840",
+      "mod": "2024-08-22T10:02:38.594",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "45df9378",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:00:55.840",
+          "mod": "2024-08-22T10:02:38.594",
+          "lines": [
+            0,
+            49,
+            112,
+            177,
+            233,
+            291
+          ],
+          "text": "The session database is ~/.cache/photohoard/uuid-session.db and contains information about the current session. That means the filter settings and selection. It is, at least in principle, possible to run multiple photohoard sessions simultaneously on the same main db with different session dbs.",
+          "uuid": "a9617bd8",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T10:00:58.305",
+              "mod": "2024-08-22T10:00:58.305",
+              "end": 11,
+              "start": 4,
+              "style": 2,
+              "uuid": "4044e31c"
+            },
+            { "typ": "markup",
+              "cre": "2024-08-22T10:01:23.752",
+              "mod": "2024-08-22T10:01:23.752",
+              "end": 48,
+              "start": 44,
+              "style": 1,
+              "uuid": "2c39199e"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:02:49.364",
+      "mod": "2024-08-22T10:04:49.359",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "da7f8438",
+      "y0": 361.992,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:02:49.364",
+          "mod": "2024-08-22T10:04:49.359",
+          "lines": [
+            0,
+            53,
+            117,
+            175,
+            235
+          ],
+          "text": "The cache database is ~/.cache/photohoard/uuid-cache/cache.db and is essentially a table of contents onto the cache. Currently, the cache is not shared between sessions, even though none of the information it contains is specific to a session.",
+          "uuid": "3fb2c543",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T10:02:51.118",
+              "mod": "2024-08-22T10:02:51.118",
+              "end": 9,
+              "start": 4,
+              "style": 2,
+              "uuid": "f5a3f8ab"
+            },
+            { "typ": "markup",
+              "cre": "2024-08-22T10:03:02.169",
+              "mod": "2024-08-22T10:03:02.169",
+              "end": 46,
+              "start": 42,
+              "style": 1,
+              "uuid": "6b68140f"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:04:53.771",
+      "mod": "2024-08-22T10:08:13.745",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "262ab56b",
+      "y0": 481.822,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:04:53.771",
+          "mod": "2024-08-22T10:08:13.745",
+          "lines": [
+            0,
+            57,
+            113,
+            174,
+            236
+          ],
+          "text": "When Photohoard runs, it opens a session db and attaches the main db. The cache does not get attached, except in PurgeCache, which gets run at the end of the session to drop cache items that do not match an existing version. This could easily be relegated to external software.",
+          "uuid": "624134c3"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:08:30.092",
+      "mod": "2024-08-22T10:09:53.203",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        92.664
+      ],
+      "uuid": "5b9cbf76",
+      "y0": 601.652,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:08:30.092",
+          "mod": "2024-08-22T10:09:53.203",
+          "lines": [
+            0,
+            58,
+            120,
+            179,
+            238
+          ],
+          "text": "I am thinking of moving to Postgres because of infinitely better concurrency support, but it is not an easy path. Also, single-thread performance might be lower. Perhaps the more attractive path forward is to replace the way the cache is organized.",
+          "uuid": "5e959806"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:10:15.671",
+      "mod": "2024-08-22T10:12:16.194",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "efc466c3",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:10:15.671",
+          "mod": "2024-08-22T10:12:16.194",
+          "lines": [
+            0,
+            61,
+            123,
+            181,
+            242
+          ],
+          "text": "I can view the cache as a backing store to the collection. A frontend SQLite db as a toc remains a good idea. But I want a simple key-value db as a backend rather than my elaborate blobs + files system. I also want to share the cache between sessions.",
+          "uuid": "5a2bf440"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:12:47.604",
+      "mod": "2024-08-22T10:12:53.098",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "0702144c",
+      "y0": 218.996,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:12:47.604",
+          "mod": "2024-08-22T10:12:53.098",
+          "lines": [
+            0
+          ],
+          "text": "Currently, the cache toc looks like this:",
+          "uuid": "43098d57"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:13:10.257",
+      "mod": "2024-08-22T10:13:12.739",
+      "h": 161.707,
+      "ind": 3,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "1cf6b136",
+      "y0": 246.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:13:10.257",
+          "mod": "2024-08-22T10:13:12.739",
+          "lines": [
+            0,
+            21,
+            52,
+            76,
+            99,
+            121,
+            144,
+            169,
+            206
+          ],
+          "text": "create table cache (\n       id integer primary key,\n       version integer,\n       maxdim integer,\n       width integer,\n       height integer,\n       outdated integer,\n       dbno integer, -- 0 means file\n       unique(version, maxdim) on conflict replace );",
+          "uuid": "8b2b849d"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:13:25.435",
+      "mod": "2024-08-22T10:13:45.836",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "a98ea848",
+      "y0": 407.869,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:13:25.435",
+          "mod": "2024-08-22T10:13:45.836",
+          "lines": [
+            0
+          ],
+          "text": "Here maxdim is one of [128, 384, 1024], per",
+          "uuid": "cd9beade",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T10:13:27.885",
+              "mod": "2024-08-22T10:13:27.885",
+              "end": 11,
+              "start": 5,
+              "style": 1,
+              "uuid": "676507d8"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:13:52.070",
+      "mod": "2024-08-22T10:14:05.483",
+      "h": 108.247,
+      "ind": 3,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "c2c55121",
+      "y0": 435.035,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:13:52.070",
+          "mod": "2024-08-22T10:14:05.483",
+          "lines": [
+            0,
+            21,
+            68,
+            93,
+            132,
+            171
+          ],
+          "text": "create table sizes (\n       -- Maximum dimensions for cache objects\n       maxdim integer );\ninsert into sizes(maxdim) values(128);\ninsert into sizes(maxdim) values(384);\ninsert into sizes(maxdim) values(1024);",
+          "uuid": "66983b7e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:14:10.533",
+      "mod": "2024-08-22T10:15:52.536",
+      "h": 119.83,
+      "ind": 0,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "d10d55ca",
+      "y0": 543.282,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:14:10.533",
+          "mod": "2024-08-22T10:15:52.536",
+          "lines": [
+            0,
+            63,
+            126,
+            186,
+            251
+          ],
+          "text": "We keep up to three cache items for each version, at the given (max) sizes. Actual cache items may have either their width or their height smaller than the max. Tiny versions presumably may have both smaller. Images are stored as jpeg. If larger than 100k, in their own file, otherwise in one of the blobs dbs.",
+          "uuid": "e61c297e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:16:45.466",
+      "mod": "2024-08-22T10:19:51.656",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 1,
+      "split": [
+        23.166
+      ],
+      "uuid": "44693ac7",
+      "y0": 663.112,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:16:45.466",
+          "mod": "2024-08-22T10:19:51.656",
+          "lines": [
+            0,
+            52,
+            113,
+            176
+          ],
+          "text": "The outdated mechanism keeps track of items that no longer correspond to the current version. They will still be offered for display for a smoother user experience, but are in the process of being replaced by the “AC_Worker” threads.",
+          "uuid": "9a9b4ef8",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T10:16:47.769",
+              "mod": "2024-08-22T10:16:47.769",
+              "end": 12,
+              "start": 4,
+              "style": 1,
+              "uuid": "c67b8857"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:21:51.712",
+      "mod": "2024-08-22T10:22:55.317",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "89953f0a",
+      "y0": 145.498,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:21:51.712",
+          "mod": "2024-08-22T10:22:55.316",
+          "lines": [
+            0,
+            63,
+            123,
+            185
+          ],
+          "text": "The reason the current system is not as responsive as I’d like it to be, may be because AC_Worker::storeLoadedInDB() takes a global write lock on the cache db which prevents reading as well.",
+          "uuid": "3f4c47d5"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-22T10:27:38.047",
+      "mod": "2024-08-22T10:41:57.389",
+      "h": 166.162,
+      "ind": 1,
+      "sheet": 2,
+      "split": [ ],
+      "uuid": "73c7cbbc",
+      "y0": 242.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-22T10:27:38.047",
+          "mod": "2024-08-22T10:41:57.389",
+          "lines": [
+            0,
+            65,
+            126,
+            186,
+            249,
+            311,
+            373
+          ],
+          "text": "If I switch to SQLite WAL, I can get rid of all the read locking in the entire code base. That would help a lot. In practice, almost all locking is in a transaction. The only other lock attempts are in Adjustments. I am surprised there are no other lockForReading calls. Is that a bug? In particular, the cache does not seem to do read locking. No, it is wrong. There is a DBReadLock class that is used extensively.",
+          "uuid": "b7c98d26",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-22T10:27:51.698",
+              "mod": "2024-08-22T10:27:51.698",
+              "end": 47,
+              "start": 44,
+              "style": 1,
+              "uuid": "ff22eba5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

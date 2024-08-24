@@ -1,0 +1,151 @@
+{ "typ": "page",
+  "cre": "2024-08-23T07:50:50.542",
+  "mod": "2024-08-23T21:10:36.146",
+  "cui": "2edabb2b1502c998",
+  "stampTime": 0,
+  "startPage": 82,
+  "unlocked": false,
+  "uuid": "1a8ce66b",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2024-08-23T07:50:50.541",
+      "mod": "2024-08-23T07:57:30.876",
+      "uuid": "d01741c2",
+      "cc": [
+        { "typ": "res",
+          "cre": "2024-08-23T07:57:27.254",
+          "mod": "2024-08-23T07:57:30.876",
+          "archive": "www_openlogic_com_guide_key_value_databases-56ec9e67.html.pdf",
+          "desc": "",
+          "preview": "www_openlogic_com_guide_key_value_databases-56ec9e67p.png",
+          "source": "https://www.openlogic.com/blog/guide-key-value-databases",
+          "tag": "https://www.openlogic.com/blog/guide-key-value-databases",
+          "title": "",
+          "uuid": "56ec9e67"
+        }
+      ]
+    },
+    { "typ": "title",
+      "cre": "2024-08-23T07:50:51.256",
+      "mod": "2024-08-23T07:50:55.935",
+      "uuid": "07455298",
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-23T07:50:51.256",
+          "mod": "2024-08-23T07:50:55.935",
+          "lines": [
+            0
+          ],
+          "text": "Improving the Photohoard cache",
+          "uuid": "9a0beb58"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-23T07:50:57.009",
+      "mod": "2024-08-23T08:00:58.111",
+      "h": 166.162,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "9ebadf5e",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-23T07:50:57.009",
+          "mod": "2024-08-23T08:00:58.111",
+          "lines": [
+            0,
+            60,
+            119,
+            170,
+            232,
+            292,
+            349
+          ],
+          "text": "Right now, the Photohoard cache uses its own mechanism. I’d much rather use a standard key/value db. I found lmdb. Sam recommends redis which is based on memcached (both included in ubuntu). But those are primarily in-memory. It is not clear to me that they can live mainly on disk. However, https://www.openlogic.com/blog/guide-key-value-databases doesn’t even mention lmdb, which is clearly older.",
+          "uuid": "adf4195b",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-23T07:51:31.740",
+              "mod": "2024-08-23T07:51:31.741",
+              "end": 135,
+              "start": 130,
+              "style": 1,
+              "uuid": "b10f4509"
+            },
+            { "typ": "markup",
+              "cre": "2024-08-23T07:51:36.018",
+              "mod": "2024-08-23T07:51:36.018",
+              "end": 113,
+              "start": 109,
+              "style": 1,
+              "uuid": "ac032981"
+            },
+            { "typ": "markup",
+              "cre": "2024-08-23T07:51:42.087",
+              "mod": "2024-08-23T07:51:42.087",
+              "end": 163,
+              "start": 154,
+              "style": 1,
+              "uuid": "98b1ea6c"
+            },
+            { "typ": "markup",
+              "cre": "2024-08-23T07:57:27.254",
+              "mod": "2024-08-23T07:57:27.254",
+              "end": 348,
+              "res": [
+                "https://www.openlogic.com/blog/guide-key-value-databases"
+              ],
+              "start": 292,
+              "style": 4,
+              "uuid": "5ff88ac3"
+            },
+            { "typ": "markup",
+              "cre": "2024-08-23T07:57:30.668",
+              "mod": "2024-08-23T07:57:30.668",
+              "end": 369,
+              "start": 362,
+              "style": 1,
+              "uuid": "fc8b9729"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2024-08-23T07:50:57.009",
+      "mod": "2024-08-23T21:10:36.146",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "9ebadf5e",
+      "y0": 238.162,
+      "cc": [
+        { "typ": "text",
+          "cre": "2024-08-23T07:50:57.009",
+          "mod": "2024-08-23T21:10:36.146",
+          "lines": [
+            0,
+            60,
+            122,
+            188
+          ],
+          "text": "Of course, leveldb is the other obvious candidate. There is no .deb, but it can be included as a submodule because it has BSD license. Or rocksdb. There is a .deb for that, although it is several years old.",
+          "uuid": "adf4195b",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2024-08-23T08:01:02.402",
+              "mod": "2024-08-23T08:01:02.402",
+              "end": 18,
+              "start": 11,
+              "style": 1,
+              "uuid": "529ab337"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

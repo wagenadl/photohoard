@@ -47,6 +47,11 @@ void Database::open(QString filename) {
   db.setDatabaseName(filename);
   if (!db.open())
     CRASH("Could not open database " + filename);
+
+  QSqlQuery q(db);
+  q.prepare("PRAGMA journal_mode=WAL;");
+  if (!q.exec())
+    CRASH("No WALL support");
 }
 
 void Database::close() {
@@ -159,8 +164,8 @@ QSqlQuery Database::query(QString s) {
 }
 
 QSqlQuery Database::constQuery(QString s) const {
-  if (!(*locked))
-    pDebug() << "constQuery w/o lock" << s;
+  //if (!(*locked))
+  //    pDebug() << "constQuery w/o lock" << s;
   if (debugging())
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
@@ -400,6 +405,7 @@ Transaction::~Transaction() {
 
 
 void Database::lockForReading() const {
+  /*
   if (lock->tryLock(1000)) {
     if (*locked)
       pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();
@@ -417,6 +423,7 @@ void Database::lockForReading() const {
   *locked = QThread::currentThread();
   //pDebug() << "Locked for reading" << *locked;
   return;
+  */
 }
 
 void Database::lockForWriting() {
@@ -440,11 +447,13 @@ void Database::lockForWriting() {
 }
 
 void Database::unlockForReading() const {
+  /*
   // pDebug() << "unlock R" << *locked;
   if (!locked)
     pDebug() << "unlock R while not locked";
   *locked = 0;
   lock->unlock();
+  */
 }
 
 void Database::unlockForWriting() {
