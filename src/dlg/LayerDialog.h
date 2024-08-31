@@ -30,6 +30,7 @@ signals:
   void valuesChanged(int layer);
   /* VALUESCHANGED - Emitted when the user changes a slider on a layer
   */
+  void inSliders(bool);
 private slots:
   void addLinearLayer();
   void addShapeLayer();

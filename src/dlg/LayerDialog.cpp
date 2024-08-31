@@ -30,6 +30,8 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   Dialog::ensureSize(this);
   connect(sliders, SIGNAL(valuesChanged()),
 	  SLOT(changeFromSliders()));
+  connect(sliders, &ControlSliders::enterLeave,
+          this, &LayerDialog::inSliders);
 }
 
 void LayerDialog::setVersion(quint64 v) {

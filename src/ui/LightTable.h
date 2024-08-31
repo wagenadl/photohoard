@@ -46,6 +46,7 @@ public slots:
   void updateFilterAndDialog();
   void restoreSizes();
   void showHideLayers();
+  void suppressLayerOverlay(bool);
 signals:
   void needImage(quint64, QSize);
   void wantImage(quint64, QSize);

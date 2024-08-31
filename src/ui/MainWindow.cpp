@@ -106,6 +106,8 @@ MainWindow::MainWindow(SessionDB *db,
 	  adjuster, SLOT(reloadLayers(quint64, int)));
   connect(allControls, SIGNAL(layerSelected(quint64, int)),
 	  lighttable, SLOT(visualizeLayer(quint64, int)));
+  connect(allControls, &AllControls::inSliders,
+          [this](bool in) { qDebug() << "suppress" << in; lighttable->suppressLayerOverlay(in); });
 
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));

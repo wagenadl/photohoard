@@ -748,3 +748,7 @@ void LightTable::showHideLayers() {
   slide->showHideLayers();
 }
 
+void LightTable::suppressLayerOverlay(bool sup) {
+  slide->suppressLayerOverlay(sup);
+}
+

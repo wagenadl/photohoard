@@ -24,11 +24,14 @@ public:
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
   static double sliderValue(Adjustments const &vv, QString slider);
+  void enterEvent(QEvent *) override;
+  void leaveEvent(QEvent *) override;
 signals:
   void valuesChanged();
   /* VALUESCHANGED - Emitted when the user changes a slider
      Use GETALL() to get the new values.
   */
+  void enterLeave(bool);
 public slots:
   void setAll(Adjustments const &vv); // does not signal VALUECHANGED
   void setLayer(int); // enable or disable geometry group

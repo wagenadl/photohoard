@@ -25,6 +25,7 @@ SlideView::SlideView(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
   fit = true;
   zoom = 1;
   showlayers = true;
+  suplayers = false;
   vsnid = 0;
   makeActions();
 }
@@ -277,7 +278,15 @@ void SlideView::makeActions() {
 void SlideView::showHideLayers() {
   showlayers = !showlayers;
   visualizeLayer(futvsn, futlay);
-}  
+}
+
+void SlideView::suppressLayerOverlay(bool hide) {
+  if (suplayers != hide) {
+    suplayers = hide;
+    visualizeLayer(futvsn, futlay);
+  }
+}
+  
 
 void SlideView::keyPressEvent(QKeyEvent *e) {
   if (acts.activateIf(e)) {
@@ -492,24 +501,35 @@ void SlideView::needLargerImage() {
 }
 
 void SlideView::visualizeLayer(quint64 vsn, int lay) {
+  bool replace = futvsn != vsn || futlay != lay;
   futvsn = vsn;
   futlay = lay;
+
   if (vsn!=vsnid) {
-    //pDebug() << "SlideView::visualizeLayer: vsn mismatch" << vsn
-    //	     << "exp" << vsnid;
+    pDebug() << "SlideView::visualizeLayer: vsn mismatch" << vsn
+    	     << "exp" << vsnid;
     return;
   }
 
   SO_Layer *so = findOverlay<SO_Layer>(this);
   //  qDebug() << "old layer" << so;
-  if (so) 
+  if (so && replace) {
     delete so;
-
-  if (lay>0 && showlayers) {
-    so = new SO_Layer(db, this);
-    connect(so, &SO_Layer::layerMaskChanged,
-	    this, &SlideView::layerMaskChanged);
-    so->setLayer(vsn, lay);
+    so = 0;
+  }
+  
+  if (lay>0 && showlayers && !suplayers) {
+    if (so) {
+      so->show();
+    } else {
+      so = new SO_Layer(db, this);
+      connect(so, &SO_Layer::layerMaskChanged,
+              this, &SlideView::layerMaskChanged);
+      so->setLayer(vsn, lay);
+    }
+  } else {
+    if (so)
+      so->hide();
   }
   update();
 }

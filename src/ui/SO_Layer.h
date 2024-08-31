@@ -39,8 +39,6 @@ private:
   bool perhapsDeleteAreaPoint(QPoint pos, LayerGeomBase const &geom);
   bool perhapsDeleteInpaint(QPoint pos, LayerGeomBase const &geom);
   bool perhapsAddInpaint(QPoint pos, LayerGeomBase const &geom);
-  
-    
 private:
   PhotoDB *db;
   quint64 vsn;
