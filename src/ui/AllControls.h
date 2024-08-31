@@ -27,6 +27,7 @@ signals:
   */
   void maskChanged(quint64 vsn, int lowestaffected);
   void layerSelected(quint64 vsn, int layer); // zero for base
+  void inSliders(bool); // mouse in or out of slider widget
 public slots:
   void setVersion(quint64 vsn);
   /* SETVERSION - Sets all sliders and controls

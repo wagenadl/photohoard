@@ -319,3 +319,13 @@ void ControlSliders::setLayer(int l) {
   ControlGroup *recomp = groups["recompose"];
   recomp->setVisible(l==0);
 }
+
+void ControlSliders::enterEvent(QEvent *) {
+  qDebug() << "enter control sliders";
+  emit enterLeave(true);
+}
+
+void ControlSliders::leaveEvent(QEvent *) {
+  qDebug() << "leave control sliders";
+  emit enterLeave(false);
+}

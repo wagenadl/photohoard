@@ -4,6 +4,7 @@
 #include "PhotoDB.h"
 #include "PDebug.h"
 #include <QFileInfo>
+#include <QRegularExpression>
 
 ExportSettings::ExportSettings() {
   fileFormat = FileFormat::JPEG;
@@ -88,9 +89,20 @@ QString ExportSettings::exportFilename(PhotoDB *db, quint64 vsn) const {
     break;
   case ExportSettings::NamingScheme::DateTimeDSC: {
     ofn = prec.capturedate.toString("yyMMdd-hhmmss");
-    QRegExp dd("(\\d+)");
-    if (dd.indexIn(prec.filename)>=0)
-      ofn += "-" + dd.cap(1);
+    QRegularExpression dd("\\d+");
+    QStringList numbits;
+    int idx = 0;
+    while (true) {
+      QRegularExpressionMatch m = dd.match(prec.filename, idx);
+      if (m.hasMatch()) {
+        numbits << m.captured();
+        idx = m.capturedEnd();
+      } else {
+        break;
+      }
+    }
+    if (numbits.size() == 1)
+      ofn += "-" + numbits[0];
     else
       ofn += "_" + QString::number(vsn);
   } break;

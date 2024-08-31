@@ -37,6 +37,8 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
 	  SLOT(valueChangeFromLayers(int)));
   connect(this, SIGNAL(currentChanged(int)),
 	  SLOT(changeOfTabIndex()));
+  connect(layers, &LayerDialog::inSliders,
+          this, &AllControls::inSliders);
 }
 
 AllControls::~AllControls() {

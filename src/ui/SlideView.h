@@ -87,6 +87,7 @@ public slots:
    */
   void showHideLayers();
   void visualizeLayer(quint64 vsn, int lay);
+  void suppressLayerOverlay(bool hide);
 signals:
   void needImage(quint64 vsn, QSize desired);
   /* NEEDIMAGE - Emitted if a larger image is required
@@ -142,6 +143,7 @@ private:
   quint64 futvsn;
   int futlay;
   bool showlayers;
+  bool suplayers;
 private slots:
   void setCMSImage(quint64, Image16);
 };
