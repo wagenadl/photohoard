@@ -7,7 +7,7 @@
 
 InterruptableReader::InterruptableReader(QObject *parent):
   QThread(parent) {
-  pDebug() << "InterruptableReader" << this;
+  // pDebug() << "InterruptableReader" << this;
   qRegisterMetaType<InterruptableReader::Result>("InterruptableReader::Result");
   running = false;
   canceling = false;
@@ -36,7 +36,7 @@ void InterruptableReader::stop() {
 }
 
 void InterruptableReader::request(QString fn, QSize request, QSize original) {
-  // pDebug() << "IR::request" << fn << request << original << running; 
+  //  pDebug() << "IR::request" << fn << request << original << running; 
   QMutexLocker l(&mutex);  
   if (current==fn && cSize==request) {
     // pDebug() << "Same request again" << canceling;
@@ -224,7 +224,7 @@ void InterruptableReader::lComplete() {
   }
 
   mutex.unlock();
-  //  pDebug() << "IR::lC will load";
+  //  pDebug() << "IR::lC will load" << res.data.size();
   res.image = Image16::loadFromMemory(res.data);
   //  pDebug() << "IR::LC loaded";
   res.data.clear();

@@ -66,7 +66,7 @@ Image16::Image16(uchar const *data, int width, int height, int bytesPerLine,
 }
 
 Image16 &Image16::operator=(Image16 const &image) {
-  qDebug() << "image::operator=" << d << image.d;
+  //qDebug() << "image::operator=" << d << image.d;
   d = image.d;
   return *this;
 }
@@ -450,13 +450,19 @@ Image16 Image16::loadFromFile(QString const &fn) {
 }
 
 Image16 Image16::loadFromMemory(QByteArray const &ar) {
-  PPM16 ppm(ar);
-  if (!ppm.ok())
-    return Image16(QImage::fromData(ar));
+  PPM16 ppm(ar); // this is a very quick test
+  //  qDebug() << "load from memory";
+  if (ppm.ok()) {
+    Image16 res;
+    res.d = new Image16Data(ppm.data(), Format::XYZ16);
+    //qDebug() << "ar ok -> " << res.size();
+    return res;
+  } else {
+    Image16 res(QImage::fromData(ar));
+    //qDebug() << "ar not ok -> " << res.size();
+    return res;
+  }
 
-  Image16 res;
-  res.d = new Image16Data(ppm.data(), Format::XYZ16);
-  return res;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -466,7 +472,7 @@ Image16Data::Image16Data(int w, int h,
   image(format==Image16Base::Format::sRGB8 ? w : 3*w, h,
         format==Image16Base::Format::sRGB8 ? QImage::Format_RGB32
         : QImage::Format_RGB16), roibyteoffset(0) {
-  qDebug() << "image16data(-)" << this;
+  //qDebug() << "image16data(-)" << this;
   bytesperline = image.bytesPerLine();
 }
 
@@ -479,7 +485,7 @@ Image16Data::Image16Data(QImage const &img,
         ? img.convertToFormat(QImage::Format_RGB32)
         : img),
   roibyteoffset(0) {
-  qDebug() << "image16data(img)" << this;
+  //  qDebug() << "image16data(img)" << this;
   bytesperline = image.bytesPerLine();
   if (f!=Image16Base::Format::sRGB8)
     width = img.width()/3;
@@ -487,7 +493,7 @@ Image16Data::Image16Data(QImage const &img,
 
 
 Image16Data::~Image16Data() {
-  qDebug() << "~image16data" << this ;
+  //  qDebug() << "~image16data" << this ;
 }
 
 void Image16::alphablend(Image16 ontop, QImage mask) {

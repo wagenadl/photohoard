@@ -457,10 +457,11 @@ void Scanner::scanPhoto(quint64 id) {
   }
 
   QDateTime captureDate =  exif.dateTime();
-  if (!captureDate.isValid()) {
+  if (!captureDate.isValid() || captureDate.date().year() == 1980) {
     // use file datestamp instead
     QFileInfo fileInfo(pathname);
     captureDate = fileInfo.lastModified();
+    captureDate.setTime(QTime()); // set to midnight to mark trouble
   }    
 
   // Find camera, possibly creating new record

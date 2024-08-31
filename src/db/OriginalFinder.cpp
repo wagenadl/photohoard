@@ -91,7 +91,7 @@ void OriginalFinder::fixOrientation(Image16 &img) {
 }  
 
 void OriginalFinder::provide(QString fn, InterruptableReader::Result res) {
-  // pDebug() << "OF::provide" << fn << res.ok << res.error;
+  //  pDebug() << "OF::provide" << fn << res.ok << res.error << res.image.size;
   if (fn!=filepath)
     return;
   if (!res.ok) {
