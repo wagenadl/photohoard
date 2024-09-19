@@ -418,7 +418,9 @@ int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
   return simpleQuery("select count(*) from filter"
                      " inner join photos on filter.photo==photos.id"
                      " where photos.capturedate>=:a"
-                     " and photos.capturedate<:b", t0, t1).toInt();
+                     " and photos.capturedate<:b",
+                     t0.toString(Qt::ISODate),
+                     t1.toString(Qt::ISODate)).toInt();
 }
 
 QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
@@ -427,7 +429,9 @@ QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and capturedate<:b"
                            " order by capturedate, photos.filename"
-                           " limit 1", t0, t1);
+                           " limit 1",
+                           t0.toString(Qt::ISODate),
+                           t1.toString(Qt::ISODate));
   if (q.next())
     return q.value(0).toDateTime();
   else
@@ -440,7 +444,9 @@ QDateTime PhotoDB::lastDateInRange(QDateTime t0, QDateTime t1) const {
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and photos.capturedate<:b"
                            " order by capturedate, photos.filename desc"
-                           " limit 1", t0, t1);
+                           " limit 1",
+                           t0.toString(Qt::ISODate),
+                           t1.toString(Qt::ISODate));
   if (q.next())
     return q.value(0).toDateTime();
   else
@@ -455,7 +461,8 @@ QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
                            " where photos.capturedate>=:a"
                            " and photos.capturedate<:b"
                            " order by photos.capturedate, photos.filename",
-                           t0, t1);
+                           t0.toString(Qt::ISODate),
+                           t1.toString(Qt::ISODate));
   QList<quint64> vv;
   while (q.next())
     vv << q.value(0).toULongLong();

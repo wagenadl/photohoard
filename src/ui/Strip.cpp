@@ -363,18 +363,28 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
       quint64 v = 0;
       { DBReadLock lock(db);
         QSqlQuery q = db->constQuery("select version"
-                                " from filter inner join photos"
-                                " on filter.photo=photos.id"
-                                " where photos.capturedate>=:a"
-                                " and photos.capturedate<:b"
-                                " limit 1", d0, endFor(d0, scl));
+                                     " from filter inner join photos"
+                                     " on filter.photo=photos.id"
+                                     " where photos.capturedate>=:a"
+                                     " and photos.capturedate<:b"
+                                     " limit 1", d0.toString(Qt::ISODate),
+                                     endFor(d0, scl).toString(Qt::ISODate));
         if (q.next())
           v = q.value(0).toULongLong();
       }
-      if (v)
+      if (v) {
         setHeaderID(v);
-        else 
-          COMPLAIN("Could not find header image");
+      } else {
+        COMPLAIN("Could not find header image");
+        qDebug() << "limits are" << d0 << endFor(d0, scl);
+        { DBReadLock lock(db);
+          QSqlQuery q = db->constQuery("select :a, :b",
+                                       d0.toString(Qt::ISODate),
+                                       endFor(d0, scl).toString(Qt::ISODate));
+          if (q.next()) 
+            qDebug() << q.value(0).toString() << q.value(1).toString();
+        }
+      }
     } break;
     case Organization::ByFolder:
       setHeaderID(db->firstVersionInTree(pathname));
