@@ -17,7 +17,7 @@ void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
   db->query("insert into selection select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b",
-           start, inclusiveend);
+           start.toString(Qt::ISODate), inclusiveend.toString(Qt::ISODate));
 }
 
 void Selection::addDateRange(QDateTime start, Strip::TimeScale scl) {
@@ -29,7 +29,7 @@ void Selection::dropDateRange(QDateTime start, QDateTime inclusiveend) {
   db->query("delete from selection where version in (select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<=:b)",
-           start, inclusiveend);
+            start.toString(Qt::ISODate), inclusiveend.toString(Qt::ISODate));
 }
 
 void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
@@ -77,7 +77,7 @@ void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate<=:b",
-           folder, endAt);
+           folder, endAt.toString(Qt::ISODate));
 }
 
 void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
@@ -85,7 +85,7 @@ void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate>=:b",
-           folder, startAt);
+           folder, startAt.toString(Qt::ISODate));
 }
 
 void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
@@ -105,7 +105,9 @@ int Selection::countInDateRange(QDateTime t0, QDateTime t1) const {
                         " on selection.version==filter.version"
                         " inner join photos on filter.photo==photos.id"
                         " where photos.capturedate>=:a"
-                        " and photos.capturedate<:b", t0, t1).toInt();
+                        " and photos.capturedate<:b",
+                         t0.toString(Qt::ISODate),
+                         t1.toString(Qt::ISODate)).toInt();
 }
 
 int Selection::countInFolder(QString folder) const {
