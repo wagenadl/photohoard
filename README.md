@@ -1,4 +1,4 @@
-![Photohoard](https://github.com/wagenadl/photohoard/blob/main/docs/source/banner.svg)
+<img alt="Photohoard" src=https://github.com/wagenadl/photohoard/blob/main/docs/source/banner.svg width="100%">
 
 # Photohoard - Photography Collection Management
 
