@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   app.setFont(ScreenResolution::defaultFont());
 
   QCommandLineOption cli_db("db", "Specify database to use",
-                            "file.photohoardDB");
+                            "file.photohoard");
   QCommandLineOption cli_icc("icc", "Specify ICC color profile",
                              "file.icc");
   QCommandLineOption cli_new("new", "Create new database");

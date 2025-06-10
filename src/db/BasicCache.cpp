@@ -31,7 +31,7 @@ void BasicCache::open(QString rootdir) {
     close();
   
   root.setPath(rootdir);
-  db.open(rootdir + ".db");
+  db.open(rootdir + "/cache.db");
   readConfig();
   { DBWriteLock lock(&db);
     db.query("pragma synchronous = 0");
