@@ -69,7 +69,8 @@ QString SessionDB::sessionFilename() const {
 void SessionDB::open(QString photodbfn, bool forcereadonly) {
   photodbfn = QFileInfo(photodbfn).canonicalFilePath();
   sessiondbfn = FileLocations::sessionFileForDB(photodbfn);
-  
+  qDebug() << "photodbfn"<<photodbfn;
+  qDebug() << "sessiondbfn"<<sessiondbfn;
   if (!sessionExists(photodbfn))
     CRASH("Cannot open nonexistent session");
   Database::open(sessiondbfn);
@@ -80,7 +81,11 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   }
 
   QString codedfn = photoDBFilename();
-  if (codedfn != photodbfn) {
+  if (codedfn == "")
+    codedfn = photodbfn;
+  if (codedfn != photodbfn && codedfn.replace(".db", ".photohoard") != photodbfn) {
+    qDebug() << "coded" << codedfn << codedfn.replace(".db", ".photohoard");
+    qDebug() << "photodbfn" << photodbfn;
     CRASH("Session appears to be meant for different database");
   }
   
