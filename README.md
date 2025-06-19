@@ -1,5 +1,4 @@
-<img src="/home/wagenaar/progs/photohoard/photohoard/docs/source/banner.svg"
-     width="100%">
+<img alt="Photohoard" src=https://github.com/wagenadl/photohoard/blob/main/docs/source/banner.svg width="100%">
 
 # Photohoard - Photography Collection Management
 
