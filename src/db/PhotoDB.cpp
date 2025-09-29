@@ -722,3 +722,7 @@ void PhotoDB::upgradeDBVersion() {
     t.commit();
   }
 }
+
+void PhotoDB::markAllSeen() {
+  query("update versions set acceptreject=0 where acceptreject==2");
+}

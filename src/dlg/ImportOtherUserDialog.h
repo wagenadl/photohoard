@@ -28,7 +28,7 @@ public:
 protected:
   virtual void keyPressEvent(QKeyEvent *);
 private slots:
-  void updateCounts(int ntotal, int nmov);
+  void updateCounts(int ntotal, int nmov, bool complete);
   void changeCollection(QString);
   void browseDestination();
 private:

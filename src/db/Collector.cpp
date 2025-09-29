@@ -67,20 +67,24 @@ void Collector::run() {
     if (url.isLocalFile()) {
       QFileInfo fi(url.path());
       qDebug() << "Collector: " << fi.absoluteFilePath();
-      if (fi.isDir())
+      QString sfx = fi.suffix().toLower();
+      if (fi.isDir()) {
         sourceDirs << url.path();
-      else if (imgext.contains(fi.suffix().toLower()))
+      } else if (imgext.contains(sfx)) {
         imgFiles << fi.absoluteFilePath();
-      else if (movext.contains(fi.suffix().toLower()))
+        updateDates(fi.lastModified());
+      } else if (movext.contains(sfx)) {
         movFiles << fi.absoluteFilePath();
-      else
+      } else {
         qDebug() << "Collector: Ignoring unknown filetype" << fi.suffix();
+      }
     } else {
       qDebug() << "Collector: Ignoring non-local" << url.toString();
     }
   }
   cnt = imgFiles.size() + movFiles.size();
-  emit progress(cnt, movFiles.size());
+  complete_ = sourceDirs.isEmpty();
+  emit progress(cnt, movFiles.size(), complete_);
 
   while (!sourceDirs.isEmpty()) {
     if (cancel_) {
@@ -90,19 +94,23 @@ void Collector::run() {
     QDir dir(sourceDirs.takeFirst());
     for (QFileInfo const &fi: dir.entryInfoList(QDir::Dirs | QDir::Files
                                                 | QDir::NoDotAndDotDot)) {
-      if (fi.isDir())
+      QString sfx = fi.suffix().toLower();
+      if (fi.isDir()) {
         sourceDirs << fi.absoluteFilePath();
-      else if (Extensions::imageExtensions().contains(fi.suffix().toLower()))
+      } else if (Extensions::imageExtensions().contains(sfx)) {
         imgFiles << fi.absoluteFilePath();
-      else if (Extensions::movieExtensions().contains(fi.suffix().toLower()))
+        updateDates(fi.lastModified());
+      } else if (Extensions::movieExtensions().contains(sfx)) {
         movFiles << fi.absoluteFilePath();
+      }
     }
     movcnt = movFiles.size();
     cnt = imgFiles.size() + movcnt;
-    emit progress(cnt, movcnt);
+    complete_ = sourceDirs.isEmpty();
+    emit progress(cnt, movcnt, complete_);
   }
 
-  complete_ = true;
+  qDebug() << "collector complete";
   emit complete();
 }
 
@@ -113,3 +121,21 @@ int Collector::preliminaryCount() const {
 int Collector::preliminaryMovieCount() const {
   return movcnt;
 }
+
+void Collector::updateDates(QDateTime dt) {
+  if (imgFiles.size() <= 1) 
+    dt0 = dt1 = dt;
+  else if (dt < dt0) 
+    dt0 = dt;
+  else if (dt > dt1)
+    dt1 = dt;
+}
+
+QDateTime Collector::firstDate() const {
+  return dt0;
+}
+
+QDateTime Collector::lastDate() const {
+  return dt1;
+}
+
