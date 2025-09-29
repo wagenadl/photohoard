@@ -361,7 +361,6 @@ void MainWindow::showRedate() {
                                        QList<quint64>(cursel.begin(),
                                                       cursel.end()),
                                        key,
-                                       false,
                                        this);
   connect(dlg, &RedateDialog::applied,
           this, [this]() { metaViewer->setVersion(db->current()); });

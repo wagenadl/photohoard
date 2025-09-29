@@ -10,7 +10,6 @@ QString nicedate(QDateTime dt) {
 
 RedateDialog::RedateDialog(class PhotoDB *db,
                            QList<quint64> versions, quint64 keyvsn,
-                           bool isimport,
                            QWidget *parent):
   QDialog(parent), db(db) {
   ui = new Ui_RedateDialog;
@@ -38,35 +37,19 @@ RedateDialog::RedateDialog(class PhotoDB *db,
     else if (dt > dtlast)
       dtlast = dt;
   }
-  ui->select1->hide();
-  ui->select2->hide();
-  ui->import1->hide();
-  ui->import2->hide();
   if (photos.size() > 1) {
     // multiple photos in selection
-    if (isimport) {
-      ui->import2->show();
-      ui->import2->setText(ui->import2->text()
-                           .arg(nicedate(dtfirst)).arg(nicedate(dtlast)));
-    } else {
-      ui->select2->show();
-      ui->select2->setText(ui->select2->text()
-                           .arg(nicedate(dtfirst)).arg(nicedate(dtlast)));
-    }
+    ui->select1->hide();
+    ui->select2->setText(ui->select2->text()
+                         .arg(nicedate(dtfirst)).arg(nicedate(dtlast)));
     ui->particular->show();
     ui->particular->setText(ui->particular->text()
                             .arg(fn).arg(nicedate(dtkey)));
   } else {
     // single photo
-    if (isimport) {
-      ui->import1->show();
-      ui->import1->setText(ui->import1->text()
-                           .arg(fn).arg(nicedate(dtkey)));
-    } else {
-        ui->select1->show();
-        ui->select1->setText(ui->select1->text()
-                                .arg(fn).arg(nicedate(dtkey)));
-    }
+    ui->select2->hide();
+    ui->select1->setText(ui->select1->text()
+                         .arg(fn).arg(nicedate(dtkey)));
     ui->particular->hide();
     ui->othernote->hide();
   }
