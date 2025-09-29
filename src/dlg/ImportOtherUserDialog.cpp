@@ -65,9 +65,9 @@ QString ImportOtherUserDialog::collection() const {
 }
 
 void ImportOtherUserDialog::changeCollection(QString coll) {
-  job->setCollection(coll);
-  job->setAutoDestination();
-  ui->destination->setText(job->destination());
+  //  job->setCollection(coll);
+  //  job->setAutoDestination();
+  //  ui->destination->setText(job->destination());
 }
 
 void ImportOtherUserDialog::updateCounts(int ntotal, int nmov) {
