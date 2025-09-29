@@ -115,9 +115,6 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
         " ( version integer, "
         "   photo integer )");
   query("create index if not exists M.photoidx on filter(photo)");
-  
-  query("create table if not exists M.selection"
-        " ( version integer unique on conflict ignore )");
 }
   
 
@@ -185,25 +182,9 @@ QVariant SessionDB::sessionDBInfo(SessionDB::SInfoID id) const {
 void SessionDB::upgradeDBVersion() {
   bool modern = simpleQuery("select count(1) from sinfo where id==:a",
                             infoIDName(SInfoID::Photohoard)).toInt() > 0;
-  if (modern)
-    return; /* In the future, we may have to check for version, but for now,
-               the only "modern" version in existence is 1.4. */
-
-  /* We have an old style SINFO table. */
-
-  QString sdbvsn = simpleQuery("select version from sinfo where id==:a",
-                               "PhotohoardSessionDB").toString();
-  
-  // update to version 1.3 if needed
-  if (sdbvsn < "1.3") {
+  if (!modern) {
+    // upgrade to modern style sinfo table
     Transaction t(this);
-    query("alter table sinfo add column runningpid integer");
-    query("update sinfo set version='1.3' where id=='PhotohoardSessionDB'");
-    t.commit();
-  }
-
-  // upgrade to modern style sinfo table
-  { Transaction t(this);
     QVariant runningpid = simpleQuery("select runningpid from sinfo"
                                       " where id=='PhotohoardSessionDB'");
     query("drop table sinfo");
@@ -213,12 +194,19 @@ void SessionDB::upgradeDBVersion() {
     query("insert into sinfo(id, val) values(:a, :b)",
           infoIDName(SInfoID::Photohoard), PHOTOHOARD_VERSION);
     query("insert into sinfo(id, val) values(:a, :b)",
-          infoIDName(SInfoID::SessionDBVersion), "1.4");
+          infoIDName(SInfoID::SessionDBVersion), "1.5");
     query("insert into sinfo(id, val) values(:a, :b)",
           infoIDName(SInfoID::RunningPID), runningpid);
     t.commit();
   }
-    
+
+  QString myvsn = simpleQuery("select val from sinfo where id==:a",
+                              infoIDName(SInfoID::SessionDBVersion)).toString();
+  if (myvsn < "1.5") {
+    query("create table selection (version integer unique on conflict ignore)");
+    query("update sinfo set val=:a where id=:b",
+          "1.5", infoIDName(SInfoID::SessionDBVersion));
+  }
 }
 
 void SessionDB::storePid(quint64 pid) {

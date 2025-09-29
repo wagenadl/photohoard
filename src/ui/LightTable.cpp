@@ -258,10 +258,7 @@ void LightTable::toggleSelection(quint64 i) {
       updateSlide(i);
   } else {
     selection->add(i);
-    if (db->current()==0)
-      makeCurrent(i);
-    else
-      updateSlide(i);
+    makeCurrent(i);
   }
   emit newSelection();
 }
@@ -272,10 +269,10 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   // Also, this should work differently for folder-tree organization
 
   quint64 cur = db->current();
-  if (cur==0) {
-    makeCurrent(i);
+  makeCurrent(i);
+  if (cur==0) 
     cur = i;
-  }
+
   
   switch (strips->organization()) {
   case Strip::Organization::ByDate: {
@@ -344,6 +341,7 @@ void LightTable::simpleSelection(quint64 i, bool keep) {
 
 void LightTable::makeCurrent(quint64 i) {
   quint64 oldcur = db->current();
+  qDebug() << "makecurrent" << i << oldcur;
   if (i==oldcur)
     return;
 

@@ -335,6 +335,9 @@ void MainWindow::makeMenu() {
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_O, "&Open other database…",
              [this]() { openOther(); }});
   menu->addSeparator();
+  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_D, "&Redate selected…",
+             [this]() { showRedate(); }});
+  menu->addSeparator();
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_B, "Database &info…",
              [this]() { databaseInfo(); }});
   add(Action{0, "&About Photohoard…",
@@ -343,6 +346,11 @@ void MainWindow::makeMenu() {
              [this]() { showShortcutHelp(); }});
   add(Action{Qt::CTRL + Qt::Key_Q, "&Quit",
              []() { QApplication::quit(); }});
+}
+
+void MainWindow::showRedate() {
+  //  RedateDialog *dlg = new RedateDialog(db, QList<quint64>(), this);
+  //  dlg->open();
 }
 
 void MainWindow::showAbout() {

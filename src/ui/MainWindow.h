@@ -23,6 +23,7 @@ public slots:
   void updateImage(quint64 vsn, Image16 img, quint64 chgid, QSize fullsize);
   void showShortcutHelp();
   void setStatusMessage(QString msg);
+  void showRedate();
   void showAbout();
   void databaseInfo();
   void newDatabase();
