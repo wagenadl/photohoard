@@ -13,6 +13,7 @@
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "Session.h"
+#include "RedateDialog.h"
 #include "AutoCache.h"
 #include "SessionDB.h"
 #include "AllControls.h"
@@ -349,8 +350,22 @@ void MainWindow::makeMenu() {
 }
 
 void MainWindow::showRedate() {
-  //  RedateDialog *dlg = new RedateDialog(db, QList<quint64>(), this);
-  //  dlg->open();
+  Selection selection(db);
+  QSet<quint64> cursel = selection.current();
+  if (cursel.size() == 0)
+    return;
+  quint64 key = db->current();
+  if (key <= 0)
+    key = *cursel.begin();
+  RedateDialog *dlg = new RedateDialog(db,
+                                       QList<quint64>(cursel.begin(),
+                                                      cursel.end()),
+                                       key,
+                                       false,
+                                       this);
+  connect(dlg, &RedateDialog::applied,
+          this, [this]() { metaViewer->setVersion(db->current()); });
+  dlg->open();
 }
 
 void MainWindow::showAbout() {
