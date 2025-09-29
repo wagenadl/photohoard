@@ -41,6 +41,7 @@ void ImportJob::countSources() {
 void ImportJob::setAutoCollection() {
   Filter filter(db);
   filter.loadFromDb();
+  qDebug() << "setautocollection" << filter.hasCollection() << filter.collection() << db->sessionDBInfo(SessionDB::SInfoID::LastImportCollection).toString();
   if (filter.hasCollection()) {
     coll = filter.collection();
   } else {
@@ -52,7 +53,6 @@ void ImportJob::setAutoCollection() {
         coll = collections[0];
     }
   }
-  db->setSessionDBInfo(SessionDB::SInfoID::LastImportCollection, coll);
   if (autodest)
     setAutoDestination();
 }
@@ -135,6 +135,7 @@ int ImportJob::sourceCount() {
 }  
 
 void ImportJob::authorize() {
+  db->setSessionDBInfo(SessionDB::SInfoID::LastImportCollection, coll);
   authorized_ = true;
   switch (op) {
   case Operation::Import:

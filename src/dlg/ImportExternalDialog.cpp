@@ -53,7 +53,8 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
     ui->collection->addItem(s);
   QString coll = job->collection();  
   int idx = ui->collection->findText(coll);
-  if (idx>=0)
+  qDebug() << "importexternal" << coll << idx << collections;
+  if (idx >= 0)
     ui->collection->setCurrentIndex(idx);
 
   ui->destination->setText(SourceInfo::simplified(job->destination()));
@@ -112,9 +113,9 @@ CopyIn::SourceDisposition ImportExternalDialog::sourceDisposition() const {
 }
 
 void ImportExternalDialog::changeCollection(QString coll) {
-  job->setCollection(coll);
-  job->setAutoDestination();
-  ui->destination->setText(job->destination());
+  //  job->setCollection(coll);
+  //  job->setAutoDestination();
+  //  ui->destination->setText(job->destination());
 }  
 
 void ImportExternalDialog::updateCounts(int ntotal, int nmov) {
