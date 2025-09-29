@@ -27,7 +27,7 @@ signals:
   void progress(int n); // for copying
   void complete(QString errmsg); // could split into photos and movies
   void canceled();
-  void countsUpdated(int ntotal, int nmov);
+  void countsUpdated(int ntotal, int nmov, bool complete);
 public slots:
   void setOperation(Operation);
   void setDestination(QString);
@@ -48,14 +48,13 @@ public:
   CopyIn::SourceDisposition sourceDisposition() const { return srcdisp; }
   QString collection() const { return coll; }
   bool isAuthorized() const { return authorized_; }
-  bool isComplete() const { return complete_; }
   QString backupPath() const;
 public:
   QList<QUrl> statedSources() const;
   bool isAnySourceNonlocal() const;
   bool hasSourceCount() const;
-  int sourceCount(); // -1 if not available; will wait if needed
   int preliminarySourceCount() const;
+  QDateTime mostRecentDate() const;
 public:
   class SessionDB *database() const { return db; }
   class Scanner *scanner() const { return scanner_; }
@@ -87,7 +86,6 @@ private:
   CopyIn::SourceDisposition srcdisp;
   QString coll;
   bool authorized_;
-  bool complete_;
 };
 
 #endif

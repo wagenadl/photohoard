@@ -19,7 +19,6 @@ ImportJob::ImportJob(class SessionDB *db,
   autodest = true;
   srcdisp = CopyIn::SourceDisposition::Leave;
   authorized_ = false;
-  complete_ = false;
 }
 
 ImportJob::~ImportJob() {
@@ -32,8 +31,8 @@ void ImportJob::countSources() {
     return;
   
   collector = new Collector(this);
-  connect(collector, SIGNAL(progress(int,int)),
-          SIGNAL(countsUpdated(int,int)));
+  connect(collector, SIGNAL(progress(int,int,bool)),
+          SIGNAL(countsUpdated(int,int,bool)));
   connect(collector, SIGNAL(complete()), SLOT(markFinalSourceCount()));
   collector->collect(srcinfo.sources());
 }
@@ -126,13 +125,6 @@ bool ImportJob::hasSourceCount() const {
   return collector && collector->isComplete();
 }
 
-int ImportJob::sourceCount() {
-  if (!collector)
-    countSources();
-  if (!hasSourceCount())
-    collector->wait();
-  return collector->imageFiles().size() + collector->movieFiles().size();
-}  
 
 void ImportJob::authorize() {
   db->setSessionDBInfo(SessionDB::SInfoID::LastImportCollection, coll);
@@ -220,3 +212,8 @@ SourceInfo const &ImportJob::sourceInfo() const {
   return srcinfo;
 }
 
+QDateTime ImportJob::mostRecentDate() const {
+  if (collector && collector->preliminaryCount())
+    return collector->lastDate();
+  return QDateTime::currentDateTime(); // hmmm.
+}

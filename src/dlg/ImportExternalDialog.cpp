@@ -12,13 +12,18 @@
 
 static QString const noneLabel = "(none)";
 
+#define OLDTEXT "two years"
+#define OLDDAYS (2*365)
+
 ImportExternalDialog::ImportExternalDialog(ImportJob *job,
                                            QStringList collections,
                                            QWidget *parent):
   QWidget(parent), job(job) {
   ui = new Ui_ImportExternalDialog;
   ui->setupUi(this);
-
+  ui->oldwarning->hide();
+  ui->oldwarning->setText(ui->oldwarning->text().arg(OLDTEXT));
+                          
   if (job->sourceInfo().isTemporaryLike()) {
     ui->disposition->removeItem(1);
     ui->source->setText("Temporary location: ");
@@ -45,7 +50,8 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 
-  connect(job, SIGNAL(countsUpdated(int,int)), SLOT(updateCounts(int,int)));
+  connect(job, &ImportJob::countsUpdated,
+          this, &ImportExternalDialog::updateCounts);
 
   ui->collection->clear();
   ui->collection->addItem(noneLabel);
@@ -70,7 +76,7 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
     ui->disposition->setCurrentIndex(bkremoved ? 1 : 2);
     break;
   }
-  resize(minimumSizeHint());
+  resize(sizeHint());
 }
 
 ImportExternalDialog::~ImportExternalDialog() {
@@ -118,7 +124,7 @@ void ImportExternalDialog::changeCollection(QString coll) {
   //  ui->destination->setText(job->destination());
 }  
 
-void ImportExternalDialog::updateCounts(int ntotal, int nmov) {
+void ImportExternalDialog::updateCounts(int ntotal, int nmov, bool complete) {
   int nimg = ntotal - nmov;
   if (nimg==1) 
     ui->what->setText(what.arg("one").arg(""));
@@ -130,6 +136,10 @@ void ImportExternalDialog::updateCounts(int ntotal, int nmov) {
     ui->copyMovies->setText(movieWhat.arg(nmov).arg("s"));
   if (nmov)
     ui->movieContainer->show();
+  if (complete
+      && job->mostRecentDate().daysTo(QDateTime::currentDateTime()) > OLDDAYS) 
+    ui->oldwarning->show();
+  resize(sizeHint());
 }
 
 void ImportExternalDialog::browseDestination() {
