@@ -35,7 +35,10 @@ create table expanded (
 create table expandedfolders (
        path string,
        unique(path) on conflict ignore);
+
+create table selection (
+       version integer unique on conflict ignore);
        
-insert into sinfo(id, val) values("sessiondb", "1.4");
+insert into sinfo(id, val) values("sessiondb", "1.5");
 
 insert into currentvsn values(null);

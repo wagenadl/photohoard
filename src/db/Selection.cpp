@@ -56,8 +56,8 @@ void Selection::selectAll() {
 bool Selection::contains(quint64 vsn) {
   DBReadLock lock(db);
   return db->simpleQuery("select count(*) from selection "
-                        " where version==:v limit 1",
-                        vsn).toInt() > 0;
+                        " where version==:a limit 1",
+                            vsn).toInt() > 0;
 }
 
 int Selection::count() {
