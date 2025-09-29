@@ -13,7 +13,6 @@ class RedateDialog: public QDialog {
 public:
   RedateDialog(class PhotoDB *db,
                QList<quint64> versions, quint64 keyvsn,
-               bool isimport,
                QWidget *parent=0);
   virtual ~RedateDialog();
 public slots:
