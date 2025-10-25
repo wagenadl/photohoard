@@ -19,7 +19,7 @@ MetaViewer::MetaViewer(SessionDB *db, QWidget *parent):
 }
 
 void MetaViewer::setVersion(quint64 version) {
-  if (version==0) {
+  if (version<=0) {
     document()->setHtml("");
     setEnabled(false);
     return;

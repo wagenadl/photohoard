@@ -24,7 +24,7 @@ namespace FileLocations {
   }
 
   QString defaultDBFile() {
-    return dataRoot() + "/default.db";
+    return dataRoot() + "/default.photohoard";
   }
 
   QString defaultImageRoot() {

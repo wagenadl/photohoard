@@ -4,6 +4,7 @@
 #include "Slide.h"
 #include "Strip.h"
 #include <QGraphicsSceneMouseEvent>
+#include <QDebug>
 
 StripScene::StripScene(PhotoDB *db, QObject *parent):
   QGraphicsScene(parent), db(db) {

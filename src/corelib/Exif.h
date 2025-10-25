@@ -44,7 +44,7 @@ private:
   static class NikonLenses const &nikonLenses();
   static class CanonLenses const &canonLenses();
 private:
-  Exiv2::Image::AutoPtr image;
+  Exiv2::Image::UniquePtr image;
 };
 
 #endif

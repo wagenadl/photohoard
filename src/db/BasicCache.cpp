@@ -31,7 +31,7 @@ void BasicCache::open(QString rootdir) {
     close();
   
   root.setPath(rootdir);
-  db.open(rootdir + ".db");
+  db.open(rootdir + "/cache.db");
   readConfig();
   { DBWriteLock lock(&db);
     db.query("pragma synchronous = 0");
@@ -44,6 +44,7 @@ void BasicCache::open(QString rootdir) {
   options.OptimizeLevelStyleCompaction();
   // create the DB if it's not already present
   options.create_if_missing = true;
+  options.keep_log_file_num = 10;
 
   // open DB
   RocksDB *rdb1 = new RocksDB;

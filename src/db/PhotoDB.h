@@ -127,6 +127,7 @@ public: // manipulating the database
   /* DELETEPHOTO - Delete a photo from the database
      All associated versions are deleted too.
   */
+  void markAllSeen();
 protected:
   void setReadOnly();
 private:
