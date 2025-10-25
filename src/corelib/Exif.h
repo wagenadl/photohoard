@@ -12,6 +12,11 @@
 #include <exiv2/exiv2.hpp>
 
 class Exif {
+#if (EXIV2_MAJOR_VERSION == 0) && (EXIV2_MINOR_VERSION < 28)
+using ExivImagePtr = Exiv2::Image::AutoPtr;
+#else
+using ExivImagePtr = Exiv2::Image::UniquePtr;
+#endif
 public:
   enum Orientation {
     Upright,
@@ -41,10 +46,13 @@ public:
   static PSize fixOrientation(PSize, Orientation);
 private:
   Exiv2::Exifdatum const &exifDatum(QString const &) const;
+  int64_t intDatum(QString const &key) const;
+  int64_t intDatum(Exiv2::Exifdatum const &dat) const;
+  int64_t intDatum(Exiv2::Exifdatum const &dat, int idx) const;
   static class NikonLenses const &nikonLenses();
   static class CanonLenses const &canonLenses();
 private:
-  Exiv2::Image::UniquePtr image;
+  ExivImagePtr image;
 };
 
 #endif

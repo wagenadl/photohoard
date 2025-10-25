@@ -1,4 +1,5 @@
-# CMakeLists.txt - Part of PHOTOHOARD, (C) Daniel Wagenaar 2021
+# CMakeLists.txt                                        -*- Makefile -*-
+# Part of PHOTOHOARD, (C) Daniel Wagenaar 2021
 
 # NEW BUILD INSTRUCTIONS (as of version 1.3.x)
 # Type:
