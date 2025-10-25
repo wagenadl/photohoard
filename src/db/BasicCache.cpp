@@ -31,6 +31,15 @@ void BasicCache::open(QString rootdir) {
     close();
   
   root.setPath(rootdir);
+
+  if (!QFileInfo(rootdir + "/cache.db").exists()) {
+    qDebug() << "cache db does not exist";
+    if (QFileInfo(rootdir + ".db").exists()) {
+      qDebug() << "... but it does one level up";
+      QFile(rootdir + ".db").rename(rootdir + "/cache.db");
+    }
+  }
+  
   db.open(rootdir + "/cache.db");
   readConfig();
   { DBWriteLock lock(&db);
@@ -90,7 +99,6 @@ void BasicCache::readConfig() {
     sizes << q.value(0).toInt();
   
   std::sort(sizes.begin(), sizes.end(), [](int a, int b) { return a > b; });
-  //  qDebug() << "sizes" << sizes;
 
   stdsizes.clear();
   for (int s: sizes)
@@ -107,7 +115,7 @@ void BasicCache::create(QString rootdir) {
   if (!QDir("/").mkpath(root.absolutePath()))
     CRASH("BasicCache::create: Could not create directory: "
           + root.absolutePath());
-
+      
   Database db;
   db.open(rootdir + "/cache.db");
   Transaction t(&db);
