@@ -1,0 +1,253 @@
+{ "typ": "page",
+  "cre": "2025-10-25T08:40:40.560",
+  "mod": "2025-10-25T09:08:08.406",
+  "cui": "2edabb2b1502c998",
+  "stampTime": 0,
+  "startPage": 83,
+  "unlocked": false,
+  "uuid": "b6abbdb9",
+  "cc": [
+    { "typ": "resources",
+      "cre": "2025-10-25T08:40:40.532",
+      "mod": "2025-10-25T08:40:40.532",
+      "uuid": "fb3c7bee"
+    },
+    { "typ": "title",
+      "cre": "2025-10-25T08:40:41.764",
+      "mod": "2025-10-25T08:40:47.030",
+      "uuid": "708fe22e",
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:40:41.764",
+          "mod": "2025-10-25T08:40:47.029",
+          "lines": [
+            0
+          ],
+          "text": "Improving the tags interface",
+          "uuid": "353f414e"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T08:40:47.898",
+      "mod": "2025-10-25T08:40:52.968",
+      "h": 27.166,
+      "ind": 0,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "eba0441f",
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:40:47.898",
+          "mod": "2025-10-25T08:40:52.968",
+          "lines": [
+            0
+          ],
+          "text": "The tags interface is confusing.",
+          "uuid": "bbd9142c"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T08:40:57.020",
+      "mod": "2025-10-25T08:42:31.109",
+      "h": 73.498,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "f648263c",
+      "y0": 99.166,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:40:57.020",
+          "mod": "2025-10-25T08:42:31.109",
+          "lines": [
+            0,
+            57,
+            119
+          ],
+          "text": "Right now, the tag box in the bottom right of the screen shows tags in alphabetical order, but the hierarchy system is unclear and “collections” are not prioritized.",
+          "uuid": "6ed67bcc"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T08:43:01.716",
+      "mod": "2025-10-25T08:46:31.971",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "24b11099",
+      "y0": 172.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:43:01.716",
+          "mod": "2025-10-25T08:46:31.971",
+          "lines": [
+            0,
+            62,
+            125,
+            191,
+            256,
+            318
+          ],
+          "text": "Tags are shown in black if they apply to entire selection, or blue if they apply only to some versions.  That’s fine, except that it make it look like a clickable link. That’s because in the image info box above it, blue text is clickable and modifies the filter settings. (That too needs better ui support. It is not obvious that it works, and it is not obvious that it toggles.)",
+          "uuid": "1d6b043b",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2025-10-25T08:45:39.270",
+              "mod": "2025-10-25T08:45:39.270",
+              "end": 228,
+              "start": 226,
+              "style": 1,
+              "uuid": "f9b2b515"
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T08:50:56.167",
+      "mod": "2025-10-25T08:53:26.098",
+      "h": 142.996,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "2dda414c",
+      "y0": 315.66,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:50:56.167",
+          "mod": "2025-10-25T08:53:26.098",
+          "lines": [
+            0,
+            64,
+            128,
+            195,
+            258,
+            321
+          ],
+          "text": "Part of the confusion of the hierarchical tag system is that it is not clear whether a parent tag is automatically applied when a child tag is applied. E.g., if “Subjects: People: Friends: X” is applied, does “Subjects: People: Friends” get applied as well? Should we show that? And if there is also “Author: X”, what do we show?",
+          "uuid": "22934b87"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T08:54:10.836",
+      "mod": "2025-10-25T09:08:08.406",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "b49549b6",
+      "y0": 458.656,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:54:10.836",
+          "mod": "2025-10-25T09:08:08.406",
+          "lines": [
+            0,
+            61,
+            122,
+            177,
+            237
+          ],
+          "text": "And why is it that in the tag filter box we write “Author|X” but elsewhere “author:x”? What does the “|” mean? There is a lot of weirdness here. [Answer: the “|” is not part of Photohoard. It is part of some of my tag names. I appear to have tags with “.” indicating ad-hoc hierarchy as well.]",
+          "uuid": "ad9e031f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T08:58:33.389",
+      "mod": "2025-10-25T09:02:28.307",
+      "h": 96.664,
+      "ind": 1,
+      "sheet": 0,
+      "split": [ ],
+      "uuid": "d9be9c28",
+      "y0": 578.486,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T08:58:33.389",
+          "mod": "2025-10-25T09:02:28.307",
+          "lines": [
+            0,
+            64,
+            125,
+            187
+          ],
+          "text": "I think I want it much simplified. I don’t really see the value in hierarchy any more. That just makes it more work to apply tags and confuses things. I think I am OK with finding photos by and of X when I look for that tag.",
+          "uuid": "9424162f"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T09:02:55.130",
+      "mod": "2025-10-25T09:04:07.966",
+      "h": 119.83,
+      "ind": 1,
+      "sheet": 0,
+      "split": [
+        23.166
+      ],
+      "uuid": "4b0c6580",
+      "y0": 675.15,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T09:02:55.130",
+          "mod": "2025-10-25T09:04:07.966",
+          "lines": [
+            0,
+            58,
+            120,
+            181,
+            246
+          ],
+          "text": "I am wondering whether tagged people should be special in that they have a first and a last name and that I may go back and forth between using only first or full for some? Another issue is whether nouns are singular or plural. Tag “Portrait” or “Portraits”? “People” or “Person”?",
+          "uuid": "bcf35a44"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T09:04:56.689",
+      "mod": "2025-10-25T09:05:03.271",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "b7a7791b",
+      "y0": 168.664,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T09:04:56.689",
+          "mod": "2025-10-25T09:05:03.271",
+          "lines": [
+            0
+          ],
+          "text": "What makes a tag a collection at this point?",
+          "uuid": "9491e7ed"
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2025-10-25T09:07:14.905",
+      "mod": "2025-10-25T09:07:14.905",
+      "h": 27.166,
+      "ind": 1,
+      "sheet": 1,
+      "split": [ ],
+      "uuid": "918b5431",
+      "y0": 195.83,
+      "cc": [
+        { "typ": "text",
+          "cre": "2025-10-25T09:07:14.905",
+          "mod": "2025-10-25T09:07:14.905",
+          "text": "",
+          "uuid": "fc594622"
+        }
+      ]
+    }
+  ]
+}
