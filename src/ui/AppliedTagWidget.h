@@ -6,6 +6,16 @@
 
 #include <QFrame>
 
+
+/* This is the widget at the bottom-right of the main window where
+   current tags are shown. It also offers some editing functionality.
+
+   A tag is shown BLACK if it has been applied to all of the selection
+   A tag is shown BLUE if it has been applied to a subset of the selection
+   The RED (-) button removes the tag from the entire selection
+   The GREEN (+) button spreads it to the rest of the selection
+*/
+
 class AppliedTagWidget: public QFrame {
   Q_OBJECT;
 public:
