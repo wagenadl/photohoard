@@ -29,7 +29,8 @@ ImportOtherUserDialog::ImportOtherUserDialog(class ImportJob *job,
   connect(ui->ok, SIGNAL(clicked()), this, SIGNAL(accepted()));
   connect(ui->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
 
-  connect(job, SIGNAL(countsUpdated(int,int)), SLOT(updateCounts(int,int)));
+  connect(job, &ImportJob::countsUpdated,
+          this, &ImportOtherUserDialog::updateCounts);
 
   ui->collection->clear();
   for (auto s: collections)
@@ -65,12 +66,12 @@ QString ImportOtherUserDialog::collection() const {
 }
 
 void ImportOtherUserDialog::changeCollection(QString coll) {
-  job->setCollection(coll);
-  job->setAutoDestination();
-  ui->destination->setText(job->destination());
+  //  job->setCollection(coll);
+  //  job->setAutoDestination();
+  //  ui->destination->setText(job->destination());
 }
 
-void ImportOtherUserDialog::updateCounts(int ntotal, int nmov) {
+void ImportOtherUserDialog::updateCounts(int ntotal, int nmov, bool complete) {
   int nimg = ntotal - nmov;
   if (nimg==1) {
     ui->what->setText(what.arg("one").arg(""));

@@ -89,7 +89,7 @@
          <bool>true</bool>
         </property>
         <property name="currentText">
-         <string>(none)</string>
+         <string>Family pictures</string>
         </property>
         <item>
          <property name="text">
@@ -352,7 +352,17 @@
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
+    <widget class="QLabel" name="oldwarning">
+     <property name="text">
+      <string>⚠ The image files you are importing are all more than %1 old. This could suggest your camera’s clock is set incorrectly. If so, you can use the “redate” function on all “new” images after importing.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>

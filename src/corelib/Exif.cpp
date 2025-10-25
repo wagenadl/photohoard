@@ -44,7 +44,7 @@ Exif::Exif(QString filename) {
     if (image.get())
       image->readMetadata();
   } catch (...) {
-    image = Exiv2::Image::AutoPtr();
+    image = Exiv2::Image::UniquePtr();
   }
 }
 
@@ -64,21 +64,21 @@ Exiv2::Exifdatum const &Exif::exifDatum(QString const &key) const {
 int Exif::width() const {
   Orientation r = orientation();
   if (r==Upright || r==UpsideDown)
-    return exifDatum("Exif.Photo.PixelXDimension").toLong();
+    return exifDatum("Exif.Photo.PixelXDimension").toInt64();
   else
-    return exifDatum("Exif.Photo.PixelYDimension").toLong();
+    return exifDatum("Exif.Photo.PixelYDimension").toInt64();
 }
 
 int Exif::height() const {
   Orientation r = orientation();
   if (r==Upright || r==UpsideDown)
-    return exifDatum("Exif.Photo.PixelYDimension").toLong();
+    return exifDatum("Exif.Photo.PixelYDimension").toInt64();
   else
-    return exifDatum("Exif.Photo.PixelXDimension").toLong();
+    return exifDatum("Exif.Photo.PixelXDimension").toInt64();
 }
 
 Exif::Orientation Exif::orientation() const {
-  int rot = exifDatum("Exif.Image.Orientation").toLong();
+  int rot = exifDatum("Exif.Image.Orientation").toInt64();
   switch (rot) {
   case 1: case 2: return Upright;
   case 3: case 4: return UpsideDown;
@@ -135,7 +135,7 @@ QString Exif::lens() const {
   quint64 lensid;
   unsigned char *lensid_ = (unsigned char *)&lensid;
   for (int i=0; i<8; i++)
-    lensid_[i] = exifDatum(src[7-i]).toLong();
+    lensid_[i] = exifDatum(src[7-i]).toInt64();
   if (nikonLenses().contains(lensid)) 
     return nikonLenses()[lensid];
 
@@ -149,17 +149,17 @@ QString Exif::lens() const {
       << "Exif.NikonLd3.MCUVersion"
       << "Exif.Nikon3.LensType";
   for (int i=0; i<8; i++)
-    lensid_[i] = exifDatum(src[7-i]).toLong();
+    lensid_[i] = exifDatum(src[7-i]).toInt64();
   if (nikonLenses().contains(lensid)) 
     return nikonLenses()[lensid];
 
   Exiv2::Exifdatum const &d(exifDatum("Exif.CanonCs.Lens"));
   if (d.count()>=2) {
-    int f_low = d.toLong(1);
-    int f_high = d.toLong(0);
-    int f_div = d.toLong(2);
+    int f_low = d.toInt64(1);
+    int f_high = d.toInt64(0);
+    int f_div = d.toInt64(2);
     Exiv2::Exifdatum const &dd(exifDatum("Exif.CanonCs.LensType"));
-    int typ = (dd.count()>=1) ? dd.toLong(0) : -1;
+    int typ = (dd.count()>=1) ? dd.toInt64(0) : -1;
     if (typ&0x8000) {
       // I'm not going to report on fixed lenses, so let's see
       QString c = exifDatum("Exif.Image.Model").toString().c_str();
@@ -181,15 +181,15 @@ double Exif::focalLength_mm() const {
 double Exif::focusDistance_m() const {
   Exiv2::Exifdatum const &d(exifDatum("Exif.NikonLd2.FocusDistance"));
   if (d.count()==1) 
-    return 0.01*pow(10,d.toLong()/40.0);
+    return 0.01*pow(10,d.toInt64()/40.0);
 
   Exiv2::Exifdatum const &d2(exifDatum("Exif.NikonLd3.FocusDistance"));
   if (d2.count()==1) 
-    return 0.01*pow(10,d2.toLong()/40.0);
+    return 0.01*pow(10,d2.toInt64()/40.0);
 
   Exiv2::Exifdatum const &d3(exifDatum("Exif.CanonSi.SubjectDistance"));
   if (d3.count()==1) 
-    return d3.toLong()/1000; // I don't know if this is at all correct
+    return d3.toInt64()/1000; // I don't know if this is at all correct
   
   return 0;
 }

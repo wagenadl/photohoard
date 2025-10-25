@@ -17,7 +17,7 @@ set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/photohoard")
 
 ######################################################################
 # Specify the C++ standard [must be done _before_ adding executable!]
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17) # rocksdb needs 17
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # I thought this would do the trick...
 if (UNIX) 

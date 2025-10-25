@@ -13,6 +13,7 @@
 #include "ColorLabelBar.h"
 #include "Scanner.h"
 #include "Session.h"
+#include "RedateDialog.h"
 #include "AutoCache.h"
 #include "SessionDB.h"
 #include "AllControls.h"
@@ -335,6 +336,9 @@ void MainWindow::makeMenu() {
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_O, "&Open other database…",
              [this]() { openOther(); }});
   menu->addSeparator();
+  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_D, "&Redate selected…",
+             [this]() { showRedate(); }});
+  menu->addSeparator();
   add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_B, "Database &info…",
              [this]() { databaseInfo(); }});
   add(Action{0, "&About Photohoard…",
@@ -343,6 +347,24 @@ void MainWindow::makeMenu() {
              [this]() { showShortcutHelp(); }});
   add(Action{Qt::CTRL + Qt::Key_Q, "&Quit",
              []() { QApplication::quit(); }});
+}
+
+void MainWindow::showRedate() {
+  Selection selection(db);
+  QSet<quint64> cursel = selection.current();
+  if (cursel.size() == 0)
+    return;
+  quint64 key = db->current();
+  if (key <= 0)
+    key = *cursel.begin();
+  RedateDialog *dlg = new RedateDialog(db,
+                                       QList<quint64>(cursel.begin(),
+                                                      cursel.end()),
+                                       key,
+                                       this);
+  connect(dlg, &RedateDialog::applied,
+          this, [this]() { metaViewer->setVersion(db->current()); });
+  dlg->open();
 }
 
 void MainWindow::showAbout() {

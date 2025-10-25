@@ -131,6 +131,7 @@ void ImportGUI::dlgAcceptOtherUser() {
     connect(job, SIGNAL(progress(int)), progressDlg, SLOT(setValue(int)));
   }
 
+  job->database()->markAllSeen();
   job->authorize();
 }
 
@@ -172,6 +173,7 @@ void ImportGUI::dlgAcceptExternal() {
     connect(job, SIGNAL(progress(int)), progressDlg, SLOT(setValue(int)));
   }
 
+  job->database()->markAllSeen();
   job->authorize();
 }
 

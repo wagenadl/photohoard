@@ -15,7 +15,7 @@ namespace PurgeCache {
   void purge(PhotoDB &db, QString cachedir) {
     DBWriteLock lock(&db);
 
-    db.query("attach :a as C", cachedir + ".db");
+    db.query("attach :a as C", cachedir + "/cache.db");
     QSqlQuery q = db.constQuery("select 1 from C.cache"
                            " where not C.cache.version in"
                            " (select id from versions)");
