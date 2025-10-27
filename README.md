@@ -12,6 +12,10 @@ Photohoard also contains lots of tools for basic editing.
 Binaries are available for Ubuntu Linux. To install from git source,
 simply type:
 
+    make
+    
+which is shorthand for:
+
     cmake -S . -B build
     cmake --build build
         
@@ -20,7 +24,8 @@ following will likely suffice:
 
         sudo apt install git qtbase5-dev qttools5-dev-tools asciidoc \
              docbook-xml docbook-xsl libexiv2-dev liblcms2-dev \
-             libopencv-imgproc-dev libxcb-randr0-dev libx11-xcb-dev  
+             libopencv-imgproc-dev libxcb-randr0-dev libx11-xcb-dev \
+             libqt5x11extras5-dev librocksdb-dev
              
 The photohoard binary may be run directly from the "build" folder. 
 More conveniently, to install in /usr/local, type
