@@ -11,9 +11,9 @@
 #include <algorithm>
 #include "SessionDB.h"
 
-#include "rocksdb/db.h"
-#include "rocksdb/options.h"
-#include "rocksdb/slice.h"
+#include <rocksdb/db.h>
+#include <rocksdb/options.h>
+#include <rocksdb/slice.h>
 
 
 class RocksDB: public QSharedData {
