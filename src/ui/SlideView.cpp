@@ -54,7 +54,6 @@ double SlideView::fittingZoom() const {
 }
 
 void SlideView::newImage(quint64 vsn, QSize nat) {
-  pDebug() << "SlideView::newImage" << vsn << nat;
   if (db->acceptReject(vsn)==PhotoDB::AcceptReject::NewImport)
     db->setAcceptReject(vsn, PhotoDB::AcceptReject::Undecided);
   rqid = 0;
@@ -64,10 +63,8 @@ void SlideView::newImage(quint64 vsn, QSize nat) {
   img = Image16(); // might invalidate more gently
   fit = true;
   zoom = 1;
-  // pDebug() << "SV::nI: needLargerImage";
 
   visualizeLayer(vsn, vsn==futvsn ? futlay : 0); // this calls update
-  // pDebug() << "SV::nI: done";
 }
 
 
@@ -75,31 +72,25 @@ void SlideView::updateImage(quint64 vsn, Image16 const &img1, bool force,
 			    QSize fs) {
   if (vsn!=vsnid) 
     return;
-  pDebug() << "SV::updateImage" << vsn << img1.size() << force << fs << rqid << rqsize << img.size();
   if (!fs.isEmpty())
     naturalSize = fs;
 
   if (force || img1.size().exceeds(rqid ? rqsize : img.size())) {
     if (CMS::monitorTransform.isValid()) {
       // img = Image16(); // this caused massive recursive updates
-      pDebug() << "SV::uI: requesting";
       rqsize = img1.size();
       rqid = threadedTransform->request(img1);
-      pDebug() << "SV::uI: requested" << rqid;
     } else {
-      pDebug() << "SV::uI: will update";
       rqid = 0;
       img = img1;
       update();
     }
   } else if (!fs.isEmpty()) {
-    pDebug() << "SV::uI: will update (2)";
     update();
   }
 }
 
 void SlideView::setCMSImage(quint64 id, Image16 img1) {
-  pDebug() << "SV::setCMSImage" << id << rqid << img1.size();
   if (id==rqid) {
     img = img1;
     rqid = 0;
@@ -258,7 +249,6 @@ void SlideView::makeActions() {
       "Display grid of thirds",
       [this]() {
 	SO_Grid *so = findOverlay<SO_Grid>(this);
-        //qDebug() << "SV:so=" << so;
 	if (so) 
 	  delete so;
 	else
@@ -269,7 +259,6 @@ void SlideView::makeActions() {
     << Action { {Qt::SHIFT + int('@'), Qt::SHIFT + Qt::Key_2},
       "Show/hide layer outlines",
       [this]() {
-        qDebug() << "showhide";
         showlayers = !showlayers;
         visualizeLayer(futvsn, futlay);
       }};
@@ -363,7 +352,6 @@ void SlideView::paintEvent(QPaintEvent *) {
 
 
   if (img.isNull()) {
-    pDebug() << "SV:paintEvent" << img.isNull();
     needLargerImage();
     return;
   }
@@ -390,7 +378,6 @@ void SlideView::paintEvent(QPaintEvent *) {
     PSize showSize = naturalSize*zoom;
     PSize availSize = r.size();
     double effZoom = img.size().scaleFactorToSnuglyFitIn(showSize);
-    // pDebug() << "slideview paint" << showSize << availSize << img.size() << effZoom << effZoom*img.size() << naturalSize;
     QRectF sourceRect;
     QRectF destRect;
     if (!img.size().isLargeEnoughFor(showSize)
@@ -457,13 +444,11 @@ QTransform SlideView::transformationFromImage() const {
   if (fit) {
     double scl = nat_s.scaleFactorToSnuglyFitIn(av_s);
     PSize render_s = nat_s.scaledToFitSnuglyIn(av_s);
-    // pDebug() << "SlideView" << scl << render_s;
     xf.translate((av_r.left() + av_r.right())/2 - render_s.width()/2,
 		 (av_r.top() + av_r.bottom())/2 - render_s.height()/2);
     xf.scale(scl, scl);
   } else {
     PSize render_s = nat_s * zoom;
-    // pDebug() << "SlideView" << zoom << render_s;
     if (render_s.width() <= av_s.width())
       xf.translate((av_r.left() + av_r.right())/2 - render_s.width()/2, 0);
     else
@@ -490,13 +475,11 @@ QList<SlideOverlay *> SlideView::overlays() const {
 
 void SlideView::needLargerImage() {
   QSize ds = desiredSize();
-  pDebug() << "needLargerImage" << vsnid << ds;
   if (ds != lastSize) {
-    pDebug() << "  requesting larger image";
     emit needImage(vsnid, desiredSize());
     lastSize = ds;
   } else {
-    pDebug() << "  not repeating previous request";
+    // not repeating previous request
   }
 }
 
@@ -505,14 +488,10 @@ void SlideView::visualizeLayer(quint64 vsn, int lay) {
   futvsn = vsn;
   futlay = lay;
 
-  if (vsn!=vsnid) {
-    pDebug() << "SlideView::visualizeLayer: vsn mismatch" << vsn
-    	     << "exp" << vsnid;
+  if (vsn!=vsnid) 
     return;
-  }
 
   SO_Layer *so = findOverlay<SO_Layer>(this);
-  //  qDebug() << "old layer" << so;
   if (so && replace) {
     delete so;
     so = 0;

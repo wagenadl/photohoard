@@ -82,7 +82,6 @@ void Tags::apply(quint64 versionid, int tagid) {
       return;
   }
   { DBWriteLock lock(db);
-    pDebug() << "tagsapply";
     db->addUndoStep(versionid, ".tag", 0, tagid);
     db->query("insert into appliedtags(version, tag) values(:a,:b)",
               versionid, tagid);
@@ -91,7 +90,6 @@ void Tags::apply(quint64 versionid, int tagid) {
 
 void Tags::apply(QSet<quint64> const &vsns, int tagid) {
   Transaction t(db);
-  pDebug() << "tags1";
   for (int vsn: vsns) {
     QSqlQuery q = db->constQuery("select 1 from appliedtags"
                             " where version==:a and tag==:b", vsn, tagid);
@@ -106,7 +104,6 @@ void Tags::apply(QSet<quint64> const &vsns, int tagid) {
 
 void Tags::remove(quint64 versionid, int tagid) {
   Transaction t(db);
-  pDebug() << "tags2";
   QSqlQuery q = db->constQuery("select 1 from appliedtags"
                           " where version==:a and tag==:b", versionid, tagid);
   if (!q.next())
@@ -119,13 +116,10 @@ void Tags::remove(quint64 versionid, int tagid) {
 
 void Tags::remove(QSet<quint64> const &vsns, int tagid) {
   Transaction t(db);
-  pDebug() << "tags3";
   for (int vsn: vsns) {
-    qDebug() << "tags::remove" << vsn << tagid;
     QSqlQuery q = db->constQuery("select 1 from appliedtags"
                             " where version==:a and tag==:b", vsn, tagid);
     if (q.next()) {
-      qDebug() << "tags::remove got " << vsn;
       db->addUndoStep(vsn, ".tag", tagid, 0);
       db->query("delete from appliedtags where version==:a and tag==:b",
                 vsn, tagid);
@@ -163,7 +157,6 @@ int Tags::define(QString tag, int parent) {
   while (tag.endsWith(".") || tag.endsWith(" "))
     tag = tag.left(tag.size()-1);
   DBWriteLock lock(db);
-  pDebug() << "tagsin";
   QSqlQuery q = parent ?
     db->query("insert into tags(tag, parent) values(:a,:b)", tag, parent)
     : db->query("insert into tags(tag) values(:a)", tag);
@@ -191,7 +184,6 @@ bool Tags::undefine(int tagid) {
     return false;
 
   DBWriteLock lock(db);
-  pDebug() << "tagdel";
 
   db->query("delete from tags where id==:a", tagid);
   return true;
@@ -356,7 +348,6 @@ int Tags::collectionRoot() {
     }
   }
   { DBWriteLock lock(db);
-  pDebug() << "tagin1";
     QSqlQuery q = db->query("insert into tags(tag) values(:a)", "Collections");
     root = q.lastInsertId().toInt();
     haveroot = true;
@@ -371,7 +362,6 @@ int Tags::ensureCollection(QString c) {
 
   int root = collectionRoot();
   DBWriteLock lock(db);
-  pDebug() << "tagincol";
   QSqlQuery q = db->query("insert into tags(tag,parent) values(:a,:b)",
                           c, root);
   return q.lastInsertId().toInt();

@@ -39,7 +39,6 @@ void SessionDB::createSession(QString photodbfn, QString cachedir) {
     t.commit();
   }
   sdb.close();
-  qDebug() << "created session" << photodbfn << sessionfn << cachedir;
 }
 
 QString SessionDB::photoDBFilename() const {
@@ -52,7 +51,6 @@ QString SessionDB::photoDBFilename() const {
 QString SessionDB::cacheDirname() const {
   DBReadLock lock(this);
   QString fn = simpleQuery("select cachedir from paths").toString();
-  //  qDebug() << "session cache" << fn;
   return fn; // canonicalizing would fail if not exist
 }
 
@@ -69,8 +67,6 @@ QString SessionDB::sessionFilename() const {
 void SessionDB::open(QString photodbfn, bool forcereadonly) {
   photodbfn = QFileInfo(photodbfn).canonicalFilePath();
   sessiondbfn = FileLocations::sessionFileForDB(photodbfn);
-  qDebug() << "photodbfn"<<photodbfn;
-  qDebug() << "sessiondbfn"<<sessiondbfn;
   if (!sessionExists(photodbfn))
     CRASH("Cannot open nonexistent session");
   Database::open(sessiondbfn);
@@ -83,9 +79,10 @@ void SessionDB::open(QString photodbfn, bool forcereadonly) {
   QString codedfn = photoDBFilename();
   if (codedfn == "")
     codedfn = photodbfn;
-  if (codedfn != photodbfn && codedfn.replace(".db", ".photohoard") != photodbfn) {
-    qDebug() << "coded" << codedfn << codedfn.replace(".db", ".photohoard");
-    qDebug() << "photodbfn" << photodbfn;
+  if (codedfn != photodbfn
+      && codedfn.replace(".db", ".photohoard") != photodbfn) {
+    qCritical() << "coded" << codedfn;
+    qCritical() << "photodbfn" << photodbfn;
     CRASH("Session appears to be meant for different database");
   }
   

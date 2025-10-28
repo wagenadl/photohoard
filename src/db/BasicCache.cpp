@@ -33,9 +33,8 @@ void BasicCache::open(QString rootdir) {
   root.setPath(rootdir);
 
   if (!QFileInfo(rootdir + "/cache.db").exists()) {
-    qDebug() << "cache db does not exist";
     if (QFileInfo(rootdir + ".db").exists()) {
-      qDebug() << "... but it does one level up";
+      qInfo() << "Moving" << (rootdir + ".db") << "into cache folder";
       QFile(rootdir + ".db").rename(rootdir + "/cache.db");
     }
   }
@@ -106,7 +105,7 @@ void BasicCache::readConfig() {
 }
   
 void BasicCache::create(QString rootdir) {
-  qDebug() << "creating cache" << rootdir;
+  qInfo() << "Creating cache at " << rootdir;
   QDir root(rootdir);
   
   ASSERT(!root.exists());

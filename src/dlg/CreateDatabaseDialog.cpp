@@ -123,13 +123,10 @@ void CreateDatabaseDialog::removeFolder() {
 
 
 void CreateDatabaseDialog::accept() {
-  qDebug() << "accept";
   QString dbfn = ui->dblocation->text();
   QString cachelocation = ui->cachelocation->text();
   if (!dbfn.endsWith(".photohoard"))
     dbfn += ".photohoard";
-  qDebug() << "  dbfn " << dbfn;
-  qDebug() << "  cachelocation " << cachelocation;
   if (QFile(dbfn).exists()) {
     QMessageBox::warning(0, "Photohoard", "A database named “" + dbfn
                          + "” already exists."

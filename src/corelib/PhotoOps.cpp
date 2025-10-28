@@ -11,7 +11,6 @@ namespace PhotoOps {
   Image16 seamlessClone(Image16 const &target,
                         Image16 const &source, QImage const &mask,
                         QPoint p, int method) {
-    //    pDebug() << "seamlessclone" << p << target.size();
     QImage in = target.toQImage();
 #if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
     in = in.convertToFormat(QImage::Format_RGB888);
@@ -58,7 +57,6 @@ namespace PhotoOps {
     QImage res(in.size(), QImage::Format_RGB888);
     cv::Mat out(res.height(), res.width(), CV_8UC3,
                 res.bits(), res.bytesPerLine());
-    //    qDebug() << "inpaint" << CV_8UC1 << CV_8UC3 << tgt.type() << msk.type() << out.type();
     cv::inpaint(tgt, msk, out, radius, cv::INPAINT_TELEA);
     return Image16(res).convertedTo(target.format());
   }
@@ -84,14 +82,14 @@ namespace PhotoOps {
   }
 
   void blur(QImage &target, double sigma) {
-    pDebug() << "blur - could be faster with multithreading";
+    pDebug() << "(timing test) blur could be faster with multithreading";
     ASSERT(target.format() == QImage::Format_Grayscale8);
     uchar *bits = target.bits();
     int X = target.width();
     int Y = target.height();
     int B = target.bytesPerLine();
     double alpha = 1/sigma;
-    //    pDebug() << "  blur" << X << Y << B << alpha;
+
     for (int y=0; y<Y; y++) {
       uchar *row = bits + B*y;
       double b = *row;
@@ -127,7 +125,7 @@ namespace PhotoOps {
 //                isGray?CV_8UC1:CV_8UC4,
 //                (void*)bits, target.bytesPerLine());
 //    cv::GaussianBlur(tgt, tgt, cv::Size(0,0), sigma, sigma);
-//    pDebug() << "blurred";
+    pDebug() << "(timing test) blurred";
   }
 
 
@@ -173,7 +171,7 @@ namespace PhotoOps {
       }
     }
     if (N==0) {
-      qDebug() << "clone N=0!";
+      COMPLAIN("clone N=0!");
       N = 1;
     }
     out[0] = accum[0] / N;
@@ -224,7 +222,7 @@ namespace PhotoOps {
       return;
     QRect srcrect(QPoint(x0, y0), QPoint(x1, y1));
     QRect dstrect(QPoint(sx0, sy0), QPoint(sx1, sy1));
-    qDebug() << "Clone broken - subimage does not work";
+    COMPLAIN("Clone broken - subimage does not work");
   }
 
   

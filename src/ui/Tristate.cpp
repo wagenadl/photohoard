@@ -79,7 +79,7 @@ void Tristate::paintEvent(QPaintEvent *) {
   box.adjust(2, 2, -1, -1);
   ptr.setPen(Qt::NoPen);
   if (ptr.isActive())
-    qDebug() << "Painter not active in Tristate.cpp";
+    COMPLAIN("Painter not active");
   ptr.setBrush(QBrush(QColor(0, 0, 0)));
   switch (s) {
   case Off:

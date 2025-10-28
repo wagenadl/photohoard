@@ -17,7 +17,6 @@ RecentFiles::RecentFiles(QString varname, QWidget *parent, QString mydbfn):
 	      QString fn = actions[n]->data().toString();
 	      if (!fn.isEmpty())
 		emit selected(fn);
-	      qDebug() << "recentfiles" << fn;
 	    });
     addAction(actions[n]);
   }
@@ -81,7 +80,6 @@ void RecentFiles::updateItems() {
       actions[n]->setVisible(false);
     }
   }
-  qDebug() << "updated";
 }
 
 void RecentFiles::showEvent(QShowEvent *) {

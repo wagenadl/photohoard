@@ -21,7 +21,7 @@ set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/photohoard")
 set(CMAKE_CXX_STANDARD 17) # rocksdb needs 17
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # I thought this would do the trick...
-if (UNIX) 
+if (UNIX AND NOT APPLE) 
   add_compile_options(-fPIC) # ... but in fact, this is required on Linux
 endif()
 
@@ -41,11 +41,8 @@ endif()
 find_package(OpenCV REQUIRED)
 find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 #find_package(LCMS2 REQUIRED)
-find_library(ROCKS_DB_PATH rocksdb)
-include(res/FindLCMS2.cmake)
-if(!LCMS2_FOUND)
-  message(SEND_ERROR "Library “LCMS2” not found")
-endif()
+find_library(ROCKS_DB_PATH rocksdb REQUIRED)
+find_library(LCMS2_PATH lcms2 REQUIRED) 
 
 ######################################################################
 # Add the executables
@@ -69,22 +66,38 @@ target_link_libraries(photohoard Qt5::Widgets)
 target_link_libraries(photohoard Qt5::Sql)
 if(TARGET Qt5::X11Extras)
   target_link_libraries(photohoard Qt5::X11Extras)
-  target_link_libraries(photohoard "X11")
+  target_link_libraries(photohoard X11)
   add_compile_definitions(HAVE_X11EXTRAS)
 endif()
 target_link_libraries(photohoard "${OpenCV_LIBS}")
 target_link_libraries(photohoard exiv2lib)
-target_link_libraries(photohoard "lcms2")
-target_link_libraries(photohoard "pthread")
-target_link_libraries(photohoard "rocksdb")
+target_link_libraries(photohoard lcms2)
+target_link_libraries(photohoard pthread)
+target_link_libraries(photohoard rocksdb)
 
-#if (WIN32)
-#  target_link_libraries(photohoard secur32.lib)
-#endif()
+if (WIN32)
+  target_link_libraries(photohoard secur32.lib)
+endif()
+
+if (APPLE)
+  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE INTERNAL "" FORCE)
+
+  #set(MACOSX_BUNDLE_ICON_FILE eln.icns)
+  include(GNUInstallDirs)
+  install(TARGETS photohoard
+      BUNDLE  DESTINATION .
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+  add_custom_command(TARGET photohoard POST_BUILD
+     COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/photohoard.app/Contents/Resources
+     #COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/src/App/eln.icns
+     #   ${CMAKE_CURRENT_BINARY_DIR}/notedeln.app/Contents/Resources
+  )
+endif()
 
 # Produce configuration files
 configure_file(src/config.h.in config.h)
-#configure_file(doc/version.tex.in version.tex)
 
 # Include paths - Qt must be mentioned
 target_include_directories(photohoard PUBLIC "${PROJECT_BINARY_DIR}")
@@ -94,9 +107,6 @@ target_include_directories(photohoard PUBLIC "${OpenCV_INCLUDE_DIRS}")
 ######################################################################
 # Documentation
 if (UNIX AND NOT APPLE)
-  #include(doc/UseLATEX.cmake)
-  #add_latex_document(doc/userguide.tex IMAGE_DIRS doc
-  #  FORCE_PDF INCLUDE_DIRECTORIES doc)
   add_subdirectory("docs")
 endif()
 
@@ -108,27 +118,22 @@ set(CPACK_PACKAGE_DESCRIPTION
   "Photohoard is a program to manage your collection of photographs. Photohoard also contains lots of tools for basic editing.")
 set(CPACK_PACKAGE_EXECUTABLES "photohoard;Photohoard")
 
-if (WIN32)
+if(WIN32)
   # NSIS packaging - to be updated
   include(res/WinPack.CMakeLists.txt)
-  
-elseif (APPLE)
-  set(CPACK_GENERATOR "DMG") # NYI
-
-  get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
-  get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-  find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
-  add_custom_command(TARGET myapp POST_BUILD
-    COMMAND "${MACDEPLOYQT_EXECUTABLE}"
-    "$<TARGET_FILE_DIR:myapp>/../.."
-    -always-overwrite
-    COMMENT "Running macdeployqt..."
-    )
-elseif (UNIX)
+  include(CPack)
+elseif(APPLE)
+  qt_generate_deploy_app_script(
+      TARGET photohoard
+      OUTPUT_SCRIPT deploy_script
+      NO_UNSUPPORTED_PLATFORM_ERROR
+  )
+  install(SCRIPT ${deploy_script})
+  include(tools/MacDMG.CMakeLists.txt)
+elseif(UNIX)
   include(res/UnixInstall.CMakeLists.txt)
   include(res/DebPack.CMakeLists.txt)
+  include(CPack)
 endif()
 
-# Packaging
-include(CPack)
 

@@ -20,7 +20,6 @@ void Purge::refresh() {
   orphsThatCanBeDeld.clear();
 
   DBWriteLock lock(db);
-  pDebug() << "purge lock";
   db->query("create table M.rejects as"
             " select id as vsn, photo from versions"
 	    " where acceptreject<0");

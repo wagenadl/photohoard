@@ -116,7 +116,7 @@ void Slide::paint(QPainter *painter,
     : isSelected ? b.lighter() : b.darker();
   painter->setBrush(bbr);
   if (!painter->isActive())
-    qDebug() << "Painter not active in Slide.cpp";
+    COMPLAIN("Painter not active");
   painter->drawRoundedRect(r.adjusted(2*dx, 2*dx, 0, 0), 4, 4);
   painter->setBrush(btl);
   painter->drawRoundedRect(r.adjusted(0, 0, -2*dx, -2*dx), 4, 4);
@@ -178,7 +178,7 @@ void Slide::paint(QPainter *painter,
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
       if (!painter->isActive())
-        qDebug() << "Painter not active in Slide.cpp 2";
+        COMPLAIN("Painter not active");
       painter->setBrush(QBrush(QColor(0, 0, 0)));
       if (pm.isNull()) {
 	painter->drawText(r, Qt::AlignCenter, QString("%1").arg(id));

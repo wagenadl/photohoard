@@ -29,11 +29,9 @@ void MetaViewer::setVersion(quint64 version) {
 }
 
 void MetaViewer::handleClick(QUrl const &url) {
-  pDebug () << "handleclick" << url;
   Filter flt(db);
   flt.loadFromDb();
   if (MetaInfo::modifyFilterWithLink(flt, url)) {
-    //pDebug() << "Filter now" << flt.whereClause();
     flt.saveToDb();
     emit filterModified();
   }

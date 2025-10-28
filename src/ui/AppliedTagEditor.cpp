@@ -245,7 +245,7 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
     }
   }
   if (!p.isActive())
-    qDebug() << "Painter not active in AppliedTagEditor.cpp";
+    COMPLAIN("Painter not active in AppliedTagEditor.cpp");
   
 }
 

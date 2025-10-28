@@ -50,8 +50,6 @@ void LayerDialog::setVersion(quint64 v) {
   ui->table->setRowCount(N);
   for (int n=1; n<=N; n++) {
     Layer layer = layers.layer(n);
-    //pDebug() << "layerdialog::setversion" << v << n
-    //         << int(layer.type()) << layer.points();
     ui->table->setVerticalHeaderItem(N-n,
 				   new QTableWidgetItem(QString("%1").arg(n)));
     ui->table->setItem(N-n, 0,
@@ -59,7 +57,6 @@ void LayerDialog::setVersion(quint64 v) {
     ui->table->setItem(N-n, 1, new QTableWidgetItem(layer.typeName()));
   }
   bool explicitnew = lastlay==N;
-  //pDebug() << "layerdialog setversion explicitnew" << explicitnew;
   lastlay = 0;
   selectLayer(N);
   if (explicitnew)
@@ -77,7 +74,6 @@ void LayerDialog::selectLayer(int lay) {
 
 
 void LayerDialog::addLinearLayer() {
-  //pDebug() << "addGradientLayer";
   Layers ll(vsn, db);
   Layer l;
   l.setType(Layer::Type::LinearGradient);
@@ -87,7 +83,6 @@ void LayerDialog::addLinearLayer() {
   QPolygon pp; pp << p0 << p1;
   l.setPointsAndRadii(pp, QList<int>());
   ll.addLayer(l);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(ll.count());
 
   setVersion(vsn); // rebuild
@@ -104,7 +99,6 @@ void LayerDialog::addShapeLayer() {
   QPolygon pp; pp << p0 << p1 << p2;
   l.setPointsAndRadii(pp, QList<int>{10});
   ll.addLayer(l);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(ll.count());
 
   setVersion(vsn); // rebuild
@@ -120,7 +114,6 @@ void LayerDialog::addCloneLayer() {
   QPolygon pp; pp << p0 << p1;
   l.setPointsAndRadii(pp, QList<int>{osize.width()/20});
   ll.addLayer(l);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(ll.count());
 
   setVersion(vsn); // rebuild
@@ -135,7 +128,6 @@ void LayerDialog::addHealLayer() {
   QPolygon pp; pp << p0;
   l.setPointsAndRadii(pp, QList<int>{osize.width()/20});
   ll.addLayer(l);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(ll.count());
 
   setVersion(vsn); // rebuild
@@ -152,10 +144,8 @@ void LayerDialog::deleteLayer() {
   ll.deleteLayer(lay);
   selectLayer(Layers(vsn, db).count());
 
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
   
-  //  pDebug() << "deleted layer" << lay << lastlay;
   setVersion(vsn);
 }
 
@@ -172,7 +162,6 @@ void LayerDialog::raiseLayer() {
     return;
   }
   ll.raiseLayer(lay);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
 
   setVersion(vsn); // rebuild
@@ -192,7 +181,6 @@ void LayerDialog::lowerLayer() {
     return;
   }
   ll.lowerLayer(lay);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay-1);
 
   setVersion(vsn); // rebuild
@@ -210,7 +198,6 @@ void LayerDialog::showHideLayer() {
   Layer l = ll.layer(lay);
   l.setActive(!l.isActive());
   ll.setLayer(lay, l);
-  pDebug() << "LayerDialog: emitting maskEdited";
   emit maskEdited(lay);
 
   ui->table->item(ui->table->rowCount()-lay, 0)
@@ -226,7 +213,6 @@ void LayerDialog::showHideLayer() {
 
 void LayerDialog::newSelection() {
   int lay = selectedLayer();
-  //  pDebug() << "layer dialog new selection" << lay << lastlay;
   if (lay!=lastlay) {
     lastlay = lay;
     emit layerSelected(lay);
@@ -253,16 +239,12 @@ void LayerDialog::newSelection() {
 int LayerDialog::selectedLayer() const {
   int rows = ui->table->rowCount();
   auto range = ui->table->selectedRanges();
-  //pDebug() << "selectedlayer"
-  //	   << (range.isEmpty() ? 0 : rows - range.first().topRow())
-  //	   << "out of" << rows << range.isEmpty();
   if (range.isEmpty())
     return 0;
   return rows - range.first().topRow();
 }
 
 void LayerDialog::respondToClick(int /*r*/, int c) {
-  //pDebug() << "click" << r << c;
   switch (c) {
   case 0: // visibility
     showHideLayer();
@@ -276,7 +258,6 @@ void LayerDialog::respondToClick(int /*r*/, int c) {
 }
 
 void LayerDialog::changeFromSliders() {
-  pDebug() << "LayerDialog::changeFromSliders";
   int lay = selectedLayer();
   if (!lay)
     return;
@@ -294,7 +275,6 @@ void LayerDialog::storeInDatabase(Adjustments const &adj, int lay) {
     double v0 = a0.get(k);
     if (v != v0) {
       DBWriteLock lock(db);
-      pDebug() << "ldlgsid";
       db->addUndoStep(vsn, lay, k, v0, v);
       if (v==Adjustments::defaultFor(k))
         db->query("delete from layeradjustments where layer==:a and k==:b",

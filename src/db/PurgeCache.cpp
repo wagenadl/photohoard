@@ -46,6 +46,5 @@ namespace PurgeCache {
              " where not C.cache.version in (select id from versions)");
     
     db.query("detach C");
-    pDebug() << "purgecache done";
   }
 };

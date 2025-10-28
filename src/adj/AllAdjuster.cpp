@@ -50,19 +50,17 @@ bool AllAdjuster::isEmpty() const {
 }
 
 void AllAdjuster::setOriginal(Image16 const &image) {
-  //  pDebug() << "AllAdjuster::setOriginal" << image.size();
   Adjuster::setOriginal(image);
   validInputUntil = 0;
 }
 
 void AllAdjuster::setReduced(Image16 const &image, PSize originalSize) {
-  //  pDebug() << "AllAdjuster::setReduced" << image.size() << originalSize;
   Adjuster::setReduced(image, originalSize);
   validInputUntil = 0;
 }
 
 Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
-  pDebug() << "AllAdjuster::retrieveFull - UNTESTED";
+  qWarning() << "AllAdjuster::retrieveFull - UNTESTED";
   if (validInputUntil<0)
     return Image16(); // no image set at all
   int N = settings.layerCount();
@@ -89,16 +87,12 @@ Image16 AllAdjuster::retrieveFull(AllAdjustments const &settings) {
       layerAdjuster(n)->setOriginal(img);
     validInputUntil = n;
   }
-  //  pDebug() << "AA::retrieveFull returning layered img sized " << img.size();
   lastrq = settings;
   return img;
 }
 
 Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 				     PSize maxSize) {
-  //  pDebug() << "AllAdjuster::retrieveReduced" << maxSize;
-  //  pDebug() << "  Layercount" << settings.layerCount();
-  //  pDebug() <<  "  settings" << settings;
   if (validInputUntil<0)
     return Image16(); // no image set at all
   int N = settings.layerCount();
@@ -256,14 +250,14 @@ Image16 AllAdjuster::retrieveReduced(AllAdjustments const &settings,
 }
 
 Image16 AllAdjuster::retrieveROI(AllAdjustments const &settings, QRect roi) {
-  pDebug() << "AA::retrieveROI - INADEQUATE IMPLEMENTATION";
+  qWarning() << "AA::retrieveROI - INADEQUATE IMPLEMENTATION";
   return Adjuster::retrieveROI(settings.baseAdjustments(), roi);
   // Grossly inadequate, of course
 }
   
 Image16 AllAdjuster::retrieveReducedROI(AllAdjustments const &settings,
 					QRect roi, PSize maxSize) {
-  pDebug() << "AA::retrieveReducedROI - INADEQUATE IMPLEMENTATION";
+  qWarning() << "AA::retrieveReducedROI - INADEQUATE IMPLEMENTATION";
   return Adjuster::retrieveReducedROI(settings.baseAdjustments(), roi, maxSize);
   // Grossly inadequate, of course
 }
@@ -292,9 +286,7 @@ void AllAdjuster::cancel() {
 
 void AllAdjuster::ensureAdjusters(int nLayers) {
   while (layerAdjusters_.size() < nLayers) {
-    //pDebug() << "AllAdjuster: creating new Adjuster";
     Adjuster *adj = new Adjuster(this);
-    //pDebug() << "AA: done" << adj << this << adj->parent();
     adj->enableCaching(isCaching());
     adj->preserveOriginal(preservesOriginal());
     adj->setMaxThreads(maxThreads());

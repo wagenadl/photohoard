@@ -7,6 +7,7 @@
 #include <QScreen>
 #include <math.h>
 #include <QMutexLocker>
+#include "PDebug.h"
 
 QSize ScreenResolution::pixelCount() {
   ensure();
@@ -64,7 +65,7 @@ void ScreenResolution::ensure() {
   QGuiApplication *app
     = reinterpret_cast<QGuiApplication*>(QApplication::instance());
   if (!app) {
-    qDebug() << "no gui app";
+    COMPLAIN("Screen resolution: no gui app");
     return;
   }
   QScreen *scr = app->primaryScreen();

@@ -155,7 +155,6 @@ void Adjustments::readFromDB(quint64 vsn, int layer, PhotoDB &db,
 void Adjustments::writeToDB(quint64 vsn, PhotoDB &db, Transaction *t) const {
   if (!t)
     db.lockForWriting();
-  pDebug() << "adjustments::writeToDB";
   for (auto it=defaults().begin(); it!=defaults().end(); ++it) {
     QString k = it.key();
     double v0 = it.value();
@@ -175,7 +174,6 @@ void Adjustments::writeToDB(quint64 vsn, int layer, PhotoDB &db,
                             Transaction *t) const {
   if (!t)
     db.lockForWriting();
-  pDebug() << "Adjustments::writeToDB";
 
   quint64 layerid = db.simpleQuery("select id from layers"
 				   " where version==:a and stacking==:b",

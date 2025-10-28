@@ -40,7 +40,6 @@ void ImportJob::countSources() {
 void ImportJob::setAutoCollection() {
   Filter filter(db);
   filter.loadFromDb();
-  qDebug() << "setautocollection" << filter.hasCollection() << filter.collection() << db->sessionDBInfo(SessionDB::SInfoID::LastImportCollection).toString();
   if (filter.hasCollection()) {
     coll = filter.collection();
   } else {
@@ -184,7 +183,6 @@ QString ImportJob::backupPath() const {
 }
 
 void ImportJob::doneCopying(int,int) {
-  qDebug() << "done copying";
   scanner_->addTree(dest, coll);
   emit complete("");
 }

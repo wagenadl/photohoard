@@ -50,7 +50,6 @@ void ExportSettings::loadFromDB(PhotoDB const *db) {
 
 void ExportSettings::saveToDB(PhotoDB *db) {
   Transaction t(db);
-  pDebug() << "Export stdb";
   db->query("delete from exportsettings");
   QString q = "insert into exportsettings values (:a, :b)";
   db->query(q, "ff", int(fileFormat));

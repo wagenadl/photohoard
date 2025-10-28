@@ -169,7 +169,6 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     return msk;
   }
   if (sclcrpsize.isEmpty()) {
-    qDebug () << "Layer::mask: empty request";
     return msk;
   }
   QPolygonF pts(transformedPoints(osize, adj0, sclcrpsize));
@@ -195,12 +194,12 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
       if (!ptr.isActive())
-        qDebug() << "Painter not active in Layers.cpp";
+        COMPLAIN("Painter not active in Layers.cpp");
       ptr.setBrush(QBrush(QColor(255,255,255)));
       ptr.drawPolygon(ppp);
     }
     if (radii().size()!=1) {
-      pDebug() << "Number of radii" << radii().size() << "for layer type Area";
+      qWarning() << "Number of radii" << radii().size() << "for layer type Area";
       break;
     }
     PhotoOps::blur(msk, radi[0]);
@@ -216,7 +215,7 @@ QImage Layer::mask(QSize osize, class Adjustments const &adj0,
     { QPainter ptr(&msk);
       ptr.setPen(QPen(Qt::NoPen));
       if (!ptr.isActive())
-        qDebug() << "Painter not active in Layers.cpp";
+        COMPLAIN("Painter not active in Layers.cpp");
       ptr.setBrush(QBrush(QColor(255,255,255)));
       for (int k=0; k<radi.size(); k++) 
         ptr.drawEllipse(pts[k], radi[k], radi[k]);
@@ -269,7 +268,6 @@ void Layer::readFromDB(QSqlQuery &q) {
 
 void Layer::writeToDB(quint64 vsn, int stacking, PhotoDB &db) const {
   DBWriteLock lock(&db);
-  pDebug() << "Layer::writetodb";
   QSqlQuery q = db.constQuery("select id from layers"
 			      " where version==:a and stacking==:b",
 			      vsn, stacking);
@@ -331,7 +329,6 @@ void Layers::raiseLayer(int n) {
   if (n==N)
     return;
   Transaction t(db);
-  pDebug() << "layerstrans1";
   quint64 idn = layerID(n);
   quint64 idabove = layerID(n+1);
   db->query("update layers set stacking=:a where id==:b", n+1, idn);
@@ -344,7 +341,6 @@ void Layers::lowerLayer(int n) {
   if (n==1)
     return;
   Transaction t(db);
-  pDebug() << "layerstrans2";
   quint64 idn = layerID(n);
   quint64 idbelow = layerID(n-1);
   db->query("update layers set stacking=:a where id==:b", n-1, idn);
@@ -354,10 +350,8 @@ void Layers::lowerLayer(int n) {
 
 void Layers::deleteLayer(int n) {
   int N = count();
-  pDebug() << "deletelayer" << n << N;
   ASSERT(n>=1 && n<=N);
   Transaction t(db);
-  pDebug() << "layerstrans3";
   db->query("delete from layers where version==:a and stacking==:b",
 	    vsn, n);
   for (int k=n+1; k<=N; k++)

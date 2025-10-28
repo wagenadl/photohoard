@@ -23,7 +23,6 @@ OriginalFinder::~OriginalFinder() {
 }
 
 void OriginalFinder::requestOriginal(quint64 version) {
-  // pDebug() << "OF::requestOriginal" << version;
   requestScaledOriginal(version, PSize(0, 0));
 }
 
@@ -32,7 +31,6 @@ PSize OriginalFinder::originalSize(quint64 vsn) {
 }		     
 
 void OriginalFinder::requestScaledOriginal(quint64 vsn, QSize ds) {
-  // pDebug() << "OF::requestScaledOriginal" << vsn << ds;
   quint64 folder;
   QString fn;
   int ftype;
@@ -91,11 +89,9 @@ void OriginalFinder::fixOrientation(Image16 &img) {
 }  
 
 void OriginalFinder::provide(QString fn, InterruptableReader::Result res) {
-  //  pDebug() << "OF::provide" << fn << res.ok << res.error << res.image.size;
   if (fn!=filepath)
     return;
   if (!res.ok) {
-    // pDebug() << "OF::provide: " << res.error << " on " << fn;
     COMPLAIN("OriginalFinder: got no result for " + fn);
     return;
   }

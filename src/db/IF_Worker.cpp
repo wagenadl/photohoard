@@ -22,7 +22,6 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
 				PSize *fullSizeReturn) {
   if (fullSizeReturn)
     *fullSizeReturn = PSize();
-  pDebug() << "IF_Worker::findImageNow" << s;
 
   PSize needed = Geometry::neededScaledOriginalSize(naturalSize,
 						    s.baseAdjustments(),
@@ -94,7 +93,6 @@ Image16 IF_Worker::findImageNow(QString path, QString ext,
     
     img = adjuster->retrieveReduced(s, PSize(maxdim, maxdim));
   }
-  pDebug() << "IF_Worker: findnow" << img.size() << averagePixel(img);
   return img;
 }  
 

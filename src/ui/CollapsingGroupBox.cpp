@@ -74,7 +74,6 @@ void CollapsingGroupBox::open() {
 }
 
 void CollapsingGroupBox::mouseDoubleClickEvent(QMouseEvent *) {
-  qDebug() << "double click";
   if (_open)
     collapse();
   else

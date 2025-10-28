@@ -12,7 +12,7 @@
 #include <math.h>
 
 void exifLogHandler(int level, char const *message) {
-  pDebug() << "Exif msg (" << level << "): " << message;
+  qDebug() << "Exif msg (" << level << "): " << message;
 }
 
 void Exif::initialize() {

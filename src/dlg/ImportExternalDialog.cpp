@@ -59,7 +59,6 @@ ImportExternalDialog::ImportExternalDialog(ImportJob *job,
     ui->collection->addItem(s);
   QString coll = job->collection();  
   int idx = ui->collection->findText(coll);
-  qDebug() << "importexternal" << coll << idx << collections;
   if (idx >= 0)
     ui->collection->setCurrentIndex(idx);
 

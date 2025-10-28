@@ -10,11 +10,9 @@
 bool RunControl::isRunning(quint64 pid) {
   QString fn = QString("/proc/%1").arg(pid);
   bool active = QFile(fn).exists();
-  qDebug() << "isrunning" << fn << active;
   if (!active)
     return false;
   QString exe = QFileInfo(fn + "/exe").symLinkTarget();
-  qDebug() << "  isrunning" << exe;
   return exe.contains("photohoard");
 }
 

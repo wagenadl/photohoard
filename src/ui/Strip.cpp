@@ -227,7 +227,7 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   }
   painter->setPen(QPen(Qt::NoPen));
   if (!painter->isActive())
-    qDebug() << "Painter not active in Strip.cpp";
+    COMPLAIN("Painter not active");
   painter->setBrush(QBrush(QColor(129, 129, 129)));
   painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
   painter->setBrush(QBrush(QColor(240, 240, 240)));
@@ -297,7 +297,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
     painter->drawPolyline(poly);
     painter->setPen(QPen(Qt::NoPen));
     if (!painter->isActive())
-      qDebug() << "Painter not active in Strip.cpp 2";
+      COMPLAIN("Painter not active");
     painter->setBrush(QBrush(bg));
     painter->drawRect(r);
   } else {    
@@ -318,7 +318,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
       poly.clear();
       painter->setPen(QPen(Qt::NoPen));
       if (!painter->isActive())
-        qDebug() << "Painter not active in Strip.cpp 3";
+        COMPLAIN("Painter not active");
       painter->setBrush(QBrush(bg));
       poly << QPointF(r.bottomLeft());
       poly << QPointF(r.topLeft()) + QPointF(0, slantw);
@@ -343,7 +343,7 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
       poly.clear();
       painter->setPen(QPen(Qt::NoPen));
       if (!painter->isActive())
-        qDebug() << "Painter not active in Strip.cpp 4";
+        COMPLAIN("Painter not active");
       painter->setBrush(QBrush(bg));
       poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
       poly << QPointF(r.topLeft()) + QPointF(0, slantw);
@@ -376,13 +376,13 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
         setHeaderID(v);
       } else {
         COMPLAIN("Could not find header image");
-        qDebug() << "limits are" << d0 << endFor(d0, scl);
+        qDebug() << "Strip:noheader: limits are" << d0 << endFor(d0, scl);
         { DBReadLock lock(db);
           QSqlQuery q = db->constQuery("select :a, :b",
                                        d0.toString(Qt::ISODate),
                                        endFor(d0, scl).toString(Qt::ISODate));
           if (q.next()) 
-            qDebug() << q.value(0).toString() << q.value(1).toString();
+            qDebug() << "Strip:noheader:" << q.value(0).toString() << q.value(1).toString();
         }
       }
     } break;
@@ -645,13 +645,11 @@ void Strip::expand() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-      //pDebug() << "strip1";
       db->query("insert into expanded values(:a,:b)", d0, int(scl));
     }
     break;
   case Organization::ByFolder:
     { DBWriteLock lock(db);
-      //pDebug() << "strip2";
       db->query("insert into expandedfolders values(:a)", pathname);
     }
     break;
@@ -666,13 +664,11 @@ void Strip::collapse() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-      //    pDebug() << "strip3";
       db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
     }
     break;
   case Organization::ByFolder:
     { DBWriteLock lock(db);
-      //    pDebug() << "strip4";
       db->query("delete from expandedfolders where path==:a", pathname);
     }
     break;

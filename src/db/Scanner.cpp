@@ -208,7 +208,6 @@ void Scanner::run() {
       waiter.wait(&mutex);
     }
   }
-  //  pDebug() << "Scanner end of run";
 }
 
 QSet<quint64> Scanner::findPhotosToScan() {
@@ -524,7 +523,7 @@ void Scanner::scanPhoto(quint64 id) {
     q.bindValue(":id", id);
     DBWriteLock lock(&db);
     if (!q.exec()) {
-      pDebug() << "fail!" << q.lastQuery() << q.boundValues();
+      qCritical() << "Scanner fail!" << q.lastQuery() << q.boundValues();
       CRASH(q.lastError().text());
     }
 
@@ -535,32 +534,15 @@ void Scanner::scanPhoto(quint64 id) {
 
 
 void Scanner::reportPhotoProgress() {
-  //  pDebug() << "Photo scan progress: " << n << " / " << N;
   QString msg = QString("Scanning photos: %1/%2").arg(n).arg(N);
   emit message(msg);
 }
 
 void Scanner::reportFolderProgress() {
-  //  pDebug() << "Folder scan progress: " << m << " / " << M;
   QString msg = QString("Scanning folders: %1/%2").arg(m).arg(M);
   emit message(msg);
 }
 
 void Scanner::reportScanDone() {
-  //  pDebug() << "Scan complete";
   emit message("Scan complete");
 }
-
-/*/////////////////////////////////////////////////////////////////////
-void Scanner::importDragged(QList<QUrl> urls, QString coll) {
-  for (auto const &url: urls) {
-    ASSERT(url.isLocalFile());
-    QFileInfo fi(url.path());
-    if (fi.isDir())
-      qDebug() << "  Import folder" << fi.absoluteFilePath();
-    else
-      qDebug() << "  Import photo" << fi.absoluteFilePath();
-  }
-  qDebug() << "  Into collection: " << coll;
-}
-*/

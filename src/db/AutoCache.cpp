@@ -10,7 +10,6 @@
 AutoCache::AutoCache(SessionDB *db, QString rootdir, QObject *parent):
   QObject(parent), db(db) {
   setObjectName("AutoCache");
-  pDebug() << "Autocache" << this;
   holder = new AC_ImageHolder(this);
   worker = new AC_Worker(db, rootdir, holder);
   worker->moveToThread(&thread);
@@ -30,7 +29,6 @@ AutoCache::AutoCache(SessionDB *db, QString rootdir, QObject *parent):
 	  this, SIGNAL(doneCaching()));
   connect(worker, &AC_Worker::available,
 	  [this](quint64 vs, Image16 img, quint64 chgid, QSize fs) {
-	    //pDebug() << "AC_Worker forward available" << vs << img.size() << chgid << fs;
 	    emit available(vs, img, chgid, fs); });
   connect(this, SIGNAL(forwardCachePreview(quint64, Image16)),
           worker, SLOT(cachePreview(quint64, Image16)));
@@ -47,7 +45,6 @@ AutoCache::~AutoCache() {
 }
 
 void AutoCache::cachePreview(quint64 id, Image16 img) {
-  pDebug() << "autocache::cachepreview emit available" << id << img.size();
   emit available(id, img, 1, QSize());
   emit forwardCachePreview(id, img);
 }
@@ -67,9 +64,6 @@ void AutoCache::recache(quint64 id) {
 
 void AutoCache::cacheModified(quint64 id, Image16 img, quint64 /*chgid*/) {
   holder->setImage(id, img);
-  //pDebug() << "autocache::cachemodified no emit available" 
-  //   << id << img.size() << chgid;
-  //  emit available(id, img, chgid, QSize());
   emit forwardCacheModified(id);
 }
 

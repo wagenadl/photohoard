@@ -104,14 +104,12 @@ void AppliedTagList::rebuild() {
 
 void AppliedTagList::removeTag(int id) {
   QSet<quint64> sel = selection.current();
-  qDebug() << "AppliedTagList::removeTag" << id << sel;
   tags.remove(sel, id);
   rebuild();
 }
 
 void AppliedTagList::applyTag(int id) {
   QSet<quint64> sel = selection.current();
-  qDebug() << "AppliedTagList::applyTag" << id << sel;
   tags.apply(sel, id);
   rebuild();
 }
@@ -176,7 +174,6 @@ int AppliedTagList::heightForWidth(int w) const {
 void AppliedTagList::editorAction() {
   QString tag = editor->text();
   QSet<int> ids = tags.smartFindAll(tag);
-  qDebug() << "AppliedTagList::editorAction" << tag << ids << selection.current();
   int id = ids.isEmpty() ? tags.define(tag) 
     : ids.size()==1 ? *ids.begin()
     : 0;

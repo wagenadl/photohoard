@@ -85,7 +85,6 @@ void AddRootDialog::browse() {
 }
 
 void AddRootDialog::addExclusion() {
-  pDebug() << "AddExclusion";
   QString fn
     = QFileDialog::getExistingDirectory(this,
                                         tr("Select root of tree to exclude"),

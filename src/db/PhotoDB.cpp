@@ -684,9 +684,9 @@ void PhotoDB::upgradeDBVersion() {
   // update to version 1.2 if needed
   QString dbvsn
     = simpleQuery("select version from info where id=='PhotoDB'").toString();
-  pDebug() << "PhotoDB upgradedbversion" << dbvsn;
 
   if (dbvsn<"1.2") {
+    qInfo() << "Upgrading database to 1.2 format";
     Transaction t(this);
     query("alter table layers add column alpha real");
     query("alter table layers add column feather real");
@@ -697,6 +697,7 @@ void PhotoDB::upgradeDBVersion() {
 
   // update to version 1.3 if needed
   if (dbvsn<"1.3") {
+    qInfo() << "Upgrading database to 1.3 format";
     Transaction t(this);
     query("alter table info add column uuid string");
     query("update info set uuid=:a where id=='PhotoDB'",
@@ -706,6 +707,7 @@ void PhotoDB::upgradeDBVersion() {
   }
 
   // now upgrade to modern style info table
+  qInfo() << "Upgrading database to modern info table";
   { Transaction t(this);
     QString uuid
       = simpleQuery("select uuid from info where id=='PhotoDB'").toString();

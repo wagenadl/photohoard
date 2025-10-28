@@ -61,7 +61,7 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc,
       FirstRunDialog frd;
       if (!frd.exec())
         return; // never mind, I guess
-      pDebug() << "Creating database at " << dbfn;
+      qInfo() << "Creating database at " << dbfn;
       roots = frd.roots();
     }
     PhotoDB::create(dbfn);
@@ -73,7 +73,7 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc,
   }
 
   if (!SessionDB::sessionExists(dbfn)) {
-    pDebug() << "Creating session for " << dbfn << cacheloc;
+    qInfo() << "Creating session for " << dbfn << cacheloc;
     QString cachedir = cacheloc.isEmpty()
       ? FileLocations::defaultCacheDirForDB(dbfn)
       : cacheloc + "/" + FileLocations::databaseUuid(dbfn) + "-cache";
@@ -89,7 +89,6 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc,
        locking mechanism to prevent races. Is that possible?
     */
     quint64 pid = sdb->retrievePid();
-    //    qDebug() << "retrieve pid " << pid;
     if (pid && RunControl::isRunning(pid)) {
       ErrorDialog::fatal("The database “" + dbfn
                          + "” is already open in photohoard.");
@@ -101,9 +100,8 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc,
   Settings().markRecentFile(dbfn);
 
   QString cachefn = sdb->cacheDirname();
-  //  qDebug() << "cachedir" << sdb->cacheDirname();
   if (!QDir(cachefn).exists()) {
-    pDebug() << "Creating cache at " << cachefn;
+    qInfo() << "Creating cache at " << cachefn;
     BasicCache::create(cachefn);
   }
 

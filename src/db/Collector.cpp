@@ -8,19 +8,17 @@
 #include "Extensions.h"
 
 Collector::Collector(QObject *parent): QThread(parent) {
-  pDebug() << "Collector" << this;
   complete_ = false;
   cnt = 0;
   movcnt = 0;
 }
 
 Collector::~Collector() {
-  pDebug() << "~Collector" << this;
   if (isRunning()) {
     cancel();
-    qDebug() << "Collector: Destructing while active. Canceling, and waiting.";
+    qWarning() << "Collector: Destructing while active. Canceling, and waiting.";
     if (!wait(10000)) {
-      qDebug() << "Failed to stop Collector thread. Aborting.";
+      qCritical() << "Failed to stop Collector thread. Aborting.";
       ASSERT(0);
     }
   }
@@ -66,7 +64,6 @@ void Collector::run() {
     QSet<QString> const &movext = Extensions::imageExtensions();
     if (url.isLocalFile()) {
       QFileInfo fi(url.path());
-      qDebug() << "Collector: " << fi.absoluteFilePath();
       QString sfx = fi.suffix().toLower();
       if (fi.isDir()) {
         sourceDirs << url.path();
@@ -76,10 +73,10 @@ void Collector::run() {
       } else if (movext.contains(sfx)) {
         movFiles << fi.absoluteFilePath();
       } else {
-        qDebug() << "Collector: Ignoring unknown filetype" << fi.suffix();
+        // do nothing
       }
     } else {
-      qDebug() << "Collector: Ignoring non-local" << url.toString();
+      qWarning() << "Collector: Ignoring non-local" << url.toString();
     }
   }
   cnt = imgFiles.size() + movFiles.size();
@@ -110,7 +107,6 @@ void Collector::run() {
     emit progress(cnt, movcnt, complete_);
   }
 
-  qDebug() << "collector complete";
   emit complete();
 }
 

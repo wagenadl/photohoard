@@ -134,7 +134,7 @@ CMSProfile CMSProfile::displayProfile() {
   // Qt5
   Display *display = QX11Info::display();
   if (!display) {
-    qDebug() << "No X11 display - Cannot retrieve display profile";
+    qWarning() << "No X11 display - Cannot retrieve display profile";
     return CMSProfile();
   }
   int screen = QX11Info::appScreen();
@@ -190,7 +190,7 @@ CMSProfile CMSProfile::displayProfile() {
 }
 #else
 CMSProfile CMSProfile::displayProfile() {
-  qDebug() << "Don't have X11Extras - cannot retrieve display profile";
+  qWarning() << "Don't have X11Extras - cannot retrieve display profile";
   return CMSProfile();
 }
 #endif

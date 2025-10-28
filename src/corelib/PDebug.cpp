@@ -82,17 +82,17 @@ QString calltrace() {
 }
 
 void complain(QString msg, char const *file, int line) {
-  qDebug() << "Trouble. Calltrace follows.";
-  qDebug() << calltrace();
-  qDebug() << "Location:" << file << line;
-  qDebug() << "Message:" << msg;
+  qWarning() << "Trouble. Calltrace follows.";
+  qWarning() << calltrace();
+  qWarning() << "Location:" << file << line;
+  qWarning() << "Message:" << msg;
 }
 
 void crash(QString msg, char const *file, int line) {
-  qDebug() << "Fatal error. Calltrace follows.";
-  qDebug() << calltrace();
-  qDebug() << "Location:" << file << line;
-  qDebug() << "Message:" << msg;
+  qCritical() << "Fatal error. Calltrace follows.";
+  qCritical() << calltrace();
+  qCritical() << "Location:" << file << line;
+  qCritical() << "Message:" << msg;
   abort();
 }
 

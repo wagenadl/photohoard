@@ -90,7 +90,6 @@ void AllControls::changeFromCropper(QRect croprect, QSize osize) {
 }
 
 void AllControls::layerIndexChange(int lay) {
-  //qDebug() << "layerIndexChange" << lay;
   if (currentWidget()==layers) {
     emit layerSelected(vsn, lay);
   }
@@ -105,7 +104,6 @@ void AllControls::storeInDatabase(Adjustments const &adj) {
       if (!locked) {
         locked = true;
         db->lockForWriting();
-        pDebug() << "allcontrolssid";
       }
       db->addUndoStep(vsn, k, v0, v);
       if (v==Adjustments::defaultFor(k))
@@ -119,7 +117,6 @@ void AllControls::storeInDatabase(Adjustments const &adj) {
   if (locked)
     db->unlockForWriting();
   adjs = adj;
-  pDebug() << "AllControls::storeInDatabase: emitting valuesChanged";
   emit valuesChanged(vsn, 0, adj);
 }  
 
@@ -140,14 +137,12 @@ void AllControls::changeOfTabIndex() {
 }
 
 void AllControls::maskChangeFromLayers(int lay) {
-  pDebug() << "mask change" << vsn << lay;
   emit maskChanged(vsn, lay);
 }
 
 void AllControls::valueChangeFromLayers(int lay) {
   Adjustments const *adj = layers->getAll(vsn, lay);
   if (adj) {
-    pDebug() << "AllControls::valueChangeFromLayers: emitting valuesChanged";
     emit valuesChanged(vsn, lay, *adj);
   }
 }

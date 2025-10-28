@@ -20,7 +20,6 @@ AC_Worker::AC_Worker(SessionDB const *db0, QString rootdir,
 		     AC_ImageHolder *holder,
                      QObject *parent):
   QObject(parent), holder(holder) {
-  pDebug() << "AC_Worker" << this;
   setObjectName("AC_Worker");
   db = new SessionDB;
   db->clone(*db0);
@@ -95,7 +94,6 @@ void AC_Worker::addToDBQueue(QSet<quint64> versions) {
   if (versions.isEmpty())
     return;
   Transaction t(cache->database());
-  pDebug() << "acworker addtodbq" << versions.size();
   for (auto v: versions) {
     cache->markOutdated(v);
     cache->database()->query("insert into queue values(:a)", v);
@@ -199,7 +197,6 @@ void AC_Worker::ensureDBSizeCorrect(quint64 vsn, PSize siz) {
 
   if (wid!=fs.width() || hei!=fs.height()) {
     DBWriteLock lock(db);
-    pDebug() << "AC_Worker::ensureDBSize";
     db->query("update photos set width=:a, height=:b where id=:c",
 	     fs.width(), fs.height(), photo);
   }
@@ -238,8 +235,6 @@ void AC_Worker::processLoaded() {
     && readyToLoad.isEmpty() && beingLoaded.isEmpty();
   if (done || loaded.size() > threshold || loadedmemsize>bytethreshold) {
     storeLoadedInDB();
-    pDebug() << "AC_Worker: Cache progress: " << n << "/" << N
-             << "(" << done <<")";
     emit cacheProgress(n, N);
   }
     
@@ -290,7 +285,6 @@ void AC_Worker::sendToBank(quint64 vsn) {
 
 void AC_Worker::storeLoadedInDB() {
   Transaction t(cache->database());
-  pDebug() << "accworker storelid" << loaded.size();
   int noutdated = 0;
   for (auto it=loaded.begin(); it!=loaded.end(); it++) {
     quint64 version = it.key();

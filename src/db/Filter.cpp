@@ -144,7 +144,6 @@ QString Filter::whereClause() const {
       clauses << starRatingClause();
     if (hasstatus)
       clauses << statusClause();
-    //pDebug() << "filter: whereclause hascamera" << hascamera;
     if (hascamera)
       clauses << cameraClause();
     if (hasdaterange)
@@ -241,7 +240,6 @@ QString Filter::cameraClause() const { // needs lock
     QStringList cameraids;
     while (q.next())
       cameraids << QString::number(q.value(0).toInt());
-    //    pDebug() << "cameraids" << cameraids.size();
     if (cameraids.isEmpty())
       return "0>1";
     if (cameraids.size()==1)
@@ -318,7 +316,6 @@ bool Filter::isTrivial() const {
 void Filter::saveToDb() const {
   ASSERT(db);
   Transaction t(db);
-  //  pDebug() << "filtersavedb";
   db->query("delete from filtersettings");
   QString q = "insert into filtersettings values (:a, :b)";
   db->query(q, "hascol", hascollection);

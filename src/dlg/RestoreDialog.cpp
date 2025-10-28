@@ -41,7 +41,6 @@ void RestoreDialog::restoreDialog(PhotoDB *db, QSet<quint64> const &photos) {
     return;
 
   Transaction t(db);
-  pDebug() << "restore1";
   for (auto pht: photos) {
     quint64 folderid = db->simpleQuery("select folder from photos"
                                        " where id==:a", pht).toULongLong();

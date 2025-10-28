@@ -44,7 +44,7 @@ void MultiDragDialog::dropParentFolder(QString dst) {
   if (fi.isDir()) {
     copyInto(fi.absoluteFilePath());
   } else {
-    qDebug() << "Destination is not a folder";
+    qWarning() << "Destination is not a folder";
     return;
   }
 }

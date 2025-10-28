@@ -147,7 +147,4 @@ QSize ShortcutHelp::sizeHint() const {
 
 void ShortcutHelp::resizeEvent(QResizeEvent *) {
   d->rebuild();
-  qDebug() << "shortcuthelp" << d->editor->size() << d->editor->sizeHint()
-           << d->editor->document()->size();
-  qDebug() << "lll" << d->layout->sizeHint() << sizeHint();
 }

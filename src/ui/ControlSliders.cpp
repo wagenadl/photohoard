@@ -20,7 +20,6 @@ ControlSliders::ControlSliders(QWidget *parent): ControlSliders(false, parent) {
 }
 
 ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
-  //  pDebug() << "ControlSliders" << this << ro << parent;
   QSignalMapper *mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
@@ -261,7 +260,6 @@ void ControlSliders::sliderChange(QString slider) {
   } else {
     adj.set(slider, value);
   }
-  pDebug() << "ControlSliders: emitting valuesChanged";
   emit valuesChanged();
 }
 
@@ -321,11 +319,9 @@ void ControlSliders::setLayer(int l) {
 }
 
 void ControlSliders::enterEvent(QEvent *) {
-  qDebug() << "enter control sliders";
   emit enterLeave(true);
 }
 
 void ControlSliders::leaveEvent(QEvent *) {
-  qDebug() << "leave control sliders";
   emit enterLeave(false);
 }

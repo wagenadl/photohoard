@@ -37,10 +37,8 @@ public:
     transformedCenter = xf.map(Geometry::mapToAdjusted(originalCenter,
                                                        so->osize, so->adj));
 
-    //    pDebug() << "layergeombase - poly" << pts0 << poly << p0;
     for (auto &p: poly)
       p = xf.map(Geometry::mapToAdjusted(p, so->osize, so->adj));
-    //    pDebug() << "layergeombase - xfpoly" << poly;
     transformedNodes = poly;
 
     for (double a: so->layer.radii()) {
@@ -98,7 +96,6 @@ SO_Layer::SO_Layer(PhotoDB *db, SlideView *sv): SlideOverlay(sv), db(db) {
 }
 
 void SO_Layer::setLayer(quint64 vsnid1, int lay1) {
-  //qDebug() << "solayer::setlayer" << vsnid1 << lay1;
   vsn = vsnid1;
   lay = lay1;
   layer = Layers(vsn, db).layer(lay);
@@ -127,7 +124,7 @@ void SO_Layer::paintEvent(QPaintEvent *) {
     paintInpaint(geom);
     break;
   default:
-    pDebug() << "Paint Layer type" << int(layer.type()) << "NYI";
+    qWarning() << "Paint Layer type" << int(layer.type()) << "NYI";
     break;
   }
 }
@@ -182,7 +179,6 @@ void SO_Layer::paintArea(LayerGeomBase const &geom) {
 
 void SO_Layer::paintClone(LayerGeomBase const &geom) {
   QPainter ptr(this);
-  //pDebug() << "paintclone" << geom.transformedNodes << geom.transformedRadii;
   int N = geom.transformedRadii.size();
   QPen b(QColor(255,0,0));
   b.setWidth(3);
@@ -233,7 +229,6 @@ bool SO_Layer::perhapsDeleteAreaPoint(QPoint pos, LayerGeomBase const &geom) {
     QPointF p = geom.transformedNodes[k];
     double norm = L2norm(pos - p);
     double r = geom.transformedRadii[k];
-    //pDebug() << "compare" << k << norm;
     if (norm < r*r* + POINTRADIUS*POINTRADIUS) {
       QPolygon pts = layer.points();
       pts.remove(k);
@@ -335,7 +330,6 @@ bool SO_Layer::perhapsStartDragPoint(QPoint pos, LayerGeomBase const &geom,
     double norm = L2norm(pos - p);
     if (norm < nearestNorm)
       nearestNorm = norm;
-    //pDebug() << "compare" << k << norm;
     if (norm < POINTRADIUS*POINTRADIUS) {
       clickidx = k;
       clickpos = pos;
@@ -500,7 +494,6 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
                                               osize, adj);
     QPolygon poly = layer.points();
     poly[clickidx] = newpt.toPoint();
-    //pDebug() << "dragging" << origpos << e->pos() << clickpos << newpt << poly;
     if (dragsourcealong && !(e->modifiers() & Qt::ControlModifier)) {
       QPointF npt2 = origpt2 + e->pos() - lastpos;
       QPointF newpt =  Geometry::mapFromAdjusted(ixf.map(npt2),
@@ -512,7 +505,6 @@ void SO_Layer::mouseMoveEvent(QMouseEvent *e) {
     layer.setPointsAndRadii(poly, layer.radii());
   }
   Layers(vsn, db).setLayer(lay, layer);
-  //  pDebug() << "SO_Layer: layermaskchanged";
   emit layerMaskChanged(vsn, lay);
   update();
   e->accept();

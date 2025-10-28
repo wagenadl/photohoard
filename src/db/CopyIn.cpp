@@ -16,9 +16,9 @@ CopyIn::CopyIn(QObject *parent): QThread(parent) {
 CopyIn::~CopyIn() {
   if (isRunning()) {
     cancel();
-    qDebug() << "CopyIn: Destructing while active. Canceling, and waiting.";
+    qWarning() << "CopyIn: Destructing while active. Canceling, and waiting.";
     if (!wait(10000)) {
-      qDebug() << "Failed to stop CopyIn thread. Aborting.";
+      qCritical() << "Failed to stop CopyIn thread. Aborting.";
       ASSERT(0);
     }
   }
@@ -84,7 +84,7 @@ void CopyIn::run() {
   QList<QString> copiedFiles;
 
   auto doCancel = [this,copiedFiles]() {
-    qDebug() << "CopyIn: Canceling...";
+    qInfo() << "CopyIn: Canceling...";
     for (QString const &s: copiedFiles) {
       QFile(s).remove();
     }
@@ -108,10 +108,10 @@ void CopyIn::run() {
       copiedFiles << f_out;
       disposableSources << s;
       nok ++;
-      qDebug() << "Copied" << s << "as" << f_out;
+      qInfo() << "Copied" << s << "as" << f_out;
     } else {
       nfail ++;
-      qDebug() << "Copy failed on " << s;
+      qWarning() << "Copy failed on " << s;
     }
     emit progress(nok + nmov + nfail);
     Messenger::message(this, QString("Copied %1/%2 %3")

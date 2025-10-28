@@ -1,0 +1,12 @@
+find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
+
+add_custom_target(dmg DEPENDS photohoard.dmg)
+
+add_custom_command(OUTPUT photohoard.dmg
+    DEPENDS photohoard.app/Contents/MacOS/photohoard
+    COMMAND "${MACDEPLOYQT_EXECUTABLE}" photohoard.app -dmg
+       -codesign=9GKW8J7LXY 
+       -executable=photohoard.app/Contents/MacOS/photohoard
+       -always-overwrite
+    COMMENT "Running macdeployqt to build photohoard.dmg"
+    )

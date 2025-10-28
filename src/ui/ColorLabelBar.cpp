@@ -21,7 +21,6 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
     acts << Action{Qt::CTRL + Qt::Key_0 + n, lbl,
         [=]() {
           { DBWriteLock lock(db);
-            pDebug() << "colorbar1";
             db->query("update versions set colorlabel=:a where id in "
                       " (select version from selection)", n);
           }
@@ -41,7 +40,6 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
     acts << Action{Qt::ALT + Qt::Key_0 + n, lbl,
         [=]() {
           { DBWriteLock lock(db);
-            pDebug() << "colorbar2";
             db->query("update versions set starrating=:a where id in "
                       " (select version from selection)", n);
           }
@@ -52,7 +50,6 @@ ColorLabelBar::ColorLabelBar(PhotoDB *db, LightTable *lighttable,
 
   auto foo = [db](int n) {
                DBWriteLock lock(db);
-               pDebug() << "colorbar3";
                db->query("update versions set acceptreject=:a where id in "
                          " (select version from selection)", n);
   };

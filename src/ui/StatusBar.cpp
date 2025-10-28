@@ -71,7 +71,7 @@ void StatusBar::paintEvent(QPaintEvent *) {
   QPainter p(this);
   p.setBrush(QColor("#eeeeee"));
   if (!p.isActive())
-    qDebug() << "Painter not active in Slide.cpp";
+    COMPLAIN("Painter not active");
   p.setPen(QPen(Qt::NoPen));
   p.drawRect(r);
   p.setPen(QPen("#000000"));

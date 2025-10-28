@@ -52,7 +52,6 @@ MainWindow::MainWindow(SessionDB *db,
   adjuster = new LiveAdjuster(db, autocache, this);
 
   shortcutHelp = new ShortcutHelp();
-  //  qDebug() << "help sizehint" << shortcutHelp->sizeHint();
 
   setCentralWidget(lighttable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
@@ -108,7 +107,7 @@ MainWindow::MainWindow(SessionDB *db,
   connect(allControls, SIGNAL(layerSelected(quint64, int)),
 	  lighttable, SLOT(visualizeLayer(quint64, int)));
   connect(allControls, &AllControls::inSliders,
-          [this](bool in) { qDebug() << "suppress" << in; lighttable->suppressLayerOverlay(in); });
+          [this](bool in) { lighttable->suppressLayerOverlay(in); });
 
   connect(exporter, SIGNAL(completed(QString, int, int)),
           SLOT(reportExportResults(QString, int, int)));
@@ -135,7 +134,6 @@ MainWindow::MainWindow(SessionDB *db,
     restoreGeometry(s.get("mwgeom").toByteArray());
   if (s.contains("mwstate"))
     restoreState(s.get("mwstate").toByteArray());
-  //  qDebug() << "Mainwindow" << geometry();
   lighttable->resize(size());
   lighttable->restoreSizes();
 }

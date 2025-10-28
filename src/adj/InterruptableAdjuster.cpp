@@ -8,7 +8,6 @@
 
 InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
   QThread(parent) {
-  pDebug() << "InterruptableAdjuster" << this;
   adjuster = new AllAdjuster(0);
   adjuster->moveToThread(this);
   // adjuster cannot be owned by us, because it must be moved into the thread
@@ -16,7 +15,6 @@ InterruptableAdjuster::InterruptableAdjuster(QObject *parent):
 }
 
 InterruptableAdjuster::~InterruptableAdjuster() {
-  pDebug() << "~InterruptableAdjuster" << this;
   stop();
   if (!wait(1000)) {
     COMPLAIN("InterruptableAdjuster: Failed to stop thread; terminating.");
@@ -128,7 +126,7 @@ void InterruptableAdjuster::handleNewRequest() {
       else
 	img = hnrReduced(sli, s);
     } else {
-      pDebug() << "IA: ROIs NYI";
+      qWarning() << "InterruptableAdjuster: ROIs NYI";
       /*
       if (s.isEmpty())
         img = adjuster->retrieveROI(sli, r);
@@ -137,7 +135,7 @@ void InterruptableAdjuster::handleNewRequest() {
       */
     }
   } else {
-    pDebug() << "InterruptableAdjuster: no can do";
+    qWarning() << "InterruptableAdjuster: no can do";
   }
   mutex.lock();
 
@@ -176,7 +174,6 @@ void InterruptableAdjuster::handleNewImage() {
 }
 
 void InterruptableAdjuster::run() {
-  pDebug() << "InterruptableAdjuster::run" << this;
   mutex.lock();
   while (!stopsoon) {
     empty = adjuster->isEmpty();
@@ -195,7 +192,6 @@ void InterruptableAdjuster::run() {
     }
   }
   mutex.unlock();
-  pDebug() << "InterruptableAdjuster::~run" << this;
 }
 
 

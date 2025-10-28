@@ -124,13 +124,13 @@ void Adjuster::dropFrom(int k) {
 }
 
 Image16 Adjuster::retrieveROI(Adjustments const &, QRect) {
-  qDebug() << "Adjuster::retrieveROI NYI";
+  qWarning() << "Adjuster::retrieveROI NYI";
   return Image16();
 }
 
 Image16 Adjuster::retrieveReducedROI(Adjustments const &,
                                      QRect, PSize) {
-  qDebug() << "Adjuster::retrieveReducedROI NYI";
+  qWarning() << "Adjuster::retrieveReducedROI NYI";
   return Image16();
 }
 

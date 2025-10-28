@@ -15,20 +15,18 @@ static bool execWithRetry(QSqlQuery &q) {
   /* This is a completely horrible hack that prevents some crashes when
      AC_Worker tries to read from the DB while something else is writing.
      This happens on rare occasions, and I cannot figure out why. */
-  pDebug() << "Retrying query " << q.lastQuery() << q.boundValues();
   int n = 0;
   while (n<10) {
     if (q.exec()) {
-      pDebug() << "Success retrying query " << q.lastQuery() << q.boundValues();
       return true;
     }
     if (q.lastError().type()!=QSqlError::ConnectionError) {
-      pDebug() << "Error retrying query " << q.lastQuery() << q.boundValues();
+      qWarning() << "Error retrying query " << q.lastQuery() << q.boundValues();
       return false;
     }
     ++n;
   }
-  pDebug() << "Failed retrying query " << q.lastQuery() << q.boundValues();
+  qWarning() << "Failed retrying query " << q.lastQuery() << q.boundValues();
   return false;
 }
 
@@ -111,7 +109,7 @@ QVariant Database::defaultQuery(QString s, QVariant a, QVariant dflt) const {
 QVariant Database::simpleQuery(QString s) const {
   QSqlQuery q = constQuery(s);
   if (!q.next()) {
-    qDebug() << "simpleQuery" << s;
+    qCritical() << "No result in simpleQuery" << s;
     CRASH("No result");
   }
   return q.value(0);
@@ -120,7 +118,7 @@ QVariant Database::simpleQuery(QString s) const {
 QVariant Database::simpleQuery(QString s, QVariant a) const {
   QSqlQuery q = constQuery(s, a);
   if (!q.next()) {
-    qDebug() << "simpleQuery" << s;
+    qCritical() << "No result in simpleQuery" << s;
     CRASH("No result");
   }
   return q.value(0);
@@ -129,7 +127,7 @@ QVariant Database::simpleQuery(QString s, QVariant a) const {
 QVariant Database::simpleQuery(QString s, QVariant a, QVariant b) const {
   QSqlQuery q = constQuery(s, a, b);
   if (!q.next()) {
-    qDebug() << "simpleQuery" << s;
+    qCritical() << "No result in simpleQuery" << s;
     CRASH("No result");
   }
   return q.value(0);
@@ -139,7 +137,7 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c) const {
   QSqlQuery q = constQuery(s, a, b, c);
   if (!q.next()) {
-    qDebug() << "simpleQuery" << s;
+    qCritical() << "No result in simpleQuery" << s;
     CRASH("No result");
   }
   return q.value(0);
@@ -149,7 +147,7 @@ QVariant Database::simpleQuery(QString s, QVariant a, QVariant b,
                                QVariant c, QVariant d) const {
   QSqlQuery q = constQuery(s, a, b, c, d);
   if (!q.next()) {
-    qDebug() << "simpleQuery" << s;
+    qCritical() << "No result in simpleQuery" << s;
     CRASH("No result");
   }
   return q.value(0);
@@ -159,13 +157,11 @@ QSqlQuery Database::query(QString s) {
   // Operationally, query and constQuery are identical.
   // Both are provided for easier understanding of code.
   if (!(*locked))
-    pDebug() << "query w/o lock" << s;
+    qWarning() << "query w/o lock" << s;
   return constQuery(s);
 }
 
 QSqlQuery Database::constQuery(QString s) const {
-  //if (!(*locked))
-  //    pDebug() << "constQuery w/o lock" << s;
   if (debugging())
     pDebug() << "query" << (void*)this << s;
   QSqlQuery q(db);
@@ -379,16 +375,13 @@ bool &Database::debugging() {
 
 Transaction::Transaction(Database *db): db(db) {
   cmt = false;
-  pDebug() << "trans";
   db->lockForWriting();
-  pDebug() << "Translock";
   db->begin();
-  pDebug() << "transbegun";
 }
 
 void Transaction::commit() {
   if (cmt) {
-    pDebug() << "double commit";
+    COMPLAIN("double commit");
     return;
   }
   cmt = true;
@@ -405,61 +398,34 @@ Transaction::~Transaction() {
 
 
 void Database::lockForReading() const {
-  /*
-  if (lock->tryLock(1000)) {
-    if (*locked)
-      pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();
-    *locked = QThread::currentThread();
-    //pDebug() << "Locked for reading" << *locked;
-    return;
-  }
-  pDebug() << "Trying to lock for reading..." << *locked << QThread::currentThread();;
-  int n = 1;
-  while (!lock->tryLock(1000)) {
-    pDebug() << "Still trying R" << n++;
-  }
-  if (*locked)
-    pDebug() << "RELOCK READ!?" << *locked << QThread::currentThread();;
-  *locked = QThread::currentThread();
-  //pDebug() << "Locked for reading" << *locked;
-  return;
-  */
+  COMPLAIN("lockForReading still needed??");
 }
 
 void Database::lockForWriting() {
   if (lock->tryLock(1000)) {
     if (*locked)
-      pDebug() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
+      qWarning() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
     *locked =  QThread::currentThread();
-    // pDebug() << "Locked for writing" << *locked << calltrace();;
     return;
   }
-  pDebug() << "Trying to lock for writing..." << *locked << QThread::currentThread();;
+  pDebug() << "Trying to lock for writing..." << *locked << QThread::currentThread();
   int n = 1;
   while (!lock->tryLock(1000)) {
-    pDebug() << "Still trying W" << n++;
+    qWarning() << "Still trying to lock for writing" << n++;
   }
   if (*locked)
-    pDebug() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
+    qWarning() << "RELOCK WRITE!?"  << *locked << QThread::currentThread();
   *locked = QThread::currentThread();
-  // pDebug() << "Locked for writing" << *locked << calltrace();
   return;
 }
 
 void Database::unlockForReading() const {
-  /*
-  // pDebug() << "unlock R" << *locked;
-  if (!locked)
-    pDebug() << "unlock R while not locked";
-  *locked = 0;
-  lock->unlock();
-  */
+  COMPLAIN("unlockForReading still needed??");
 }
 
 void Database::unlockForWriting() {
-  //  pDebug() << "unlock W" << *locked;
   if (!locked)
-    pDebug() << "unlock W while not locked";
+    COMPLAIN("unlock W while not locked");
   *locked = 0;
   lock->unlock();
 }

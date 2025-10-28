@@ -76,14 +76,12 @@ void ImportGUI::showAndGoExternal() {
 }  
 
 void ImportGUI::finishUpCompletedJob(QString errmsg) {
-  qDebug() << "finishUpCompletedJob" << errmsg;
   if (progressDlg)
     progressDlg->deleteLater();
   deleteLater();
 }
 
 void ImportGUI::cleanUpCanceledJob() {
-  qDebug() << "cleanUpCanceledJob";
   if (progressDlg)
     progressDlg->deleteLater();
   deleteLater();
@@ -198,17 +196,15 @@ bool ImportGUI::acceptable(QList<QUrl> const &urls) {
 
 void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
                                   QWidget *parent) {
-  pDebug() << "importbutton";
   QDir media("/media/" + qgetenv("USER"));
   if (!media.exists()) {
-    qDebug() << "No media folder";
+    qWarning() << "No media folder";
     return;
   }
   QStringList disks = media.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
                                       QDir::Name);
   QStringList usedisks;
   for (auto d: disks) {
-    qDebug() << "Disk: " << d;
     QDir dcim(media.absoluteFilePath(d + "/DCIM"));
     if (dcim.exists())
       usedisks << d;
@@ -239,13 +235,11 @@ void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
     QString choice = usedisks[0];
     if (usedisks.size() > 1) 
       choice = ImportSelectorDialog::choose(usedisks);
-    pDebug() << "choice is " << choice;
     QString path = media.absoluteFilePath(choice + "/DCIM");
     urls << QUrl::fromLocalFile(path);
   }
 
   if (urls.size()) {
-    qDebug() << urls;
     auto *gui = new ImportGUI(db, scanner, urls);
     gui->showAndGo();
   }

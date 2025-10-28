@@ -24,7 +24,6 @@ void ImportSelectorDialog::select() {
     choice_ = choices[idx];
   else
     choice_ = "";
-  pDebug() << "choice is" << choice();
   accept();
 }
 
