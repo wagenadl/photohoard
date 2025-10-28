@@ -1,13 +1,19 @@
 // CMSProfile.cpp
 
-#include "CMSProfile.h"
+#include <QDebug>
+#include <QMap>
 #include <QAtomicInt>
 #include <QApplication>
 #include <QDesktopWidget>
+
+#if HAVE_X11EXTRAS
 #include <QX11Info>
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
-#include <QMap>
+#endif
+
+#include "CMSProfile.h"
+
 
 void CMSProfile::initref() {
   refctr = new QAtomicInt;
@@ -123,9 +129,14 @@ CMSProfile &CMSProfile::operator=(CMSProfile const &o) {
   return *this;
 }
 
+#if HAVE_X11EXTRAS
 CMSProfile CMSProfile::displayProfile() {
   // Qt5
   Display *display = QX11Info::display();
+  if (!display) {
+    qDebug() << "No X11 display - Cannot retrieve display profile";
+    return CMSProfile();
+  }
   int screen = QX11Info::appScreen();
   
   Window root = RootWindow(display, screen);
@@ -177,6 +188,13 @@ CMSProfile CMSProfile::displayProfile() {
 
   return p;
 }
+#else
+CMSProfile CMSProfile::displayProfile() {
+  qDebug() << "Don't have X11Extras - cannot retrieve display profile";
+  return CMSProfile();
+}
+#endif
+
 
 double CMSProfile::standardIlluminant_x(CMSProfile::StandardIlluminant il) {
   static QMap<StandardIlluminant, double> x;
