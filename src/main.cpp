@@ -13,6 +13,7 @@
 #include "CMSTransform.h"
 #include "CMS.h"
 #include <thread>
+#include <QFileInfo>
 #include <iostream>
 #include "Session.h"
 #include <QCommandLineOption>
@@ -60,10 +61,16 @@ int main(int argc, char **argv) {
   FileLocations::ensureDataRoot();
 
   CMSProfile rgb(CMSProfile::srgbProfile());
-  if (icc=="")
+  if (icc != "") {
+    if (QFileInfo(icc).exists()) {
+      CMS::monitorProfile = CMSProfile(icc);
+    } else {
+      qDebug() << "ICC profile" << icc << "not found";
+      return 1;
+    }
+  } else {
     CMS::monitorProfile = CMSProfile::displayProfile();
-  else
-    CMS::monitorProfile = CMSProfile(icc);
+  }
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
 

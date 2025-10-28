@@ -9,7 +9,7 @@
 
 
 ######################################################################
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.19)
 
 ######################################################################
 # Set the project name and version
@@ -31,15 +31,21 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # find packages
-find_package(Qt5 COMPONENTS Widgets Sql X11Extras REQUIRED)
+find_package(Qt5X11Extras QUIET)
+if(TARGET Qt5X11Extras)
+  find_package(Qt5 REQUIRED COMPONENTS Widgets Sql X11Extras)
+else()
+  find_package(Qt5 REQUIRED COMPONENTS Widgets Sql)
+  # Somehow, find_package(Qt5 ... OPTIONAL_COMPONENTS X11Extras) fails
+endif()
 find_package(OpenCV REQUIRED)
 find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 #find_package(LCMS2 REQUIRED)
 find_library(ROCKS_DB_PATH rocksdb)
-
-#set(CMAKE_C_FLAGS "-O0 -ggdb")
-#set(CMAKE_CXX_FLAGS "-O0 -ggdb")
-
+include(res/FindLCMS2.cmake)
+if(!LCMS2_FOUND)
+  message(SEND_ERROR "Library “LCMS2” not found")
+endif()
 
 ######################################################################
 # Add the executables
@@ -61,12 +67,15 @@ include(src/CMakeLists.txt)
 # Libraries to link to - Qt must be mentioned
 target_link_libraries(photohoard Qt5::Widgets)
 target_link_libraries(photohoard Qt5::Sql)
-target_link_libraries(photohoard Qt5::X11Extras)
+if(TARGET Qt5::X11Extras)
+  target_link_libraries(photohoard Qt5::X11Extras)
+  target_link_libraries(photohoard "X11")
+  add_compile_definitions(HAVE_X11EXTRAS)
+endif()
 target_link_libraries(photohoard "${OpenCV_LIBS}")
 target_link_libraries(photohoard exiv2lib)
 target_link_libraries(photohoard "lcms2")
 target_link_libraries(photohoard "pthread")
-target_link_libraries(photohoard "X11")
 target_link_libraries(photohoard "rocksdb")
 
 #if (WIN32)
@@ -101,7 +110,7 @@ set(CPACK_PACKAGE_EXECUTABLES "photohoard;Photohoard")
 
 if (WIN32)
   # NSIS packaging - to be updated
-  include(WinPack.CMakeLists.txt)
+  include(res/WinPack.CMakeLists.txt)
   
 elseif (APPLE)
   set(CPACK_GENERATOR "DMG") # NYI
@@ -116,8 +125,8 @@ elseif (APPLE)
     COMMENT "Running macdeployqt..."
     )
 elseif (UNIX)
-  include(UnixInstall.CMakeLists.txt)
-  include(DebPack.CMakeLists.txt)
+  include(res/UnixInstall.CMakeLists.txt)
+  include(res/DebPack.CMakeLists.txt)
 endif()
 
 # Packaging
