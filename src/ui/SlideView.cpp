@@ -245,7 +245,7 @@ template<class X> X *findOverlay(SlideView *sv) {
 
 void SlideView::makeActions() {
   acts
-    << Action { {Qt::SHIFT + int('#'), Qt::SHIFT + Qt::Key_3},
+    << Action { {Qt::SHIFT | int('#'), Qt::SHIFT | Qt::Key_3},
       "Display grid of thirds",
       [this]() {
 	SO_Grid *so = findOverlay<SO_Grid>(this);
@@ -256,7 +256,7 @@ void SlideView::makeActions() {
 	update();
       }};
   acts
-    << Action { {Qt::SHIFT + int('@'), Qt::SHIFT + Qt::Key_2},
+    << Action { {Qt::SHIFT | int('@'), Qt::SHIFT | Qt::Key_2},
       "Show/hide layer outlines",
       [this]() {
         showlayers = !showlayers;
@@ -416,7 +416,7 @@ void SlideView::paintEvent(QPaintEvent *) {
   }
 }
     
-void SlideView::enterEvent(QEvent *) {
+void SlideView::enterEvent(QEnterEvent *) {
   setFocus();
 }
 

@@ -29,7 +29,7 @@ signals:
   void addClicked(int);
   void removeClicked(int);
 protected:
-  virtual void enterEvent(QEvent *) override;
+  virtual void enterEvent(QEnterEvent *) override;
   virtual void leaveEvent(QEvent *) override;
   virtual void paintEvent(QPaintEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;

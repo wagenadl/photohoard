@@ -6,6 +6,7 @@
 #include <QApplication>
 #include "Adjustments.h"
 #include "PDebug.h"
+#include <QRegularExpression>
 
 SliderGroups::SliderGroups() {
   QFile src(":/sliders.txt");
@@ -19,7 +20,7 @@ SliderGroups::SliderGroups() {
   
   while (!ts.atEnd()) {
     QString line = ts.readLine().simplified();
-    line.replace(QRegExp("#.*"),"");
+    line.replace(QRegularExpression("#.*"),"");
     if (line=="")
       continue;
     if (line.contains("::")) {

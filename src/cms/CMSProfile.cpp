@@ -4,10 +4,8 @@
 #include <QMap>
 #include <QAtomicInt>
 #include <QApplication>
-#include <QDesktopWidget>
 
-#if HAVE_X11EXTRAS
-#include <QX11Info>
+#if HAVE_X11
 #include <X11/Xutil.h>
 #include <X11/Xlib.h>
 #endif
@@ -129,22 +127,32 @@ CMSProfile &CMSProfile::operator=(CMSProfile const &o) {
   return *this;
 }
 
-#if HAVE_X11EXTRAS
+#if HAVE_X11
 CMSProfile CMSProfile::displayProfile() {
-  // Qt5
-  Display *display = QX11Info::display();
+  QString pltf = QApplication::platformName();
+  qDebug() << "platform is" << pltf;
+  auto *x11Application = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+  if (!x11Application) {
+	  qDebug() << "no x11 application";
+	  return CMSProfile();
+  }
+  Display *display = x11Application->display();
   if (!display) {
     qWarning() << "No X11 display - Cannot retrieve display profile";
     return CMSProfile();
   }
-  int screen = QX11Info::appScreen();
+  qDebug() << "Display is " << display;
+  int screen = DefaultScreen(display);
   
   Window root = RootWindow(display, screen);
   QString atomname = "_ICC_PROFILE";
   if (screen>0)
     atomname += QString("_%1").arg(screen);
+  qDebug() << "screen is" << screen;
+  qDebug() << "root is " << root;
 
   Atom iccAtom = XInternAtom(display, atomname.toUtf8().data(), true);
+  qDebug() << "got atom";
   Atom type;
   int format;
   unsigned long nItems, bytesAfter;

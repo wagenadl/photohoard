@@ -410,5 +410,6 @@
   <slot>respondToClick(int,int)</slot>
   <slot>addShapeLayer()</slot>
   <slot>addCloneLayer()</slot>
+  <slot>addHealLayer()</slot>
  </slots>
 </ui>

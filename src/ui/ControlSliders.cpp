@@ -21,11 +21,11 @@ ControlSliders::ControlSliders(QWidget *parent): ControlSliders(false, parent) {
 
 ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
   QSignalMapper *mapper = new QSignalMapper(this);
-  connect(mapper, SIGNAL(mapped(QString)), SLOT(sliderChange(QString)));
+  connect(mapper, SIGNAL(mappedString(QString)), SLOT(sliderChange(QString)));
   QSignalMapper *nextmapper = new QSignalMapper(this);
-  connect(nextmapper, SIGNAL(mapped(QString)), SLOT(goNext(QString)));
+  connect(nextmapper, SIGNAL(mappedString(QString)), SLOT(goNext(QString)));
   QSignalMapper *prevmapper = new QSignalMapper(this);
-  connect(prevmapper, SIGNAL(mapped(QString)), SLOT(goPrevious(QString)));
+  connect(prevmapper, SIGNAL(mappedString(QString)), SLOT(goPrevious(QString)));
 
   SliderGroups const &sg(SliderGroups::sliderGroups());
 
@@ -318,7 +318,7 @@ void ControlSliders::setLayer(int l) {
   recomp->setVisible(l==0);
 }
 
-void ControlSliders::enterEvent(QEvent *) {
+void ControlSliders::enterEvent(QEnterEvent *) {
   emit enterLeave(true);
 }
 

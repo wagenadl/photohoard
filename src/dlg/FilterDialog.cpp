@@ -235,7 +235,7 @@ Filter FilterDialog::extract() const {
 
 QStringList FilterDialog::splitTags() const {
   QStringList res;
-  for (auto s: ui->tagEditor->toPlainText().split(QRegExp("[,;&\n]+"))) {
+  for (auto s: ui->tagEditor->toPlainText().split(QRegularExpression("[,;&\n]+"))) {
     s = s.simplified();
     if (!s.isEmpty())
       res << s;

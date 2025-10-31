@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1197</width>
-    <height>968</height>
+    <width>972</width>
+    <height>747</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -83,11 +83,14 @@
             <bool>false</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <item>
              <widget class="QComboBox" name="collectionBox">
@@ -129,6 +132,9 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
@@ -211,11 +217,14 @@
             <bool>false</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <item>
              <widget class="QTreeWidget" name="location">
@@ -278,11 +287,14 @@
             <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <item row="1" column="1">
              <widget class="QCheckBox" name="cRed">
@@ -467,11 +479,14 @@
             <bool>false</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <item>
              <widget class="QCheckBox" name="sUnset">
@@ -529,11 +544,14 @@
             <bool>false</bool>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <item>
              <widget class="QWidget" name="widget_6" native="true">
@@ -682,11 +700,14 @@
             <bool>false</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="topMargin">
+             <number>6</number>
+            </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>4</number>
             </property>
             <item>
              <widget class="QWidget" name="widget_9" native="true">

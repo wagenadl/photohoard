@@ -44,7 +44,7 @@ public slots:
 protected:
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void keyPressEvent(QKeyEvent *) override;
-  virtual void enterEvent(QEvent *) override;
+  virtual void enterEvent(QEnterEvent *) override;
   virtual void mousePressEvent(QMouseEvent *) override;
   virtual void dragEnterEvent(QDragEnterEvent *) override;
   virtual void dragMoveEvent(QDragMoveEvent *) override;

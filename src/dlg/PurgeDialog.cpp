@@ -12,6 +12,7 @@
 #include <QProgressDialog>
 #include "RestoreDialog.h"
 #include "Dialog.h"
+#include <QFile>
 
 PurgeDialog::PurgeDialog(PhotoDB *db, Purge const *purge):
   db(db), purge(purge) {

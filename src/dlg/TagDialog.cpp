@@ -61,13 +61,13 @@ TagDialog::TagDialog(PhotoDB *db, bool ro): db(db), tags(db) {
   setLayout(vlay);
 
   selectionMapper = new QSignalMapper(this);
-  connect(selectionMapper, SIGNAL(mapped(int)), SLOT(updateSelection(int)));
+  connect(selectionMapper, SIGNAL(mappedInt(int)), SLOT(updateSelection(int)));
 
   if (readonly) {
     editMapper = 0;
   } else {
     editMapper = new QSignalMapper(this);
-    connect(editMapper, SIGNAL(mapped(int)), SLOT(confirmEdit(int)));
+    connect(editMapper, SIGNAL(mappedInt(int)), SLOT(confirmEdit(int)));
   }
 
   setWindowTitle("Tag manager");

@@ -398,7 +398,7 @@ Transaction::~Transaction() {
 
 
 void Database::lockForReading() const {
-  COMPLAIN("lockForReading still needed??");
+  // lock for reading does nothing now
 }
 
 void Database::lockForWriting() {
@@ -420,7 +420,7 @@ void Database::lockForWriting() {
 }
 
 void Database::unlockForReading() const {
-  COMPLAIN("unlockForReading still needed??");
+  // unlock for reading does nothing now
 }
 
 void Database::unlockForWriting() {

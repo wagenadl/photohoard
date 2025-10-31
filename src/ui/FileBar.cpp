@@ -18,7 +18,7 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
   sliderclip = new SliderClipboard(db, ac);
 
   if (!db->isReadOnly()) {
-    acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_R, "Add new folder tree",
+    acts << Action{Qt::CTRL | Qt::SHIFT | Qt::Key_R, "Add new folder tree",
 	[=]() {
 	AddRootDialog dlg(db);
 	while (dlg.exec()) {
@@ -36,23 +36,23 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
       }};
     new PAction(acts.last(), QIcon(":icons/folderAdd.svg"), this);
     
-    acts << Action{Qt::CTRL + Qt::Key_R, "Rescan folders",
+    acts << Action{Qt::CTRL | Qt::Key_R, "Rescan folders",
 	[=]() { scanner->rescanAll(); }};
     new PAction(acts.last(), QIcon(":icons/rescan.svg"), this);
     
-    acts << Action{Qt::CTRL + Qt::Key_I, "Import from camera or card",
+    acts << Action{Qt::CTRL | Qt::Key_I, "Import from camera or card",
 	[db, scanner, parent]() { ImportGUI::clickImportButton(db, scanner,
                                                                parent); }};
     new PAction(acts.last(), QIcon(":icons/cameraImport.svg"), this);
   }
   
-  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_E, "Export dialog",
+  acts << Action{Qt::CTRL | Qt::SHIFT | Qt::Key_E, "Export dialog",
       [exporter,this]() {
       ExportDialog::standalone(exporter, true);
     }};
   new PAction(acts.last(), QIcon(":icons/export.svg"), this);
 
-  acts << Action{Qt::CTRL + Qt::Key_E, "Export more images",
+  acts << Action{Qt::CTRL | Qt::Key_E, "Export more images",
       [exporter,this]() {
       if (exporter->settings().isValid()) 
         exporter->addSelection();
@@ -61,14 +61,14 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
     }};
   parent->addAction(new PAction(acts.last(), this));
   
-  acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_At, "Email exported images",
+  acts << Action{Qt::CTRL | Qt::SHIFT | Qt::Key_At, "Email exported images",
       [exporter,this]() {
       exporter->sendEmail();
     }};
   parent->addAction(new PAction(acts.last(), this));
   
   if (!db->isReadOnly()) {
-    acts << Action{Qt::CTRL + Qt::SHIFT + Qt::Key_C, "Clipboard dialog",
+    acts << Action{Qt::CTRL | Qt::SHIFT | Qt::Key_C, "Clipboard dialog",
 	[this]() { this->sliderclip->show(); }};
     parent->addAction(new PAction(acts.last(), this));
   }

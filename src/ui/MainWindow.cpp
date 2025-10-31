@@ -304,10 +304,10 @@ void MainWindow::addHiddenActions() {
      addAction(new PAction{hiddenactions.last(), this});
   };
 
-  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_A,
+  add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_A,
              "Clear selection", 
              [=]() { lighttable->clearSelection(); }});
-  add(Action{Qt::CTRL + Qt::Key_A,
+  add(Action{Qt::CTRL | Qt::Key_A,
              "Select all", 
              [=]() { lighttable->selectAll(); }});
   shortcutHelp->addSection("General", hiddenactions);
@@ -328,22 +328,22 @@ void MainWindow::makeMenu() {
     menu->addAction(pact);
   };
 
-  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_N, "&New database…",
+  add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_N, "&New database…",
              [this]() { newDatabase(); }});
   menu->addMenu(recent);
-  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_O, "&Open other database…",
+  add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_O, "&Open other database…",
              [this]() { openOther(); }});
   menu->addSeparator();
-  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_D, "&Redate selected…",
+  add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_D, "&Redate selected…",
              [this]() { showRedate(); }});
   menu->addSeparator();
-  add(Action{Qt::CTRL + Qt::SHIFT + Qt::Key_B, "Database &info…",
+  add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_B, "Database &info…",
              [this]() { databaseInfo(); }});
   add(Action{0, "&About Photohoard…",
              [this]() { showAbout(); }});
-  add(Action{Qt::CTRL + Qt::Key_H, "Keyboard &help…",
+  add(Action{Qt::CTRL | Qt::Key_H, "Keyboard &help…",
              [this]() { showShortcutHelp(); }});
-  add(Action{Qt::CTRL + Qt::Key_Q, "&Quit",
+  add(Action{Qt::CTRL | Qt::Key_Q, "&Quit",
              []() { QApplication::quit(); }});
 }
 

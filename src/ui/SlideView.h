@@ -111,7 +111,7 @@ protected:
   virtual void resizeEvent(QResizeEvent *) override;
   virtual void paintEvent(QPaintEvent *) override;
   virtual void wheelEvent(QWheelEvent *) override;
-  virtual void enterEvent(QEvent *) override;
+  virtual void enterEvent(QEnterEvent *) override;
 private:
   //  QPointF mapWidgetToImage(QPointF) const;
   //  QPointF mapImageToWidget(QPointF) const;
