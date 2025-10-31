@@ -8,7 +8,6 @@
 #include "Application.h"
 #include <QLabel>
 #include "NikonLenses.h"
-#include <QDesktopWidget>
 #include "CMS.h"
 #include "CMSTransform.h"
 #include "CMS.h"

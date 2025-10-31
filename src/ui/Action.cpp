@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QAction>
 #include "PDebug.h"
+#include <QWidget>
 
 Action::Action(unsigned int key, QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {

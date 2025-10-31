@@ -11,6 +11,7 @@ void NiceProcess::renice(int n) {
   nice = n;
 }
 
+/*
 void NiceProcess::setupChildProcess() {
   if (nice) {
     if (::nice(nice)) {
@@ -18,3 +19,4 @@ void NiceProcess::setupChildProcess() {
     }
   }
 }
+*/

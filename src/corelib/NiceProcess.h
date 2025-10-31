@@ -11,7 +11,7 @@ public:
   NiceProcess();
   void renice(int nice);
 protected:
-  virtual void setupChildProcess();
+  //virtual void setupChildProcess();
 private:
   int nice;
 };

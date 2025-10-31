@@ -28,9 +28,9 @@ SliderClipboard::SliderClipboard(SessionDB *db, AutoCache *ac, QWidget *parent):
   vlay->setSpacing(2);
   vlay->setContentsMargins(9, 9, 9, 4);
   QSignalMapper *gmap = new QSignalMapper(this);
-  connect(gmap, SIGNAL(mapped(QString)), SLOT(groupStateChange(QString)));
+  connect(gmap, SIGNAL(mappedString(QString)), SLOT(groupStateChange(QString)));
   QSignalMapper *smap = new QSignalMapper(this);
-  connect(smap, SIGNAL(mapped(QString)), SLOT(sliderStateChange(QString)));  
+  connect(smap, SIGNAL(mappedString(QString)), SLOT(sliderStateChange(QString)));  
   SliderGroups const &sg(SliderGroups::sliderGroups());
   foreach (QString grp, sg.groups()) {
     Tristate *gc = new Tristate;

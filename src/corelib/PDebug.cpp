@@ -9,6 +9,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QThread>
+#include <QRegularExpression>
 
 namespace PDebug {
   quint64 elapsed() {
@@ -76,7 +77,7 @@ QString calltrace() {
   fns.pop_front();
   fns.pop_front();
   QString trc = fns.join(" < ");
-  trc.replace(QRegExp(" <  <  < ( < )*"), " <...< ");
+  trc.replace(QRegularExpression(" <  <  < ( < )*"), " <...< ");
   trc.replace("  ", " ");
   return trc;
 }
@@ -103,7 +104,10 @@ void crashdb(QSqlDatabase const &db, QString msg, char const *file, int line) {
 }
 
 void crashq(QSqlQuery const &q, char const *file, int line) {
-  QString msg = q.lastQuery() + ": " + q.lastError().databaseText()
-    + " (" + q.lastError().driverText() + " / " + q.lastError().type() + ")";
+  QString msg = QString("%1: %2 (%3 / %4)")
+		  .arg(q.lastQuery())
+		  .arg(q.lastError().databaseText())
+                  .arg(q.lastError().driverText())
+		  .arg(q.lastError().type());
   crash(msg, file, line);
 }

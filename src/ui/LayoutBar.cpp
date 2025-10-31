@@ -12,7 +12,7 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
       [=]() { lighttable->setLayout(Layout::FullGrid); }};
   new PAction(acts.last(), QIcon(":icons/layoutGrid.svg"), this);
 
-  acts << Action{Qt::SHIFT + Qt::Key_F2, "Horizontal grid plus photo",
+  acts << Action{Qt::SHIFT | Qt::Key_F2, "Horizontal grid plus photo",
       [=]() { lighttable->setLayout(Layout::HGrid); }};
   new PAction(acts.last(), QIcon(":icons/layoutHGrid.svg"), this);
 
@@ -20,7 +20,7 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
       [=]() { lighttable->setLayout(Layout::VGrid); }};
   new PAction(acts.last(), QIcon(":icons/layoutVGrid.svg"), this);
 
-  acts << Action{Qt::SHIFT + Qt::Key_F3, "Horizontal line plus photo",
+  acts << Action{Qt::SHIFT | Qt::Key_F3, "Horizontal line plus photo",
       [=]() { lighttable->setLayout(Layout::HLine); }};
   new PAction(acts.last(), QIcon(":icons/layoutHLine.svg"), this);
 
@@ -45,20 +45,20 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
       }};
     parent->addAction(new PAction(acts.last(), this));
 
-    acts << Action { {Qt::SHIFT + int('@'), Qt::SHIFT + Qt::Key_2},
+    acts << Action { {Qt::SHIFT | int('@'), Qt::SHIFT + Qt::Key_2},
         "Show/hide layer outlines",
         [this, lighttable]() {
             lighttable->showHideLayers();
         }};
     parent->addAction(new PAction(acts.last(), this));    
 
-  acts << Action{Qt::CTRL + Qt::Key_Minus,
+  acts << Action{Qt::CTRL | Qt::Key_Minus,
       "Reduce tile size", 
       [=]() { lighttable->increaseTileSize(1/1.25); }};
   new PAction{acts.last(), QIcon(":icons/scaleSmaller.svg"), this};
   /* QIcon(":icons/scaleSmaller.svg") */
 
-  acts << Action{{Qt::CTRL + Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
+  acts << Action{{Qt::CTRL | Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
       "Increase tile size", 
       [=]() { lighttable->increaseTileSize(1.25); }};
   new PAction{acts.last(), QIcon(":icons/scaleLarger.svg"), this};

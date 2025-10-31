@@ -4,6 +4,7 @@
 #include <system_error>
 #include "PDebug.h"
 #include <QFile>
+#include <QRegularExpression>
 
 SqlFile::SqlFile(QString fn) {
   QFile sqlf(fn);
@@ -11,9 +12,9 @@ SqlFile::SqlFile(QString fn) {
   QString sql = QString(sqlf.readAll());
   QStringList cmds = sql.split(";");
   for (auto c: cmds) {
-    c.replace(QRegExp("--[^\\n]*\\n?"), "");
-    c.replace(QRegExp("^\\s+"), "");
-    c.replace(QRegExp("\\s+$"), "");
+    c.replace(QRegularExpression("--[^\\n]*\\n?"), "");
+    c.replace(QRegularExpression("^\\s+"), "");
+    c.replace(QRegularExpression("\\s+$"), "");
     if (!c.isEmpty()) {
       *this << c;
     }

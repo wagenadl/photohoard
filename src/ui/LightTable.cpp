@@ -629,17 +629,17 @@ void LightTable::makeActions() {
       if (v)
         slidePress(v, Qt::LeftButton);
     }}
-  << Action { Qt::CTRL + Qt::Key_N, "New version from current",
+  << Action { Qt::CTRL | Qt::Key_N, "New version from current",
          [&]() {
       db->newVersion(db->current(), true);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_N, "New version from original",
+  << Action { Qt::CTRL | Qt::SHIFT | Qt::Key_N, "New version from original",
          [&]() {
       db->newVersion(db->current(), false);
       rescan();
     }}
-  << Action { Qt::CTRL + Qt::SHIFT + Qt::Key_X, "Purge rejects",
+  << Action { Qt::CTRL | Qt::SHIFT | Qt::Key_X, "Purge rejects",
          [&]() {
       PurgeDialog::purgeDialog(db, cache);
       rescan();

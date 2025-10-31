@@ -283,7 +283,7 @@ Datestrip const *StripView::strip() const {
   return useFolders ? folderStrip : dateStrip;
 }
 
-void StripView::enterEvent(QEvent *) {
+void StripView::enterEvent(QEnterEvent *) {
   setFocus();
 }
 

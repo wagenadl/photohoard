@@ -24,7 +24,7 @@ public:
   virtual QSize sizeHint() const override;
   static class Actions const &actions();
   static double sliderValue(Adjustments const &vv, QString slider);
-  void enterEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
   void leaveEvent(QEvent *) override;
 signals:
   void valuesChanged();

@@ -10,6 +10,7 @@
 #include <QImageReader>
 #include "PDebug.h"
 #include <math.h>
+#include <QRegularExpression>
 
 void exifLogHandler(int level, char const *message) {
   qDebug() << "Exif msg (" << level << "): " << message;
@@ -124,7 +125,7 @@ static QString titleCase(QString s) {
   QStringList ss = s.split(" ");
   QStringList out;
   for (auto s: ss) 
-    if (s.size()>=4 && QRegExp("[A-Z]*").exactMatch(s))
+    if (s.size()>=4 && QRegularExpression("^[A-Z]*$").match(s).hasMatch())
       out << s.left(1) + s.mid(1).toLower();
     else
       out << s;

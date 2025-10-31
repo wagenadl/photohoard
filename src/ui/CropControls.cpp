@@ -119,7 +119,7 @@ void CropControlsUi::addAspects(CropControls *cc) {
   QGridLayout *lay = new QGridLayout();
   lay->setContentsMargins(0, 1, 0, 1);
   QSignalMapper *sigmap = new QSignalMapper(cc);
-  QObject::connect(sigmap, SIGNAL(mapped(QString)),
+  QObject::connect(sigmap, SIGNAL(mappedString(QString)),
                    cc, SLOT(clickAspect(QString)));
   
   auto nextRow = [&]() {

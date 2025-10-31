@@ -30,7 +30,7 @@ QSize AppliedTagWidget::minimumSizeHint() const {
   return sizeHint();
 }  
 
-void AppliedTagWidget::enterEvent(QEvent *) {
+void AppliedTagWidget::enterEvent(QEnterEvent *) {
   if (ro)
     return;
   mouseover = true;

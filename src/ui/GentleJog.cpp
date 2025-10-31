@@ -332,7 +332,7 @@ void GentleJog::keyReleaseEvent(QKeyEvent *e) {
     timer->start(150);
 }
 
-void GentleJog::enterEvent(QEvent *) {
+void GentleJog::enterEvent(QEnterEvent *) {
   setFocus(Qt::MouseFocusReason);
 }
 

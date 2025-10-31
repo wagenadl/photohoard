@@ -5,7 +5,7 @@
 #include <QMutexLocker>
 #include "PDebug.h"
 #include "IF_Worker.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDir>
 #include "Adjustments.h"
 #include <QApplication>

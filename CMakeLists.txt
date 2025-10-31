@@ -31,13 +31,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # find packages
-find_package(Qt5X11Extras QUIET)
-if(TARGET Qt5X11Extras)
-  find_package(Qt5 REQUIRED COMPONENTS Widgets Sql X11Extras)
-else()
-  find_package(Qt5 REQUIRED COMPONENTS Widgets Sql)
-  # Somehow, find_package(Qt5 ... OPTIONAL_COMPONENTS X11Extras) fails
-endif()
+find_package(Qt6 REQUIRED COMPONENTS Widgets Sql)
 find_package(OpenCV REQUIRED)
 find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 #find_package(LCMS2 REQUIRED)
@@ -49,6 +43,16 @@ find_library(LCMS2_PATH lcms2 REQUIRED)
 add_executable(photohoard WIN32 MACOSX_BUNDLE src/main.cpp)
 #target_link_options(photohoard private "$<$<CONFIG:Release>:-s>")
 
+######################################################################
+# Check for X11
+
+include(CheckIncludeFiles)
+CHECK_INCLUDE_FILES("X11/Xlib.h;X11/Xutil.h" HAVE_X11_INCLUDES)
+find_library(HAVE_X11_LIBRARY X11)
+if(HAVE_X11_INCLUDES AND HAVE_X11_LIBRARY)
+  add_compile_definitions(HAVE_X11)
+  target_link_libraries(photohoard X11)
+endif()
 ######################################################################
 # DEBUG VERSION
 #set(CMAKE_BUILD_TYPE DEBUG)
@@ -62,13 +66,8 @@ add_executable(photohoard WIN32 MACOSX_BUNDLE src/main.cpp)
 include(src/CMakeLists.txt)
 
 # Libraries to link to - Qt must be mentioned
-target_link_libraries(photohoard Qt5::Widgets)
-target_link_libraries(photohoard Qt5::Sql)
-if(TARGET Qt5::X11Extras)
-  target_link_libraries(photohoard Qt5::X11Extras)
-  target_link_libraries(photohoard X11)
-  add_compile_definitions(HAVE_X11EXTRAS)
-endif()
+target_link_libraries(photohoard Qt6::Widgets)
+target_link_libraries(photohoard Qt6::Sql)
 target_link_libraries(photohoard "${OpenCV_LIBS}")
 target_link_libraries(photohoard exiv2lib)
 target_link_libraries(photohoard lcms2)

@@ -35,7 +35,7 @@ public:
 
 SHPrivate::SHPrivate(ShortcutHelp *parent): parent(parent) {
   layout = new QVBoxLayout;
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   editor = new SHEditor;
   editor->setReadOnly(true);
   layout->addWidget(editor);
