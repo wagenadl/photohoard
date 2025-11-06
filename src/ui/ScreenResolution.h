@@ -12,7 +12,6 @@ public:
   static QSize pixelCount();
   static QSizeF millimeterSize();
   static double dpi();
-  static QFont defaultFont();
 private:
   static QSize &pc();
   static QSizeF &ms();

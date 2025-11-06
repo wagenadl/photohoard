@@ -9,6 +9,7 @@
 
 MetaViewer::MetaViewer(SessionDB *db, QWidget *parent):
   QTextBrowser(parent), db(db) {
+  setStyleSheet("QTextBrowser { background-color: '#222222'; color: 'white'; }");
   setReadOnly(true);
   setFocusPolicy(Qt::NoFocus);
   setOpenLinks(false);

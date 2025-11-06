@@ -9,6 +9,7 @@
 AppliedTagWidget::AppliedTagWidget(int id, QString name, bool ro,
 				   QWidget *parent):
   QFrame(parent), id(id), name(name), ro(ro) {
+  //  setStyleSheet("QWidget { background-color: '#aaaaaa'; color: '#000000'; }");
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   mouseover = false;
   inall = incur = false;
