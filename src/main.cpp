@@ -29,7 +29,8 @@ void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
 int main(int argc, char **argv) {
   Settings settings;
   Application app(argc, argv);
-  app.setFont(ScreenResolution::defaultFont());
+  app.setStyleSheet("QWidget { font-family: Lato; font-size: 9pt; }");
+  //  app.setFont(ScreenResolution::defaultFont());
 
   QCommandLineOption cli_db("db", "Specify database to use",
                             "file.photohoard");

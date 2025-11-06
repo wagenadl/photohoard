@@ -200,9 +200,11 @@ void SessionDB::upgradeDBVersion() {
   QString myvsn = simpleQuery("select val from sinfo where id==:a",
                               infoIDName(SInfoID::SessionDBVersion)).toString();
   if (myvsn < "1.5") {
+    Transaction t(this);
     query("create table selection (version integer unique on conflict ignore)");
     query("update sinfo set val=:a where id=:b",
           "1.5", infoIDName(SInfoID::SessionDBVersion));
+    t.commit();
   }
 }
 

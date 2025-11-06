@@ -24,13 +24,6 @@ double ScreenResolution::dpi() {
   return dpi_();
 }
 
-QFont ScreenResolution::defaultFont() {
-  static QFont f("Lato");
-  static bool first = true;
-  if (first) 
-    f.setPixelSize(0.1 * dpi() * pow(millimeterSize().width()/250, 0.3));
-  return f;
-}
 
 //////////////////////////////////////////////////////////////////////
 // Internal functions

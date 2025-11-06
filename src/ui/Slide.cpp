@@ -30,6 +30,24 @@ Slide::~Slide() {
   // this may not be true if scene is being destroyed
 }
 
+static QColor bgcolor("#808080");
+
+QColor Slide::colorLabelColor(int c) {
+  static QMap<int, QColor> cc;
+  //   static QColor bg("#808080");
+  if (cc.isEmpty()) {
+    cc[1] = QColor("#bb4455");
+    cc[2] = QColor("#bbaa44");
+    cc[3] = QColor("#66aa66");
+    cc[4] = QColor("#3355bb");
+    cc[5] = QColor("#aa66aa");
+  }
+  if (c && cc.contains(c))
+    return cc[c];
+  else
+    return bgcolor;
+}
+
 void Slide::updateImage(Image16 const &img1, bool chgd) {
   if (!chgd) {
     if (img1.size().isContainedIn(pm.size())
@@ -108,12 +126,10 @@ void Slide::paint(QPainter *painter,
 
   QColor b0 = colorLabelColor(colorLabel);
   QColor b = isCurrent ? QColor("#ffee00")
-    : isSelected ? QColor("#ff8800") : b0;
+    : isSelected ? QColor("#ffffff") : b0;
   int dx = 1; //isCurrent ? 2: 1;
-  QColor btl = isCurrent ? b.darker()
-    : isSelected ? b.darker() : b.lighter();
-  QColor bbr = isCurrent ? b.lighter()
-    : isSelected ? b.lighter() : b.darker();
+  QColor btl = bgcolor.lighter();
+  QColor bbr = bgcolor.darker();
   painter->setBrush(bbr);
   if (!painter->isActive())
     COMPLAIN("Painter not active");
@@ -128,51 +144,6 @@ void Slide::paint(QPainter *painter,
   painter->setBrush(b0);
   painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
 
-  if (starRating>0) {
-    // draw a few stars
-    QString star = QString::fromUtf8("★");
-    QString txt = "";
-    for (int n=0; n<starRating; n++)
-      txt += star;
-    painter->setPen(QColor("#ffee00"));
-    painter->drawText(r.adjusted(dx, 0, 0, -dx),
-                      Qt::AlignLeft | Qt::AlignBottom,
-                      txt);
-  }
-
-  if (acceptReject != PhotoDB::AcceptReject::Undecided) {
-    static QString acc = QString::fromUtf8("✔"); // ✓✔√");
-    static QString rej = QString::fromUtf8("❌"); // ×❌
-    static QString newi = QString::fromUtf8("✶");
-    QString txt = "";
-    QColor clr;
-    switch (acceptReject) {
-    case PhotoDB::AcceptReject::Accept:
-      txt = acc;
-      clr = QColor("#00ff00");
-      break;
-    case PhotoDB::AcceptReject::Reject:
-      txt = rej;
-      clr = QColor("red");
-      break;
-    case PhotoDB::AcceptReject::NewImport:
-      txt = newi;
-      clr = QColor("#ffff00");
-    default:
-      break;
-    }
-    QFont f0 = painter->font();
-    QFont f = f0;
-    f.setPixelSize(16); // hmm.
-    f.setWeight(QFont::Bold);
-    painter->setPen(clr);
-    painter->setFont(f);
-    painter->drawText(r.adjusted(0, 0, -3, 0),
-                      Qt::AlignRight | Qt::AlignTop,
-                      txt);
-    painter->setFont(f0);
-  }
-  
   int ims = tilesize - SLIDEMARGINS;
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
@@ -203,6 +174,51 @@ void Slide::paint(QPainter *painter,
   painter->drawPixmap(tilesize/2 - pm.width()/2,
 		      tilesize/2 - pm.height()/2,
 		      pm);
+  
+  if (starRating>0) {
+    // draw a few stars
+    QString star = QString::fromUtf8("★");
+    QString txt = "";
+    for (int n=0; n<starRating; n++)
+      txt += star;
+    painter->setPen(QColor("#ffee00"));
+    painter->drawText(r.adjusted(dx, 0, 0, -dx),
+                      Qt::AlignLeft | Qt::AlignBottom,
+                      txt);
+  }
+
+  if (acceptReject != PhotoDB::AcceptReject::Undecided) {
+    static QString acc = QString::fromUtf8("✔"); // ✓✔√");
+    static QString rej = QString::fromUtf8("❌"); // ×❌
+    static QString newi = QString::fromUtf8("✦"); // ✧✦✶
+    QString txt = "";
+    QColor clr;
+    switch (acceptReject) {
+    case PhotoDB::AcceptReject::Accept:
+      txt = acc;
+      clr = QColor("#00ff00");
+      break;
+    case PhotoDB::AcceptReject::Reject:
+      txt = rej;
+      clr = QColor("red");
+      break;
+    case PhotoDB::AcceptReject::NewImport:
+      txt = newi;
+      clr = QColor("#ffffff");
+    default:
+      break;
+    }
+    QFont f0 = painter->font();
+    QFont f = f0;
+    f.setPixelSize(16); // hmm.
+    f.setWeight(QFont::Bold);
+    painter->setPen(clr);
+    painter->setFont(f);
+    painter->drawText(r.adjusted(0, 0, -2, 0),
+                      Qt::AlignRight | Qt::AlignTop,
+                      txt);
+    painter->setFont(f0);
+  }  
 }
 
 void Slide::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
@@ -233,21 +249,6 @@ void Slide::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
       parent->slideClicked(id, e->button(), e->modifiers());
 }
 
- QColor Slide::colorLabelColor(int c) {
-   static QMap<int, QColor> cc;
-   static QColor bg("#808080");
-   if (cc.isEmpty()) {
-     cc[1] = QColor("#bb4455");
-     cc[2] = QColor("#bbaa44");
-     cc[3] = QColor("#66aa66");
-     cc[4] = QColor("#3355bb");
-     cc[5] = QColor("#aa66aa");
-   }
-   if (c && cc.contains(c))
-     return cc[c];
-   else
-     return bg;
- }
 
 Slidestrip *Slide::parentStrip() const {
   return parent;
