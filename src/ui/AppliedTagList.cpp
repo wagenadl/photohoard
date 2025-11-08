@@ -37,17 +37,15 @@ AppliedTagList::~AppliedTagList() {
 
 QSize AppliedTagList::sizeHint() const {
   QMargins m = contentsMargins();
-  QRect cc = editor
-    ? editor->geometry().adjusted(0, 0, 2 + browse->width(), 0)
-    : QRect();  
+  QRect cc;  
   for (auto w: widgets)
     cc |= w->rect();
   return cc.size() + QSize(m.left() + m.right(),
-                           m.top() + m.bottom());    
+                           m.top() + m.bottom());
 }
 
 QSize AppliedTagList::minimumSizeHint() const {
-  return QSize(50, sizeHint().height()); // hmmm.
+  return QSize(150, 50);
 }
 
 void AppliedTagList::setCurrent(quint64 vsn) {
@@ -137,9 +135,11 @@ void AppliedTagList::relayout() {
   y += lh + 1;
   x = r.left();
   if (editor) {
-    editor->move(x, y);
+    //editor->move(x, y);
     browse->resize(browse->sizeHint().width(), editor->height());
     browse->move(r.right()-browse->width(), r.bottom()-browse->height());
+    editor->move(x, r.bottom() - editor->height());
+    editor->resize(browse->pos().x() - r.left() - 4, editor->height());
   }
   updateGeometry();
 }

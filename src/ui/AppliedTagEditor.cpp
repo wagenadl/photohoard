@@ -197,8 +197,8 @@ void AppliedTagEditor::deleteSelection() {
 
 QSize AppliedTagEditor::sizeHint() const {
   QFontMetrics fm(font());
-  QRect r0 = fm.boundingRect("New tag... ");
-  QRect r1 = fm.boundingRect(txt + "  ");
+  QRect r0 = fm.boundingRect("Add tag…");
+  QRect r1 = fm.boundingRect(txt + "|  ");
   QSize s0 = (r0|r1).size();
   QMargins mm = contentsMargins();
   return s0 + QSize(mm.left()+mm.right(), mm.top()+mm.bottom());
@@ -206,7 +206,9 @@ QSize AppliedTagEditor::sizeHint() const {
 
 QSize AppliedTagEditor::minimumSizeHint() const {
   QFontMetrics fm(font());
-  QSize s0 = fm.boundingRect("Hello|").size();
+  QRect r0 = fm.boundingRect("Add tag…");
+  QRect r1 = fm.boundingRect("|  ");
+  QSize s0 = (r0|r1).size();
   QMargins mm = contentsMargins();
   return s0 + QSize(mm.left()+mm.right(), mm.top()+mm.bottom());
 }
@@ -241,7 +243,7 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
       f.setItalic(true);
       p.setFont(f);
       p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter,
-		 QString::fromUtf8("New tag…"));
+		 QString::fromUtf8("Add tag…"));
     }
   }
   if (!p.isActive())
