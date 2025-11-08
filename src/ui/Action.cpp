@@ -8,12 +8,14 @@
 
 Action::Action(QKeyCombination key, QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
+  pDebug() << "action" << key;
   keys << QKeySequence(key);
 }
 
 Action::Action(std::vector<QKeyCombination> const &kk,
                QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
+  pDebug() << "action multi" << kk;
   for (auto k: kk) 
     keys << QKeySequence(k);
 }

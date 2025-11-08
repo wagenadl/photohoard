@@ -45,7 +45,7 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
       }};
     parent->addAction(new PAction(acts.last(), this));
 
-    acts << Action { {Qt::SHIFT | int('@'), Qt::SHIFT + Qt::Key_2},
+    acts << Action { {Qt::SHIFT | Qt::Key_At, Qt::SHIFT | Qt::Key_2},
         "Show/hide layer outlines",
         [this, lighttable]() {
             lighttable->showHideLayers();
@@ -58,7 +58,7 @@ LayoutBar::LayoutBar(LightTable *lighttable, QWidget *parent):
   new PAction{acts.last(), QIcon(":icons/scaleSmaller.svg"), this};
   /* QIcon(":icons/scaleSmaller.svg") */
 
-  acts << Action{{Qt::CTRL | Qt::Key_Plus, Qt::CTRL + Qt::Key_Equal},
+  acts << Action{{Qt::CTRL | Qt::Key_Plus, Qt::CTRL | Qt::Key_Equal},
       "Increase tile size", 
       [=]() { lighttable->increaseTileSize(1.25); }};
   new PAction{acts.last(), QIcon(":icons/scaleLarger.svg"), this};
