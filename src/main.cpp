@@ -21,14 +21,13 @@
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
-  std::cerr<< msg.toUtf8().data() << "\n";
+  std::cerr << msg.toUtf8().data() << "\n";
   if (typ==3) {
     std::cerr << "this is serious\n";
   }
 }
 
 int main(int argc, char **argv) {
-  pDebug() << "Photohoard" << argc << argv;
   Settings settings;
   Application app(argc, argv);
   app.setFont(ScreenResolution::defaultFont());
