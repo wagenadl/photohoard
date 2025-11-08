@@ -20,11 +20,13 @@ LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):
   QWidget(parent), db(db) {
   ui = new Ui_LayerDialog;
   ui->setupUi(this);
+  setObjectName("layerdialog");
   ui->addHeal->hide(); // not good enough yet
   ui->table->setHorizontalHeaderItem(0,
                                      new QTableWidgetItem(eyeIcon(true), ""));
   //  setVersion(0);
   sliders = new ControlSliders(db->isReadOnly(), 0);
+  sliders->setObjectName("layoutsliders");
   sliders->setLayer(1); // make sure not to show recompose group
   ui->verticalLayout->addWidget(sliders);
   Dialog::ensureSize(this);

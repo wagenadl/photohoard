@@ -42,6 +42,7 @@ private:
   void makeToolbars();
   void addHiddenActions();
   void makeMenu();
+  void setStyle();
 private:
   class SessionDB *db;
   class Scanner *scanner;

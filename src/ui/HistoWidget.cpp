@@ -37,7 +37,7 @@ void HistoWidget::paintEvent(QPaintEvent *) {
   colors << QColor("#ff0000");
 
   QPainter p(this);
-  p.setBrush(QColor("#000000"));
+  p.setBrush(QColor("#222222"));
   if (!p.isActive())
     COMPLAIN("Painter not active in HistoWidget.cpp");
   p.setPen(QPen(Qt::NoPen));

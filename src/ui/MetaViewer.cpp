@@ -9,12 +9,11 @@
 
 MetaViewer::MetaViewer(SessionDB *db, QWidget *parent):
   QTextBrowser(parent), db(db) {
-  setStyleSheet("QTextBrowser { background-color: '#222222'; color: 'white'; }");
   setReadOnly(true);
   setFocusPolicy(Qt::NoFocus);
   setOpenLinks(false);
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-  document()->setDefaultStyleSheet("a { color: '#88ccff'; text-decoration: none }\n");
+  document()->setDefaultStyleSheet("a { color: '#0044ff'; text-decoration: none }\n");
   connect(this, SIGNAL(anchorClicked(QUrl const &)),
 	  SLOT(handleClick(QUrl const &)));
 }

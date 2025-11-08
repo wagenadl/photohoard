@@ -12,7 +12,8 @@ class CropControls: public QScrollArea {
 public:
   CropControls(QWidget *parent=0);
   virtual ~CropControls();
-  QSize sizeHint() const;
+  QSize minimumSizeHint() const override;
+  QSize sizeHint() const override;
 public slots:
   void setAll(class Adjustments const &adj, QSize osize);
   void setAll(class Adjustments const &adj);

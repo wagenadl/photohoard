@@ -21,7 +21,8 @@ public:
   class ControlGroup *group(QString groupname) const; // groupname must exist
   class GentleJog *jog(QString slidername) const; // slidername must exist
   Adjustments const &getAll() const;
-  virtual QSize sizeHint() const override;
+  QSize minimumSizeHint() const override;
+  QSize sizeHint() const override;
   static class Actions const &actions();
   static double sliderValue(Adjustments const &vv, QString slider);
   void enterEvent(QEnterEvent *) override;

@@ -27,7 +27,7 @@ public:
      Example:
          Action{Qt::Key_F1, "Quit", []() { QApplication::quit(); }}
   */
-  Action(std::vector<QKeyCombination> const &keys, QString doc,
+  Action(QList<QKeyCombination> const &keys, QString doc,
          std::function<void()> foo);
   /* - Constructor with a set of key shortcuts and a functor
      ACTION(keys, doc, foo) constructs a new ACTION with multiple shortcuts,

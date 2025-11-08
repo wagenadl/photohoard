@@ -11,10 +11,6 @@ AppliedTagList::AppliedTagList(PhotoDB *db, QWidget *parent):
   QFrame(parent),
   db(db), tags(db), selection(db) {
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-  //setStyleSheet("QWidget { background-color: '#d0d0d0'; color: '#000000'; }");
-
-  setFrameShadow(QFrame::Sunken);
-  setFrameStyle(QFrame::StyledPanel);
   if (db->isReadOnly()) {
     editor = 0;
     dialog = 0;

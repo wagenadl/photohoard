@@ -29,7 +29,6 @@ void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
 int main(int argc, char **argv) {
   Settings settings;
   Application app(argc, argv);
-  app.setStyleSheet("QWidget { font-family: Lato; font-size: 9pt; }");
   //  app.setFont(ScreenResolution::defaultFont());
 
   QCommandLineOption cli_db("db", "Specify database to use",

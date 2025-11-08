@@ -12,7 +12,6 @@
 AppliedTagEditor::AppliedTagEditor(PhotoDB *db, QWidget *parent):
   QFrame(parent), tags(db) {
   setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-  //  setStyleSheet("QWidget { background-color: '#aaaaaa'; color: '#000000'; }");
   setContentsMargins(2, 2, 2, 2);
   resize(sizeHint());
   cursorpos = 0;

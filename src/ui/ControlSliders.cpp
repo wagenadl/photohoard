@@ -30,12 +30,14 @@ ControlSliders::ControlSliders(bool ro, QWidget *parent): QScrollArea(parent) {
   SliderGroups const &sg(SliderGroups::sliderGroups());
 
   QWidget *w = new QWidget;//OneWayScroll;
+  w->setObjectName("controlsliders");
   if (ro)
     w->setEnabled(false);
   setWidget(w);
   setWidgetResizable(true);
 
   QVBoxLayout *vl = new QVBoxLayout;
+  vl->setContentsMargins(2, 2, 2, 2);
 
   foreach (QString grp, sg.groups()) {
     ControlGroup *g = new ControlGroup(sg.groupLabel(grp));
@@ -266,11 +268,19 @@ void ControlSliders::sliderChange(QString slider) {
 QSize ControlSliders::sizeHint() const {
   QWidget *vp = viewport();
   QWidget *wdg = widget();
-  if (vp && wdg)
-    return wdg->sizeHint() + size() - vp->contentsRect().size();
+  QScrollBar *sb = verticalScrollBar();
+  if (vp && wdg && sb)
+    return wdg->sizeHint() + size() - vp->contentsRect().size()
+      + QSize(sb->sizeHint().width(), 0);
   else
     return QSize();
 }
+
+QSize ControlSliders::minimumSizeHint() const {
+  QSize s = sizeHint();
+  return QSize(s.width(), 100);
+}
+
 
 void ControlSliders::goNext(QString src) {
   QString dst = next[src];

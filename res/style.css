@@ -1,32 +1,60 @@
+QWidget {
+    font-family: Lato;
+    font-size: 10pt;
+}
+
 SlideView {
-  background-color: #808080;
-  border-style: solid;
-  border-color: #808080;
-  border-width: 4px;
+    background-color: #808080;
+    border-style: solid;
+    border-color: #808080;
+    border-width: 4px;
 }
 
 MetaViewer {
-  background-color: #222222;
-  color: #ffffff;
+    background-color: #f8f8f8;
+    color: #000000;
+}
+
+MetaViewer, HistoWidget, AppliedTagList, CropControls, ControlSliders, #layerdialog {
+    margin-right: 6px;
+    border-style: solid;
+    border-left-color: #cccccc;
+    border-top-color: #cccccc;
+    border-right-color: #ffffff;
+    border-bottom-color: #ffffff;
+    border-width: 1;
 }
 
 AppliedTagList {
-  background-color: #ededed;
+    background-color: #ededed;
 }
 
 AppliedTagEditor {
-  background-color: #ededed;
-  border-style: solid;
-  border-left-color: #cccccc;
-  border-top-color: #cccccc;
-  border-right-color: #ffffff;
-  border-bottom-color: #ffffff;
-  border-width: 1;
-}
-
-AppliedTagWidget {
+    background-color: #ededed;
+    border-style: solid;
+    border-left-color: #cccccc;
+    border-top-color: #cccccc;
+    border-right-color: #ffffff;
+    border-bottom-color: #ffffff;
+    border-width: 1;
 }
 
 QLineEdit {
-  background-color: #ffffff;
+    background-color: #ffffff;
 }
+
+QWidget#controlsliders, QWidget#cropcontrol, GentleJog {
+    background: #ededed;
+}
+
+ControlSliders#layoutsliders {
+    border-width: 1px;
+    padding: 4px;
+}
+
+QTabWidget:pane {
+    border-style: solid;
+    border-width: 0;
+    border-right-width: 0;
+}
+    

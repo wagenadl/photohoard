@@ -17,6 +17,7 @@
 #include <QSignalMapper>
 #include <QDebug>
 #include "ControlGroup.h"
+#include <QScrollBar>
 
 //////////////////////////////////////////////////////////////////////
 class CropControlsUi {
@@ -44,13 +45,14 @@ public:
 void CropControlsUi::populate(CropControls *cc) {
   vLayout = new QVBoxLayout;
   vLayout->setContentsMargins(2, 2, 2, 2);
+  vLayout->setSpacing(8);
   cc->widget()->setLayout(vLayout);
   addModeButtons(cc);
   addOrientButtons(cc);
   addTools(cc);
   addAspects(cc);
   addSliders(cc);
-  vLayout->addSpacing(100);
+  vLayout->addStretch();
 }
 
 void CropControlsUi::addTools(CropControls *cc) {
@@ -80,7 +82,7 @@ void CropControlsUi::addModeButtons(CropControls *cc) {
   }
   modeControls[CropMode::Free]->setChecked(true);
 
-  QHBoxLayout *lay = new QHBoxLayout();
+  auto *lay = new QHBoxLayout();
   lay->setContentsMargins(0, 1, 0, 1);
   lay->addSpacing(1);
   lay->addWidget(modeControls[CropMode::Free]);
@@ -101,7 +103,7 @@ void CropControlsUi::addOrientButtons(CropControls *cc) {
                      cc, SLOT(toggleOrient()));
   }
   
-  QHBoxLayout *lay = new QHBoxLayout();
+  auto *lay = new QHBoxLayout();
   lay->setContentsMargins(0, 1, 0, 1);
   lay->addSpacing(1);
   lay->addWidget(orientControls[Orient::Auto]);
@@ -270,6 +272,7 @@ void CropControlsUi::reflectLimits(CropCalc *calc) {
 
 CropControls::CropControls(QWidget *parent): QScrollArea(parent) {
   QWidget *w = new QWidget;//OneWayScroll;
+  w->setObjectName("cropcontrol");
   setWidget(w);
   setWidgetResizable(true);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -430,8 +433,16 @@ void CropControls::customConfirmed() {
 QSize CropControls::sizeHint() const {
   QWidget *vp = viewport();
   QWidget *wdg = widget();
-  if (vp && wdg)
-    return wdg->sizeHint() + size() - vp->contentsRect().size();
+  QScrollBar *sb = verticalScrollBar();
+  if (vp && wdg && sb)
+    return wdg->sizeHint() + size() - vp->contentsRect().size()
+      + QSize(sb->sizeHint().width(), 0);
   else
     return QSize();
+}
+
+
+QSize CropControls::minimumSizeHint() const {
+  QSize s = sizeHint();
+  return QSize(s.width(), 100);
 }

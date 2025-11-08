@@ -8,6 +8,7 @@
 #include "PhotoDB.h"
 #include "Layers.h"
 #include "PDebug.h"
+#include <QVBoxLayout>
 
 AllControls::AllControls(PhotoDB *db, QWidget *parent):
   QTabWidget(parent), db(db) {
@@ -27,8 +28,14 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
   if (ro) 
     cropper->setEnabled(false);
 
+  QWidget *sa = new QWidget();
+  auto *lay = new QVBoxLayout();
+  lay->setContentsMargins(2, 2, 2, 2);
+  sa->setLayout(lay);
+  sa->setObjectName("layerdialog");
   layers = new LayerDialog(db);
-  addTab(layers, QIcon(":/icons/layers.svg"), "Layers");
+  lay->addWidget(layers);
+  addTab(sa, QIcon(":/icons/layers.svg"), "Layers");
   connect(layers, SIGNAL(layerSelected(int)),
 	  SLOT(layerIndexChange(int)));
   connect(layers, SIGNAL(maskEdited(int)),

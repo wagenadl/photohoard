@@ -25,6 +25,7 @@
 #include "StatusBar.h"
 #include "AppliedTagList.h"
 #include <QDir>
+#include <QLayout>
 #include "PDebug.h"
 #include "ShortcutHelp.h"
 #include "Exporter.h"
@@ -59,6 +60,7 @@ MainWindow::MainWindow(SessionDB *db,
   makeMenu();
   makeDocks();
   makeToolbars();
+  setStyle();
   messenger = new Messenger(this);
 
   connect(adjuster, SIGNAL(imageAvailable(Image16, quint64, QSize)),
@@ -242,6 +244,9 @@ void MainWindow::dropEvent(QDropEvent *e) {
 
 void MainWindow::makeDocks() {
   qDebug() << "makedocks" << layout();
+  if (layout()) {
+    qDebug() << layout()->contentsMargins();
+  }
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setObjectName("Histogram");
   dock->setWidget(histogram = new HistoWidget(this));
@@ -398,4 +403,7 @@ void MainWindow::openOther() {
   if (fn.isEmpty())
     return;
   new Session(fn);
+}
+
+void MainWindow::setStyle() {
 }
