@@ -9,5 +9,11 @@
     <file alias="setupcache.sql">../res/setupcache.sql</file>
     <file alias="setupdb.sql">../res/setupdb.sql</file>
     <file alias="setupsession.sql">../res/setupsession.sql</file>
+    <!-- FONTS -->
+    <file alias="setupsession.sql">../res/setupsession.sql</file>
+    <file alias="Regular.ttf">../res/fonts/zalando/static/ZalandoSans-Medium.ttf</file>
+    <file alias="Bold.ttf">../res/fonts/zalando/static/ZalandoSans-Bold.ttf</file>
+    <file alias="Italic.ttf">../res/fonts/zalando/static/ZalandoSans-MediumItalic.ttf</file>
+    <file alias="BoldItalic.ttf">../res/fonts/zalando/static/ZalandoSans-BoldItalic.ttf</file>
   </qresource> 
 </RCC>
