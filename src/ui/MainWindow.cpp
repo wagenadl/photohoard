@@ -241,6 +241,7 @@ void MainWindow::dropEvent(QDropEvent *e) {
 }
 
 void MainWindow::makeDocks() {
+  qDebug() << "makedocks" << layout();
   QDockWidget *dock = new QDockWidget("Histogram", this);
   dock->setObjectName("Histogram");
   dock->setWidget(histogram = new HistoWidget(this));
@@ -339,7 +340,7 @@ void MainWindow::makeMenu() {
   menu->addSeparator();
   add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_B, "Database &info…",
              [this]() { databaseInfo(); }});
-  add(Action{0, "&About Photohoard…",
+  add(Action{Qt::CTRL | Qt::SHIFT | Qt::Key_H, "&About Photohoard…",
              [this]() { showAbout(); }});
   add(Action{Qt::CTRL | Qt::Key_H, "Keyboard &help…",
              [this]() { showShortcutHelp(); }});

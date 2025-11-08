@@ -6,12 +6,12 @@
 #include "PDebug.h"
 #include <QWidget>
 
-Action::Action(unsigned int key, QString doc, std::function<void()> foo):
+Action::Action(QKeyCombination key, QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
   keys << QKeySequence(key);
 }
 
-Action::Action(std::vector<unsigned int> const &kk,
+Action::Action(std::vector<QKeyCombination> const &kk,
                QString doc, std::function<void()> foo):
   doc(doc), foo(foo) {
   for (auto k: kk) 
