@@ -5,7 +5,7 @@ install(TARGETS photohoard DESTINATION bin)
 install(FILES res/doc/photohoard.1 DESTINATION share/man/man1)
 install(FILES README.md DESTINATION share/doc/photohoard)
 install(FILES CHANGELOG DESTINATION share/doc/photohoard)
-install(FILES res/icons/photohoard.iconset/photohoard.svg share/pixmaps)
+install(FILES res/icons/photohoard.iconset/photohoard.svg DESTINATION share/pixmaps)
 
 foreach(RES IN ITEMS 16 24 32 48 64 128 256 512)
   install(FILES res/icons/photohoard.iconset/photohoard_${RES}x${RES}.png
