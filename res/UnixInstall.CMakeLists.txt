@@ -1,9 +1,11 @@
+# UnixInstall.CMakeLists.txt
+
 install(TARGETS photohoard DESTINATION bin)
 
-#install(FILES ${CMAKE_BINARY_DIR}/userguide.pdf DESTINATION share/doc/photohoard)
-install(FILES doc/photohoard.1 DESTINATION share/man/man1)
+install(FILES res/doc/photohoard.1 DESTINATION share/man/man1)
 install(FILES README.md DESTINATION share/doc/photohoard)
 install(FILES CHANGELOG DESTINATION share/doc/photohoard)
+install(FILES res/icons/photohoard.iconset/photohoard.svg share/pixmaps)
 
 foreach(RES IN ITEMS 16 24 32 48 64 128 256 512)
   install(FILES res/icons/photohoard.iconset/photohoard_${RES}x${RES}.png
@@ -11,5 +13,5 @@ foreach(RES IN ITEMS 16 24 32 48 64 128 256 512)
     RENAME photohoard.png)
 endforeach()
 
-install(PROGRAMS src/photohoard.desktop DESTINATION share/applications)
-#install(FILES src/photohoard.xml DESTINATION share/mime/packages)
+install(PROGRAMS res/photohoard.desktop DESTINATION share/applications)
+# install(FILES src/photohoard.xml DESTINATION share/mime/packages)

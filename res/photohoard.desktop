@@ -1,9 +1,11 @@
 [Desktop Entry]
-Name=photohoard
+Name=Photohoard
+GenericName=Photohoard
 GenericName=Photography Collection Manager
 Comment=Photography Collection Manager
 Exec=photohoard %f
 Terminal=false
 Type=Application
 Categories=Graphics
+Keywords=photography;digital asset management
 Icon=/usr/share/pixmaps/photohoard.svg
