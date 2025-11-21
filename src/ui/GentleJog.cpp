@@ -246,21 +246,21 @@ void GentleJog::paintEvent(QPaintEvent *) {
   
 void GentleJog::mousePressEvent(QMouseEvent *e) {
   if (e->button() == Qt::LeftButton) {
-    startJog(e->x(), e->modifiers());
+    startJog(e->position().x(), e->modifiers());
     e->accept();
   }
 }
 
 void GentleJog::mouseReleaseEvent(QMouseEvent *e) {
   if (e->button() == Qt::LeftButton) {
-    endJog(e->x());
+    endJog(e->position().x());
     e->accept();
   }
 }
 
 void GentleJog::mouseMoveEvent(QMouseEvent *e) {
   if (jogging) {
-    continueJog(e->x());
+    continueJog(e->position().x());
     e->accept();
   }
 }

@@ -186,7 +186,10 @@ insert into extensions(filetype, extension)
 insert into extensions(filetype, extension)
        select id, "tif" from filetypes where stdext=="tiff";
 
-insert into info(id, val) values("dbversion", "1.4");
+insert into tags(tag) values ("{}"); -- collections
+insert into tags(tag) values ("[]"); -- regular tags
+
+insert into info(id, val) values("dbversion", "1.5");
 
 create index if not exists photodateidx on photos(capturedate);
 create index if not exists parentfolderidx on folders(parentfolder);

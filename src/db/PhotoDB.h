@@ -133,6 +133,7 @@ protected:
 private:
   void readFTypes() const;
   void upgradeDBVersion();
+  void modernizeDB();
   static QString infoIDName(InfoID);
 private:
   bool ro;

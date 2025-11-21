@@ -675,15 +675,31 @@ QVariant PhotoDB::dbInfo(PhotoDB::InfoID id) const {
 void PhotoDB::upgradeDBVersion() {
   bool modern = simpleQuery("select count(1) from info where id==:a",
                             infoIDName(InfoID::Photohoard)).toInt() > 0;
-  if (modern)
-    return; /* In the future, we may have to check for version, but for now,
-               the only "modern" version in existence is 1.4. */
+  if (!modern)
+    modernizeDB(); // this brings to DB format 1.4
+  QString dbvsn = simpleQuery("select val from info where id==:a",
+                              "dbversion").toString();
+  if (dbvsn < "1.5") {
+    qInfo() << "Upgrading database to 1.5 format";
+    Transaction t(this);
+    if (simpleQuery("select count(1) from tags where tag==:a",
+                    "Collections").toInt() > 0)
+      query("update tags set tag=:a where tag==:b", "{}", "Collections");
+    else
+      query("insert into tags(tag) values(:a)", "{}"); // collections
+    query("insert into tags(tag) values(:a)", "[]"); // standard tags
+    query("update info set val=:b where id==:a", "dbversion", "1.5");
+    t.commit();
+  }
+}
 
+void PhotoDB::modernizeDB() {
   /* We have an old style INFO table. */
 
   // update to version 1.2 if needed
   QString dbvsn
-    = simpleQuery("select version from info where id=='PhotoDB'").toString();
+    = simpleQuery("select version from info where id==:a",
+                  "PhotoDB").toString();
 
   if (dbvsn<"1.2") {
     qInfo() << "Upgrading database to 1.2 format";
@@ -707,7 +723,7 @@ void PhotoDB::upgradeDBVersion() {
   }
 
   // now upgrade to modern style info table
-  qInfo() << "Upgrading database to modern info table";
+  qInfo() << "Upgrading database to 1.4 format";
   { Transaction t(this);
     QString uuid
       = simpleQuery("select uuid from info where id=='PhotoDB'").toString();

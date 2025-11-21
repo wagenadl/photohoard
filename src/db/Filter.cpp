@@ -160,7 +160,7 @@ QString Filter::whereClause() const {
 }
 
 QString Filter::collectionClause() const { // needs lock
-  QSqlQuery q = db->constQuery("select id from tags where tag==:a", "Collections");
+  QSqlQuery q = db->constQuery("select id from tags where tag==:a", "{}");
   if (!q.next())
     return collection_.isEmpty() ? "1>0" : "0>1";
   int colparent = q.value(0).toInt();

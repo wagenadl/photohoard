@@ -14,7 +14,8 @@ QString Tags::name(int id) {
 
 int Tags::findOne(QString tag) {
   DBReadLock lock(db);
-  QSqlQuery q = db->constQuery("select id from tags where tag==:a collate nocase",
+  QSqlQuery q = db->constQuery("select id from tags where tag==:a"
+                               " collate nocase",
                          tag);
   int id = 0;
   if (q.next())
@@ -26,8 +27,9 @@ int Tags::findOne(QString tag) {
 
 QSet<int> Tags::findAll(QString tag) {
   DBReadLock lock(db);
-  QSqlQuery q = db->constQuery("select id from tags where tag==:a collate nocase",
-                         tag);
+  QSqlQuery q = db->constQuery("select id from tags where tag==:a"
+                               " collate nocase",
+                               tag);
   QSet<int> ids;
   while (q.next())
     ids << q.value(0).toInt();
@@ -36,11 +38,25 @@ QSet<int> Tags::findAll(QString tag) {
 
 QSet<int> Tags::findAbbreviated(QString tag) {
   DBReadLock lock(db);
-  QSqlQuery q = db->constQuery("select id from tags where tag like \""
-			 + tag + "%\" collate nocase");
+  QSqlQuery q = db->constQuery("select id from tags where tag like :a"
+                               " collate nocase",
+                               tag + "%");
   QSet<int> ids;
   while (q.next())
     ids << q.value(0).toInt();
+  return ids;
+}
+
+QStringList Tags::findTagsStartingWith(QString tag, int limit) {
+  DBReadLock lock(db);
+  QString query = "select tag from tags where tag like :a"
+    " collate nocase";
+  if (limit > 0)
+    query += QString(" limit %1").arg(limit);
+  QSqlQuery q = db->constQuery(query, tag + "%");
+  QStringList tags;
+  while (q.next())
+    ids << q.value(0).toString();
   return ids;
 }
 
@@ -335,24 +351,20 @@ int Tags::define(QString tag) {
 int Tags::collectionRoot() {
   static bool haveroot = false;
   static int root;
-  if (haveroot)
-    return root;
-  { DBReadLock lock(db);
+  if (!haveroot) {
+    DBReadLock lock(db);
     QSqlQuery q = db->constQuery("select id from tags where tag==:a"
                             " and parent is null collate nocase",
-                            "Collections");
-    if (q.next()) {
-      root = q.value(0).toInt();
-      haveroot = true;
-      return root;
+                            "{}");
+    if (!q.next()) {
+      qCritical("No Collections root tag in tag table");
+      CRASH("No Collections root tag in tag table");
     }
-  }
-  { DBWriteLock lock(db);
-    QSqlQuery q = db->query("insert into tags(tag) values(:a)", "Collections");
-    root = q.lastInsertId().toInt();
+    root = q.value(0).toInt();
+    qDebug() << "Collection root is " << root;
     haveroot = true;
-    return root;
   }
+  return root;
 }
 
 int Tags::ensureCollection(QString c) {
