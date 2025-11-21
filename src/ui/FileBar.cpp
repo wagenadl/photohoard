@@ -23,15 +23,11 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
 	AddRootDialog dlg(db);
 	while (dlg.exec()) {
 	  if (dlg.validate(true)) {
-	    if (!dlg.path().isEmpty() && !dlg.defaultCollection().isEmpty()
-		&& !dlg.exclusions().contains(dlg.path())) {
-	      QDir root(dlg.path());
-	      if (root.exists())
-		scanner->addTree(root.absolutePath(), dlg.defaultCollection(),
-				 dlg.exclusions());
-	    }
-	    break;
-	  }
+            QDir root(dlg.path());
+            scanner->addTree(root.absolutePath(), dlg.defaultCollection(),
+                             dlg.exclusions());
+            break;
+          }
 	}
       }};
     new PAction(acts.last(), QIcon(":icons/folderAdd.svg"), this);
