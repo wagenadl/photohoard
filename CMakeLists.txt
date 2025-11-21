@@ -13,8 +13,8 @@ cmake_minimum_required(VERSION 3.19)
 
 ######################################################################
 # Set the project name and version
-project(Photohoard VERSION 0.2.0)
-set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/photohoard")
+project(Photohoard VERSION 0.2.1)
+set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/wagenadl/photohoard")
 
 ######################################################################
 # Specify the C++ standard [must be done _before_ adding executable!]
