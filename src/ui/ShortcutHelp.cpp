@@ -112,7 +112,7 @@ void SHPrivate::rebuild() {
   html += "</td></tr></table>";
 
   html += "<h2>More information</h2>";
-  html += "More information, including a user manual, is available at www.danielwagenaar.net/photohoard.";
+  html += "Full documentation is available at <a href=\"https://photohoard.readthedocs.io\">photohoard.readthedocs.io</a>.";
 
   html += "<p><b>License terms</b>";
 

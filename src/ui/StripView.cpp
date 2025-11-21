@@ -193,7 +193,7 @@ void StripView::quickRotate(quint64 id, int dphi) {
 }
 
 void StripView::rescan() {
-  dateStrip->rescan();
+  strip()->rescan();
 }
 
 void StripView::setTileSize(int pix) {
