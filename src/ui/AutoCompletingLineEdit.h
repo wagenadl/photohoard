@@ -1,12 +1,17 @@
-// AutoCompletingText.h
+// AutoCompletingLineEdit.h
 
-#ifndef AUTOCOMPLETINGTEXT_H
+#ifndef AUTOCOMPLETINGLINEEDIT_H
 
-#define AUTOCOMPLETINGTEXT_H
+#define AUTOCOMPLETINGLINEEDIT_H
 
-class AutoCompletingText: public QLabel {
+#include <QLabel>
+#include <QVariant>
+#include <QStringList>
+
+class AutoCompletingLineEdit: public QLabel {
 public:
-  AutoCompletingText(QWidget *parent);
+  AutoCompletingLineEdit(QWidget *parent);
+  virtual ~AutoCompletingLineEdit();
 public:
   virtual QStringList optionsStartingWith(QString) const;
   virtual QStringList optionsContaining(QString) const;
@@ -18,15 +23,34 @@ public:
   void allowMultiple(bool);
   /* Allow separate completion in bits separated by space or special
      characters */
-  void allowBoolean(bool);
-  /* Allow & and | as well as ( and ) */
-  void allowPunct(bool);
-  /* Allow , and ; */
   void allowNonexistent(bool);
   /* Allow accepting string not in the options */
-  void allowSpaceSep(bool);
-  /* Allow spaces to act as separation */
   bool acceptable() const;
+  bool acceptable(QString) const;
+  bool acceptable(QVariant const &) const;
+protected:
+  void resuggest();
+  /* Rebuild suggestion box */
+  void unsuggest();
+  /* Close suggestion box */
+  void recomplete();
+  /* Use suggestion box to rebuild richtext */
+  void acceptcompletion();
+  /* Use suggestion box to update usertext */
+  QVariant parse() const;
+  /* If allowing multiple, this parses into a lisp-style structure.
+     For instance
+       "A | (B & C | D) & E"
+     would parse into
+       ("&", ("|", "A", ("|", ("&", "B", "C"), "D")), "E").
+     That is:
+       PARSED = STR
+                (OP PARSE PARSE)
+     Accepted operators are "&" and "|".
+     Spaces around operators are dropped.
+     Priority is strictly left to right, except for parens.
+     Returns null variant in case of syntax error.
+  */
 signals:
   void enterPressed(QString);
   /* Only emitted if the string passes muster per "allow" config */
@@ -127,8 +151,15 @@ private:
     QString usertext;
     int cursoridx;
     int anchoridx;
+  public:
+    State() {
+      cursoridx = 0;
+      anchoridx = -1'
+    }
   };
 private:
+  bool allowmulti;
+  bool allownonexist;
   QStringList universe;
   State state;
   QList<State> undolist;
