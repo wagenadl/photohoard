@@ -25,6 +25,8 @@ if (UNIX AND NOT APPLE)
   add_compile_options(-fPIC) # ... but in fact, this is required on Linux
 endif()
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
+
 # Qt stuff
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
