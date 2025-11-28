@@ -136,7 +136,7 @@ void ImportExternalDialog::updateCounts(int ntotal, int nmov, bool complete) {
   if (nmov)
     ui->movieContainer->show();
   if (complete
-      && job->mostRecentDate().daysTo(QDateTime::currentDateTime()) > OLDDAYS) 
+      && job->mostRecentDate().toQ().daysTo(QDateTime::currentDateTime()) > OLDDAYS) 
     ui->oldwarning->show();
   resize(sizeHint());
 }

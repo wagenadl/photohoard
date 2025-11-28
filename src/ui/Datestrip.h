@@ -15,8 +15,8 @@ public:
   virtual ~Datestrip();
 public:
   virtual QRectF subBoundingRect() const; // children
-  virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
-  virtual Strip *stripByDate(QDateTime t0); // depth first
+  virtual Strip *stripByDate(DateTime const &t0, TimeScale scl);
+  virtual Strip *stripByDate(DateTime const &t0); // depth first
   virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
   Strip::TimeScale subScale() const;
@@ -37,13 +37,13 @@ public slots:
   virtual void unblock();
 protected slots:
   virtual void relayout();
-  void convertStrip(QDateTime);
+  void convertStrip(DateTime const &);
 protected:
   virtual void clearContents();
   virtual void rebuildContents();
   void rebuildByDate();
   void rebuildByFolder();
-  Strip *newSubstrip(QDateTime t, Strip::TimeScale subs);
+  Strip *newSubstrip(DateTime const &, Strip::TimeScale subs);
   Strip *newStrip(bool indirect, bool protectoverfill);
   int stripNumberContaining(quint64 vsn);
 private:
@@ -51,7 +51,7 @@ private:
   Strip *bottomMostSubstrip() const;
   void findBottomRight() const;
 protected:
-  QMap<QDateTime, Strip *> dateMap;
+  QMap<DateTime, Strip *> dateMap;
   QMap<QString, Strip *> folderMap;
   class Strip *thisFolderStrip; // is a slide strip
   QList<Strip *> stripOrder;

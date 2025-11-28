@@ -242,13 +242,13 @@ double Exif::iso() const {
   return 0;
 }
 
-QDateTime Exif::dateTime() const {
+DateTime Exif::dateTime() const {
   Exiv2::Exifdatum const &d(exifDatum("Exif.Photo.DateTimeOriginal"));
   if (d.count()>0) {
     QString dd = d.toString().c_str();
-    return QDateTime::fromString(dd, "yyyy:MM:dd hh:mm:ss");
+    return DateTime(QDateTime::fromString(dd, "yyyy:MM:dd hh:mm:ss"));
   } else {
-    return QDateTime();
+    return DateTime();
   }
 }
 

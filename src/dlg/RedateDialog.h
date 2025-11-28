@@ -6,7 +6,7 @@
 
 #include <QDialog>
 #include <QMap>
-#include <QDateTime>
+#include "DateTime.h"
 
 class RedateDialog: public QDialog {
   Q_OBJECT;
@@ -22,8 +22,8 @@ signals:
 private:
   class Ui_RedateDialog *ui;
   class PhotoDB *db;
-  QMap<quint64, QDateTime> olddtt;
-  QDateTime dtkey;
+  QMap<quint64, DateTime> olddtt;
+  DateTime dtkey;
 };
 
 #endif

@@ -275,8 +275,8 @@ void LightTable::extendOrShrinkSelection(quint64 i) {
   
   switch (strips->organization()) {
   case Strip::Organization::ByDate: {
-    QDateTime a = db->captureDate(db->photoFromVersion(cur));
-    QDateTime b = db->captureDate(db->photoFromVersion(i));
+    DateTime a = db->captureDate(db->photoFromVersion(cur));
+    DateTime b = db->captureDate(db->photoFromVersion(i));
     if (a>b)
       selection->addDateRange(b, a);
     else

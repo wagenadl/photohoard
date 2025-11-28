@@ -21,7 +21,7 @@ StripView::StripView(SessionDB *db, QWidget *parent):
   dateStrip = new Datestrip(db, 0);
   setArrangement(Datestrip::Arrangement::Grid);
   dateStrip->setTileSize(tilesize);
-  dateStrip->setTimeRange(QDateTime(), Datestrip::TimeScale::Eternity);
+  dateStrip->setTimeRange(DateTime(), Datestrip::TimeScale::Eternity);
   dateScene->addItem(dateStrip);
   placeAndConnect(dateStrip);
 
@@ -35,7 +35,7 @@ StripView::StripView(SessionDB *db, QWidget *parent):
 
   dateStrip->block();
   dateStrip->expand();
-  QList<QDateTime> d0s;
+  QList<DateTime> d0s;
   QList<Strip::TimeScale> scls;
   { DBReadLock lock(db);
     QSqlQuery q = db->constQuery("select d0, scl from expanded order by scl");
@@ -356,7 +356,7 @@ void StripView::dragEnterEvent(QDragEnterEvent *e) {
 void StripView::dragMoveEvent(QDragMoveEvent *e) {
   QMimeData const *md = e->mimeData();
   if (md->hasFormat("int32/point")) {
-    QPoint p = e->pos();
+    QPoint p = e->position().toPoint();
     QByteArray ar = md->data("int32/point");
     ASSERT(ar.size()==16);
     qint32 const *d = reinterpret_cast<qint32*>(ar.data());

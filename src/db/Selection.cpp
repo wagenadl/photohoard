@@ -12,30 +12,32 @@ void Selection::add(quint64 vsn) {
   db->query("insert into selection values (:a)", vsn);
 }
 
-void Selection::addDateRange(QDateTime start, QDateTime inclusiveend) {
+void Selection::addDateRange(DateTime const &start,
+                             DateTime const &inclusiveend) {
   DBWriteLock lock(db);
   db->query("insert into selection select version from "
             " filter inner join photos on filter.photo=photos.id "
             " where photos.capturedate>=:a and photos.capturedate<:b",
-            start.toString(Qt::ISODate),
-            inclusiveend.addSecs(1).toString(Qt::ISODate));
+            start.toString(),
+            inclusiveend.plusonesec().toString());
 }
 
-void Selection::addDateRange(QDateTime start, Strip::TimeScale scl) {
-  addDateRange(start, Strip::endFor(start, scl).addSecs(1));
+void Selection::addDateRange(DateTime const &start, Strip::TimeScale scl) {
+  addDateRange(start, Strip::endFor(start, scl).plusonesec());
 }
 
-void Selection::dropDateRange(QDateTime start, QDateTime inclusiveend) {
+void Selection::dropDateRange(DateTime const &start,
+                              DateTime const &inclusiveend) {
   DBWriteLock lock(db);
   db->query("delete from selection where version in (select version from "
            " filter inner join photos on filter.photo=photos.id "
            " where photos.capturedate>=:a and photos.capturedate<:b)",
-            start.toString(Qt::ISODate),
-            inclusiveend.addSecs(1).toString(Qt::ISODate));
+            start.toString(),
+            inclusiveend.plusonesec().toString());
 }
 
-void Selection::dropDateRange(QDateTime start, Strip::TimeScale scl) {
-  dropDateRange(start, Strip::endFor(start, scl).addSecs(1));
+void Selection::dropDateRange(DateTime const &start, Strip::TimeScale scl) {
+  dropDateRange(start, Strip::endFor(start, scl).plusonesec());
 }
   
 void Selection::remove(quint64 vsn) {
@@ -74,20 +76,20 @@ QSet<quint64> Selection::current() {
   return vv;
 }
 
-void Selection::addStartOfFolder(quint64 folder, QDateTime endAt) {
+void Selection::addStartOfFolder(quint64 folder, DateTime const &endAt) {
   DBWriteLock lock(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate<=:b",
-           folder, endAt.toString(Qt::ISODate));
+           folder, endAt.toString());
 }
 
-void Selection::addRestOfFolder(quint64 folder, QDateTime startAt) {
+void Selection::addRestOfFolder(quint64 folder, DateTime const &startAt) {
   DBWriteLock lock(db);
   db->query("insert into selection select version from filter"
            " inner join photos on filter.photo==photos.id"
            " where photos.folder==:a and photos.capturedate>=:b",
-           folder, startAt.toString(Qt::ISODate));
+           folder, startAt.toString());
 }
 
 void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
@@ -101,15 +103,16 @@ void Selection::addFoldersBetween(quint64 fid1, quint64 fid2) {
            path1, path2);
 }
   
-int Selection::countInDateRange(QDateTime t0, QDateTime t1) const {
+int Selection::countInDateRange(DateTime const &t0,
+                                DateTime const &t1) const {
   DBReadLock lock(db);
   return db->simpleQuery("select count(*) from selection inner join filter"
                         " on selection.version==filter.version"
                         " inner join photos on filter.photo==photos.id"
                         " where photos.capturedate>=:a"
                         " and photos.capturedate<:b",
-                         t0.toString(Qt::ISODate),
-                         t1.toString(Qt::ISODate)).toInt();
+                         t0.toString(),
+                         t1.toString()).toInt();
 }
 
 int Selection::countInFolder(QString folder) const {

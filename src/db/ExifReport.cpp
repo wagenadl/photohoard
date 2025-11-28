@@ -9,7 +9,7 @@ void exifreport(QString fn) {
   qInfo() << "  " << exif.width() << "x" << exif.height();
   qInfo() << "  " << exif.make() << exif.model();
   qInfo() << "  " << exif.lens();
-  qInfo() << "  " << exif.dateTime();
+  qInfo() << "  " << exif.dateTime().toString();
   qInfo() << "  orient " << exif.orientation();
   qInfo() << "  t = " << exif.exposureTime_s() << " s";
   qInfo() << "  f = 1/" << exif.fNumber();

@@ -118,7 +118,7 @@ quint64 PhotoDB::photoFromVersion(quint64 v) const {
     .toULongLong();
 }
 
-QDateTime PhotoDB::captureDate(quint64 p) const {
+DateTime PhotoDB::captureDate(quint64 p) const {
   DBReadLock lock(this);
   return simpleQuery("select capturedate from photos where id==:a", p)
     .toDateTime();
@@ -413,47 +413,51 @@ bool PhotoDB::anyInTreeBelow(QString folder) const {
   return q.next();
 }
 
-int PhotoDB::countInDateRange(QDateTime t0, QDateTime t1) const {
+int PhotoDB::countInDateRange(DateTime const &t0,
+                              DateTime const &t1) const {
   DBReadLock lock(this);
   return simpleQuery("select count(*) from filter"
                      " inner join photos on filter.photo==photos.id"
                      " where photos.capturedate>=:a"
                      " and photos.capturedate<:b",
-                     t0.toString(Qt::ISODate),
-                     t1.toString(Qt::ISODate)).toInt();
+                     t0.toString(),
+                     t1.toString()).toInt();
 }
 
-QDateTime PhotoDB::firstDateInRange(QDateTime t0, QDateTime t1) const {
+DateTime PhotoDB::firstDateInRange(DateTime const &t0,
+                                   DateTime const &t1) const {
   DBReadLock lock(this);
   QSqlQuery q = constQuery("select capturedate from filter"
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and capturedate<:b"
                            " order by capturedate, photos.filename"
                            " limit 1",
-                           t0.toString(Qt::ISODate),
-                           t1.toString(Qt::ISODate));
+                           t0.toString(),
+                           t1.toString());
   if (q.next())
     return q.value(0).toDateTime();
   else
     return QDateTime();
 }
 
-QDateTime PhotoDB::lastDateInRange(QDateTime t0, QDateTime t1) const {
+DateTime PhotoDB::lastDateInRange(DateTime const &t0,
+                                  DateTime const &t1) const {
   DBReadLock lock(this);
   QSqlQuery q = constQuery("select capturedate from filter"
                            " inner join photos on filter.photo==photos.id"
                            " where capturedate>=:a and photos.capturedate<:b"
                            " order by capturedate, photos.filename desc"
                            " limit 1",
-                           t0.toString(Qt::ISODate),
-                           t1.toString(Qt::ISODate));
+                           t0.toString(),
+                           t1.toString());
   if (q.next())
     return q.value(0).toDateTime();
   else
-    return QDateTime();
+    return DateTime();
 }
 
-QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
+QList<quint64> PhotoDB::versionsInDateRange(DateTime const &t0,
+                                            DateTime const &t1) const {
   DBReadLock lock(this);
   QSqlQuery q = constQuery("select version"
                            " from filter inner join photos"
@@ -461,8 +465,8 @@ QList<quint64> PhotoDB::versionsInDateRange(QDateTime t0, QDateTime t1) const {
                            " where photos.capturedate>=:a"
                            " and photos.capturedate<:b"
                            " order by photos.capturedate, photos.filename",
-                           t0.toString(Qt::ISODate),
-                           t1.toString(Qt::ISODate));
+                           t0.toString(),
+                           t1.toString());
   QList<quint64> vv;
   while (q.next())
     vv << q.value(0).toULongLong();

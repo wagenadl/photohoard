@@ -5,7 +5,7 @@
 #define EXIF_H
 
 #include <QString>
-#include <QDateTime>
+#include "DateTime.h"
 #include "PSize.h"
 #include <QList>
 #include "Image16.h"
@@ -39,7 +39,7 @@ public:
   double exposureTime_s() const;
   double fNumber() const;
   double iso() const;
-  QDateTime dateTime() const;
+  DateTime dateTime() const;
   QList<PSize> previewSizes() const;
   Image16 previewImage(PSize const &) const;
   static bool isRotated(Orientation);

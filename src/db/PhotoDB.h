@@ -5,7 +5,7 @@
 #define PHOTODB_H
 
 #include "Database.h"
-#include <QDateTime>
+#include "DateTime.h"
 #include <QSharedPointer>
 #include <QMap>
 #include "Exif.h"
@@ -38,7 +38,7 @@ public:
     double focallength_mm;
     double distance_m;
     double iso;
-    QDateTime capturedate;
+    DateTime capturedate;
   };
 public:
   PhotoDB();
@@ -53,7 +53,7 @@ public:
   QString databaseID() const;
 public: // information about photos and versions
   quint64 photoFromVersion(quint64 versionid) const;
-  QDateTime captureDate(quint64 photoid) const;
+  DateTime captureDate(quint64 photoid) const;
   QString ftype(int filetypeid) const;
   PhotoRecord photoRecord(quint64 photoid) const;
   PSize photoSize(quint64 photoid) const; // size from file, not orientation corrected
@@ -87,10 +87,14 @@ public: // exploration functions
   quint64 root(quint64 folderid) const; // returns id of root folder
   quint64 findFolder(QString) const; // 0 if not found
   int countPhotos() const;
-  int countInDateRange(QDateTime t0, QDateTime t1) const; // t1 is exclusive
-  QList<quint64> versionsInDateRange(QDateTime t0, QDateTime t1) const;
-  QDateTime firstDateInRange(QDateTime t0, QDateTime t1) const;
-  QDateTime lastDateInRange(QDateTime t0, QDateTime t1) const;
+  int countInDateRange(DateTime const &t0,
+                       DateTime const &t1) const; // t1 is exclusive
+  QList<quint64> versionsInDateRange(DateTime const &t0,
+                                     DateTime const &t1) const;
+  DateTime firstDateInRange(DateTime const &t0,
+                            DateTime const &t1) const;
+  DateTime lastDateInRange(DateTime const &t0,
+                           DateTime const &t1) const;
   int countInFolder(QString folder) const;
   int countInTree(QString rootfolder) const;
   bool anyInTreeBelow(QString rootfolder) const;

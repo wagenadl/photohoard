@@ -455,12 +455,13 @@ void Scanner::scanPhoto(quint64 id) {
     return;
   }
 
-  QDateTime captureDate =  exif.dateTime();
+  DateTime captureDate =  exif.dateTime();
   if (!captureDate.isValid() || captureDate.date().year() == 1980) {
     // use file datestamp instead
     QFileInfo fileInfo(pathname);
-    captureDate = fileInfo.lastModified();
-    captureDate.setTime(QTime()); // set to midnight to mark trouble
+    QDateTime cap = fileInfo.lastModified();
+    cap.setTime(QTime()); // set to midnight to mark trouble
+    captureDate = cap;
   }    
 
   // Find camera, possibly creating new record
@@ -518,7 +519,7 @@ void Scanner::scanPhoto(quint64 id) {
     q.bindValue(":fl", exif.focalLength_mm());
     q.bindValue(":d", exif.focusDistance_m());
     q.bindValue(":iso", exif.iso());
-    q.bindValue(":cd", captureDate);
+    q.bindValue(":cd", captureDate.toQ());
     q.bindValue(":ls", QDateTime::currentDateTime());
     q.bindValue(":id", id);
     DBWriteLock lock(&db);

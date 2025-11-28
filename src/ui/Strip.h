@@ -6,7 +6,7 @@
 
 #include <QGraphicsObject>
 #include "SessionDB.h"
-#include <QDateTime>
+#include "DateTime.h"
 #include "Image16.h"
 
 class Strip: public QGraphicsObject {
@@ -34,8 +34,8 @@ public:
 public:
   Strip(SessionDB *db, QGraphicsItem *parent);
   virtual ~Strip();
-  QDateTime startDateTime() const;
-  QDateTime endDateTime() const;
+  DateTime const &startDateTime() const;
+  DateTime endDateTime() const;
   TimeScale timeScale() const;
   Arrangement arrangement() const { return arr; }
   bool isExpanded() const { return expanded; }
@@ -43,8 +43,8 @@ public:
   int tileSize() const { return tilesize; }
   int rowWidth() const { return rowwidth; }
   bool hasTopLabel() const;
-  virtual Strip *stripByDate(QDateTime t0, TimeScale scl);
-  virtual Strip *stripByDate(QDateTime t0);
+  virtual Strip *stripByDate(DateTime const &t0, TimeScale scl);
+  virtual Strip *stripByDate(DateTime const &t0);
   virtual Strip *stripByFolder(QString path);
   virtual class Slide *slideByVersion(quint64 vsn);
   SessionDB *database() { return db; }
@@ -67,7 +67,7 @@ public slots:
   void updateImage(quint64 id, Image16 img, bool chgd);
   void updateHeader(Image16 img, bool chgd);
   void updateHeaderRotation(int dphi);
-  void setTimeRange(QDateTime t0, TimeScale scl);
+  void setTimeRange(DateTime const &t0, TimeScale scl);
   void setFolder(QString pathname);
   void setDisplayName(QString leaf);
   virtual void setArrangement(Arrangement arr);
@@ -96,10 +96,10 @@ public:
 		     const QStyleOptionGraphicsItem *option,
 		     QWidget *widget=0) override;
 public:
-  static QDateTime startFor(QDateTime d, TimeScale scl);
-  static QDateTime endFor(QDateTime start, TimeScale scl);
-  static QString labelFor(QDateTime t0, TimeScale scl);
-  QString longLabelFor(QDateTime t0, TimeScale scl);
+  static DateTime startFor(DateTime const &d, TimeScale scl);
+  static DateTime endFor(DateTime const &start, TimeScale scl);
+  static QString labelFor(DateTime const &t0, TimeScale scl);
+  QString longLabelFor(DateTime const &t0, TimeScale scl);
   static int labelHeight(int tilesize);
   void requestImage(quint64);
   virtual bool isSingleton() const=0;
@@ -126,7 +126,7 @@ protected:
 protected:
   SessionDB *db;
   Organization org;
-  QDateTime d0;
+  DateTime d0;
   TimeScale scl;
   QString pathname, leafname;
   Arrangement arr;

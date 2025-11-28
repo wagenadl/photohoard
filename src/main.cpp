@@ -17,6 +17,7 @@
 #include "Session.h"
 #include <QCommandLineOption>
 #include <QCommandLineParser>
+#include "corelib/DateTime.h"
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
@@ -27,6 +28,7 @@ void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
 }
 
 int main(int argc, char **argv) {
+  qRegisterMetaType<DateTime>();
   Settings settings;
   Application app(argc, argv);
   //  app.setFont(ScreenResolution::defaultFont());

@@ -58,15 +58,15 @@ int Strip::subHeight() const {
   return subBoundingRect().height();
 }
 
-QDateTime Strip::startDateTime() const {
+DateTime const &Strip::startDateTime() const {
   return d0;
 }
 
-QDateTime Strip::endDateTime() const {
+DateTime Strip::endDateTime() const {
   return endFor(d0, scl);
 }
 
-QDateTime Strip::endFor(QDateTime d0, TimeScale scl) {
+DateTime Strip::endFor(DateTime const &d0, TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
     return d0.addYears(1000);
@@ -79,13 +79,13 @@ QDateTime Strip::endFor(QDateTime d0, TimeScale scl) {
   case TimeScale::Day:
     return d0.addDays(1);
   case TimeScale::Hour:
-    return d0.addSecs(3600);
+    return d0.addSeconds(3600);
   case TimeScale::DecaMinute:
-    return d0.addSecs(600);
+    return d0.addSeconds(600);
   case TimeScale::None:
-    return QDateTime();
+    return DateTime();
   }
-  return QDateTime(); // not executed
+  return DateTime(); // not executed
 }
 
 Strip::TimeScale Strip::timeScale() const {
@@ -367,8 +367,8 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
                                      " on filter.photo=photos.id"
                                      " where photos.capturedate>=:a"
                                      " and photos.capturedate<:b"
-                                     " limit 1", d0.toString(Qt::ISODate),
-                                     endFor(d0, scl).toString(Qt::ISODate));
+                                     " limit 1", d0.toString(),
+                                     endFor(d0, scl).toString());
         if (q.next())
           v = q.value(0).toULongLong();
       }
@@ -376,11 +376,11 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
         setHeaderID(v);
       } else {
         COMPLAIN("Could not find header image");
-        qDebug() << "Strip:noheader: limits are" << d0 << endFor(d0, scl);
+        qDebug() << "Strip:noheader: limits are" << d0.toString() << endFor(d0, scl).toString();
         { DBReadLock lock(db);
           QSqlQuery q = db->constQuery("select :a, :b",
-                                       d0.toString(Qt::ISODate),
-                                       endFor(d0, scl).toString(Qt::ISODate));
+                                       d0.toString(),
+                                       endFor(d0, scl).toString());
           if (q.next()) 
             qDebug() << "Strip:noheader:" << q.value(0).toString() << q.value(1).toString();
         }
@@ -496,7 +496,7 @@ void Strip::rebuildToolTip() {
   }
 }
 
-QString Strip::longLabelFor(QDateTime d0, Strip::TimeScale scl) {
+QString Strip::longLabelFor(DateTime const &d0, Strip::TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
     return db->name();
@@ -520,7 +520,7 @@ QString Strip::longLabelFor(QDateTime d0, Strip::TimeScale scl) {
 }
   
 
-QString Strip::labelFor(QDateTime d0, Strip::TimeScale scl) {
+QString Strip::labelFor(DateTime const &d0, Strip::TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
     return "Library";
@@ -553,7 +553,7 @@ void Strip::updateImage(quint64 v, Image16 img, bool chgd) {
     s->updateImage(img, chgd);  
 }
 
-void Strip::setTimeRange(QDateTime t0, TimeScale scl1) {
+void Strip::setTimeRange(DateTime const &t0, TimeScale scl1) {
   org = Organization::ByDate;
   scl = scl1;
   d0 = startFor(t0, scl);
@@ -577,40 +577,40 @@ void Strip::setFolder(QString f) {
   rebuildContents();
 }  
 
-QDateTime Strip::startFor(QDateTime t0, TimeScale scl) {
+DateTime Strip::startFor(DateTime const &t0, TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
-    return QDateTime(QDate(1500, 1, 1), QTime(0, 0, 0));
+    return DateTime(QDateTime(QDate(1500, 1, 1), QTime(0, 0, 0)));
   case TimeScale::Decade: {
     int yr = t0.date().year();
     while (yr%10 != 1)
       yr--;
-    return QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
+    return DateTime(QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0)));
   }
   case TimeScale::Year: {
     int yr = t0.date().year();
-    return QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0));
+    return DateTime(QDateTime(QDate(yr, 1, 1), QTime(0, 0, 0)));
   }
   case TimeScale::Month: {
     int yr = t0.date().year();
     int mo = t0.date().month();
-    return QDateTime(QDate(yr, mo, 1), QTime(0, 0, 0));
+    return DateTime(QDateTime(QDate(yr, mo, 1), QTime(0, 0, 0)));
   }
   case TimeScale::Day:
-    return QDateTime(t0.date(), QTime(0, 0, 0));
+    return DateTime(QDateTime(t0.date(), QTime(0, 0, 0)));
   case TimeScale::Hour: {
     int h = t0.time().hour();
-    return QDateTime(t0.date(), QTime(h, 0, 0));
+    return DateTime(QDateTime(t0.date(), QTime(h, 0, 0)));
   }
   case TimeScale::DecaMinute: {
     int h = t0.time().hour();
     int dm = t0.time().minute()/10;
-    return QDateTime(t0.date(), QTime(h, 10*dm, 0));
+    return DateTime(QDateTime(t0.date(), QTime(h, 10*dm, 0)));
   }
   case TimeScale::None:
-    return QDateTime();
+    return DateTime();
   }
-  return QDateTime();
+  return DateTime();
 }
 
 void Strip::setArrangement(Arrangement arr1) {
@@ -645,7 +645,7 @@ void Strip::expand() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-      db->query("insert into expanded values(:a,:b)", d0, int(scl));
+      db->query("insert into expanded values(:a,:b)", d0.toString(), int(scl));
     }
     break;
   case Organization::ByFolder:
@@ -664,7 +664,8 @@ void Strip::collapse() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-      db->query("delete from expanded where d0==:a and scl==:b", d0, int(scl));
+      db->query("delete from expanded where d0==:a and scl==:b",
+                d0.toString(), int(scl));
     }
     break;
   case Organization::ByFolder:
@@ -744,14 +745,14 @@ void Strip::requestImage(quint64 id) {
   emit needImage(id, PSize(tilesize, tilesize));
 }
 
-Strip *Strip::stripByDate(QDateTime d) {
+Strip *Strip::stripByDate(DateTime const &d) {
   if (d>=startDateTime() && d<endDateTime())
     return this;
   else
     return NULL;
 }
 
-Strip *Strip::stripByDate(QDateTime d, TimeScale s) {
+Strip *Strip::stripByDate(DateTime const &d, TimeScale s) {
   if (d==d0 && s==scl)
     return this;
   else

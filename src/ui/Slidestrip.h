@@ -35,7 +35,7 @@ public slots:
   virtual void expand();
   virtual void collapse();
 signals:
-  void overfilled(QDateTime); // emitted when we have too many pictures
+  void overfilled(DateTime); // emitted when we have too many pictures
 public: // for slide only
   void slidePressed(quint64, Qt::MouseButton, Qt::KeyboardModifiers);
   void slideClicked(quint64, Qt::MouseButton, Qt::KeyboardModifiers);

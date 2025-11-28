@@ -9,6 +9,7 @@
 #include <QUrl>
 #include "CopyIn.h"
 #include "SourceInfo.h"
+#include "DateTime.h"
 
 class ImportJob: public QObject {
   Q_OBJECT;
@@ -54,7 +55,7 @@ public:
   bool isAnySourceNonlocal() const;
   bool hasSourceCount() const;
   int preliminarySourceCount() const;
-  QDateTime mostRecentDate() const;
+  DateTime mostRecentDate() const;
 public:
   class SessionDB *database() const { return db; }
   class Scanner *scanner() const { return scanner_; }

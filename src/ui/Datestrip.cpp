@@ -7,10 +7,11 @@
 #include "Slide.h"
 #include "SessionDB.h"
 #include <QGraphicsView>
+#include "DateTime.h"
 
 #define MAXDIRECT 50
 
-inline uint qHash(QDateTime const &dt) {
+inline uint qHash(DateTime const &dt) {
   return qHash(dt.toMSecsSinceEpoch());
 }
 
@@ -57,7 +58,7 @@ void Datestrip::clearContents() {
   thisFolderStrip = NULL;
 }
 
-void Datestrip::convertStrip(QDateTime t) {
+void Datestrip::convertStrip(DateTime const &t) {
   if (!dateMap.contains(t))
     return;
   Strip *s = dateMap[t];
@@ -87,7 +88,7 @@ void Datestrip::convertStrip(QDateTime t) {
       emit pleaseRecenter(sl->sceneBoundingRect().center());
     } else {
       // make sure vsn is visible
-      QDateTime t = db->captureDate(db->photoFromVersion(vsn));
+      DateTime t = db->captureDate(db->photoFromVersion(vsn));
       Strip *str = stripByDate(t);
       if (str)
         str->expandWithParents();
@@ -105,8 +106,8 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
   } else {
     s = new Slidestrip(db, this);
     if (protectoverfill)
-      connect(s, SIGNAL(overfilled(QDateTime)),
-              this, SLOT(convertStrip(QDateTime)), Qt::QueuedConnection);
+      connect(s, SIGNAL(overfilled(DateTime)),
+              this, SLOT(convertStrip(DateTime)), Qt::QueuedConnection);
   }
 
   connect(s, SIGNAL(pleaseRecenter(QPointF)),
@@ -137,7 +138,7 @@ Strip *Datestrip::newStrip(bool indirect, bool protectoverfill) {
   return s;
 }
 
-Strip *Datestrip::newSubstrip(QDateTime t, Strip::TimeScale subs) {
+Strip *Datestrip::newSubstrip(DateTime const &t, Strip::TimeScale subs) {
   int n = db->countInDateRange(t, endFor(t, subs));
   bool indirect = n>=MAXDIRECT && subs!=TimeScale::DecaMinute;
   Strip *s = newStrip(indirect, true);
@@ -238,8 +239,8 @@ void Datestrip::rebuildByDate() {
   rebuilding++;
 
   TimeScale subs = subScale();
-  QDateTime end = endDateTime();
-  QDateTime t = db->firstDateInRange(startDateTime(), end);
+  DateTime end = endDateTime();
+  DateTime t = db->firstDateInRange(startDateTime(), end);
 
   if (t.isNull()) {
     rebuilding--;
@@ -253,12 +254,12 @@ void Datestrip::rebuildByDate() {
   folderMap.clear();
   stripOrder.clear();
   
-  QSet<QDateTime> keep;
+  QSet<DateTime> keep;
 
   while (t.isValid()) {
     t = startFor(t, subs);
     keep << t;
-    QDateTime t1 = endFor(t, subs);
+    DateTime t1 = endFor(t, subs);
     Q_ASSERT(t1>t);
 
     if (!dateMap.contains(t)) {
@@ -550,7 +551,7 @@ void Datestrip::setRowWidth(int pix) {
   relayout();
 }
 
-Strip *Datestrip::stripByDate(QDateTime d) {
+Strip *Datestrip::stripByDate(DateTime const &d) {
   for (Strip *a0: dateMap) {
     Strip *a = a0->stripByDate(d);
     if (a)
@@ -560,7 +561,7 @@ Strip *Datestrip::stripByDate(QDateTime d) {
 }
   
 
-Strip *Datestrip::stripByDate(QDateTime d, TimeScale s) {
+Strip *Datestrip::stripByDate(DateTime const &d, TimeScale s) {
   Strip *a = Strip::stripByDate(d, s);
   if (a)
     return a;

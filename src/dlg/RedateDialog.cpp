@@ -4,7 +4,7 @@
 #include "PhotoDB.h"
 #include "ui_RedateDialog.h"
 
-QString nicedate(QDateTime dt) {
+QString nicedate(DateTime dt) {
   return dt.toString("hh:mm on MMM d, yyyy");
 }
 
@@ -26,11 +26,11 @@ RedateDialog::RedateDialog(class PhotoDB *db,
   }
   quint64 keypid = db->photoFromVersion(keyvsn);
   dtkey = db->captureDate(keypid);
-  QDateTime dtfirst = dtkey;
-  QDateTime dtlast = dtkey;
+  DateTime dtfirst = dtkey;
+  DateTime dtlast = dtkey;
   QString fn = db->photoRecord(keypid).filename;
   for (auto pid: photos) {
-    QDateTime dt = db->captureDate(pid);
+    DateTime dt = db->captureDate(pid);
     olddtt[pid] = dt;
     if (dt < dtfirst)
       dtfirst = dt;
@@ -53,7 +53,7 @@ RedateDialog::RedateDialog(class PhotoDB *db,
     ui->particular->hide();
     ui->othernote->hide();
   }
-  ui->newdate->setDateTime(dtkey);
+  ui->newdate->setDateTime(dtkey.toQ());
 }
 
 RedateDialog::~RedateDialog() {
@@ -67,7 +67,9 @@ void RedateDialog::apply() {
     int oldsec = dtkey.toSecsSinceEpoch();
     int delta = newsec - oldsec;
     for (quint64 pid: olddtt.keys()) {
-      QDateTime newdt = QDateTime::fromSecsSinceEpoch(olddtt[pid].toSecsSinceEpoch() + delta);
+      QDateTime newdt
+        = QDateTime::fromSecsSinceEpoch(olddtt[pid].toSecsSinceEpoch()
+                                        + delta);
       db->query("update photos set capturedate=:a where id==:b",
                 newdt.toString(Qt::ISODate), pid);
     }

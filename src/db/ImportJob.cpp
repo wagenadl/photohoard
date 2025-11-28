@@ -210,7 +210,7 @@ SourceInfo const &ImportJob::sourceInfo() const {
   return srcinfo;
 }
 
-QDateTime ImportJob::mostRecentDate() const {
+DateTime ImportJob::mostRecentDate() const {
   if (collector && collector->preliminaryCount())
     return collector->lastDate();
   return QDateTime::currentDateTime(); // hmmm.

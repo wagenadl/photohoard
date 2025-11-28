@@ -7,7 +7,7 @@
 #include <QThread>
 #include <QUrl>
 #include <QStringList>
-#include <QDateTime>
+#include "DateTime.h"
 
 class Collector: public QThread {
   Q_OBJECT;
@@ -19,8 +19,8 @@ public:
   bool isComplete() const;
   int preliminaryCount() const;
   int preliminaryMovieCount() const;
-  QDateTime firstDate() const;
-  QDateTime lastDate() const;
+  DateTime firstDate() const;
+  DateTime lastDate() const;
 public slots:
   void collect(QList<QUrl> urls);
   void cancel();
@@ -30,7 +30,7 @@ signals:
   void canceled();
 private:
   virtual void run() override;
-  void updateDates(QDateTime dt);
+  void updateDates(DateTime const &dt);
 private:
   QList<QUrl> urls;
   bool cancel_;
@@ -39,7 +39,7 @@ private:
   QStringList movFiles;
   int cnt;
   int movcnt;
-  QDateTime dt0, dt1;
+  DateTime dt0, dt1;
 };
 
 #endif

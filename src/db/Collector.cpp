@@ -118,7 +118,7 @@ int Collector::preliminaryMovieCount() const {
   return movcnt;
 }
 
-void Collector::updateDates(QDateTime dt) {
+void Collector::updateDates(DateTime const &dt) {
   if (imgFiles.size() <= 1) 
     dt0 = dt1 = dt;
   else if (dt < dt0) 
@@ -127,11 +127,11 @@ void Collector::updateDates(QDateTime dt) {
     dt1 = dt;
 }
 
-QDateTime Collector::firstDate() const {
+DateTime Collector::firstDate() const {
   return dt0;
 }
 
-QDateTime Collector::lastDate() const {
+DateTime Collector::lastDate() const {
   return dt1;
 }
 
