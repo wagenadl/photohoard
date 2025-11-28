@@ -34,8 +34,8 @@ public:
 public:
   Strip(SessionDB *db, QGraphicsItem *parent);
   virtual ~Strip();
-  DateTime const &startDateTime() const;
-  DateTime endDateTime() const;
+  DateTime const &startDateTime() const { return d0; }
+  DateTime const &endDateTime() const { return d1; }
   TimeScale timeScale() const;
   Arrangement arrangement() const { return arr; }
   bool isExpanded() const { return expanded; }
@@ -127,6 +127,7 @@ protected:
   SessionDB *db;
   Organization org;
   DateTime d0;
+  DateTime d1;
   TimeScale scl;
   QString pathname, leafname;
   Arrangement arr;

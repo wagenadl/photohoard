@@ -241,7 +241,6 @@ void Datestrip::rebuildByDate() {
   TimeScale subs = subScale();
   DateTime end = endDateTime();
   DateTime t = db->firstDateInRange(startDateTime(), end);
-
   if (t.isNull()) {
     rebuilding--;
     clearContents();

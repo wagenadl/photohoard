@@ -3,18 +3,21 @@
 #include "DateTime.h"
 
 DateTime::DateTime() {
-  ms = 0;
+  ms = EONSAGO;
 }
 
 DateTime::DateTime(QDateTime const &dt): dt(dt) {
-  ms = dt.toMSecsSinceEpoch();
+  if (dt.isValid())
+    ms = dt.toMSecsSinceEpoch();
+  else
+    ms = EONSAGO;
 }
 
 DateTime::DateTime(qint64 ms): ms(ms) {
 }
 
 QDateTime const &DateTime::toQ() const {
-  if (dt.isNull())
+  if (dt.isNull() && ms != EONSAGO)
     dt = QDateTime::fromMSecsSinceEpoch(ms);
   return dt;
 }

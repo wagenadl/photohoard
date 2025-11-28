@@ -6,13 +6,15 @@
 
 #include <QDateTime>
 
+
 class DateTime {
+  static constexpr qint64 EONSAGO = -10000l * 365l * 24l * 3600l * 1000l;
 public:
   DateTime();
   DateTime(QDateTime const &);
   explicit DateTime(qint64 ms);
-  bool isValid() const { return ms > 0; }
-  bool isNull() const { return ms == 0; }
+  bool isValid() const { return !isNull(); }
+  bool isNull() const { return ms == EONSAGO; }
   QDate date() const { return toQ().date(); }
   QTime time() const { return toQ().time(); }
   DateTime addYears(int n) const;

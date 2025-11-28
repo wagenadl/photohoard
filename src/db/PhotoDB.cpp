@@ -437,7 +437,7 @@ DateTime PhotoDB::firstDateInRange(DateTime const &t0,
   if (q.next())
     return q.value(0).toDateTime();
   else
-    return QDateTime();
+    return DateTime();
 }
 
 DateTime PhotoDB::lastDateInRange(DateTime const &t0,

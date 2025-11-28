@@ -58,14 +58,6 @@ int Strip::subHeight() const {
   return subBoundingRect().height();
 }
 
-DateTime const &Strip::startDateTime() const {
-  return d0;
-}
-
-DateTime Strip::endDateTime() const {
-  return endFor(d0, scl);
-}
-
 DateTime Strip::endFor(DateTime const &d0, TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
@@ -557,6 +549,7 @@ void Strip::setTimeRange(DateTime const &t0, TimeScale scl1) {
   org = Organization::ByDate;
   scl = scl1;
   d0 = startFor(t0, scl);
+  d1 = endFor(d0, scl);
   rebuildToolTip();
   rebuildContents();
 }
