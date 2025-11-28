@@ -38,8 +38,6 @@ void HistoWidget::paintEvent(QPaintEvent *) {
 
   QPainter p(this);
   p.setBrush(QColor("#222222"));
-  if (!p.isActive())
-    COMPLAIN("Painter not active in HistoWidget.cpp");
   p.setPen(QPen(Qt::NoPen));
   p.drawRect(r);
   p.setCompositionMode(QPainter::CompositionMode_Lighten);
@@ -53,8 +51,6 @@ void HistoWidget::paintEvent(QPaintEvent *) {
     po << QPoint(r.right(), r.bottom());
     p.setPen(QPen(colors[k]));
     p.setBrush(QBrush(colors[k]));
-    if (!p.isActive())
-      COMPLAIN("Painter not active in HistoWidget.cpp");
     p.drawPolygon(po);
   }
 }
