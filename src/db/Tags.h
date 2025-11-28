@@ -31,11 +31,13 @@ public:
   int parent(int tagid);
   bool canUndefine(int);
   QSet<int> applied(quint64 versionid);
+  QSet<int> appliedToAnyInSel();
+  QSet<int> appliedToAllInSel();
   bool couldBeNew(QString tag);
   QString interpretation(QStringList ss);
   // new style
   QStringList findTagsStartingWith(QString partialtag, int limit=-1);
-  QStringList findTagsContaining(QString partialtag, limit=-1);
+  QStringList findTagsContaining(QString partialtag, int limit=-1);
 public: // these create transactions/write locks
   int ensureCollection(QString); // creates if not existing
   int define(QString tag, int parent);

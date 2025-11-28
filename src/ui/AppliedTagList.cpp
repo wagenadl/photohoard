@@ -63,15 +63,9 @@ void AppliedTagList::resizeEvent(QResizeEvent *) {
 
 void AppliedTagList::rebuild() {
   setEnabled(cur>0);
-  QSet<quint64> sel = selection.current();
-  QSet<int> tagsInAny;
+  QSet<int> tagsInAny = tags.appliedToAnyInSel();
   QSet<int> tagsInCur = tags.applied(cur);
-  QSet<int> tagsInAll = tagsInCur;
-  for (auto id: sel) {
-    QSet<int> tt = tags.applied(id);
-    tagsInAny |= tt;
-    tagsInAll &= tt;
-  }
+  QSet<int> tagsInAll = tags.appliedToAllInSel();
 
   // Remove tags we no longer have
   for (auto t: widgets.keys()) {

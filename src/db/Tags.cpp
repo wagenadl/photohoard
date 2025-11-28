@@ -56,8 +56,8 @@ QStringList Tags::findTagsStartingWith(QString tag, int limit) {
   QSqlQuery q = db->constQuery(query, tag + "%");
   QStringList tags;
   while (q.next())
-    ids << q.value(0).toString();
-  return ids;
+    tags << q.value(0).toString();
+  return tags;
 }
 
 QSet<int> Tags::children(int tagid) {
@@ -82,9 +82,37 @@ QSet<int> Tags::descendants(int tagid) {
 
 QSet<int> Tags::applied(quint64 versionid) {
   DBReadLock lock(db);
-  QSet<int> res;
   QSqlQuery q = db->constQuery("select tag from appliedtags where version==:a",
 			 versionid);
+  QSet<int> res;
+  while (q.next())
+    res << q.value(0).toInt();
+  return res;
+}
+
+QSet<int> Tags::appliedToAnyInSel() {
+  DBReadLock lock(db);
+  QSqlQuery q = db->constQuery("select tag from appliedtags"
+                               " where version in"
+                               " (select version from selection)"
+                               " group by tag");
+  QSet<int> res;
+  while (q.next())
+    res << q.value(0).toInt();
+  return res;
+}
+
+QSet<int> Tags::appliedToAllInSel() {
+  DBReadLock lock(db);
+  int N = db->simpleQuery("select count(1) from selection").toInt();
+  QSqlQuery q = db->constQuery("select tag from"
+                               " (select count(1) as n, tag"
+                               "  from appliedtags"
+                               "  where version in"
+                               "  (select version from selection)"
+                               "  group by tag)"
+                               " where n==:a", N);
+  QSet<int> res;
   while (q.next())
     res << q.value(0).toInt();
   return res;
