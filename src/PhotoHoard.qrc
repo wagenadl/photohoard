@@ -15,5 +15,6 @@
     <file alias="Bold.ttf">../res/fonts/zalando/static/ZalandoSans-Bold.ttf</file>
     <file alias="Italic.ttf">../res/fonts/zalando/static/ZalandoSans-MediumItalic.ttf</file>
     <file alias="BoldItalic.ttf">../res/fonts/zalando/static/ZalandoSans-BoldItalic.ttf</file>
+    <file alias="banner.png">../docs/source/banner.png</file>
   </qresource> 
 </RCC>

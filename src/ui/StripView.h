@@ -58,6 +58,7 @@ protected:
   void placeAndConnect(class Strip *strip);
   void makeActions();
   void startDragScroll(QPoint p0);
+  void finishStartup();
 private:
   SessionDB *db;
   bool useFolders;

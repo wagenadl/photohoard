@@ -18,6 +18,7 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include "corelib/DateTime.h"
+#include <QSplashScreen>
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
@@ -31,7 +32,6 @@ int main(int argc, char **argv) {
   qRegisterMetaType<DateTime>();
   Settings settings;
   Application app(argc, argv);
-  //  app.setFont(ScreenResolution::defaultFont());
 
   QCommandLineOption cli_db("db", "Specify database to use",
                             "file.photohoard");
@@ -58,7 +58,15 @@ int main(int argc, char **argv) {
   bool newdb = cli.isSet("new");
   bool readonly = cli.isSet("ro");
 
+  QPixmap pixmap(":/banner.png");
+  QSplashScreen splash(pixmap);
+  splash.show();
+  splash.showMessage("");
+  app.processEvents();
+  qDebug() << "splash";
+  
   FileLocations::ensureDataRoot();
+  app.processEvents();
 
   CMSProfile rgb(CMSProfile::srgbProfile());
   if (icc != "") {
@@ -74,7 +82,10 @@ int main(int argc, char **argv) {
   CMS::monitorTransform = CMSTransform(CMSProfile::srgbProfile(),
                                        CMS::monitorProfile);
 
+  app.processEvents();
+
   Session *session = new Session(dbfn, newdb, readonly);
+  splash.finish(session->mainWindow());
   if (session->isActive())
     return app.exec();
   else

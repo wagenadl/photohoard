@@ -16,6 +16,7 @@ public:
           QString cacheloc=QString(), QStringList roots=QStringList());
   virtual ~Session();
   bool isActive() const;
+  QWidget *mainWindow() const;
 public slots:
   void quit();
 private:

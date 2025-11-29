@@ -132,6 +132,11 @@ Session::Session(QString dbfn0, bool create, bool readonly, QString cacheloc,
   mw->scrollToCurrent();
 }
 
+QWidget *Session::mainWindow() const {
+  return mw;
+}
+    
+
 void Session::quit() {
   if (!active)
     return;

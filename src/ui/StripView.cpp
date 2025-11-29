@@ -32,7 +32,11 @@ StripView::StripView(SessionDB *db, QWidget *parent):
   folderStrip->setFolder("/"); /// hmmm.
   folderScene->addItem(folderStrip);
   placeAndConnect(folderStrip);
+  finishStartup();
+  // QTimer::singleShot(1, this, [this]() { finishStartup(); });
+}
 
+void StripView::finishStartup() {
   dateStrip->block();
   dateStrip->expand();
   QList<DateTime> d0s;
