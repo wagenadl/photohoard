@@ -154,7 +154,7 @@ private:
   public:
     State() {
       cursoridx = 0;
-      anchoridx = -1'
+      anchoridx = -1;
     }
   };
 private:

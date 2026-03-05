@@ -3,7 +3,12 @@
     <!-- SLIDERS -->
     <file alias="sliders.txt">../res/sliders.txt</file>
     <!-- STYLE -->
-    <file alias="style.css">../res/style.css</file>
+    <file alias="dark.css">../res/dark.css</file>
+    <file alias="light.css">../res/light.css</file>
+    <file alias="dark.json">../res/dark.json</file>
+    <file alias="light.json">../res/light.json</file>
+    <file alias="darkdoc.css">../res/darkdoc.css</file>
+    <file alias="lightdoc.css">../res/lightdoc.css</file>
     <file alias="banner.png">../docs/source/banner.png</file>
     <!-- SQL CODE -->
     <file alias="setupcache.sql">../res/setupcache.sql</file>

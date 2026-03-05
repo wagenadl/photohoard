@@ -8,9 +8,17 @@
 #include "StripScene.h"
 #include "CMS.h"
 #include <QApplication>
+#include "Style.h"
 
 bool Slide::mayStartDrag = false;
 constexpr int SLIDEMARGINS = 8;
+
+QColor Slide::bgcolor("#c0c0c0");
+
+void Slide::updatePalette() {
+  qDebug() << "updatepalette";
+  bgcolor = Style::instance()->color("strip-slide");
+}
 
 Slide::Slide(quint64 id, Slidestrip *parent):
   QGraphicsItem(parent), parent(parent), id(id) {
@@ -19,8 +27,8 @@ Slide::Slide(quint64 id, Slidestrip *parent):
   StripScene *fs = dynamic_cast<StripScene *>(scene());
   if (fs)
     fs->markSlideFor(id, this);
-  else
-    COMPLAIN("Slide not in a scene - won't show image");
+  //  else
+  //    COMPLAIN("Slide not in a scene - won't show image");
 }
 
 Slide::~Slide() {
@@ -30,11 +38,8 @@ Slide::~Slide() {
   // this may not be true if scene is being destroyed
 }
 
-static QColor bgcolor("#808080");
-
 QColor Slide::colorLabelColor(int c) {
   static QMap<int, QColor> cc;
-  //   static QColor bg("#808080");
   if (cc.isEmpty()) {
     cc[1] = QColor("#bb4455");
     cc[2] = QColor("#bbaa44");

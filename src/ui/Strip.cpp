@@ -8,6 +8,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include "StripScene.h"
 #include "Selection.h"
+#include "Style.h"
 
 Strip::Strip(SessionDB *db, QGraphicsItem *parent):
   QGraphicsObject(parent), db(db) {
@@ -202,7 +203,8 @@ void Strip::toggleSelection() {
 }
   
 
-void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
+void Strip::paintCollapsedHeaderBox(QPainter *painter,
+                                    QRectF r, QColor bg) {
   int n=0;
   int N=0;
   switch (org) {
@@ -220,9 +222,9 @@ void Strip::paintCollapsedHeaderBox(QPainter *painter, QRectF r, QColor bg) {
   painter->setPen(QPen(Qt::NoPen));
   if (!painter->isActive())
     COMPLAIN("Painter not active");
-  painter->setBrush(QBrush(QColor(129, 129, 129)));
+  painter->setBrush(QBrush(Style::instance()->color("strip-br")));
   painter->drawRoundedRect(r.adjusted(2, 2, 0, 0), 4, 4);
-  painter->setBrush(QBrush(QColor(240, 240, 240)));
+  painter->setBrush(QBrush(Style::instance()->color("strip-tl")));
   painter->drawRoundedRect(r.adjusted(0, 0, -2, -2), 4, 4);
   int dx = 1;
   if (n>0) {
@@ -262,7 +264,10 @@ QPixmap const &Strip::dashPattern(QColor bg1) {
 }
   
 
-void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
+void Strip::paintExpandedHeaderBox(QPainter *painter,
+                                   QRectF/* r*/, QColor bg) {
+  QColor tlcolor(Style::instance()->color("strip-tl"));
+  QColor brcolor(Style::instance()->color("strip-br"));
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
   QRectF r = boundingRect().adjusted(1, 1, -1, -1);
@@ -276,13 +281,13 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
     break;
   }
   if (isroot) {
-    painter->setPen(QPen(QColor(129, 129, 129), 2));
+    painter->setPen(QPen(brcolor, 2));
     poly << QPointF(r.bottomLeft());
     poly << QPointF(r.bottomRight());
     poly << QPointF(r.topRight());
     painter->drawPolyline(poly);
     poly.clear();
-    painter->setPen(QPen(QColor(255, 255, 255), 2));
+    painter->setPen(QPen(tlcolor, 2));
     poly << QPointF(r.bottomLeft());
     poly << QPointF(r.topLeft());
     poly << QPointF(r.topRight());
@@ -295,13 +300,13 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
   } else {    
     int slantw = labelHeight(tilesize)-4;
     if (r.width() >= r.height()) {
-      painter->setPen(QPen(QColor(129, 129, 129), 2));
+      painter->setPen(QPen(brcolor, 2));
       poly << QPointF(r.bottomRight()) + QPointF(0, -1);
       poly << QPointF(r.topRight()) + QPointF(0, slantw);
       poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
       painter->drawPolyline(poly);
       poly.clear();
-      painter->setPen(QPen(QColor(255, 255, 255), 2));
+      painter->setPen(QPen(tlcolor, 2));
       poly << QPointF(r.bottomLeft());
       poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
       poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
@@ -320,13 +325,13 @@ void Strip::paintExpandedHeaderBox(QPainter *painter, QRectF/* r*/, QColor bg) {
       poly << QPointF(r.bottomRight());
       painter->drawPolygon(poly);
     } else {
-      painter->setPen(QPen(QColor(129, 129, 129), 2));
+      painter->setPen(QPen(brcolor, 2));
       poly << QPointF(r.bottomRight()) + QPointF(-1, 0);
       poly << QPointF(r.bottomLeft()) + QPointF(slantw-1, 0);
       poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw+1);
       painter->drawPolyline(poly);
       poly.clear();
-      painter->setPen(QPen(QColor(255, 255, 255), 2));
+      painter->setPen(QPen(tlcolor, 2));
       poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
       poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
       poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
@@ -420,7 +425,7 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
   if (!expanded) {
     lbl += QString("\n(%1)").arg(n);
     r = r.adjusted(2, 2, -2, -2);
-    painter->setPen(QPen(QColor(0, 0, 0)));
+    painter->setPen(QPen(Style::instance()->color("strip-overtext-shadow")));
     painter->drawText(r.translated(1, 2),
                       Qt::AlignCenter | Qt::TextWordWrap, lbl);
     painter->drawText(r.translated(2, 1),
@@ -433,18 +438,18 @@ void Strip::paintHeaderText(QPainter *painter, QRectF r) {
                       Qt::AlignCenter | Qt::TextWordWrap, lbl);
     painter->drawText(r.translated(-1, -1),
                       Qt::AlignCenter | Qt::TextWordWrap, lbl);
-    painter->setPen(QPen(QColor(255,255,255)));
+    painter->setPen(QPen(Style::instance()->color("strip-overtext")));
     painter->drawText(r, Qt::AlignCenter | Qt::TextWordWrap, lbl);
   } else if (r.width() >= r.height()) {
     // Horizontal display
-    painter->setPen(QPen(QColor(0, 0, 0)));
+    painter->setPen(QPen(Style::instance()->color("strip-headertext")));
     painter->drawText(r, Qt::AlignCenter, lbl);
   } else {
     // Vertical display
     painter->rotate(-90);
     int N = (r.height()+3*tilesize-1)/(3*tilesize);
     int dx = r.height()/N;
-    painter->setPen(QPen(QColor(0, 0, 0)));
+    painter->setPen(QPen(Style::instance()->color("strip-headertext")));
     for (int n=0; n<N; n++)    
       painter->drawText(QRectF(-r.height()+dx*n, 0, dx, r.width()),
                         Qt::AlignCenter, lbl);
@@ -455,14 +460,16 @@ void Strip::paint(QPainter *painter,
                   const QStyleOptionGraphicsItem *,
                   QWidget *) {
   QRectF r = labelBoundingRect();
-  int bggray = 192;
+  bool dark = Style::instance()->isDark();
+  int bggray = 128;
   switch (org) {
   case Organization::ByDate:
-    bggray = 160 + 16*(int(scl)-int(TimeScale::Decade));
+    bggray = (dark ? 92 : 176)
+      + (dark ? -16 : 24) * ((int(scl)-int(TimeScale::Eternity) + 1) % 3);
     break;
   case Organization::ByFolder:
     bggray = ((pathname.split("/").size() + (leafname==""?1:0)) & 1)
-      ? 192 : 160;
+      ? (dark ? 64 : 192) : (dark ? 92 : 160);
     break;
   }
   if (hasheader) {

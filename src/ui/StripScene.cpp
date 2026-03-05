@@ -5,10 +5,11 @@
 #include "Strip.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include "Style.h"
 
 StripScene::StripScene(PhotoDB *db, QObject *parent):
   QGraphicsScene(parent), db(db) {
-  setBackgroundBrush(QColor(160, 160, 160));
+  setBackgroundBrush(Style::instance()->color("strip-background"));
 }
 
 StripScene::~StripScene() {

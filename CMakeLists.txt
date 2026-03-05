@@ -105,6 +105,15 @@ target_include_directories(photohoard PUBLIC "${PROJECT_BINARY_DIR}")
 target_include_directories(photohoard PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
 target_include_directories(photohoard PUBLIC "${OpenCV_INCLUDE_DIRS}")
 
+if (UNIX AND NOT APPLE) 
+  # Clangd - but only on Linux; VS Code can fend for itself
+  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+  set_source_files_properties(tags PROPERTIES GENERATED true)
+  add_custom_command(OUTPUT tags
+    COMMAND ctags -R --kinds-c++=+p --fields=+iaS --extra=+q . 
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif()
+
 ######################################################################
 # Documentation
 if (UNIX AND NOT APPLE)

@@ -7,7 +7,6 @@ ListWidget::ListWidget(QWidget *parent): QWidget(parent) {
   lay->setContentsMargins(0, 0, 0, 0);
   lay->setSpaceing(0);
   setLayout(lay);
-  setStyleSheet("QWidget { border: 1px solid green }");
 }
 
 ListWidget::~ListWidget() {

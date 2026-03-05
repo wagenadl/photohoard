@@ -5,17 +5,24 @@
 #include <QFile>
 #include "Version.h"
 #include <QFontDatabase>
+#include <QFileSystemWatcher>
+#include "Style.h"
+
+#define STYLEPATH "/home/wagenaar/progs/photohoard/photohoard/res/light.css"
 
 Application::Application(int &argc, char **argv): QApplication(argc, argv) {
   setApplicationName("Photohoard");
   setApplicationVersion(Version::toString());
-  QFile f(":/style.css");
-  ASSERT(f.open(QFile::ReadOnly));
-  setStyleSheet(QString::fromUtf8(f.readAll()));
+  auto *fsw = new QFileSystemWatcher(this);
+  fsw->addPath(STYLEPATH);
+  connect(fsw, &QFileSystemWatcher::fileChanged,
+          this, [this]() {
+            Style::instance()->setLightMode();
+            });
+  Style::instance()->setLightMode();
   QFontDatabase::addApplicationFont(":Regular.ttf");
   QFontDatabase::addApplicationFont(":Bold.ttf");
   QFontDatabase::addApplicationFont(":Italic.ttf");
   QFontDatabase::addApplicationFont(":BoldItalic.ttf");
-
 }
 

@@ -30,6 +30,7 @@ public:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *) override;
   Slidestrip *parentStrip() const;
+  static void updatePalette();
 private:
   static QColor colorLabelColor(int);
 private:
@@ -39,6 +40,7 @@ private:
   QPixmap pm;
   int tilesize;
   static bool mayStartDrag;
+  static QColor bgcolor;
 };
 
 #endif
