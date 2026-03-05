@@ -5,19 +5,19 @@ QWidget {
 }
 
 SlideView {
-    background-color: #bbbbbb;
+    background-color: #606060;
     border-style: solid;
-    border-color: #bbbbbb;
+    border-color: #606060;
     border-width: 4px;
 }
 
 MetaViewer {
-    background-color: #f8f8f8;
-    color: #000000;
+    background-color: #080808;
+    color: #e0e0e0;
 }
 
 MetaViewer, HistoWidget, AppliedTagList, CropControls, ControlSliders, #layerdialog {
-    color: #000000;
+    color: #e0e0e0;
     margin-right: 6px;
     border-style: solid;
     border-left-color: #cccccc;
@@ -28,13 +28,13 @@ MetaViewer, HistoWidget, AppliedTagList, CropControls, ControlSliders, #layerdia
 }
 
 AppliedTagList {
-    color: #000000;
-    background-color: #ededed;
+    color: #e0e0e0;
+    background-color: #000000;
 }
 
 AppliedTagEditor {
-    color: #000000;
-    background-color: #f8f8f8;
+    color: #e0e0e0;
+    background-color: #000000;
     border-style: solid;
     border-left-color: #cccccc;
     border-top-color: #cccccc;
@@ -44,13 +44,13 @@ AppliedTagEditor {
 }
 
 QLineEdit {
-    color: #000000;
-    background-color: #ffffff;
+    color: #e0e0e0;
+    background-color: #000000;
 }
 
 QWidget#controlsliders, QWidget#cropcontrol, GentleJog {
-    color: #000000;
-    background-color: #ededed;
+    color: #e0e0e0;
+    background-color: #303030;
 }
 
 ControlSliders#layoutsliders {

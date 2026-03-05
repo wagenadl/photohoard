@@ -1,1 +1,9 @@
-{ "slide-background": "#004444" }
+{ "strip-slide": "#404040",
+  "strip-br": "#000000",
+  "strip-tl": "#808080",
+  "strip-overtext-shadow": "#000000",
+  "strip-overtext": "#ffffff",
+  "strip-headertext": "#ffffff",
+  "strip-background": "#202020"
+}
+

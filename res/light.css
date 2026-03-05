@@ -5,9 +5,9 @@ QWidget {
 }
 
 SlideView {
-    background-color: #bbbbbb;
+    background-color: #909090;
     border-style: solid;
-    border-color: #bbbbbb;
+    border-color: #909090;
     border-width: 4px;
 }
 

@@ -7,6 +7,7 @@
 #include <QFontDatabase>
 #include <QFileSystemWatcher>
 #include "Style.h"
+#include <QPalette>
 
 #define STYLEPATH "/home/wagenaar/progs/photohoard/photohoard/res/light.css"
 
@@ -19,7 +20,11 @@ Application::Application(int &argc, char **argv): QApplication(argc, argv) {
           this, [this]() {
             Style::instance()->setLightMode();
             });
-  Style::instance()->setLightMode();
+  QPalette p = palette();
+  if (p.text().color().lightness() < p.window().color().lightness())
+    Style::instance()->setLightMode();
+  else
+    Style::instance()->setDarkMode();
   QFontDatabase::addApplicationFont(":Regular.ttf");
   QFontDatabase::addApplicationFont(":Bold.ttf");
   QFontDatabase::addApplicationFont(":Italic.ttf");

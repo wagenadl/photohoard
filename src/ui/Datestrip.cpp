@@ -34,8 +34,10 @@ QRectF Datestrip::subBoundingRect() const {
     return QRectF();
   Strip *rs = rightMostSubstrip();
   Strip *bs = bottomMostSubstrip();
-  double r = rs ? rs->mapToParent(rs->netBoundingRect().bottomRight()).x() : 1;
-  double b = bs ? bs->mapToParent(bs->netBoundingRect().bottomRight()).y() : 1;
+  double r = rs ? rs->mapToParent(rs->netBoundingRect().bottomRight()).x()
+    : 1;
+  double b = bs ? bs->mapToParent(bs->netBoundingRect().bottomRight()).y()
+    : 1;
   return QRectF(QPointF(0, 0), QPointF(r, b));                        
 }
 
@@ -428,7 +430,7 @@ void Datestrip::relayout() {
   case Arrangement::Horizontal: {
     int x = labelBoundingRect().right();
     bool dx = false;
-    bool suppress = scl!=TimeScale::Eternity;
+    bool suppress = scl != TimeScale::Eternity;
     for (auto s: stripOrder) {
       if (s->isExpanded() && !suppress)
         dx = true;
@@ -443,7 +445,7 @@ void Datestrip::relayout() {
   case Arrangement::Vertical: {
     int y = labelBoundingRect().bottom();
     bool dy = false;
-    bool suppress = scl!=TimeScale::Eternity;
+    bool suppress = scl != TimeScale::Eternity;
     for (auto s: stripOrder) {
       if (s->isExpanded() && !suppress)
         dy = true;
@@ -463,8 +465,8 @@ void Datestrip::relayout() {
     int dy = 0;
     int x = x0;
     int y = y0;
-    if (scl==TimeScale::Eternity)
-      y += 2 + edy;
+    if (isTopOfHierarchy())
+      y = 2 + edy;
     else if (hasTopLabel())
       y += 1;
     bool atstart = true;

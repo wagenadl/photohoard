@@ -43,6 +43,7 @@ public:
   int tileSize() const { return tilesize; }
   int rowWidth() const { return rowwidth; }
   bool hasTopLabel() const;
+  bool isTopOfHierarchy() const;
   virtual Strip *stripByDate(DateTime const &t0, TimeScale scl);
   virtual Strip *stripByDate(DateTime const &t0);
   virtual Strip *stripByFolder(QString path);

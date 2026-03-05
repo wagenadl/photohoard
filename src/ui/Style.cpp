@@ -53,6 +53,5 @@ QString Style::documentStyle() const {
   
 QColor Style::color(QString name) const {
   QString x = options[name].toString();
-  qDebug() << "color" << name << x << QColor(x);
   return QColor(x);
 }

@@ -100,13 +100,22 @@ bool Strip::hasTopLabel() const {
   case Arrangement::Grid:
     switch (org) {
     case Organization::ByDate:
-      return scl==TimeScale::Eternity
-        || scl==TimeScale::Decade;
+      return isTopOfHierarchy() || scl==TimeScale::Decade;
     case Organization::ByFolder:
-      return pathname=="/";
+      return isTopOfHierarchy();
     }
   }
   return false; // not executed
+}
+
+bool Strip::isTopOfHierarchy() const {
+  switch (org) {
+  case Organization::ByDate:
+    return scl==TimeScale::Eternity;
+  case Organization::ByFolder:
+    return pathname=="/";
+  }
+  return false;
 }
 
 QRectF Strip::labelBoundingRect() const {
@@ -115,7 +124,10 @@ QRectF Strip::labelBoundingRect() const {
 
 void Strip::recalcLabelRect() {
   prepareGeometryChange();
-  int lh = hasheader ? labelHeight(tilesize) : 1;
+  int lh =
+    isTopOfHierarchy() ? 0
+    : hasheader ? labelHeight(tilesize)
+    : 1;
   switch (arr) {
   case Arrangement::Horizontal:
     if (expanded)
@@ -201,7 +213,6 @@ void Strip::toggleSelection() {
   }
   update();
 }
-  
 
 void Strip::paintCollapsedHeaderBox(QPainter *painter,
                                     QRectF r, QColor bg) {
@@ -266,90 +277,65 @@ QPixmap const &Strip::dashPattern(QColor bg1) {
 
 void Strip::paintExpandedHeaderBox(QPainter *painter,
                                    QRectF/* r*/, QColor bg) {
+  if (isTopOfHierarchy())
+    return;
   QColor tlcolor(Style::instance()->color("strip-tl"));
   QColor brcolor(Style::instance()->color("strip-br"));
   painter->setPen(QPen(Qt::NoPen));
   QPolygonF poly;
   QRectF r = boundingRect().adjusted(1, 1, -1, -1);
-  bool isroot = false;
-  switch (org) {
-  case Organization::ByDate:
-    isroot = scl==TimeScale::Eternity;
-    break;
-  case Organization::ByFolder:
-    isroot = pathname=="/";
-    break;
-  }
-  if (isroot) {
+  int slantw = labelHeight(tilesize)-4;
+  if (r.width() >= r.height()) {
     painter->setPen(QPen(brcolor, 2));
-    poly << QPointF(r.bottomLeft());
-    poly << QPointF(r.bottomRight());
-    poly << QPointF(r.topRight());
+    if (arr != Arrangement::Grid)
+      poly << QPointF(r.bottomRight()) + QPointF(0, -1);
+    poly << QPointF(r.topRight()) + QPointF(0, slantw);
+    poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
     painter->drawPolyline(poly);
     poly.clear();
     painter->setPen(QPen(tlcolor, 2));
     poly << QPointF(r.bottomLeft());
-    poly << QPointF(r.topLeft());
-    poly << QPointF(r.topRight());
+    poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
+    poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
+    poly << QPointF(r.topRight()) + QPointF(-slantw-1, 0);
     painter->drawPolyline(poly);
+    poly.clear();
     painter->setPen(QPen(Qt::NoPen));
     if (!painter->isActive())
       COMPLAIN("Painter not active");
     painter->setBrush(QBrush(bg));
-    painter->drawRect(r);
-  } else {    
-    int slantw = labelHeight(tilesize)-4;
-    if (r.width() >= r.height()) {
-      painter->setPen(QPen(brcolor, 2));
-      poly << QPointF(r.bottomRight()) + QPointF(0, -1);
-      poly << QPointF(r.topRight()) + QPointF(0, slantw);
-      poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
-      painter->drawPolyline(poly);
-      poly.clear();
-      painter->setPen(QPen(tlcolor, 2));
-      poly << QPointF(r.bottomLeft());
-      poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
-      poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
-      poly << QPointF(r.topRight()) + QPointF(-slantw-1, 0);
-      painter->drawPolyline(poly);
-      poly.clear();
-      painter->setPen(QPen(Qt::NoPen));
-      if (!painter->isActive())
-        COMPLAIN("Painter not active");
-      painter->setBrush(QBrush(bg));
-      poly << QPointF(r.bottomLeft());
-      poly << QPointF(r.topLeft()) + QPointF(0, slantw);
-      poly << QPointF(r.topLeft()) + QPointF(slantw, 0);
-      poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
-      poly << QPointF(r.topRight()) + QPointF(0, slantw);
-      poly << QPointF(r.bottomRight());
-      painter->drawPolygon(poly);
-    } else {
-      painter->setPen(QPen(brcolor, 2));
-      poly << QPointF(r.bottomRight()) + QPointF(-1, 0);
-      poly << QPointF(r.bottomLeft()) + QPointF(slantw-1, 0);
-      poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw+1);
-      painter->drawPolyline(poly);
-      poly.clear();
-      painter->setPen(QPen(tlcolor, 2));
-      poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
-      poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
-      poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
-      poly << QPointF(r.topRight());
-      painter->drawPolyline(poly);
-      poly.clear();
-      painter->setPen(QPen(Qt::NoPen));
-      if (!painter->isActive())
-        COMPLAIN("Painter not active");
-      painter->setBrush(QBrush(bg));
-      poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
-      poly << QPointF(r.topLeft()) + QPointF(0, slantw);
-      poly << QPointF(r.topLeft()) + QPointF(slantw, 0);
-      poly << QPointF(r.topRight());
-      poly << QPointF(r.bottomRight());
-      poly << QPointF(r.bottomLeft()) + QPointF(slantw, 0);
-      painter->drawPolygon(poly);
-    }
+    poly << QPointF(r.bottomLeft());
+    poly << QPointF(r.topLeft()) + QPointF(0, slantw);
+    poly << QPointF(r.topLeft()) + QPointF(slantw, 0);
+    poly << QPointF(r.topRight()) + QPointF(-slantw, 0);
+    poly << QPointF(r.topRight()) + QPointF(0, slantw);
+    poly << QPointF(r.bottomRight());
+    painter->drawPolygon(poly);
+  } else {
+    painter->setPen(QPen(brcolor, 2));
+    poly << QPointF(r.bottomRight()) + QPointF(-1, 0);
+    poly << QPointF(r.bottomLeft()) + QPointF(slantw-1, 0);
+    poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw+1);
+    painter->drawPolyline(poly);
+    poly.clear();
+    painter->setPen(QPen(tlcolor, 2));
+    poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
+    poly << QPointF(r.topLeft()) + QPointF(0, slantw-1);
+    poly << QPointF(r.topLeft()) + QPointF(slantw-1, 0);
+    poly << QPointF(r.topRight());
+    painter->drawPolyline(poly);
+    poly.clear();
+    painter->setPen(QPen(Qt::NoPen));
+    if (!painter->isActive())
+      COMPLAIN("Painter not active");
+    painter->setBrush(QBrush(bg));
+    poly << QPointF(r.bottomLeft()) + QPointF(0, -slantw);
+    poly << QPointF(r.topLeft()) + QPointF(0, slantw);
+    poly << QPointF(r.topLeft()) + QPointF(slantw, 0);
+    poly << QPointF(r.topRight());
+    poly << QPointF(r.bottomRight());
+    poly << QPointF(r.bottomLeft()) + QPointF(slantw, 0);
+    painter->drawPolygon(poly);
   }
 }
 
@@ -464,8 +450,16 @@ void Strip::paint(QPainter *painter,
   int bggray = 128;
   switch (org) {
   case Organization::ByDate:
-    bggray = (dark ? 92 : 176)
-      + (dark ? -16 : 24) * ((int(scl)-int(TimeScale::Eternity) + 1) % 3);
+    if (scl == TimeScale::Eternity)
+      bggray = dark ? 32 : 208;
+    else
+      bggray = (dark ? 32 : 192)
+        + (dark ? 16 : 16) * (int(scl)-int(TimeScale::Decade));
+    if (bggray > 255)
+      bggray = 255;
+    else if (bggray < 0)
+      bggray = 0;
+          
     break;
   case Organization::ByFolder:
     bggray = ((pathname.split("/").size() + (leafname==""?1:0)) & 1)
@@ -473,11 +467,11 @@ void Strip::paint(QPainter *painter,
     break;
   }
   if (hasheader) {
-    QColor bg(bggray, bggray, bggray);
     if (expanded) {
-      paintExpandedHeaderBox(painter, r, bg);
+      paintExpandedHeaderBox(painter, r, QColor(bggray, bggray, bggray));
     } else {
-      paintCollapsedHeaderBox(painter, r, bg);
+      paintCollapsedHeaderBox(painter, r,
+                              Style::instance()->color("strip-slide"));
       paintHeaderImage(painter, r);
     }
     paintHeaderText(painter, r);
@@ -522,7 +516,7 @@ QString Strip::longLabelFor(DateTime const &d0, Strip::TimeScale scl) {
 QString Strip::labelFor(DateTime const &d0, Strip::TimeScale scl) {
   switch (scl) {
   case TimeScale::Eternity:
-    return "Library";
+    return ""; //Library";
   case TimeScale::Decade:
     return d0.toString("yyyy") + QString::fromUtf8("–’")
       + d0.addYears(9).toString("yy");
@@ -628,7 +622,8 @@ void Strip::setTileSize(int pix) {
 }
 
 int Strip::subRowWidth(int pix) const {
-  return (hasTopLabel() || !hasheader) ? pix : pix - labelHeight(tilesize);  
+  return (hasTopLabel() || !hasheader) ? pix
+    : pix - labelHeight(tilesize);  
 }
 
 void Strip::setRowWidth(int pix) {
@@ -645,7 +640,8 @@ void Strip::expand() {
   switch (org) {
   case Organization::ByDate:
     { DBWriteLock lock(db);
-      db->query("insert into expanded values(:a,:b)", d0.toString(), int(scl));
+      db->query("insert into expanded values(:a,:b)",
+                d0.toString(), int(scl));
     }
     break;
   case Organization::ByFolder:
@@ -657,6 +653,10 @@ void Strip::expand() {
 }
 
 void Strip::collapse() {
+  if (isTopOfHierarchy()) {
+    expand(); // is this crazy?
+    return;
+  }
   if (!expanded)
     return;
   prepareGeometryChange();
@@ -685,7 +685,6 @@ void Strip::relayout() {
 }
 	
 void Strip::rescan() {
-  /* Somehow should avoid closing things that were open */
   rebuildContents();
 }
 

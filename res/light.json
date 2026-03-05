@@ -1,8 +1,8 @@
-{ "strip-slide": "#909090",
+{ "strip-slide": "#b0b0b0",
   "strip-br": "#818181",
   "strip-tl": "#ffffff",
   "strip-overtext-shadow": "#000000",
   "strip-overtext": "#ffffff",
   "strip-headertext": "#000000",
-  "strip-background": "#e0e0e0"
+  "strip-background": "#c0c0c0"
 }
