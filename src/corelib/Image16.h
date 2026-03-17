@@ -105,9 +105,12 @@ private:
                             Interpolation i=Interpolation::Linear) const;
   void flipSignedness();
 public:
+  static int hidpiFactor();
+  static void setHidpiFactor(int);
   static int cvFormat(Format f);
   static int cvInterpolation(Interpolation i);
 private:
+  static int _hidpifactor;
   QSharedDataPointer<Image16Data> d;
 };
 

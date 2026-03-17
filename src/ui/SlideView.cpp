@@ -18,6 +18,7 @@
 
 SlideView::SlideView(PhotoDB *db, QWidget *parent): QFrame(parent), db(db) {
   setObjectName("SlideView");
+  hidpifactor = devicePixelRatio();
   threadedTransform = new ThreadedTransform(this);
   connect(threadedTransform, SIGNAL(available(quint64, Image16)),
           SLOT(setCMSImage(quint64, Image16)), Qt::QueuedConnection);
@@ -34,7 +35,7 @@ SlideView::~SlideView() {
 }
 
 PSize SlideView::desiredSize() const {
-  PSize s = (fit || img.isNull()) ? size()
+  PSize s = (fit || img.isNull()) ? size() * hidpifactor
     : PSize(zoom*naturalSize.width(), zoom*naturalSize.height());
   return s;
 }
@@ -47,8 +48,8 @@ double SlideView::currentZoom() const {
 }
 
 double SlideView::fittingZoom() const {  
-  double hrat = width() / double(naturalSize.width());
-  double vrat = height() / double(naturalSize.height());
+  double hrat = width() * hidpifactor / double(naturalSize.width());
+  double vrat = height() * hidpifactor / double(naturalSize.height());
   double rat = hrat<vrat ? hrat : vrat;
   return rat;
 }
@@ -106,7 +107,7 @@ QPointF SlideView::relativeImagePoint(QPointF p) const {
     return QPointF(0.5 + (p.x()-pcenter.x())/scale / naturalSize.width(),
                    0.5 + (p.y()-pcenter.y())/scale / naturalSize.height());
   } else {
-    PSize showSize = naturalSize*zoom;
+    PSize showSize = naturalSize*zoom/hidpifactor;
     PSize availSize = r.size();
     QRectF sourceRect;
     QRectF destRect;
@@ -358,10 +359,9 @@ void SlideView::paintEvent(QPaintEvent *) {
   
   QPainter p(this);
   QRect r = contentsRect();
-  
   if (fit) {
-    bool scaleup = img.size().scaleFactorToSnuglyFitIn(r.size())>1;
-    Image16 i1 = img.scaledToFitSnuglyIn(r.size(),
+    bool scaleup = img.size().scaleFactorToSnuglyFitIn(r.size() * hidpifactor)>1;
+    Image16 i1 = img.scaledToFitSnuglyIn(r.size() * hidpifactor,
                                    scaleup
                                    ? Image16::Interpolation::NearestNeighbor
                                    : Image16::Interpolation::Linear);
@@ -371,12 +371,12 @@ void SlideView::paintEvent(QPaintEvent *) {
         && i1.height()>img.height()) {
       needLargerImage();
     }
-    p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2,
-                       (r.top() + r.bottom())/2 - i1.height()/2),
+    p.drawImage(QPoint((r.left() + r.right())/2 - i1.width()/2/hidpifactor,
+                       (r.top() + r.bottom())/2 - i1.height()/2/hidpifactor),
 		i1.toQImage());
   } else {
-    PSize showSize = naturalSize*zoom;
-    PSize availSize = r.size();
+    PSize showSize = naturalSize * zoom;
+    PSize availSize = r.size() * hidpifactor;
     double effZoom = img.size().scaleFactorToSnuglyFitIn(showSize);
     QRectF sourceRect;
     QRectF destRect;
@@ -384,10 +384,11 @@ void SlideView::paintEvent(QPaintEvent *) {
 	&& naturalSize.exceeds(img.size())) {
       emit needLargerImage();
     }
-    if (showSize.width()<=availSize.width()) {
+    if (showSize.width() <= availSize.width()) {
       sourceRect.setLeft(0);
       sourceRect.setWidth(img.width());
-      destRect.setLeft((r.left()+r.right())/2 - showSize.width()/2);
+      destRect.setLeft((r.left() + r.right())/2
+                       - showSize.width()/2/hidpifactor);
       destRect.setWidth(img.width()*effZoom);
     } else {
       destRect.setLeft(r.left());
@@ -399,7 +400,8 @@ void SlideView::paintEvent(QPaintEvent *) {
     if (showSize.height()<=availSize.height()) {
       sourceRect.setTop(0);
       sourceRect.setHeight(img.height());
-      destRect.setTop((r.top()+r.bottom())/2 - showSize.height()/2);
+      destRect.setTop((r.top()+r.bottom())/2
+                      - showSize.height()/2/hidpifactor);
       destRect.setHeight(img.height() * effZoom);
     } else {
       destRect.setTop(r.top());

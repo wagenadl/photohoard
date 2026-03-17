@@ -144,6 +144,7 @@ private:
   int futlay;
   bool showlayers;
   bool suplayers;
+  int hidpifactor;
 private slots:
   void setCMSImage(quint64, Image16);
 };

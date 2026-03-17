@@ -84,19 +84,19 @@ void ImportJob::setAutoDestination() {
   autodest = true;
 
   QString root = "";
-  int tagid = Tags(db).findCollection(coll);
-  if (tagid>=0) {
-    DBReadLock lock(db);
-    QSqlQuery q
-      = db->constQuery("select pathname from folders"
-                       " inner join defaulttags"
-                       " on folders.id==defaulttags.folder"
-                       " where tag==:a"
-                       " order by length(pathname) limit 1",
-                       tagid);
-    if (q.next())
-      root = q.value(0).toString();
-  }
+  //int tagid = Tags(db).findCollection(coll);
+  //if (tagid>=0) {
+  //  DBReadLock lock(db);
+  //  QSqlQuery q
+  //    = db->constQuery("select pathname from folders"
+  //                     " inner join defaulttags"
+  //                     " on folders.id==defaulttags.folder"
+  //                     " where tag==:a"
+  //                     " order by length(pathname) limit 1",
+  //                     tagid);
+  //  if (q.next())
+  //    root = q.value(0).toString();
+  //}
 
   if (root.isEmpty()) {
     DBReadLock lock(db);

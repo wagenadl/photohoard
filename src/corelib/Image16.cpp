@@ -464,6 +464,7 @@ Image16Data::Image16Data(int w, int h,
         format==Image16Base::Format::sRGB8 ? QImage::Format_RGB32
         : QImage::Format_RGB16), roibyteoffset(0) {
   bytesperline = image.bytesPerLine();
+  image.setDevicePixelRatio(Image16::hidpiFactor());
 }
 
 Image16Data::Image16Data(QImage const &img,
@@ -478,6 +479,7 @@ Image16Data::Image16Data(QImage const &img,
   bytesperline = image.bytesPerLine();
   if (f!=Image16Base::Format::sRGB8)
     width = img.width()/3;
+  image.setDevicePixelRatio(Image16::hidpiFactor());
 }
 
 
@@ -578,3 +580,10 @@ Image16 Image16::alphablended(Image16 ontop, QImage mask) const {
   return out;
 }
 
+int Image16::_hidpifactor = 1;
+
+int Image16::hidpiFactor() { return _hidpifactor; }
+
+void Image16::setHidpiFactor(int factor) {
+  _hidpifactor = factor;
+}

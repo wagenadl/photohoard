@@ -376,6 +376,8 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
   }
 
   int ims = tilesize - 20;
+  int factor = Image16::hidpiFactor();
+  ims *= factor;
   if (!(headerpm.width()==ims || headerpm.height()==ims)) {
     if (headerimg.isNull()) {
       requestImage(headerid);
@@ -387,8 +389,8 @@ void Strip::paintHeaderImage(QPainter *painter, QRectF r) {
       headerimg = Image16();
     }
   }
-  painter->drawPixmap(r.width()/2 - headerpm.width()/2,
-                      r.height()/2 - headerpm.height()/2,
+  painter->drawPixmap(r.width()/2 - headerpm.width()/2/factor,
+                      r.height()/2 - headerpm.height()/2/factor,
                       headerpm);
 }
 

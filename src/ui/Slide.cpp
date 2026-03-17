@@ -62,6 +62,7 @@ void Slide::updateImage(Image16 const &img1, bool chgd) {
   pm = QPixmap();
   if (isVisible()) {
     int ims = tilesize - SLIDEMARGINS;
+    ims *= Image16::hidpiFactor();
     if (CMS::monitorTransform.isValid())
       img = CMS::monitorTransform
         .apply(img1.scaledToFitSnuglyIn(PSize(ims, ims)));
@@ -150,6 +151,9 @@ void Slide::paint(QPainter *painter,
   painter->drawRoundedRect(r.adjusted(dx, dx, -dx, -dx), 4, 4);
 
   int ims = tilesize - SLIDEMARGINS;
+  int factor = Image16::hidpiFactor();
+  ims *= factor;
+  qDebug() << "slide" << ims << pm.size();
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
@@ -163,21 +167,22 @@ void Slide::paint(QPainter *painter,
 	double vrat = double(ims) / pm.height();
 	double rat = hrat<vrat ? hrat: vrat;
 	PSize tgt(rat*pm.width(), rat*pm.height());
-	QRect dst(QPoint(tilesize/2-tgt.width()/2,
-			   tilesize/2-tgt.height()/2), tgt);
+	QRect dst(QPoint(tilesize/2-tgt.width()/2/factor,
+			   tilesize/2-tgt.height()/2/factor), tgt / factor);
 	painter->drawPixmap(dst, pm);
       }
       parent->requestImage(id);
       return;
     }
     if (!img.isNull()) {
+      qDebug() << "img.size" << img.size() << ims << tilesize;
       pm = QPixmap::fromImage(img.scaledToFitSnuglyIn(PSize(ims, ims))
 			      .toQImage());
     }
     img = Image16();
   }
-  painter->drawPixmap(tilesize/2 - pm.width()/2,
-		      tilesize/2 - pm.height()/2,
+  painter->drawPixmap(tilesize/2 - pm.width()/2/factor,
+		      tilesize/2 - pm.height()/2/factor,
 		      pm);
   
   if (starRating>0) {

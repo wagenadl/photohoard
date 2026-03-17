@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
 
   QPixmap pixmap(":/banner.png");
   QSplashScreen splash(pixmap);
+  Image16::setHidpiFactor(splash.devicePixelRatio());
   splash.show();
   splash.showMessage("");
   app.processEvents();
