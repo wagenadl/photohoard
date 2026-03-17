@@ -5,21 +5,20 @@
 #include <QFile>
 #include "Version.h"
 #include <QFontDatabase>
-#include <QFileSystemWatcher>
+//#include <QFileSystemWatcher>
 #include "Style.h"
 #include <QPalette>
 
-#define STYLEPATH "/home/wagenaar/progs/photohoard/photohoard/res/light.css"
-
-Application::Application(int &argc, char **argv): QApplication(argc, argv) {
+Application::Application(int &argc, char **argv):
+  QApplication(argc, argv) {
   setApplicationName("Photohoard");
   setApplicationVersion(Version::toString());
-  auto *fsw = new QFileSystemWatcher(this);
-  fsw->addPath(STYLEPATH);
-  connect(fsw, &QFileSystemWatcher::fileChanged,
-          this, [this]() {
-            Style::instance()->setLightMode();
-            });
+  //auto *fsw = new QFileSystemWatcher(this);
+  //fsw->addPath(STYLEPATH);
+  //connect(fsw, &QFileSystemWatcher::fileChanged,
+  //        this, [this]() {
+  //          Style::instance()->setLightMode();
+  //          });
   QPalette p = palette();
   if (p.text().color().lightness() < p.window().color().lightness())
     Style::instance()->setLightMode();
