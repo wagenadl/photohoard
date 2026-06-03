@@ -1,6 +1,7 @@
 // PDebug.cpp
 
 #include "PDebug.h"
+#include <QElapsedTimer>
 #include <QTime>
 #include <execinfo.h>
 #include <cxxabi.h>
