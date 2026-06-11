@@ -204,7 +204,7 @@ void Image16::convertTo(Format fmt, int maxthreads) {
 }
 
 Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
-  if (isNull() || size()==s)
+  if (isNull() || size() == s)
     return *this;
   else if (s.isEmpty())
     return Image16();
@@ -222,10 +222,11 @@ Image16 Image16::scaled(PSize s, Image16::Interpolation i) const {
     : i==Interpolation::Area ? 2
     : i==Interpolation::Cubic ? 3
     : i==Interpolation::Lanczos ? 6
-    : 1000000;
+    : 100;
 
-  if (width()>maxdecimation*s.width() && height()>maxdecimation*s.height()) {
-    Image16 img = scaled(PSize((width()+1)/2, (height()+1)/2),
+  if (width() > maxdecimation * s.width() && height() > maxdecimation * s.height()) {
+    //    qDebug() << "image scale" << width() << height() << s << maxdecimation;
+    Image16 img = scaled(PSize((width() + 1) / 2, (height() + 1) / 2),
                          Interpolation::Linear);
     return img.scaled(s, i);
   }
