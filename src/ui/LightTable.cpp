@@ -48,7 +48,7 @@ LightTable::LightTable(SessionDB *db, AutoCache *cache,
   }
 
   dragout = 0;
-  filterDialog = new FilterDialog(db);
+  filterDialog = new FilterDialog(db, window());
   applyFilterSettings();
 
   selection = new Selection(db);
@@ -641,7 +641,7 @@ void LightTable::makeActions() {
     }}
   << Action { Qt::CTRL | Qt::SHIFT | Qt::Key_X, "Purge rejects",
          [&]() {
-      PurgeDialog::purgeDialog(db, cache);
+      PurgeDialog::purgeDialog(db, cache, window());
       rescan();
     }}
   ;
@@ -708,7 +708,7 @@ void LightTable::startDrag(quint64 id) {
     QSet<quint64> cursel = selection->current();
     cursel.remove(id);
     if (!cursel.isEmpty()) {
-      auto *mdd = new MultiDragDialog(db, exporter, cursel);
+      auto *mdd = new MultiDragDialog(db, exporter, cursel, window());
       mdd->show();
     }
   }

@@ -3,7 +3,6 @@
 #include "MultiDragDialog.h"
 #include "ui_MultiDragDialog.h"
 #include <QDebug>
-#include <QProgressDialog>
 #include "Exporter.h"
 #include <QMessageBox>
 #include <QFileInfo>
@@ -12,10 +11,10 @@
 
 bool MultiDragDialog::dontshow = false;
 
-MultiDragDialog::MultiDragDialog(SessionDB *db,
-                                 Exporter *expo,
-                                 QSet<quint64> const &set):
-  db(db), exporter(expo), set(set) {
+MultiDragDialog::MultiDragDialog(SessionDB *db, Exporter *expo,
+                                 QSet<quint64> const &set, QWidget *parent)
+    : QDialog(parent),
+      db(db), exporter(expo), set(set) {
   ui = new Ui_MultiDragDialog;
   ui->setupUi(this);
   connect(ui->dropParentFolder, SIGNAL(dropped(QString)),

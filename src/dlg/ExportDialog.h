@@ -16,7 +16,7 @@ public:
   ExportSettings settings() const;
   int exec();
 public:
-  static void standalone(class Exporter *expo, bool now=false);
+  static void standalone(class Exporter *expo, bool now=false, QWidget *parent=0);
 public slots:
   void setFormat(int);
   void setResolutionMode();

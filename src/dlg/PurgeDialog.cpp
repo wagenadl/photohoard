@@ -14,8 +14,8 @@
 #include "Dialog.h"
 #include <QFile>
 
-PurgeDialog::PurgeDialog(PhotoDB *db, Purge const *purge):
-  db(db), purge(purge) {
+PurgeDialog::PurgeDialog(PhotoDB *db, Purge const *purge, QWidget *parent)
+: QDialog(parent), db(db), purge(purge) {
   int nsibv = purge->versionsWithSiblings().size();
   int nsibp = purge->photosWithOtherVersions().size();
   int nnosibv = purge->versionsWithoutSiblings().size();
@@ -149,17 +149,18 @@ void PurgeDialog::keyPressEvent(QKeyEvent *e) {
   }
 }
 
-void PurgeDialog::purgeDialog(class PhotoDB *db, class AutoCache *ac) {
+void PurgeDialog::purgeDialog(class PhotoDB *db, class AutoCache *ac,
+                              QWidget *parent) {
   Purge purge(db, ac);
   if (purge.versionsWithSiblings().isEmpty()
       && purge.photosWithoutOtherVersions().isEmpty()
       && purge.orphanedPhotos().isEmpty()) {
-    QMessageBox::information(0, "Photohoard",
+    QMessageBox::information(parent, "Photohoard",
                              "There are no rejects to purge");
     return;
   }
 
-  PurgeDialog dlg(db, &purge);
+  PurgeDialog dlg(db, &purge, parent);
   int res = dlg.exec();
   if (res==0)
     return;
@@ -173,7 +174,7 @@ void PurgeDialog::purgeDialog(class PhotoDB *db, class AutoCache *ac) {
       N += purge.orphansThatCanBeDeleted().size();
   }
 
-  QProgressDialog progress;
+  QProgressDialog progress(parent);
   progress.setLabelText("Purging rejects");
   progress.setMinimum(0);
   progress.setMaximum(N);

@@ -11,7 +11,7 @@ class ImportSelectorDialog: public QDialog {
 public:
   ImportSelectorDialog(QStringList choices, QWidget *parent=0);
   virtual ~ImportSelectorDialog();
-  static QString choose(QStringList choices);
+  static QString choose(QStringList choices, QWidget *parent=0);
   QString choice() const { return choice_; }
 private slots:
   void select();

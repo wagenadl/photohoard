@@ -11,7 +11,8 @@
 #include <QPushButton>
 #include "Dialog.h"
 
-TagDialog::TagDialog(PhotoDB *db, bool ro): db(db), tags(db) {
+TagDialog::TagDialog(PhotoDB *db, bool ro, QWidget *parent)
+: QDialog(parent), db(db), tags(db) {
   readonly = ro;
   sw = ShowWhat::AllDefined;
   QVBoxLayout *vlay = new QVBoxLayout();

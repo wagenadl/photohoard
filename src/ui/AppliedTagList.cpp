@@ -19,7 +19,7 @@ AppliedTagList::AppliedTagList(PhotoDB *db, QWidget *parent):
     editor = new AppliedTagEditor(db, this);
     connect(editor, SIGNAL(returnPressed()),
 	    SLOT(editorAction()));
-    dialog = new TagDialog(db);
+    dialog = new TagDialog(db, window());
     connect(dialog, SIGNAL(apply(int)), SLOT(applyTag(int)));
     connect(dialog, SIGNAL(unapply(int)), SLOT(removeTag(int)));
     browse = new QToolButton(this);

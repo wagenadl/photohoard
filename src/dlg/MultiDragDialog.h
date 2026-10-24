@@ -4,14 +4,14 @@
 
 #define MULTIDRAGDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QSet>
 
-class MultiDragDialog: public QWidget {
+class MultiDragDialog: public QDialog {
   Q_OBJECT;
 public:
   MultiDragDialog(class SessionDB *db, class Exporter *,
-                  QSet<quint64> const &set);
+                  QSet<quint64> const &set, QWidget *parent=0);
   virtual ~MultiDragDialog();
   static bool shouldNotShow() { return dontshow; }
 private slots:

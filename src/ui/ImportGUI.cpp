@@ -19,7 +19,7 @@
 ImportGUI::ImportGUI(class SessionDB *db,
                      class Scanner *scanner,
                      QList<QUrl> const &sources,
-                     QObject *parent): QObject(parent) {
+                     QWidget *parent): QObject(parent) {
   extDlg = 0;
   otherUserDlg = 0;
   progressDlg = 0;
@@ -57,8 +57,9 @@ void ImportGUI::showAndGoAltLocal() {
 void ImportGUI::showAndGoOtherUser() {
   job->setOperation(ImportJob::Operation::Import);
   job->setAutoCollection();
-  otherUserDlg = new ImportOtherUserDialog(job,
-					 Tags(job->database()).collections());
+  otherUserDlg =
+      new ImportOtherUserDialog(job, Tags(job->database()).collections(),
+                                window());
   job->countSources();
   connect(otherUserDlg, SIGNAL(accepted()), SLOT(dlgAcceptOtherUser()));
   connect(otherUserDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
@@ -68,7 +69,8 @@ void ImportGUI::showAndGoOtherUser() {
 void ImportGUI::showAndGoExternal() {
   job->setOperation(ImportJob::Operation::Import);
   job->setAutoCollection();
-  extDlg = new ImportExternalDialog(job, Tags(job->database()).collections());
+  extDlg = new ImportExternalDialog(job, Tags(job->database()).collections(),
+                                    window());
   job->countSources();
   connect(extDlg, SIGNAL(accepted()), SLOT(dlgAcceptExternal()));
   connect(extDlg, SIGNAL(canceled()), SLOT(dlgCancel()));
@@ -122,7 +124,7 @@ void ImportGUI::dlgAcceptOtherUser() {
 
   if (job->operation()==ImportJob::Operation::Import) {
     progressDlg = new QProgressDialog("Copying...", "Cancel",
-				      0, job->preliminarySourceCount());
+				      0, job->preliminarySourceCount(), window());
     connect(progressDlg, SIGNAL(canceled()), job, SLOT(cancel()));
     connect(job, SIGNAL(countsUpdated(int, int)),
 	    progressDlg, SLOT(setMaximum(int)));
@@ -164,7 +166,7 @@ void ImportGUI::dlgAcceptExternal() {
 
   if (job->operation()==ImportJob::Operation::Import) {
     progressDlg = new QProgressDialog("Copying...", "Cancel",
-				      0, job->preliminarySourceCount());
+				      0, job->preliminarySourceCount(), window());
     connect(progressDlg, SIGNAL(canceled()), job, SLOT(cancel()));
     connect(job, SIGNAL(countsUpdated(int, int)),
 	    progressDlg, SLOT(setMaximum(int)));
@@ -196,20 +198,27 @@ bool ImportGUI::acceptable(QList<QUrl> const &urls) {
 
 void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
                                   QWidget *parent) {
-  QDir media("/media/" + qgetenv("USER"));
-  if (!media.exists()) {
-    qWarning() << "No media folder";
-    return;
-  }
-  QStringList disks = media.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
-                                      QDir::Name);
+  QStringList roots;
+  roots << "/media/" + qgetenv("USER")
+        << "/run/media/" + qgetenv("USER");
   QStringList usedisks;
-  for (auto d: disks) {
-    QDir dcim(media.absoluteFilePath(d + "/DCIM"));
-    if (dcim.exists())
-      usedisks << d;
+  QMap<QString, QString> diskpaths;
+  for (QString const &root: roots) {
+    QDir media(root);
+    if (media.exists()) {
+      QStringList disks = media.entryList(QDir::Dirs | QDir::NoDotAndDotDot,
+                                          QDir::Name);
+      for (auto d: disks) {
+        QString path = media.absoluteFilePath(d + "/DCIM");
+        QDir dcim(path);
+        if (dcim.exists() && !usedisks.contains(d)) {
+          usedisks << d;
+          diskpaths[d] = path;
+        }
+      }
+    }
   }
-
+  
   QList<QUrl> urls;
   
   if (usedisks.isEmpty()) {
@@ -235,16 +244,20 @@ void ImportGUI::clickImportButton(SessionDB *db, Scanner *scanner,
     QString choice = usedisks[0];
     if (usedisks.size() > 1) 
       choice = ImportSelectorDialog::choose(usedisks);
-    QString path = media.absoluteFilePath(choice + "/DCIM");
+    QString path = diskpaths[choice];
     urls << QUrl::fromLocalFile(path);
   }
 
   if (urls.size()) {
-    auto *gui = new ImportGUI(db, scanner, urls);
+    auto *gui = new ImportGUI(db, scanner, urls, parent);
     gui->showAndGo();
   }
 }
 
-
-    
-  
+QWidget *ImportGUI::window() {
+  QWidget *p = dynamic_cast<QWidget *>(parent());
+  if (p)
+    return p->window();
+  else
+    return 0;
+}

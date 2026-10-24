@@ -14,7 +14,7 @@ public:
   ImportGUI(class SessionDB *db,
 	    class Scanner *scanner,
 	    QList<QUrl> const &sources,
-	    QObject *parent=0);
+	    QWidget *parent=0);
   virtual ~ImportGUI();
   void showAndGo();
 public:
@@ -31,6 +31,9 @@ private:
   void showAndGoExternal();
   void showAndGoAltLocal();
   void showAndGoOtherUser();
+
+protected:
+  QWidget *window();
 private:
   class ImportJob *job;
   class ImportExternalDialog *extDlg;

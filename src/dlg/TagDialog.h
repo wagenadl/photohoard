@@ -18,7 +18,7 @@ public:
     UsedInSelectedVersions,
   };
 public:
-  TagDialog(PhotoDB *db, bool readOnly=false);
+  TagDialog(PhotoDB *db, bool readOnly=false, QWidget *parent=0);
   virtual ~TagDialog();
   void setShown(TagDialog::ShowWhat);
   QList<int> selectedTags();

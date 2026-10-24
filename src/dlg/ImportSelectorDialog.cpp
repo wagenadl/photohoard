@@ -32,8 +32,8 @@ void ImportSelectorDialog::cancel() {
   reject();
 }
 
-QString ImportSelectorDialog::choose(QStringList choices) {
-  auto *dlg = new ImportSelectorDialog(choices);
+QString ImportSelectorDialog::choose(QStringList choices, QWidget *parent) {
+  auto *dlg = new ImportSelectorDialog(choices, parent);
   QString c = dlg->exec() ? dlg->choice() : QString("");
   delete dlg;
   return c;

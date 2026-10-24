@@ -152,11 +152,11 @@ void ExportDialog::exportNow() {
   accept();
 }
 
-void ExportDialog::standalone(class Exporter *exporter, bool now) {
+void ExportDialog::standalone(class Exporter *exporter, bool now, QWidget *parent) {
   ExportSettings settings(exporter->settings());
   if (!settings.isValid())
     settings.destination = "/tmp";
-  ExportDialog exportdialog(now);
+  ExportDialog exportdialog(now, parent);
   exportdialog.setup(settings);
 
   if (exportdialog.exec() == ExportDialog::Accepted) {

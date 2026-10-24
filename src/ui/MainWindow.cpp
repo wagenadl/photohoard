@@ -52,7 +52,7 @@ MainWindow::MainWindow(SessionDB *db,
   
   adjuster = new LiveAdjuster(db, autocache, this);
 
-  shortcutHelp = new ShortcutHelp();
+  shortcutHelp = new ShortcutHelp(window());
 
   setCentralWidget(lighttable = new LightTable(db, autocache, adjuster,
                                                exporter, this));

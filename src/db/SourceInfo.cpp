@@ -77,7 +77,10 @@ QString SourceInfo::commonRoot(QStringList const &paths) {
 }
 
 bool SourceInfo::isExternalMedia() const {
-  return rootbits_.size()>=3 && rootbits_[0]=="media";
+  qDebug() << "isexternal" << rootbits_;
+  return rootbits_.size() >= 3
+    && (rootbits_[0]=="media"
+        || (rootbits_[0]=="run" && rootbits_[1]=="media"));
   /* On Windows, the "getdrivetypea" function should probably be used:
      https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdrivetypea
      On Mac, I don't yet know.
@@ -92,6 +95,7 @@ bool SourceInfo::isTemporaryLike() const {
 }
 
 bool SourceInfo::isOtherUser() const {
+  qDebug() << "isotheruser" << sources_;
   int me = QFileInfo(QDir::homePath()).ownerId();
   for (QUrl const &url: sources_)
     if (QFileInfo(url.toLocalFile()).ownerId() != me)
