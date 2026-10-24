@@ -1,17 +1,13 @@
 // main.cpp
 
 #include "Settings.h"
-#include "ScreenResolution.h"
 #include <QTime>
-#include "PDebug.h"
 #include "FileLocations.h"
 #include "Application.h"
 #include <QLabel>
-#include "NikonLenses.h"
 #include "CMS.h"
 #include "CMSTransform.h"
 #include "CMS.h"
-#include <thread>
 #include <QFileInfo>
 #include <iostream>
 #include "Session.h"

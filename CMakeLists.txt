@@ -10,6 +10,7 @@
 
 ######################################################################
 cmake_minimum_required(VERSION 3.19)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ######################################################################
 # Set the project name and version
@@ -39,6 +40,8 @@ find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 #find_package(LCMS2 REQUIRED)
 find_library(ROCKS_DB_PATH rocksdb REQUIRED)
 find_library(LCMS2_PATH lcms2 REQUIRED) 
+
+qt_standard_project_setup()
 
 ######################################################################
 # Add the executables
@@ -111,14 +114,13 @@ target_include_directories(photohoard PUBLIC "${PROJECT_BINARY_DIR}")
 target_include_directories(photohoard PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
 target_include_directories(photohoard PUBLIC "${OpenCV_INCLUDE_DIRS}")
 
-if (UNIX AND NOT APPLE) 
+#if (UNIX AND NOT APPLE) 
   # Clangd - but only on Linux; VS Code can fend for itself
-  set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-  set_source_files_properties(tags PROPERTIES GENERATED true)
-  add_custom_command(OUTPUT tags
-    COMMAND ctags -R --kinds-c++=+p --fields=+iaS --extra=+q . 
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-endif()
+  #set_source_files_properties(tags PROPERTIES GENERATED true)
+  #add_custom_command(OUTPUT tags
+  #  COMMAND ctags -R --kinds-c++=+p --fields=+iaS --extra=+q . 
+  #  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+#endif()
 
 ######################################################################
 # Documentation
