@@ -26,7 +26,7 @@
 #include "AppliedTagList.h"
 #include <QDir>
 #include <QLayout>
-#include "PDebug.h"
+#include "Style.h"
 #include "ShortcutHelp.h"
 #include "Exporter.h"
 #include <QMessageBox>
@@ -52,7 +52,7 @@ MainWindow::MainWindow(SessionDB *db,
   
   adjuster = new LiveAdjuster(db, autocache, this);
 
-  shortcutHelp = new ShortcutHelp(window());
+  shortcutHelp = new ShortcutHelp();
 
   setCentralWidget(lighttable = new LightTable(db, autocache, adjuster,
                                                exporter, this));
@@ -141,6 +141,7 @@ MainWindow::MainWindow(SessionDB *db,
 }
 
 MainWindow::~MainWindow() {
+  delete shortcutHelp;
 }
 
 void MainWindow::scrollToCurrent() {
@@ -154,10 +155,15 @@ void MainWindow::updateImage(quint64 i, Image16 img, quint64 chgid, QSize fs) {
 }
 
 void MainWindow::showShortcutHelp() {
-  shortcutHelp->show();
-  shortcutHelp->resize(shortcutHelp->sizeHint());
-  shortcutHelp->resize(shortcutHelp->sizeHint() + QSize(2, 2));
-  shortcutHelp->resize(shortcutHelp->sizeHint() + QSize(2, 2));
+  ShortcutHelpDialog *dlg = new ShortcutHelpDialog(shortcutHelp, this);
+  dlg->show();
+  dlg->resize(dlg->sizeHint());
+  QApplication::processEvents();
+  dlg->resize(dlg->sizeHint());
+  dlg->setWindowModality(Qt::WindowModal);
+  dlg->setFocus();
+  dlg->exec();
+  delete dlg;
 }
 
 void MainWindow::reportExportResults(QString dst, int nOK, int nFail) {
@@ -374,13 +380,17 @@ void MainWindow::showRedate() {
 void MainWindow::showAbout() {
   QString me = "<b>Photohoard</b>";
   QString vsn = Version::toString();
-  QMessageBox::about(0, "About Photohoard",
-                     me + " " + vsn
-                     + "<p>" + "(C) 2016–2023 Daniel A. Wagenaar\n"
-                     + "<p>" + me + " is a program to organize collections of digital photographs. More information is available at <a href=\"http://www.github.com/wagenadl/photohoard\">github.com/wagenadl/photohoard</a>.\n"
-                     + "<p>" + me + " is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n"
-                     + "<p>" + me + " is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n"
-                     + "<p>" + "You should have received a copy of the GNU General Public License along with this program. If not, see <a href=\"http://www.gnu.org/licenses/gpl-3.0.en.html\">www.gnu.org/licenses/gpl-3.0.en.html</a>.");
+  QString year = QString("%1").arg(Version::buildDate().year());
+  QString title = "About Photohoard";
+  QString text = me + " " + vsn;
+  QString astyle = "style='" + Style::instance()->option("linkstyle") + "'";
+  text += QString("<p>") + "(C) 2016–" + year + " Daniel A. Wagenaar\n"
+          + "<p>" + me + " is a program to organize collections of digital photographs. More information is available at <a " + astyle + " href=\"http://www.github.com/wagenadl/photohoard\">github.com/wagenadl/photohoard</a>.\n"
+          + "<p>" + me + " is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n"
+          + "<p>" + me + " is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n"
+          + "<p>" + "You should have received a copy of the GNU General Public License along with this program. If not, see <a " + astyle + " href=\"http://www.gnu.org/licenses/gpl-3.0.en.html\">www.gnu.org/licenses/gpl-3.0.en.html</a>.";
+  qDebug() << "about" << text;
+  QMessageBox::about(this, title, text);
 }
 
 void MainWindow::databaseInfo() {

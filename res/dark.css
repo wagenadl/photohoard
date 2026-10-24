@@ -1,3 +1,5 @@
+a { color: #44ccff; text-decoration: none }
+
 QWidget {
     font-family: ZalandoSans;
     font-weight: Medium;
@@ -14,7 +16,7 @@ SlideView {
 }
 
 MetaViewer {
-    background-color: #080808;
+    background-color: #282828;
     color: #e0e0e0;
 }
 
@@ -31,7 +33,7 @@ MetaViewer, HistoWidget, AppliedTagList, CropControls, ControlSliders, #layerdia
 
 AppliedTagList {
     color: #e0e0e0;
-    background-color: #000000;
+    background-color: #282828;
 }
 
 AppliedTagEditor {
@@ -50,10 +52,15 @@ QLineEdit {
     background-color: #000000;
 }
 
-QWidget#controlsliders, QWidget#cropcontrol, GentleJog {
+QWidget#controlsliders, QWidget#cropcontrol {
     color: #e0e0e0;
-    background-color: #303030;
+    background-color: #282828;
 }
+
+GentleJog {
+    color: #e0e0e0;
+    background-color: #282828;
+}    
 
 ControlSliders#layoutsliders {
     border-width: 1px;
@@ -64,4 +71,9 @@ QTabWidget:pane {
     border-style: solid;
     border-width: 0;
     border-right-width: 0;
+}
+
+QMenu::item:selected {            /* hovered / keyboard-highlighted */
+    background-color: #3d5fa8;
+    color: white;
 }

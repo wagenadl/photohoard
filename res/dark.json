@@ -4,6 +4,7 @@
   "strip-overtext-shadow": "#000000",
   "strip-overtext": "#ffffff",
   "strip-headertext": "#ffffff",
-  "strip-background": "#202020"
+  "strip-background": "#202020",
+  "linkstyle": "color: #44ccff; text-decoration: none"
 }
 

@@ -19,6 +19,7 @@ public:
   void setDarkMode();
   void setLightMode();
   QString documentStyle() const;
+  QString option(QString name) const;
   QColor color(QString name) const;
   bool isDark() const { return darkmode; }
   QIcon icon(QString name) const;

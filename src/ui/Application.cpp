@@ -5,7 +5,7 @@
 #include <QFile>
 #include "Version.h"
 #include <QFontDatabase>
-//#include <QFileSystemWatcher>
+#include <QFileSystemWatcher>
 #include "Style.h"
 #include <QPalette>
 #include <QStyleHints>
@@ -40,12 +40,12 @@ Application::Application(int &argc, char **argv):
   QApplication(argc, argv) {
   setApplicationName("Photohoard");
   setApplicationVersion(Version::toString());
-  // auto *fsw = new QFileSystemWatcher(this);
-  // fsw->addPath(STYLEPATH);
-  // connect(fsw, &QFileSystemWatcher::fileChanged,
-  //         this, [this]() {
-  //           Style::instance()->setLightMode();
-  //           });
+  auto *fsw = new QFileSystemWatcher(this);
+  fsw->addPath("/home/wagenaar/progs/photohoard/photohoard/res/dark.css");
+  connect(fsw, &QFileSystemWatcher::fileChanged,
+          this, [this]() {
+    Style::instance()->setDarkMode();
+  });
   Qt::ColorScheme scheme = styleHints()->colorScheme();
   if (scheme == Qt::ColorScheme::Unknown)
     scheme = portal_scheme();

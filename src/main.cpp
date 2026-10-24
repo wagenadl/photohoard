@@ -15,6 +15,9 @@
 #include <QCommandLineParser>
 #include "corelib/DateTime.h"
 #include <QSplashScreen>
+#include "Style.h"
+#include <QDeadlineTimer>
+#include <QTimer>
 
 void myMsgHandler(QtMsgType typ, const QMessageLogContext &/*ctxt*/,
                   const QString &msg) {
@@ -28,6 +31,21 @@ int main(int argc, char **argv) {
   qRegisterMetaType<DateTime>();
   Settings settings;
   Application app(argc, argv);
+  qDebug() << "app";
+
+  QDeadlineTimer t0;
+  t0.setRemainingTime(4000);
+  QPixmap pixmap(Style::instance()->isDark() ? ":/banner-dark.png" : ":/banner.png");
+  pixmap.setDevicePixelRatio(2);
+  QSplashScreen splash(pixmap);
+  splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
+  Image16::setHidpiFactor(splash.devicePixelRatio());
+  splash.setFixedSize(pixmap.size() / 2);
+  splash.show();
+  splash.showMessage("");
+  app.processEvents();
+  qDebug() << "splash" << splash.devicePixelRatio() << pixmap.size() << pixmap.devicePixelRatio();
+  
 
   QCommandLineOption cli_db("db", "Specify database to use",
                             "file.photohoard");
@@ -54,15 +72,6 @@ int main(int argc, char **argv) {
   bool newdb = cli.isSet("new");
   bool readonly = cli.isSet("ro");
 
-  QPixmap pixmap(":/banner.png");
-  QSplashScreen splash(pixmap);
-  Image16::setHidpiFactor(splash.devicePixelRatio());
-  splash.setFixedSize(pixmap.size());
-  splash.show();
-  splash.showMessage("");
-  app.processEvents();
-  qDebug() << "splash";
-  
   FileLocations::ensureDataRoot();
   app.processEvents();
 
@@ -83,7 +92,12 @@ int main(int argc, char **argv) {
   app.processEvents();
 
   Session *session = new Session(dbfn, newdb, readonly);
+
+  //  QTimer::singleShot(t0.remainingTimeAsDuration(), [&splash, &session]() {
   splash.finish(session->mainWindow());
+  //});
+  
+//  splash.finish(session->mainWindow());
   if (session->isActive())
     return app.exec();
   else

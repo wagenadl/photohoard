@@ -5,15 +5,21 @@
 #include <QStringList>
 #include <QTextEdit>
 #include <QVBoxLayout>
-#include "Dialog.h"
+#include <qnamespace.h>
+#include "Style.h"
 #include "Version.h"
 
 class SHEditor: public QTextEdit {
 public:
+  SHEditor(QWidget *parent=0): QTextEdit(parent) {
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  }
   QSize sizeHint() const override {
     return document()->size().toSize();
   }
   void setHtml(QString html) {
+    document()->setDefaultStyleSheet(Style::instance()->documentStyle());
     document()->setHtml(html);
     document()->setDocumentMargin(12);
     updateGeometry();
@@ -22,25 +28,14 @@ public:
 
 class SHPrivate {
 public:
-  SHPrivate(ShortcutHelp *parent);
-  void rebuild();
+  SHPrivate();
+  QString html(QFont const &);
 public:
-  QVBoxLayout *layout;
   QStringList sectionNames;
   QList<Actions const *> sectionContents;
-  ShortcutHelp *parent;
-  QString html;
-  SHEditor *editor;
 };
 
-SHPrivate::SHPrivate(ShortcutHelp *parent): parent(parent) {
-  layout = new QVBoxLayout;
-  layout->setContentsMargins(0, 0, 0, 0);
-  editor = new SHEditor;
-  editor->setReadOnly(true);
-  layout->addWidget(editor);
-  parent->setLayout(layout);
-  rebuild();
+SHPrivate::SHPrivate() {
 }
 
 static QString htmlify(QString x) {
@@ -51,17 +46,24 @@ static QString htmlify(QString x) {
   return x;
 }
 
-void SHPrivate::rebuild() {
-  html = "<html><head><style>";
-  html += "";
-  html += "</style></head>\n";
+QString SHPrivate::html(QFont const &f) {
+  qDebug() << "font" << f.family() << f.pointSize() << f.pixelSize();
+  QFontMetrics fm(f);
+  int keywid = fm.boundingRect("Ctl.+Sh.+@xxx").width();
+  int valwid = fm.boundingRect("Decrease value (try Alt, Shift)xxxxxxxx").width();
+  int mulwid = keywid + valwid;
+  QString year = QString("%1").arg(Version::buildDate().year());
+  QString html_;
+  html_ = "<html><head><style>";
+  html_ += "td { margin-right: 10px; }";
+  html_ += "</style></head>\n";
   
-  html += "<body>";
+  html_ += "<body>";
 
-  html += "<h2>Photohoard " + Version::toString() + "</h2>\n";
-  html += "<p>(C) Daniel Wagenaar 2016–2023\n";
+  html_ += "<h2>Photohoard " + Version::toString() + "</h2>\n";
+  html_ += "<p>(C) Daniel Wagenaar 2016–" + year + "\n";
 
-  html += "<h2>Keyboard shortcuts</h2>\n";
+  html_ += "<h2>Keyboard shortcuts</h2>\n";
 
   int N = sectionNames.size();
   
@@ -69,7 +71,7 @@ void SHPrivate::rebuild() {
   QList<int> sectionCounts;
   for (int n=0; n<N; n++) {
     int count = 0;
-    QString html;
+    QString html_;
 
     QList<Action> const &acts(sectionContents[n]->all());
     for (auto a: acts) {
@@ -78,13 +80,13 @@ void SHPrivate::rebuild() {
         continue;
       QString kn = htmlify(a.keyName());
       kn.replace("Ctrl+Shift", "Ctl+Sh.");
-      html += "<tr>";
-      html += "<td width=\"160\">" + kn + "</td>";
-      html += "<td width=\"370\">" + doc + "</td>";
-      html += "</tr>";
+      html_ += "<tr>";
+      html_ += QString("<td width=\"%1\">" + kn + "</td>").arg(keywid);
+      html_ += QString("<td width=\"%1\">" + doc + "</td>").arg(valwid);
+      html_ += "</tr>";
       count ++;
     }
-    sectionCores << html;
+    sectionCores << html_;
     sectionCounts << count;
   }
   QList<int> cumsum;
@@ -94,58 +96,67 @@ void SHPrivate::rebuild() {
     cumsum << cs;
   }
 
-  html += "<table><tr><td width=\"400\">";
-  html += "<table>";
+  html_ += QString("<table><tr><td width=\"%1\">").arg(mulwid);
+  html_ += "<table>";
   int col = 0;
   for (int n=0; n<N; n++) {
     if (n==0 || sectionNames[n]!=sectionNames[n-1])
-      html += "<tr></tr><tr><td colspan=\"2\"><b>" + sectionNames[n] + "</b></td></tr>";
-    html += sectionCores[n];
+      html_ += "<tr></tr><tr><td colspan=\"2\"><b>" + sectionNames[n] + "</b></td></tr>";
+    html_ += sectionCores[n];
     if (cumsum[n]>cs*(col+1)/3) {
       col++;
-      html += "</table>";
-      html += "</td><td width=\"400\">";
-      html += "<table>";
+      html_ += "</table>";
+      html_ += QString("</td><td width=\"%1\">").arg(mulwid);
+      html_ += "<table>";
     }
   }
-  html += "</table>";
-  html += "</td></tr></table>";
+  html_ += "</table>";
+  html_ += "</td></tr></table>";
 
-  html += "<h2>More information</h2>";
-  html += "Full documentation is available at <a href=\"https://photohoard.readthedocs.io\">photohoard.readthedocs.io</a>.";
+  html_ += "<h2>More information</h2>";
+  html_ += "Full documentation is available at <a href=\"https://photohoard.readthedocs.io\">photohoard.readthedocs.io</a>.";
 
-  html += "<p><b>License terms</b>";
+  html_ += "<p><b>License terms</b>";
 
-  html += "<p><small>Photohoard is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.<br>\n";
-  html += "Photohoard is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.<br>\n";
-  html += "You should have received a copy of the GNU General Public License along with this program. If not, see www.gnu.org/licenses/gpl-3.0.en.html.\n";
-  html += "</body></html>\n";
-
-  editor->setHtml(html);
+  html_ += "<p><small>Photohoard is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.<br>\n";
+  html_ += "Photohoard is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.<br>\n";
+  html_ += "You should have received a copy of the GNU General Public License along with this program. If not, see www.gnu.org/licenses/gpl-3.0.en.html.\n";
+  html_ += "</body></html>\n";
+  return html_;
 }
 
 //////////////////////////////////////////////////////////////////////
 
-ShortcutHelp::ShortcutHelp(QWidget *parent): QDialog(parent) {
-  d = new SHPrivate(this);
-  setWindowTitle("Photohoard Help");
-  //hide();
+ShortcutHelp::ShortcutHelp() { d = new SHPrivate(); }
+
+ShortcutHelp::~ShortcutHelp() { delete d; }
+
+QString ShortcutHelp::html(QFont const &f) const {
+  return d->html(f);
 }
 
-ShortcutHelp::~ShortcutHelp() {
-  delete d;
+ShortcutHelpDialog::ShortcutHelpDialog(ShortcutHelp *data, QWidget *parent):
+  QDialog(parent) {
+  layout = new QVBoxLayout;
+  layout->setContentsMargins(0, 0, 0, 0);
+  editor = new SHEditor;
+  editor->setHtml(data->html(font()));
+  editor->setReadOnly(true);
+  layout->addWidget(editor);
+  setLayout(layout);
 }
 
+ShortcutHelpDialog::~ShortcutHelpDialog() {}
+
+QSize ShortcutHelpDialog::sizeHint() const {
+  return editor->sizeHint() + QSize(4, 4);
+}
+    
 void ShortcutHelp::addSection(QString label, Actions const &contents) {
   d->sectionNames << label;
   d->sectionContents << &contents;
-  d->rebuild();
 }
 
-QSize ShortcutHelp::sizeHint() const {
-  return QWidget::sizeHint();
-}
-
-void ShortcutHelp::resizeEvent(QResizeEvent *) {
-  d->rebuild();
+void ShortcutHelpDialog::focusOutEvent(QFocusEvent *) {
+  close();
 }

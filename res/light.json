@@ -4,5 +4,6 @@
   "strip-overtext-shadow": "#000000",
   "strip-overtext": "#ffffff",
   "strip-headertext": "#000000",
-  "strip-background": "#c0c0c0"
+  "strip-background": "#c0c0c0",
+  "linkstyle": "color: #0044ff; text-decoration: none"
 }

@@ -6,16 +6,27 @@
 
 #include <QDialog>
 
-class ShortcutHelp: public QDialog {
+class ShortcutHelp {
 public:
-  ShortcutHelp(QWidget *parent=0);
+  ShortcutHelp();
   ~ShortcutHelp();
   void addSection(QString label, class Actions const &contents);
-  QSize sizeHint() const override;
-protected:
-  virtual void resizeEvent(QResizeEvent *);
+  QString html(QFont const &) const;
 private:
   class SHPrivate *d;
+};
+
+
+class ShortcutHelpDialog: public QDialog {
+public:
+  ShortcutHelpDialog(ShortcutHelp *data, QWidget *parent);
+  ~ShortcutHelpDialog();
+  QSize sizeHint() const override;
+protected:
+  void focusOutEvent(QFocusEvent *) override;
+private:
+  class QVBoxLayout *layout;
+  class SHEditor *editor;
 };
 
 #endif

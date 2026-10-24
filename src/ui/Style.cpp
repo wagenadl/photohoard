@@ -27,7 +27,8 @@ void Style::setLightMode() {
 }
 
 void Style::updateAppStyle() {
-  QFile f(darkmode ? ":dark.css" : ":light.css");
+  //  QFile f(darkmode ? ":dark.css" : ":light.css");
+  QFile f(darkmode ? "/home/wagenaar/progs/photohoard/photohoard/res/dark.css" : ":light.css");
   ASSERT(f.open(QFile::ReadOnly));
   QApplication *app
     = dynamic_cast<QApplication *>(QApplication::instance());
@@ -52,6 +53,11 @@ QString Style::documentStyle() const {
   return docstyle;
 }
   
+QString Style::option(QString name) const {
+  QString x = options[name].toString();
+  return x;
+}
+
 QColor Style::color(QString name) const {
   QString x = options[name].toString();
   return QColor(x);

@@ -18,6 +18,8 @@ ExportDialog::ExportDialog(bool now, QWidget *parent):
   else
     ui->bExport->hide();
   do_export = false;
+  setWindowFlags(Qt::WindowStaysOnTopHint);
+  setWindowModality(Qt::WindowModal);
 }
 
 ExportDialog::~ExportDialog() {

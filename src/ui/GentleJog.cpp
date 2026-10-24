@@ -187,26 +187,32 @@ void GentleJog::renderJog(QStylePainter *p) {
   QRect r0 = contentsRect();
   int y0 = r0.center().y();
   QPen pen(p->pen());
-  QColor c0(palette().color(QPalette::Normal, QPalette::BrightText)); // white
-  QColor c1(palette().color(QPalette::Normal, QPalette::WindowText)); // black
-  QColor c(c0);
-  c.setAlpha(96);
-  pen.setColor(c);
-  pen.setWidth(5);
-  p->setPen(pen);
-  p->drawLine(jogminx - 2, y0, jogmaxx + 2, y0);
-  pen.setWidth(3);
-  p->setPen(pen);
-  p->drawLine(jogminx - 2, y0, jogmaxx + 2, y0);
+  //QColor c0(palette().color(QPalette::Normal, QPalette::BrightText)); // white
+  //QColor c1(palette().color(QPalette::Normal, QPalette::WindowText)); // black
+  //QColor c(c0);
+  QColor c_shadow = pen.color();
+  QColor c_line_light = pen.color().lighter();
+  QColor c_line_dark = pen.color().darker();
+  QColor c_circle = pen.color();
+  c_shadow.setAlpha(64);
+  c_line_light.setAlpha(64);
+  c_line_dark.setAlpha(64);
+  //pen.setColor(c_shadow);
+  //pen.setWidth(5);
+  //p->setPen(pen);
+  //p->drawLine(jogminx - 2, y0, jogmaxx + 2, y0);
+  //pen.setWidth(3);
+  //p->setPen(pen);
+  //p->drawLine(jogminx - 2, y0, jogmaxx + 2, y0);
 
-  pen.setColor(c0);
-  pen.setWidth(1);
+  pen.setColor(c_line_light);
+  pen.setWidth(2);
   p->setPen(pen);
   p->drawLine(jogminx - 1, y0+1, jogmaxx + 3, y0+1);
-  pen.setColor(c1);
-  pen.setWidth(1);
+  pen.setColor(c_line_dark);
+  pen.setWidth(2);
   p->setPen(pen);
-  p->drawLine(jogminx - 2, y0, jogmaxx + 2, y0);
+  p->drawLine(jogminx - 2, y0-1, jogmaxx + 2, y0-1);
   
   int x = jogx;
   if (x<jogminx)
@@ -214,17 +220,13 @@ void GentleJog::renderJog(QStylePainter *p) {
   else if (x>jogmaxx)
     x = jogmaxx;
 
-  pen.setColor(c);
-  pen.setWidth(2);
-  p->setPen(pen);
-  p->drawEllipse(QPoint(x, y0), jogr, jogr);
-  QBrush b(palette().color(QPalette::Normal, QPalette::WindowText));
+  //pen.setColor(c_circle);
+  //pen.setWidth(2);
+  //p->setPen(pen);
+  //p->drawEllipse(QPoint(x, y0), jogr, jogr);
+  QBrush b(c_circle); //palette().color(QPalette::Normal, QPalette::WindowText));
   p->setBrush(b);
-  if (!p->isActive())
-    COMPLAIN("Painter not active in GentleJog.cpp");
-  pen.setColor(c0);
-  pen.setWidth(1);
-  p->setPen(pen);
+  p->setPen(Qt::NoPen);
   p->drawEllipse(QPoint(x, y0), jogr, jogr);
 }
 

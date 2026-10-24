@@ -9,7 +9,8 @@
     <file alias="light.json">../res/light.json</file>
     <file alias="darkdoc.css">../res/darkdoc.css</file>
     <file alias="lightdoc.css">../res/lightdoc.css</file>
-    <file alias="banner.png">../docs/source/banner.png</file>
+    <file alias="banner.png">../res/banner.png</file>
+    <file alias="banner-dark.png">../res/banner-dark.png</file>
     <!-- SQL CODE -->
     <file alias="setupcache.sql">../res/setupcache.sql</file>
     <file alias="setupdb.sql">../res/setupdb.sql</file>
