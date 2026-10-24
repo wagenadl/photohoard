@@ -1,14 +1,12 @@
 // FilterDialog.cpp
 
 #include "FilterDialog.h"
-#include "PDebug.h"
 #include "ui_FilterDialog.h"
 #include "Filter.h"
 #include "SessionDB.h"
 #include "Tags.h"
 #include "TagDialog.h"
 #include "Dialog.h"
-#include <algorithm>
 
 QString const noneLabel = "(none)";
 
@@ -18,7 +16,11 @@ FilterDialog::FilterDialog(SessionDB *db, QWidget *parent):
   ui = new Ui_FilterDialog();
   ui->setupUi(this);
   starting = false;
+  //setModal(true);
+  setWindowFlags(Qt::WindowStaysOnTopHint);
+  setWindowModality(Qt::WindowModal);
   Dialog::ensureSize(this);
+  hide();
 }
 
 void FilterDialog::prepCombos() {
