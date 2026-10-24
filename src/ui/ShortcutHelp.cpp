@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QTextEdit>
 #include <QVBoxLayout>
-#include "PDebug.h"
+#include "Dialog.h"
 #include "Version.h"
 
 class SHEditor: public QTextEdit {
@@ -126,9 +126,10 @@ void SHPrivate::rebuild() {
 
 //////////////////////////////////////////////////////////////////////
 
-ShortcutHelp::ShortcutHelp(QWidget *parent): QWidget(parent) {
+ShortcutHelp::ShortcutHelp(QWidget *parent): QDialog(parent) {
   d = new SHPrivate(this);
   setWindowTitle("Photohoard Help");
+  //hide();
 }
 
 ShortcutHelp::~ShortcutHelp() {

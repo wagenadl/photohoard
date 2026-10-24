@@ -4,9 +4,9 @@
 
 #define SHORTCUTHELP_H
 
-#include <QWidget>
+#include <QDialog>
 
-class ShortcutHelp: public QWidget {
+class ShortcutHelp: public QDialog {
 public:
   ShortcutHelp(QWidget *parent=0);
   ~ShortcutHelp();
