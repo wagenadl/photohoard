@@ -9,6 +9,7 @@
 #include "Layers.h"
 #include "PDebug.h"
 #include <QVBoxLayout>
+#include "Style.h"
 
 AllControls::AllControls(PhotoDB *db, QWidget *parent):
   QTabWidget(parent), db(db) {
@@ -17,12 +18,12 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
   bool ro = db->isReadOnly();
   
   sliders = new ControlSliders(ro);
-  addTab(sliders, QIcon(":/icons/sliders.svg"), "Base");
+  addTab(sliders, Style::instance()->icon("sliders"), "Base");
   connect(sliders, SIGNAL(valuesChanged()),
 	  SLOT(changeFromSliders()));
 
   cropper = new CropControls();
-  addTab(cropper, QIcon(":/icons/crop.svg"), "Crop");
+  addTab(cropper, Style::instance()->icon("crop"), "Crop");
   connect(cropper, SIGNAL(rectangleChanged(QRect, QSize)),
           SLOT(changeFromCropper(QRect, QSize)));
   if (ro) 
@@ -35,7 +36,7 @@ AllControls::AllControls(PhotoDB *db, QWidget *parent):
   sa->setObjectName("layerdialog");
   layers = new LayerDialog(db);
   lay->addWidget(layers);
-  addTab(sa, QIcon(":/icons/layers.svg"), "Layers");
+  addTab(sa, Style::instance()->icon("layers"), "Layers");
   connect(layers, SIGNAL(layerSelected(int)),
 	  SLOT(layerIndexChange(int)));
   connect(layers, SIGNAL(maskEdited(int)),

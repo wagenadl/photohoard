@@ -35,6 +35,7 @@ StatusBar::StatusBar(PhotoDB *db, QWidget *parent): QFrame(parent) {
   setContentsMargins(3, 0, 3, 0);
   QFontMetrics m(font());
   d->height = m.boundingRect("(0g)").height();
+  setAutoFillBackground(true);
 }
 
 QSize StatusBar::sizeHint() const {
@@ -69,12 +70,12 @@ void StatusBar::removeMessage() {
 void StatusBar::paintEvent(QPaintEvent *) {
   QRect r = contentsRect();
   QPainter p(this);
-  p.setBrush(QColor("#eeeeee"));
+  //p.setBrush(QColor("#eeeeee"));
   if (!p.isActive())
     COMPLAIN("Painter not active");
-  p.setPen(QPen(Qt::NoPen));
-  p.drawRect(r);
-  p.setPen(QPen("#000000"));
+  //p.setPen(QPen(Qt::NoPen));
+  //p.drawRect(r);
+  //p.setPen(QPen("#000000"));
   if (d->zoom>0 && d->zoom<1e5)
     p.drawText(r, Qt::AlignVCenter | Qt::AlignRight,
                QString("%1%").arg(round(d->zoom*100)));

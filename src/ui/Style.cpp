@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QJsonDocument>
 #include "Slide.h"
+#include <QIcon>
 
 Style *Style::instance() {
   static Style style;
@@ -54,4 +55,14 @@ QString Style::documentStyle() const {
 QColor Style::color(QString name) const {
   QString x = options[name].toString();
   return QColor(x);
+}
+
+QIcon Style::icon(QString name) const {
+  if (darkmode) {
+    QString darkfile = QString(":icons/%1-dark.svg").arg(name);
+    if (QFile::exists(darkfile))
+      return QIcon(darkfile);
+  }
+  QString lightfile = QString(":icons/%1.svg").arg(name);
+  return QIcon(lightfile);
 }

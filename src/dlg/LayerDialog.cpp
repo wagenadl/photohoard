@@ -9,11 +9,12 @@
 #include <QTableWidgetSelectionRange>
 #include "Dialog.h"
 #include "ControlSliders.h"
+#include "Style.h"
 
 static QIcon eyeIcon(bool onoff) {
   return onoff
-    ? QIcon(":icons/eye-regular.svg")
-    : QIcon(":icons/eye-slash-regular.svg");
+         ? Style::instance()->icon("eye-regular")
+         : Style::instance()->icon("eye-slash-regular");
 }
 
 LayerDialog::LayerDialog(PhotoDB *db, QWidget *parent):

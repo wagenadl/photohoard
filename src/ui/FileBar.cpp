@@ -11,6 +11,7 @@
 #include <QDir>
 #include "MainWindow.h"
 #include "SliderClipboard.h"
+#include "Style.h"
 
 FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
                  Scanner *scanner, MainWindow *parent): ActionBar(parent) {
@@ -30,23 +31,23 @@ FileBar::FileBar(SessionDB *db, AutoCache *ac, Exporter *exporter,
           }
 	}
       }};
-    new PAction(acts.last(), QIcon(":icons/folderAdd.svg"), this);
+    new PAction(acts.last(), Style::instance()->icon("folderAdd"), this);
     
     acts << Action{Qt::CTRL | Qt::Key_R, "Rescan folders",
 	[=]() { scanner->rescanAll(); }};
-    new PAction(acts.last(), QIcon(":icons/rescan.svg"), this);
+    new PAction(acts.last(), Style::instance()->icon("rescan"), this);
     
     acts << Action{Qt::CTRL | Qt::Key_I, "Import from camera or card",
 	[db, scanner, parent]() { ImportGUI::clickImportButton(db, scanner,
                                                                parent); }};
-    new PAction(acts.last(), QIcon(":icons/cameraImport.svg"), this);
+    new PAction(acts.last(), Style::instance()->icon("cameraImport"), this);
   }
   
   acts << Action{Qt::CTRL | Qt::SHIFT | Qt::Key_E, "Export dialog",
       [exporter, this]() {
         ExportDialog::standalone(exporter, true, window());
     }};
-  new PAction(acts.last(), QIcon(":icons/export.svg"), this);
+  new PAction(acts.last(), Style::instance()->icon("export"), this);
 
   acts << Action{Qt::CTRL | Qt::Key_E, "Export more images",
       [exporter, this]() {

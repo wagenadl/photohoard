@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include "PDebug.h"
+#include "Style.h"
 
 AppliedTagWidget::AppliedTagWidget(int id, QString name, bool ro,
 				   QWidget *parent):
@@ -67,10 +68,11 @@ QRect AppliedTagWidget::addButtonPlace() const {
 
 
 void AppliedTagWidget::paintEvent(QPaintEvent *) {
+  bool isdark = Style::instance()->isDark();
   QPainter p(this);
   
   if (inall)
-    p.setPen(QColor("#000000"));
+    p.setPen(isdark ? QColor("#ffffff") : QColor("#000000"));
   //else if (incur)
   //    p.setPen(QColor("#883300"));
   else
@@ -82,19 +84,19 @@ void AppliedTagWidget::paintEvent(QPaintEvent *) {
     // draw + and - buttons
     if (!inall) {
       QRect r = addButtonPlace();
-      p.setBrush(QBrush("#66ff66"));
-      p.setPen(QPen("#ffffff"));
+      p.setBrush(isdark ? QBrush("#008800") : QBrush("#66ff66"));
+      p.setPen(isdark ? QColor("#000000") : QColor("#ffffff"));
       p.drawEllipse(r);
-      p.setPen(QPen("#000000"));
+      p.setPen(isdark ? QColor("#ffffff") : QColor("#000000"));
       p.drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, "+");
     }
     
     QRect r = removeButtonPlace();
-    QColor rmc = QColor("#ff6666");
-    p.setPen(QPen("#ffffff"));
+    QColor rmc = isdark ? QColor("#880000") : QColor("#ff6666");
+    p.setPen(isdark ? QColor("#000000") : QColor("#ffffff"));
     p.setBrush(rmc);
     p.drawEllipse(r);
-    p.setPen(QPen("#000000"));
+    p.setPen(isdark ? QColor("#ffffff") : QColor("#000000"));
     p.drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, QString::fromUtf8("−"));
   }
   if (!p.isActive())

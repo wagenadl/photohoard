@@ -55,6 +55,12 @@ if(HAVE_X11_INCLUDES AND HAVE_X11_LIBRARY)
   add_compile_definitions(HAVE_X11)
   target_link_libraries(photohoard X11)
 endif()
+
+if(UNIX AND NOT APPLE AND NOT ANDROID)
+    find_package(Qt6 REQUIRED COMPONENTS DBus)
+    target_link_libraries(photohoard Qt6::DBus)
+endif()
+
 ######################################################################
 # DEBUG VERSION
 #set(CMAKE_BUILD_TYPE DEBUG)

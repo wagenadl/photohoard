@@ -2,6 +2,8 @@ QWidget {
     font-family: ZalandoSans;
     font-weight: Medium;
     font-size: 10pt;
+    background-color: #282828;
+    color: #e0e0e0;
 }
 
 SlideView {

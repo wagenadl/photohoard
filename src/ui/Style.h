@@ -21,6 +21,7 @@ public:
   QString documentStyle() const;
   QColor color(QString name) const;
   bool isDark() const { return darkmode; }
+  QIcon icon(QString name) const;
 private:
   void updateAppStyle();
 private:

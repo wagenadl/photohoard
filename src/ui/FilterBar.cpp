@@ -7,6 +7,7 @@
 #include "PDebug.h"
 #include "LightTable.h"
 #include "MainWindow.h"
+#include "Style.h"
 #include <QCursor>
 
 FilterBar::FilterBar(LightTable *lighttable, QMenu *menu, MainWindow *parent):
@@ -15,7 +16,7 @@ FilterBar::FilterBar(LightTable *lighttable, QMenu *menu, MainWindow *parent):
 
   acts << Action{Qt::CTRL | Qt::Key_F, "Filter",
                     [=]() { lighttable->openFilterDialog(); }};
-  new PAction{acts.last(), QIcon(":icons/search.svg"), this};
+  new PAction{acts.last(), Style::instance()->icon("search"), this};
 
 //  acts << Action{Qt::CTRL | Qt::Key_H, "Help",
 //                    [=]() { parent->showShortcutHelp(); }};
@@ -25,7 +26,7 @@ FilterBar::FilterBar(LightTable *lighttable, QMenu *menu, MainWindow *parent):
       [menu]() {
         menu->move(QCursor::pos() - QPoint(100, -10));
         menu->show(); }};
-  PAction *amenu = new PAction{acts.last(), QIcon(":icons/menu.svg"), this};
+  PAction *amenu = new PAction{acts.last(), Style::instance()->icon("menu"), this};
   //amenu->setMenu(menu);
   
 }

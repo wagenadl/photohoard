@@ -8,6 +8,7 @@
 #include <QFontMetrics>
 #include "PDebug.h"
 #include <QPainter>
+#include "Style.h"
 
 AppliedTagEditor::AppliedTagEditor(PhotoDB *db, QWidget *parent):
   QFrame(parent), tags(db) {
@@ -17,7 +18,7 @@ AppliedTagEditor::AppliedTagEditor(PhotoDB *db, QWidget *parent):
   cursorpos = 0;
   selend = -1;
   setAutoFillBackground(true);
-  setToolTip("Type a tag to apply.\nHierarchical tags can be specified with min:uniq:abbrev, or even min::abbr.\nTag is shown green if it exists and is uniquely defined; black if it exists but is not unique; red if it does not exist.");
+  setToolTip("Type a tag to apply.\nHierarchical tags can be specified with min:uniq:abbrev, or even min::abbr.\nTag is shown green if it exists and is uniquely defined; black/white if it exists but is not unique; red if it does not exist.");
 }
 
 QString AppliedTagEditor::text() const {
@@ -214,8 +215,9 @@ QSize AppliedTagEditor::minimumSizeHint() const {
 }
 
 
-  
+
 void AppliedTagEditor::paintEvent(QPaintEvent *) {
+  bool isdark = Style::instance()->isDark();
   QRect r = contentsRect();
   QPainter p(this);
   if (selend>=0) {
@@ -224,7 +226,7 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
     int l1 = fm.horizontalAdvance(txt, selectionEnd());
     QRect sel = QRect(r.topLeft() + QPoint(l, 0),
 		      r.bottomLeft() + QPoint(l1, 0));
-    p.setBrush(QColor("#888800"));
+    p.setBrush(isdark ? QColor("#cccc00") : QColor("#888800"));
     p.drawRect(sel);
   }
   p.setBrush(QBrush(Qt::NoBrush));
@@ -234,11 +236,11 @@ void AppliedTagEditor::paintEvent(QPaintEvent *) {
     int l = fm.horizontalAdvance(txt, cursorpos);
     QRect rl(r.topLeft() + QPoint(l-1, 0),
 	     r.bottomLeft() + QPoint(l+1, 0));
-    p.setPen(QColor("#440000")) ;
+    p.setPen(isdark ? QColor("#ffcccc") : QColor("#440000")) ;
     p.drawText(rl, Qt::AlignHCenter | Qt::AlignVCenter, "|");
   } else {
     if (txt.isEmpty()) {
-      p.setPen(QColor("#444444"));
+      p.setPen(isdark ? QColor("#cccccc") : QColor("#444444"));
       QFont f = p.font();
       f.setItalic(true);
       p.setFont(f);
@@ -255,15 +257,16 @@ void AppliedTagEditor::drawText(QPainter &p) {
   if (txt.isEmpty())
     return;
   QSet<int> ids = tags.smartFindAll(txt);
+  bool isdark = Style::instance()->isDark();
   if (ids.isEmpty()) {
     if (tags.couldBeNew(txt))
-      p.setPen(QColor("#660000"));
+      p.setPen(isdark ? QColor("#ffaaaa") : QColor("#660000"));
     else
-      p.setPen(QColor("#ff0000"));
+      p.setPen(isdark ? QColor("#ff44444") : QColor("#ff0000"));
   } else if (ids.size()==1) {
-    p.setPen(QColor("#00cc00"));
+    p.setPen(isdark ? QColor("#33ff33") : QColor("#00cc00"));
   } else {
-    p.setPen(QColor("#000000"));
+    p.setPen(isdark ? QColor("#ffffff") : QColor("#000000"));
   }
   p.drawText(contentsRect(), Qt::AlignLeft | Qt::AlignVCenter, txt);
 }  
