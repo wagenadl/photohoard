@@ -16,7 +16,7 @@ constexpr int SLIDEMARGINS = 8;
 QColor Slide::bgcolor("#c0c0c0");
 
 void Slide::updatePalette() {
-  qDebug() << "updatepalette";
+  qDebug() << "slide::updatepalette";
   bgcolor = Style::instance()->color("strip-slide");
 }
 
@@ -153,7 +153,6 @@ void Slide::paint(QPainter *painter,
   int ims = tilesize - SLIDEMARGINS;
   int factor = Image16::hidpiFactor();
   ims *= factor;
-  qDebug() << "slide" << ims << pm.size();
   if (!(pm.width()==ims || pm.height()==ims)) {
     if (img.isNull()) {
       painter->setPen(QPen(QColor(255, 255, 255)));
